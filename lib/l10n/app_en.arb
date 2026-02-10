@@ -1,0 +1,619 @@
+{
+  "@@locale": "en",
+  "appTitle": "LearnWise TTS",
+  "@appTitle": {
+    "description": "Application title used by MaterialApp."
+  },
+  "dashboardTitle": "LearnWise Dashboard",
+  "@dashboardTitle": {
+    "description": "Dashboard app bar title."
+  },
+  "dashboardLoadingLabel": "Loading dashboard...",
+  "@dashboardLoadingLabel": {
+    "description": "Loading label for dashboard screen."
+  },
+  "dashboardErrorTitle": "Unable to load dashboard",
+  "@dashboardErrorTitle": {
+    "description": "Dashboard load error title."
+  },
+  "dashboardErrorDescription": "Please pull to refresh or try again.",
+  "@dashboardErrorDescription": {
+    "description": "Dashboard load error description."
+  },
+  "dashboardRetryLabel": "Try again",
+  "@dashboardRetryLabel": {
+    "description": "Retry button label on dashboard error state."
+  },
+  "dashboardGreeting": "Hello, {name}",
+  "@dashboardGreeting": {
+    "description": "Greeting text in dashboard hero section.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardHeroHeadline": "Build your daily learning rhythm",
+  "@dashboardHeroHeadline": {
+    "description": "Headline text in dashboard hero section."
+  },
+  "dashboardStreakLabel": "Streak",
+  "@dashboardStreakLabel": {
+    "description": "Streak label in dashboard hero stats."
+  },
+  "dashboardStreakValue": "{days} days",
+  "@dashboardStreakValue": {
+    "description": "Streak value with day count.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardGoalProgressLabel": "Today focus",
+  "@dashboardGoalProgressLabel": {
+    "description": "Focus label in dashboard hero stats."
+  },
+  "dashboardFocusCountLabel": "{count} cards",
+  "@dashboardFocusCountLabel": {
+    "description": "Focus card count in dashboard.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardOverviewTitle": "Overview",
+  "@dashboardOverviewTitle": {
+    "description": "Dashboard overview section title."
+  },
+  "dashboardMetricStudyMinutesLabel": "Study time",
+  "@dashboardMetricStudyMinutesLabel": {
+    "description": "Metric title for study minutes."
+  },
+  "dashboardMetricWordsMasteredLabel": "Words mastered",
+  "@dashboardMetricWordsMasteredLabel": {
+    "description": "Metric title for mastered words."
+  },
+  "dashboardMetricWeeklyGoalLabel": "Weekly goal",
+  "@dashboardMetricWeeklyGoalLabel": {
+    "description": "Metric title for weekly goal."
+  },
+  "dashboardMetricMinutesValue": "{minutes} min",
+  "@dashboardMetricMinutesValue": {
+    "description": "Metric value text for minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMetricWordsValue": "{words} words",
+  "@dashboardMetricWordsValue": {
+    "description": "Metric value text for words.",
+    "placeholders": {
+      "words": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMetricGoalValue": "{done}/{target} sessions",
+  "@dashboardMetricGoalValue": {
+    "description": "Metric value text for weekly goal.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardQuickActionsTitle": "Quick actions",
+  "@dashboardQuickActionsTitle": {
+    "description": "Quick actions section title."
+  },
+  "dashboardActionLearning": "Start learning",
+  "@dashboardActionLearning": {
+    "description": "Quick action label for learning screen."
+  },
+  "dashboardActionProgress": "Open progress",
+  "@dashboardActionProgress": {
+    "description": "Quick action label for progress screen."
+  },
+  "dashboardActionTts": "Open TTS lab",
+  "@dashboardActionTts": {
+    "description": "Quick action label for TTS screen."
+  },
+  "dashboardTodayFocusTitle": "Today focus",
+  "@dashboardTodayFocusTitle": {
+    "description": "Today focus section title."
+  },
+  "dashboardRecentTitle": "Recent activity",
+  "@dashboardRecentTitle": {
+    "description": "Recent activity section title."
+  },
+  "dashboardRecentStudyCompleted": "Completed a focused study block",
+  "@dashboardRecentStudyCompleted": {
+    "description": "Recent activity text for study completion."
+  },
+  "dashboardRecentProgressUpdated": "Updated weekly progress plan",
+  "@dashboardRecentProgressUpdated": {
+    "description": "Recent activity text for progress update."
+  },
+  "dashboardRecentTtsPracticed": "Practiced pronunciation with TTS",
+  "@dashboardRecentTtsPracticed": {
+    "description": "Recent activity text for TTS practice."
+  },
+  "dashboardNavHome": "Dashboard",
+  "@dashboardNavHome": {
+    "description": "Bottom navigation label for dashboard tab."
+  },
+  "dashboardNavFolders": "Folders",
+  "@dashboardNavFolders": {
+    "description": "Bottom navigation label for folders tab."
+  },
+  "foldersTitle": "Folder Manager",
+  "@foldersTitle": {
+    "description": "App bar title for folder management screen."
+  },
+  "foldersRefreshTooltip": "Refresh folders",
+  "@foldersRefreshTooltip": {
+    "description": "Tooltip for folder refresh action."
+  },
+  "foldersLoadingLabel": "Loading folders...",
+  "@foldersLoadingLabel": {
+    "description": "Loading state message on folder screen."
+  },
+  "foldersErrorTitle": "Unable to load folders",
+  "@foldersErrorTitle": {
+    "description": "Error title on folder screen."
+  },
+  "foldersErrorDescription": "Please refresh and try again.",
+  "@foldersErrorDescription": {
+    "description": "Error description on folder screen."
+  },
+  "foldersRetryLabel": "Retry",
+  "@foldersRetryLabel": {
+    "description": "Retry button label for folder load error."
+  },
+  "foldersHeroTitle": "Organize your learning folders",
+  "@foldersHeroTitle": {
+    "description": "Hero card title on folder screen."
+  },
+  "foldersHeroDescription": "Create, update, and manage focused collections for your study goals.",
+  "@foldersHeroDescription": {
+    "description": "Hero card description on folder screen."
+  },
+  "foldersCreateButton": "New folder",
+  "@foldersCreateButton": {
+    "description": "Button label to create a new folder."
+  },
+  "foldersEmptyTitle": "No folders yet",
+  "@foldersEmptyTitle": {
+    "description": "Empty state title on folder screen."
+  },
+  "foldersEmptyDescription": "Create your first folder to structure topics and cards.",
+  "@foldersEmptyDescription": {
+    "description": "Empty state description on folder screen."
+  },
+  "foldersCreateDialogTitle": "Create folder",
+  "@foldersCreateDialogTitle": {
+    "description": "Dialog title for creating folder."
+  },
+  "foldersEditDialogTitle": "Edit folder",
+  "@foldersEditDialogTitle": {
+    "description": "Dialog title for editing folder."
+  },
+  "foldersNameLabel": "Folder name",
+  "@foldersNameLabel": {
+    "description": "Label for folder name input."
+  },
+  "foldersNameHint": "Example: TOEIC Week 1",
+  "@foldersNameHint": {
+    "description": "Hint for folder name input."
+  },
+  "foldersDescriptionLabel": "Description",
+  "@foldersDescriptionLabel": {
+    "description": "Label for folder description input."
+  },
+  "foldersDescriptionHint": "Describe this folder focus",
+  "@foldersDescriptionHint": {
+    "description": "Hint for folder description input."
+  },
+  "foldersColorLabel": "Folder color",
+  "@foldersColorLabel": {
+    "description": "Label for folder color palette."
+  },
+  "foldersSearchHint": "Search folders by name or description",
+  "@foldersSearchHint": {
+    "description": "Hint for folder search input."
+  },
+  "foldersSortByLabel": "Sort by",
+  "@foldersSortByLabel": {
+    "description": "Label for sort by selector."
+  },
+  "foldersSortByUpdatedAt": "Last updated",
+  "@foldersSortByUpdatedAt": {
+    "description": "Sort option for updated time."
+  },
+  "foldersSortByCreatedAt": "Created time",
+  "@foldersSortByCreatedAt": {
+    "description": "Sort option for created time."
+  },
+  "foldersSortByName": "Folder name",
+  "@foldersSortByName": {
+    "description": "Sort option for folder name."
+  },
+  "foldersSortByFlashcardCount": "Flashcard count",
+  "@foldersSortByFlashcardCount": {
+    "description": "Sort option for aggregate flashcard count."
+  },
+  "foldersSortDirectionDesc": "Descending",
+  "@foldersSortDirectionDesc": {
+    "description": "Sort direction descending label."
+  },
+  "foldersSortDirectionAsc": "Ascending",
+  "@foldersSortDirectionAsc": {
+    "description": "Sort direction ascending label."
+  },
+  "foldersViewActiveLabel": "Active",
+  "@foldersViewActiveLabel": {
+    "description": "Folder view mode label for active folders."
+  },
+  "foldersViewTrashLabel": "Trash",
+  "@foldersViewTrashLabel": {
+    "description": "Folder view mode label for deleted folders."
+  },
+  "foldersPagingLabel": "Page {page}/{totalPages} · {totalItems} folders",
+  "@foldersPagingLabel": {
+    "description": "Paging summary on folder screen.",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "totalPages": {
+        "type": "int"
+      },
+      "totalItems": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersPreviousPageTooltip": "Previous page",
+  "@foldersPreviousPageTooltip": {
+    "description": "Tooltip for previous page action."
+  },
+  "foldersNextPageTooltip": "Next page",
+  "@foldersNextPageTooltip": {
+    "description": "Tooltip for next page action."
+  },
+  "foldersAuditLabel": "Updated by: {actor}",
+  "@foldersAuditLabel": {
+    "description": "Audit label showing last updater.",
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersCancelLabel": "Cancel",
+  "@foldersCancelLabel": {
+    "description": "Cancel action label in folder dialogs."
+  },
+  "foldersSaveLabel": "Save",
+  "@foldersSaveLabel": {
+    "description": "Save action label in create folder dialog."
+  },
+  "foldersUpdateLabel": "Update",
+  "@foldersUpdateLabel": {
+    "description": "Update action label in edit folder dialog."
+  },
+  "foldersDeleteDialogTitle": "Delete folder",
+  "@foldersDeleteDialogTitle": {
+    "description": "Dialog title for deleting folder."
+  },
+  "foldersDeleteDialogMessage": "Delete \"{folderName}\"? This action cannot be undone.",
+  "@foldersDeleteDialogMessage": {
+    "description": "Dialog message for deleting folder.",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersDeleteConfirmLabel": "Delete",
+  "@foldersDeleteConfirmLabel": {
+    "description": "Delete action label in delete dialog."
+  },
+  "foldersNoDescriptionLabel": "No description provided.",
+  "@foldersNoDescriptionLabel": {
+    "description": "Fallback text when folder description is empty."
+  },
+  "foldersColorCodeLabel": "Color: {colorHex}",
+  "@foldersColorCodeLabel": {
+    "description": "Label showing folder color code.",
+    "placeholders": {
+      "colorHex": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersFlashcardCountLabel": "{count} flashcards",
+  "@foldersFlashcardCountLabel": {
+    "description": "Label showing aggregate flashcard count in folder card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersSubfolderCountLabel": "{count} subfolders",
+  "@foldersSubfolderCountLabel": {
+    "description": "Label showing direct subfolder count in folder card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersEditTooltip": "Edit folder",
+  "@foldersEditTooltip": {
+    "description": "Tooltip for edit folder action."
+  },
+  "foldersOpenTooltip": "Open folder",
+  "@foldersOpenTooltip": {
+    "description": "Tooltip for opening a folder."
+  },
+  "foldersBackToParentTooltip": "Back to parent folder",
+  "@foldersBackToParentTooltip": {
+    "description": "Tooltip for app bar back action in nested folders."
+  },
+  "foldersRootLabel": "Root",
+  "@foldersRootLabel": {
+    "description": "Label for root breadcrumb."
+  },
+  "foldersDeleteTooltip": "Delete folder",
+  "@foldersDeleteTooltip": {
+    "description": "Tooltip for delete folder action."
+  },
+  "foldersRestoreTooltip": "Restore folder",
+  "@foldersRestoreTooltip": {
+    "description": "Tooltip for restore folder action."
+  },
+  "foldersRestoreDialogTitle": "Restore folder",
+  "@foldersRestoreDialogTitle": {
+    "description": "Dialog title for restoring folder."
+  },
+  "foldersRestoreDialogMessage": "Restore \"{folderName}\" to active folders?",
+  "@foldersRestoreDialogMessage": {
+    "description": "Dialog message for restoring folder.",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersRestoreConfirmLabel": "Restore",
+  "@foldersRestoreConfirmLabel": {
+    "description": "Restore action label in restore dialog."
+  },
+  "foldersTrashEmptyTitle": "Trash is empty",
+  "@foldersTrashEmptyTitle": {
+    "description": "Empty state title for trash mode."
+  },
+  "foldersTrashEmptyDescription": "Deleted folders will appear here.",
+  "@foldersTrashEmptyDescription": {
+    "description": "Empty state description for trash mode."
+  },
+  "homeTitle": "LearnWise - Text To Speech",
+  "@homeTitle": {
+    "description": "Main home screen title shown in the app bar."
+  },
+  "inputSectionTitle": "Enter text to read:",
+  "@inputSectionTitle": {
+    "description": "Section title above the main text input."
+  },
+  "languageLabel": "Language",
+  "@languageLabel": {
+    "description": "Input label for language mode selector."
+  },
+  "languageAuto": "Auto (EN/KO)",
+  "@languageAuto": {
+    "description": "Language option for automatic English/Korean detection."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Language option for English."
+  },
+  "languageKorean": "Korean",
+  "@languageKorean": {
+    "description": "Language option for Korean."
+  },
+  "koreanVoicesSectionTitle": "Korean voice list:",
+  "@koreanVoicesSectionTitle": {
+    "description": "Section title above the Korean voice controls."
+  },
+  "loadingVoices": "Loading voices...",
+  "@loadingVoices": {
+    "description": "Button text while voices are being loaded."
+  },
+  "loadKoreanVoices": "Load Korean voices",
+  "@loadKoreanVoices": {
+    "description": "Button text to refresh/load Korean voices."
+  },
+  "koreanVoicesCount": "Total Korean voices found: {count}",
+  "@koreanVoicesCount": {
+    "description": "Shows how many Korean voices are available.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectKoreanVoiceLabel": "Select Korean voice",
+  "@selectKoreanVoiceLabel": {
+    "description": "Input label for selecting a Korean voice."
+  },
+  "systemDefaultVoice": "System default",
+  "@systemDefaultVoice": {
+    "description": "Option label for using system default voice."
+  },
+  "koreanVoiceAlias": "Korean Voice {index}",
+  "@koreanVoiceAlias": {
+    "description": "Generic alias for a Korean voice item in the dropdown.",
+    "placeholders": {
+      "index": {
+        "type": "String"
+      }
+    }
+  },
+  "sampleSectionTitle": "Quick samples:",
+  "@sampleSectionTitle": {
+    "description": "Section title above sample text chips."
+  },
+  "voiceSettingsSectionTitle": "Voice settings:",
+  "@voiceSettingsSectionTitle": {
+    "description": "Section title above voice setting sliders."
+  },
+  "speedLabel": "Speed",
+  "@speedLabel": {
+    "description": "Label for speech speed slider."
+  },
+  "pitchLabel": "Pitch",
+  "@pitchLabel": {
+    "description": "Label for speech pitch slider."
+  },
+  "volumeLabel": "Volume",
+  "@volumeLabel": {
+    "description": "Label for speech volume slider."
+  },
+  "inputHint": "Example: What do you want to learn today?",
+  "@inputHint": {
+    "description": "Placeholder hint for the text input."
+  },
+  "readButton": "Read",
+  "@readButton": {
+    "description": "Primary button to start text-to-speech."
+  },
+  "stopButton": "Stop",
+  "@stopButton": {
+    "description": "Secondary button to stop text-to-speech."
+  },
+  "sampleLabelEn": "EN",
+  "@sampleLabelEn": {
+    "description": "Label for English sample chip."
+  },
+  "sampleLabelKo": "KO",
+  "@sampleLabelKo": {
+    "description": "Label for Korean sample chip."
+  },
+  "sampleLabelAuto": "AUTO",
+  "@sampleLabelAuto": {
+    "description": "Label for mixed-language sample chip."
+  },
+  "defaultInputText": "Hello, this is LearnWise text to speech.",
+  "@defaultInputText": {
+    "description": "Default text seeded into the text input."
+  },
+  "sampleEnText": "Hello, welcome to LearnWise text to speech demo.",
+  "@sampleEnText": {
+    "description": "Sample content for English speech."
+  },
+  "sampleKoText": "안녕하세요. 런와이즈 음성 읽기 기능 테스트입니다.",
+  "@sampleKoText": {
+    "description": "Sample content for Korean speech."
+  },
+  "sampleAutoText": "Hello LearnWise, 오늘도 같이 공부해요.",
+  "@sampleAutoText": {
+    "description": "Sample content for mixed auto-detect speech."
+  },
+  "snackInitFailed": "Failed to initialize TTS. Please try again.",
+  "@snackInitFailed": {
+    "description": "Snackbar message when TTS initialization fails."
+  },
+  "snackLoadVoicesFailed": "Unable to load voice list.",
+  "@snackLoadVoicesFailed": {
+    "description": "Snackbar message when loading voices fails."
+  },
+  "snackReadFailed": "Failed to read text.",
+  "@snackReadFailed": {
+    "description": "Snackbar message when speaking text fails."
+  },
+  "snackStopFailed": "Failed to stop reading.",
+  "@snackStopFailed": {
+    "description": "Snackbar message when stopping speech fails."
+  },
+  "snackBadRequest": "Request is invalid. Please check your input.",
+  "@snackBadRequest": {
+    "description": "Snackbar message for bad request errors."
+  },
+  "snackUnauthorized": "Your session has expired. Please sign in again.",
+  "@snackUnauthorized": {
+    "description": "Snackbar message for unauthorized errors."
+  },
+  "snackForbidden": "You do not have permission for this action.",
+  "@snackForbidden": {
+    "description": "Snackbar message for forbidden errors."
+  },
+  "snackNotFound": "The requested resource was not found.",
+  "@snackNotFound": {
+    "description": "Snackbar message for not found errors."
+  },
+  "snackConflict": "The resource was changed. Please refresh and try again.",
+  "@snackConflict": {
+    "description": "Snackbar message for conflict errors."
+  },
+  "snackUnprocessableEntity": "Submitted data is invalid.",
+  "@snackUnprocessableEntity": {
+    "description": "Snackbar message for unprocessable entity errors."
+  },
+  "snackTooManyRequests": "Too many requests. Please try again shortly.",
+  "@snackTooManyRequests": {
+    "description": "Snackbar message for rate limit errors."
+  },
+  "snackServerError": "Server error. Please try again later.",
+  "@snackServerError": {
+    "description": "Snackbar message for server errors."
+  },
+  "snackNetworkUnavailable": "No network connection.",
+  "@snackNetworkUnavailable": {
+    "description": "Snackbar message for connection errors."
+  },
+  "snackTimeout": "Request timed out. Please retry.",
+  "@snackTimeout": {
+    "description": "Snackbar message for timeout errors."
+  },
+  "snackUnexpectedResponse": "Received unexpected response from server.",
+  "@snackUnexpectedResponse": {
+    "description": "Snackbar message for malformed response errors."
+  },
+  "snackDashboardLoadFailed": "Unable to load dashboard data.",
+  "@snackDashboardLoadFailed": {
+    "description": "Snackbar message when dashboard fails to load."
+  },
+  "snackFolderLoadFailed": "Unable to load folders.",
+  "@snackFolderLoadFailed": {
+    "description": "Snackbar message when folder list fails to load."
+  },
+  "snackFolderCreateFailed": "Unable to create folder.",
+  "@snackFolderCreateFailed": {
+    "description": "Snackbar message when folder creation fails."
+  },
+  "snackFolderUpdateFailed": "Unable to update folder.",
+  "@snackFolderUpdateFailed": {
+    "description": "Snackbar message when folder update fails."
+  },
+  "snackFolderDeleteFailed": "Unable to delete folder.",
+  "@snackFolderDeleteFailed": {
+    "description": "Snackbar message when folder deletion fails."
+  },
+  "snackFolderRestoreFailed": "Unable to restore folder.",
+  "@snackFolderRestoreFailed": {
+    "description": "Snackbar message when folder restore fails."
+  },
+  "snackUnknownError": "Something went wrong. Please try again.",
+  "@snackUnknownError": {
+    "description": "Fallback snackbar message for unexpected errors."
+  }
+}

@@ -1,0 +1,619 @@
+{
+  "@@locale": "vi",
+  "appTitle": "LearnWise TTS",
+  "@appTitle": {
+    "description": "Application title used by MaterialApp."
+  },
+  "dashboardTitle": "Bang dieu khien LearnWise",
+  "@dashboardTitle": {
+    "description": "Dashboard app bar title."
+  },
+  "dashboardLoadingLabel": "Dang tai bang dieu khien...",
+  "@dashboardLoadingLabel": {
+    "description": "Loading label for dashboard screen."
+  },
+  "dashboardErrorTitle": "Khong the tai bang dieu khien",
+  "@dashboardErrorTitle": {
+    "description": "Dashboard load error title."
+  },
+  "dashboardErrorDescription": "Vui long keo de tai lai hoac thu lai.",
+  "@dashboardErrorDescription": {
+    "description": "Dashboard load error description."
+  },
+  "dashboardRetryLabel": "Thu lai",
+  "@dashboardRetryLabel": {
+    "description": "Retry button label on dashboard error state."
+  },
+  "dashboardGreeting": "Xin chao, {name}",
+  "@dashboardGreeting": {
+    "description": "Greeting text in dashboard hero section.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardHeroHeadline": "Xay dung nhip hoc tap moi ngay",
+  "@dashboardHeroHeadline": {
+    "description": "Headline text in dashboard hero section."
+  },
+  "dashboardStreakLabel": "Chuoi ngay hoc",
+  "@dashboardStreakLabel": {
+    "description": "Streak label in dashboard hero stats."
+  },
+  "dashboardStreakValue": "{days} ngay",
+  "@dashboardStreakValue": {
+    "description": "Streak value with day count.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardGoalProgressLabel": "Muc tieu hom nay",
+  "@dashboardGoalProgressLabel": {
+    "description": "Focus label in dashboard hero stats."
+  },
+  "dashboardFocusCountLabel": "{count} the",
+  "@dashboardFocusCountLabel": {
+    "description": "Focus card count in dashboard.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardOverviewTitle": "Tong quan",
+  "@dashboardOverviewTitle": {
+    "description": "Dashboard overview section title."
+  },
+  "dashboardMetricStudyMinutesLabel": "Thoi gian hoc",
+  "@dashboardMetricStudyMinutesLabel": {
+    "description": "Metric title for study minutes."
+  },
+  "dashboardMetricWordsMasteredLabel": "Tu da nho",
+  "@dashboardMetricWordsMasteredLabel": {
+    "description": "Metric title for mastered words."
+  },
+  "dashboardMetricWeeklyGoalLabel": "Muc tieu tuan",
+  "@dashboardMetricWeeklyGoalLabel": {
+    "description": "Metric title for weekly goal."
+  },
+  "dashboardMetricMinutesValue": "{minutes} phut",
+  "@dashboardMetricMinutesValue": {
+    "description": "Metric value text for minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMetricWordsValue": "{words} tu",
+  "@dashboardMetricWordsValue": {
+    "description": "Metric value text for words.",
+    "placeholders": {
+      "words": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardMetricGoalValue": "{done}/{target} buoi",
+  "@dashboardMetricGoalValue": {
+    "description": "Metric value text for weekly goal.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardQuickActionsTitle": "Thao tac nhanh",
+  "@dashboardQuickActionsTitle": {
+    "description": "Quick actions section title."
+  },
+  "dashboardActionLearning": "Bat dau hoc",
+  "@dashboardActionLearning": {
+    "description": "Quick action label for learning screen."
+  },
+  "dashboardActionProgress": "Mo tien do",
+  "@dashboardActionProgress": {
+    "description": "Quick action label for progress screen."
+  },
+  "dashboardActionTts": "Mo phong TTS",
+  "@dashboardActionTts": {
+    "description": "Quick action label for TTS screen."
+  },
+  "dashboardTodayFocusTitle": "Trong tam hom nay",
+  "@dashboardTodayFocusTitle": {
+    "description": "Today focus section title."
+  },
+  "dashboardRecentTitle": "Hoat dong gan day",
+  "@dashboardRecentTitle": {
+    "description": "Recent activity section title."
+  },
+  "dashboardRecentStudyCompleted": "Da hoan thanh mot khoi hoc tap trung",
+  "@dashboardRecentStudyCompleted": {
+    "description": "Recent activity text for study completion."
+  },
+  "dashboardRecentProgressUpdated": "Da cap nhat ke hoach tien do tuan",
+  "@dashboardRecentProgressUpdated": {
+    "description": "Recent activity text for progress update."
+  },
+  "dashboardRecentTtsPracticed": "Da luyen phat am bang TTS",
+  "@dashboardRecentTtsPracticed": {
+    "description": "Recent activity text for TTS practice."
+  },
+  "dashboardNavHome": "Bang dieu khien",
+  "@dashboardNavHome": {
+    "description": "Bottom navigation label for dashboard tab."
+  },
+  "dashboardNavFolders": "Thu muc",
+  "@dashboardNavFolders": {
+    "description": "Bottom navigation label for folders tab."
+  },
+  "foldersTitle": "Quan ly thu muc",
+  "@foldersTitle": {
+    "description": "App bar title for folder management screen."
+  },
+  "foldersRefreshTooltip": "Tai lai danh sach thu muc",
+  "@foldersRefreshTooltip": {
+    "description": "Tooltip for folder refresh action."
+  },
+  "foldersLoadingLabel": "Dang tai danh sach thu muc...",
+  "@foldersLoadingLabel": {
+    "description": "Loading state message on folder screen."
+  },
+  "foldersErrorTitle": "Khong the tai danh sach thu muc",
+  "@foldersErrorTitle": {
+    "description": "Error title on folder screen."
+  },
+  "foldersErrorDescription": "Vui long tai lai va thu lai.",
+  "@foldersErrorDescription": {
+    "description": "Error description on folder screen."
+  },
+  "foldersRetryLabel": "Thu lai",
+  "@foldersRetryLabel": {
+    "description": "Retry button label for folder load error."
+  },
+  "foldersHeroTitle": "To chuc thu muc hoc tap cua ban",
+  "@foldersHeroTitle": {
+    "description": "Hero card title on folder screen."
+  },
+  "foldersHeroDescription": "Tao, cap nhat va quan ly bo thu muc tap trung theo muc tieu hoc tap.",
+  "@foldersHeroDescription": {
+    "description": "Hero card description on folder screen."
+  },
+  "foldersCreateButton": "Tao thu muc",
+  "@foldersCreateButton": {
+    "description": "Button label to create a new folder."
+  },
+  "foldersEmptyTitle": "Chua co thu muc nao",
+  "@foldersEmptyTitle": {
+    "description": "Empty state title on folder screen."
+  },
+  "foldersEmptyDescription": "Hay tao thu muc dau tien de sap xep chu de va the.",
+  "@foldersEmptyDescription": {
+    "description": "Empty state description on folder screen."
+  },
+  "foldersCreateDialogTitle": "Tao thu muc",
+  "@foldersCreateDialogTitle": {
+    "description": "Dialog title for creating folder."
+  },
+  "foldersEditDialogTitle": "Cap nhat thu muc",
+  "@foldersEditDialogTitle": {
+    "description": "Dialog title for editing folder."
+  },
+  "foldersNameLabel": "Ten thu muc",
+  "@foldersNameLabel": {
+    "description": "Label for folder name input."
+  },
+  "foldersNameHint": "Vi du: TOEIC tuan 1",
+  "@foldersNameHint": {
+    "description": "Hint for folder name input."
+  },
+  "foldersDescriptionLabel": "Mo ta",
+  "@foldersDescriptionLabel": {
+    "description": "Label for folder description input."
+  },
+  "foldersDescriptionHint": "Mo ta trong tam cua thu muc",
+  "@foldersDescriptionHint": {
+    "description": "Hint for folder description input."
+  },
+  "foldersColorLabel": "Mau thu muc",
+  "@foldersColorLabel": {
+    "description": "Label for folder color palette."
+  },
+  "foldersSearchHint": "Tim thu muc theo ten hoac mo ta",
+  "@foldersSearchHint": {
+    "description": "Hint for folder search input."
+  },
+  "foldersSortByLabel": "Sap xep theo",
+  "@foldersSortByLabel": {
+    "description": "Label for sort by selector."
+  },
+  "foldersSortByUpdatedAt": "Cap nhat gan nhat",
+  "@foldersSortByUpdatedAt": {
+    "description": "Sort option for updated time."
+  },
+  "foldersSortByCreatedAt": "Thoi diem tao",
+  "@foldersSortByCreatedAt": {
+    "description": "Sort option for created time."
+  },
+  "foldersSortByName": "Ten thu muc",
+  "@foldersSortByName": {
+    "description": "Sort option for folder name."
+  },
+  "foldersSortByFlashcardCount": "So luong flashcard",
+  "@foldersSortByFlashcardCount": {
+    "description": "Sort option for aggregate flashcard count."
+  },
+  "foldersSortDirectionDesc": "Giam dan",
+  "@foldersSortDirectionDesc": {
+    "description": "Sort direction descending label."
+  },
+  "foldersSortDirectionAsc": "Tang dan",
+  "@foldersSortDirectionAsc": {
+    "description": "Sort direction ascending label."
+  },
+  "foldersViewActiveLabel": "Dang dung",
+  "@foldersViewActiveLabel": {
+    "description": "Folder view mode label for active folders."
+  },
+  "foldersViewTrashLabel": "Thung rac",
+  "@foldersViewTrashLabel": {
+    "description": "Folder view mode label for deleted folders."
+  },
+  "foldersPagingLabel": "Trang {page}/{totalPages} · {totalItems} thu muc",
+  "@foldersPagingLabel": {
+    "description": "Paging summary on folder screen.",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "totalPages": {
+        "type": "int"
+      },
+      "totalItems": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersPreviousPageTooltip": "Trang truoc",
+  "@foldersPreviousPageTooltip": {
+    "description": "Tooltip for previous page action."
+  },
+  "foldersNextPageTooltip": "Trang sau",
+  "@foldersNextPageTooltip": {
+    "description": "Tooltip for next page action."
+  },
+  "foldersAuditLabel": "Cap nhat boi: {actor}",
+  "@foldersAuditLabel": {
+    "description": "Audit label showing last updater.",
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersCancelLabel": "Huy",
+  "@foldersCancelLabel": {
+    "description": "Cancel action label in folder dialogs."
+  },
+  "foldersSaveLabel": "Luu",
+  "@foldersSaveLabel": {
+    "description": "Save action label in create folder dialog."
+  },
+  "foldersUpdateLabel": "Cap nhat",
+  "@foldersUpdateLabel": {
+    "description": "Update action label in edit folder dialog."
+  },
+  "foldersDeleteDialogTitle": "Xoa thu muc",
+  "@foldersDeleteDialogTitle": {
+    "description": "Dialog title for deleting folder."
+  },
+  "foldersDeleteDialogMessage": "Xoa \"{folderName}\"? Hanh dong nay khong the hoan tac.",
+  "@foldersDeleteDialogMessage": {
+    "description": "Dialog message for deleting folder.",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersDeleteConfirmLabel": "Xoa",
+  "@foldersDeleteConfirmLabel": {
+    "description": "Delete action label in delete dialog."
+  },
+  "foldersNoDescriptionLabel": "Chua co mo ta.",
+  "@foldersNoDescriptionLabel": {
+    "description": "Fallback text when folder description is empty."
+  },
+  "foldersColorCodeLabel": "Mau: {colorHex}",
+  "@foldersColorCodeLabel": {
+    "description": "Label showing folder color code.",
+    "placeholders": {
+      "colorHex": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersFlashcardCountLabel": "{count} flashcard",
+  "@foldersFlashcardCountLabel": {
+    "description": "Label showing aggregate flashcard count in folder card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersSubfolderCountLabel": "{count} thu muc con",
+  "@foldersSubfolderCountLabel": {
+    "description": "Label showing direct subfolder count in folder card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersEditTooltip": "Sua thu muc",
+  "@foldersEditTooltip": {
+    "description": "Tooltip for edit folder action."
+  },
+  "foldersOpenTooltip": "Mo thu muc",
+  "@foldersOpenTooltip": {
+    "description": "Tooltip for opening a folder."
+  },
+  "foldersBackToParentTooltip": "Quay lai thu muc cha",
+  "@foldersBackToParentTooltip": {
+    "description": "Tooltip for app bar back action in nested folders."
+  },
+  "foldersRootLabel": "Goc",
+  "@foldersRootLabel": {
+    "description": "Label for root breadcrumb."
+  },
+  "foldersDeleteTooltip": "Xoa thu muc",
+  "@foldersDeleteTooltip": {
+    "description": "Tooltip for delete folder action."
+  },
+  "foldersRestoreTooltip": "Khoi phuc thu muc",
+  "@foldersRestoreTooltip": {
+    "description": "Tooltip for restore folder action."
+  },
+  "foldersRestoreDialogTitle": "Khoi phuc thu muc",
+  "@foldersRestoreDialogTitle": {
+    "description": "Dialog title for restoring folder."
+  },
+  "foldersRestoreDialogMessage": "Khoi phuc \"{folderName}\" ve danh sach dang dung?",
+  "@foldersRestoreDialogMessage": {
+    "description": "Dialog message for restoring folder.",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "foldersRestoreConfirmLabel": "Khoi phuc",
+  "@foldersRestoreConfirmLabel": {
+    "description": "Restore action label in restore dialog."
+  },
+  "foldersTrashEmptyTitle": "Thung rac dang trong",
+  "@foldersTrashEmptyTitle": {
+    "description": "Empty state title for trash mode."
+  },
+  "foldersTrashEmptyDescription": "Thu muc da xoa se hien thi tai day.",
+  "@foldersTrashEmptyDescription": {
+    "description": "Empty state description for trash mode."
+  },
+  "homeTitle": "LearnWise - Chuyen van ban thanh giong noi",
+  "@homeTitle": {
+    "description": "Main home screen title shown in the app bar."
+  },
+  "inputSectionTitle": "Nhap noi dung can doc:",
+  "@inputSectionTitle": {
+    "description": "Section title above the main text input."
+  },
+  "languageLabel": "Ngon ngu",
+  "@languageLabel": {
+    "description": "Input label for language mode selector."
+  },
+  "languageAuto": "Tu dong (EN/KO)",
+  "@languageAuto": {
+    "description": "Language option for automatic English/Korean detection."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Language option for English."
+  },
+  "languageKorean": "Korean",
+  "@languageKorean": {
+    "description": "Language option for Korean."
+  },
+  "koreanVoicesSectionTitle": "Danh sach giong doc tieng Han:",
+  "@koreanVoicesSectionTitle": {
+    "description": "Section title above the Korean voice controls."
+  },
+  "loadingVoices": "Dang tai danh sach giong...",
+  "@loadingVoices": {
+    "description": "Button text while voices are being loaded."
+  },
+  "loadKoreanVoices": "Lay danh sach giong Han",
+  "@loadKoreanVoices": {
+    "description": "Button text to refresh/load Korean voices."
+  },
+  "koreanVoicesCount": "Tong so giong Han tim thay: {count}",
+  "@koreanVoicesCount": {
+    "description": "Shows how many Korean voices are available.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectKoreanVoiceLabel": "Chon giong doc Han",
+  "@selectKoreanVoiceLabel": {
+    "description": "Input label for selecting a Korean voice."
+  },
+  "systemDefaultVoice": "Mac dinh he thong",
+  "@systemDefaultVoice": {
+    "description": "Option label for using system default voice."
+  },
+  "koreanVoiceAlias": "Giong Han {index}",
+  "@koreanVoiceAlias": {
+    "description": "Generic alias for a Korean voice item in the dropdown.",
+    "placeholders": {
+      "index": {
+        "type": "String"
+      }
+    }
+  },
+  "sampleSectionTitle": "Mau test hardcode:",
+  "@sampleSectionTitle": {
+    "description": "Section title above sample text chips."
+  },
+  "voiceSettingsSectionTitle": "Dieu chinh giong doc:",
+  "@voiceSettingsSectionTitle": {
+    "description": "Section title above voice setting sliders."
+  },
+  "speedLabel": "Toc do",
+  "@speedLabel": {
+    "description": "Label for speech speed slider."
+  },
+  "pitchLabel": "Cao do",
+  "@pitchLabel": {
+    "description": "Label for speech pitch slider."
+  },
+  "volumeLabel": "Am luong",
+  "@volumeLabel": {
+    "description": "Label for speech volume slider."
+  },
+  "inputHint": "Vi du: Hom nay ban muon hoc gi?",
+  "@inputHint": {
+    "description": "Placeholder hint for the text input."
+  },
+  "readButton": "Doc",
+  "@readButton": {
+    "description": "Primary button to start text-to-speech."
+  },
+  "stopButton": "Dung",
+  "@stopButton": {
+    "description": "Secondary button to stop text-to-speech."
+  },
+  "sampleLabelEn": "EN",
+  "@sampleLabelEn": {
+    "description": "Label for English sample chip."
+  },
+  "sampleLabelKo": "KO",
+  "@sampleLabelKo": {
+    "description": "Label for Korean sample chip."
+  },
+  "sampleLabelAuto": "AUTO",
+  "@sampleLabelAuto": {
+    "description": "Label for mixed-language sample chip."
+  },
+  "defaultInputText": "Hello, this is LearnWise text to speech.",
+  "@defaultInputText": {
+    "description": "Default text seeded into the text input."
+  },
+  "sampleEnText": "Hello, welcome to LearnWise text to speech demo.",
+  "@sampleEnText": {
+    "description": "Sample content for English speech."
+  },
+  "sampleKoText": "안녕하세요. 런와이즈 음성 읽기 기능 테스트입니다.",
+  "@sampleKoText": {
+    "description": "Sample content for Korean speech."
+  },
+  "sampleAutoText": "Hello LearnWise, 오늘도 같이 공부해요.",
+  "@sampleAutoText": {
+    "description": "Sample content for mixed auto-detect speech."
+  },
+  "snackInitFailed": "Khoi tao TTS that bai. Vui long thu lai.",
+  "@snackInitFailed": {
+    "description": "Snackbar message when TTS initialization fails."
+  },
+  "snackLoadVoicesFailed": "Khong tai duoc danh sach giong doc.",
+  "@snackLoadVoicesFailed": {
+    "description": "Snackbar message when loading voices fails."
+  },
+  "snackReadFailed": "Doc van ban that bai.",
+  "@snackReadFailed": {
+    "description": "Snackbar message when speaking text fails."
+  },
+  "snackStopFailed": "Dung doc that bai.",
+  "@snackStopFailed": {
+    "description": "Snackbar message when stopping speech fails."
+  },
+  "snackBadRequest": "Yeu cau khong hop le. Vui long kiem tra du lieu.",
+  "@snackBadRequest": {
+    "description": "Snackbar message for bad request errors."
+  },
+  "snackUnauthorized": "Phien dang nhap het han. Vui long dang nhap lai.",
+  "@snackUnauthorized": {
+    "description": "Snackbar message for unauthorized errors."
+  },
+  "snackForbidden": "Ban khong co quyen thuc hien thao tac nay.",
+  "@snackForbidden": {
+    "description": "Snackbar message for forbidden errors."
+  },
+  "snackNotFound": "Khong tim thay du lieu duoc yeu cau.",
+  "@snackNotFound": {
+    "description": "Snackbar message for not found errors."
+  },
+  "snackConflict": "Du lieu da thay doi. Vui long tai lai va thu lai.",
+  "@snackConflict": {
+    "description": "Snackbar message for conflict errors."
+  },
+  "snackUnprocessableEntity": "Du lieu gui len khong hop le.",
+  "@snackUnprocessableEntity": {
+    "description": "Snackbar message for unprocessable entity errors."
+  },
+  "snackTooManyRequests": "Qua nhieu yeu cau. Vui long thu lai sau it phut.",
+  "@snackTooManyRequests": {
+    "description": "Snackbar message for rate limit errors."
+  },
+  "snackServerError": "May chu dang gap loi. Vui long thu lai sau.",
+  "@snackServerError": {
+    "description": "Snackbar message for server errors."
+  },
+  "snackNetworkUnavailable": "Khong co ket noi mang.",
+  "@snackNetworkUnavailable": {
+    "description": "Snackbar message for connection errors."
+  },
+  "snackTimeout": "Het thoi gian cho phan hoi. Vui long thu lai.",
+  "@snackTimeout": {
+    "description": "Snackbar message for timeout errors."
+  },
+  "snackUnexpectedResponse": "Phan hoi tu may chu khong dung dinh dang.",
+  "@snackUnexpectedResponse": {
+    "description": "Snackbar message for malformed response errors."
+  },
+  "snackDashboardLoadFailed": "Khong the tai du lieu bang dieu khien.",
+  "@snackDashboardLoadFailed": {
+    "description": "Snackbar message when dashboard fails to load."
+  },
+  "snackFolderLoadFailed": "Khong the tai danh sach thu muc.",
+  "@snackFolderLoadFailed": {
+    "description": "Snackbar message when folder list fails to load."
+  },
+  "snackFolderCreateFailed": "Khong the tao thu muc.",
+  "@snackFolderCreateFailed": {
+    "description": "Snackbar message when folder creation fails."
+  },
+  "snackFolderUpdateFailed": "Khong the cap nhat thu muc.",
+  "@snackFolderUpdateFailed": {
+    "description": "Snackbar message when folder update fails."
+  },
+  "snackFolderDeleteFailed": "Khong the xoa thu muc.",
+  "@snackFolderDeleteFailed": {
+    "description": "Snackbar message when folder deletion fails."
+  },
+  "snackFolderRestoreFailed": "Khong the khoi phuc thu muc.",
+  "@snackFolderRestoreFailed": {
+    "description": "Snackbar message when folder restore fails."
+  },
+  "snackUnknownError": "Da co loi xay ra. Vui long thu lai.",
+  "@snackUnknownError": {
+    "description": "Fallback snackbar message for unexpected errors."
+  }
+}

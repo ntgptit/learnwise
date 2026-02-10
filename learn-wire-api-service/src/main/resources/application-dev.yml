@@ -1,0 +1,8 @@
+logging:
+  level:
+    com.learn.wire: DEBUG
+
+spring:
+  flyway:
+    placeholders:
+      seed_demo_data: ${APP_DB_SEED_DEMO_DATA:true}

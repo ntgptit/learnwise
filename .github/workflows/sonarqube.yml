@@ -1,0 +1,63 @@
+name: SonarQube
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  backend-sonarqube:
+    if: ${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != '' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: learn-wire-api-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build test and scan backend
+        run: ./mvnw -B -ntp verify sonar:sonar -Dsonar.projectKey=learnwise-be -Dsonar.projectName=learnwise-backend -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+
+  frontend-sonarqube:
+    if: ${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != '' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization
+        run: flutter gen-l10n
+
+      - name: Run tests with coverage
+        run: flutter test --machine --coverage > tests.output
+
+      - name: Generate Flutter analyze report for Sonar
+        run: |
+          mkdir -p build/reports
+          flutter analyze --no-fatal-warnings --no-fatal-infos --machine > build/reports/analysis-results.txt
+
+      - name: SonarQube scan frontend
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dproject.settings=sonar-project.properties

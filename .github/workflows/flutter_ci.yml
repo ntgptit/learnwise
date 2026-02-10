@@ -1,0 +1,44 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization
+        run: flutter gen-l10n
+
+      - name: Generate code
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Enforce Riverpod Annotation DI
+        run: dart run tool/verify_riverpod_annotation.dart
+
+      - name: Enforce Common Widget Boundaries
+        run: dart run tool/verify_common_widget_boundaries.dart
+
+      - name: Enforce UI Constants Centralization
+        run: dart run tool/verify_ui_constants_centralization.dart
+
+      - name: Enforce UI Design Guard
+        run: dart run tool/verify_ui_design_guard.dart
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test

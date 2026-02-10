@@ -1,0 +1,11 @@
+class RouteNames {
+  const RouteNames._();
+
+  static const String root = '/';
+  static const String dashboard = '/dashboard';
+  static const String folders = '/folders';
+  static const String login = '/auth/login';
+  static const String learning = '/learning';
+  static const String progressDetail = '/progress/detail';
+  static const String tts = '/tts';
+}

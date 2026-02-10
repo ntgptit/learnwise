@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: learn-wire-api-service
+  profiles:
+    default: dev
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/learnwise}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USER:giapnt}
+    password: ${DATABASE_PASSWORD:abcd1234}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT_MS:30000}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT_MS:600000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: learnwise
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: learnwise
+    default-schema: learnwise
+    validate-on-migrate: true
+    placeholders:
+      seed_demo_data: ${APP_DB_SEED_DEMO_DATA:false}
+  messages:
+    basename: messages
+
+server:
+  address: 0.0.0.0
+  error:
+    include-message: never
+    include-binding-errors: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  security:
+    jwt-secret: ${APP_SECURITY_JWT_SECRET:learnwise-default-jwt-secret-32-bytes-minimum}
+    cors-allowed-origins: ${APP_SECURITY_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://192.168.35.154:3000,http://192.168.35.154:8080}

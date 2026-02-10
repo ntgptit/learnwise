@@ -68,6 +68,22 @@ class FolderScreenTokens {
   static const double cardMetaGap = 6;
   static const double colorGridSpacing = AppSizes.spacingXs;
   static const double colorBorderRadius = 10;
+  static const double folderHeaderIconContainerSize = AppSizes.size72;
+  static const double folderHeaderIconContainerRadius = AppSizes.radiusMd;
+  static const double folderHeaderIconSize = AppSizes.size34;
+  static const double folderHeaderTitleTopGap = AppSizes.spacingSm;
+  static const double primaryActionGap = AppSizes.spacingSm;
+  static const double sortLabelIconGap = AppSizes.spacing2Xs;
+  static const double searchFieldHorizontalPadding = AppSizes.spacingXs;
+  static const double listItemHorizontalPadding = AppSizes.spacingSm;
+  static const double listItemVerticalPadding = AppSizes.spacingSm;
+  static const double listItemLeadingSize = AppSizes.size40;
+  static const double listItemLeadingRadius = AppSizes.radiusMd;
+  static const double listItemLeadingIconSize = AppSizes.size22;
+  static const double listItemHorizontalGap = AppSizes.spacingSm;
+  static const double listItemTitleMetaGap = AppSizes.spacing2Xs;
+  static const int nameMaxLines = 1;
+  static const double surfaceSoftOpacity = AppOpacities.soft20;
 }
 
 class TtsScreenTokens {

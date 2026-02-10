@@ -1,35 +1,39 @@
-import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'tts_const.dart';
 
-@immutable
-class TtsVoiceSettings {
-  const TtsVoiceSettings({
-    this.speechRate = TtsConst.defaultSpeechRate,
-    this.volume = TtsConst.defaultVolume,
-    this.pitch = TtsConst.defaultPitch,
-  });
+part 'tts_models.freezed.dart';
+part 'tts_models.g.dart';
 
-  final double speechRate;
-  final double volume;
-  final double pitch;
+@freezed
+sealed class TtsVoiceSettings with _$TtsVoiceSettings {
+  @JsonSerializable(explicitToJson: true)
+  const factory TtsVoiceSettings({
+    @Default(TtsConst.defaultSpeechRate) double speechRate,
+    @Default(TtsConst.defaultVolume) double volume,
+    @Default(TtsConst.defaultPitch) double pitch,
+  }) = _TtsVoiceSettings;
+
+  factory TtsVoiceSettings.fromJson(Map<String, dynamic> json) =>
+      _$TtsVoiceSettingsFromJson(json);
 }
 
 enum TtsLanguageMode { auto, english, korean }
 
-@immutable
-class TtsVoiceOption {
-  const TtsVoiceOption({
-    required this.id,
-    required this.name,
-    required this.locale,
-    required this.params,
-  });
+@freezed
+sealed class TtsVoiceOption with _$TtsVoiceOption {
+  const TtsVoiceOption._();
 
-  final String id;
-  final String name;
-  final String locale;
-  final Map<String, String> params;
+  @JsonSerializable(explicitToJson: true)
+  const factory TtsVoiceOption({
+    required String id,
+    required String name,
+    required String locale,
+    required Map<String, String> params,
+  }) = _TtsVoiceOption;
+
+  factory TtsVoiceOption.fromJson(Map<String, dynamic> json) =>
+      _$TtsVoiceOptionFromJson(json);
 
   String get displayLabel => '$name ($locale)';
 }

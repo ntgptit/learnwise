@@ -6,6 +6,8 @@ import '../../../../common/widgets/widgets.dart';
 import '../../model/folder_models.dart';
 import 'folder_color_resolver.dart';
 
+enum _FolderCardAction { open, edit, delete }
+
 class FolderListCard extends StatelessWidget {
   const FolderListCard({
     super.key,
@@ -23,15 +25,24 @@ class FolderListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final Color folderColor = resolveFolderColor(
       folder.colorHex,
       colorScheme.primary,
     );
+    final String description = folder.description.isEmpty
+        ? l10n.foldersNoDescriptionLabel
+        : folder.description;
+    final String metadata =
+        '$description \u00b7 ${l10n.foldersFlashcardCountLabel(folder.flashcardCount)} \u00b7 ${l10n.foldersAuditLabel(folder.updatedBy)}';
 
     return AppCard(
       onTap: onOpenPressed,
-      padding: const EdgeInsets.all(FolderScreenTokens.cardPadding),
+      padding: const EdgeInsets.symmetric(
+        horizontal: FolderScreenTokens.listItemHorizontalPadding,
+        vertical: FolderScreenTokens.listItemVerticalPadding,
+      ),
       border: Border.all(
         color: colorScheme.outline.withValues(
           alpha: FolderScreenTokens.outlineOpacity,
@@ -41,69 +52,80 @@ class FolderListCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            width: FolderScreenTokens.colorDotSize,
-            height: FolderScreenTokens.colorDotSize,
-            margin: const EdgeInsets.only(
-              top: FolderScreenTokens.colorDotTopMargin,
-            ),
+            width: FolderScreenTokens.listItemLeadingSize,
+            height: FolderScreenTokens.listItemLeadingSize,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: folderColor,
+              color: colorScheme.surfaceContainerHighest.withValues(
+                alpha: FolderScreenTokens.surfaceSoftOpacity,
+              ),
               borderRadius: BorderRadius.circular(
-                FolderScreenTokens.colorDotRadius,
+                FolderScreenTokens.listItemLeadingRadius,
               ),
             ),
+            margin: const EdgeInsets.only(top: FolderScreenTokens.colorDotTopMargin),
+            child: Icon(
+              Icons.folder_outlined,
+              color: folderColor,
+              size: FolderScreenTokens.listItemLeadingIconSize,
+            ),
           ),
-          const SizedBox(width: FolderScreenTokens.cardHorizontalGap),
+          const SizedBox(width: FolderScreenTokens.listItemHorizontalGap),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
                   folder.name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  maxLines: FolderScreenTokens.nameMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: FolderScreenTokens.cardMetaGap),
+                const SizedBox(height: FolderScreenTokens.listItemTitleMetaGap),
                 Text(
-                  folder.description.isEmpty
-                      ? l10n.foldersNoDescriptionLabel
-                      : folder.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: FolderScreenTokens.cardMetaGap),
-                AppMetadataList(
-                  spacing: FolderScreenTokens.cardMetaGap,
-                  color: colorScheme.onSurface.withValues(
-                    alpha: FolderScreenTokens.dimOpacity,
+                  metadata,
+                  maxLines: FolderScreenTokens.descriptionMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurface.withValues(
+                      alpha: FolderScreenTokens.dimOpacity,
+                    ),
                   ),
-                  items: <String>[
-                    l10n.foldersFlashcardCountLabel(folder.flashcardCount),
-                    l10n.foldersSubfolderCountLabel(folder.childFolderCount),
-                    l10n.foldersAuditLabel(folder.updatedBy),
-                  ],
                 ),
               ],
             ),
           ),
-          AppActionIconRow(
-            items: <AppActionIconItem>[
-              AppActionIconItem(
-                icon: Icons.keyboard_arrow_right_rounded,
-                tooltip: l10n.foldersOpenTooltip,
-                onPressed: onOpenPressed,
-              ),
-              AppActionIconItem(
-                icon: Icons.edit_outlined,
-                tooltip: l10n.foldersEditTooltip,
-                onPressed: onEditPressed,
-              ),
-              AppActionIconItem(
-                icon: Icons.delete_outline_rounded,
-                tooltip: l10n.foldersDeleteTooltip,
-                onPressed: onDeletePressed,
-              ),
-            ],
+          PopupMenuButton<_FolderCardAction>(
+            onSelected: (_FolderCardAction action) {
+              if (action == _FolderCardAction.open) {
+                onOpenPressed();
+                return;
+              }
+              if (action == _FolderCardAction.edit) {
+                onEditPressed();
+                return;
+              }
+              onDeletePressed();
+            },
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry<_FolderCardAction>>[
+                PopupMenuItem<_FolderCardAction>(
+                  value: _FolderCardAction.open,
+                  child: Text(l10n.foldersOpenTooltip),
+                ),
+                PopupMenuItem<_FolderCardAction>(
+                  value: _FolderCardAction.edit,
+                  child: Text(l10n.foldersEditTooltip),
+                ),
+                PopupMenuItem<_FolderCardAction>(
+                  value: _FolderCardAction.delete,
+                  child: Text(l10n.foldersDeleteTooltip),
+                ),
+              ];
+            },
+            icon: const Icon(Icons.more_horiz_rounded),
           ),
         ],
       ),

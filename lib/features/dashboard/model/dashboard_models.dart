@@ -1,4 +1,9 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../../app/router/route_names.dart';
+
+part 'dashboard_models.freezed.dart';
+part 'dashboard_models.g.dart';
 
 enum DashboardMetricType { studyMinutes, wordsMastered, weeklyGoal }
 
@@ -10,50 +15,58 @@ enum DashboardRecentActivityType {
   ttsPracticed,
 }
 
-class DashboardMetric {
-  const DashboardMetric({
-    required this.type,
-    required this.value,
-    required this.target,
-    required this.progress,
-  });
+@freezed
+sealed class DashboardMetric with _$DashboardMetric {
+  @JsonSerializable(explicitToJson: true)
+  const factory DashboardMetric({
+    required DashboardMetricType type,
+    required int value,
+    required int target,
+    required double progress,
+  }) = _DashboardMetric;
 
-  final DashboardMetricType type;
-  final int value;
-  final int target;
-  final double progress;
+  factory DashboardMetric.fromJson(Map<String, dynamic> json) =>
+      _$DashboardMetricFromJson(json);
 }
 
-class DashboardQuickAction {
-  const DashboardQuickAction({required this.type, required this.routeName});
+@freezed
+sealed class DashboardQuickAction with _$DashboardQuickAction {
+  @JsonSerializable(explicitToJson: true)
+  const factory DashboardQuickAction({
+    required DashboardQuickActionType type,
+    required String routeName,
+  }) = _DashboardQuickAction;
 
-  final DashboardQuickActionType type;
-  final String routeName;
+  factory DashboardQuickAction.fromJson(Map<String, dynamic> json) =>
+      _$DashboardQuickActionFromJson(json);
 }
 
-class DashboardRecentActivity {
-  const DashboardRecentActivity({required this.type, required this.progress});
+@freezed
+sealed class DashboardRecentActivity with _$DashboardRecentActivity {
+  @JsonSerializable(explicitToJson: true)
+  const factory DashboardRecentActivity({
+    required DashboardRecentActivityType type,
+    required double progress,
+  }) = _DashboardRecentActivity;
 
-  final DashboardRecentActivityType type;
-  final double progress;
+  factory DashboardRecentActivity.fromJson(Map<String, dynamic> json) =>
+      _$DashboardRecentActivityFromJson(json);
 }
 
-class DashboardSnapshot {
-  const DashboardSnapshot({
-    required this.displayName,
-    required this.streakDays,
-    required this.focusCardCount,
-    required this.metrics,
-    required this.quickActions,
-    required this.recentActivities,
-  });
+@freezed
+sealed class DashboardSnapshot with _$DashboardSnapshot {
+  @JsonSerializable(explicitToJson: true)
+  const factory DashboardSnapshot({
+    required String displayName,
+    required int streakDays,
+    required int focusCardCount,
+    required List<DashboardMetric> metrics,
+    required List<DashboardQuickAction> quickActions,
+    required List<DashboardRecentActivity> recentActivities,
+  }) = _DashboardSnapshot;
 
-  final String displayName;
-  final int streakDays;
-  final int focusCardCount;
-  final List<DashboardMetric> metrics;
-  final List<DashboardQuickAction> quickActions;
-  final List<DashboardRecentActivity> recentActivities;
+  factory DashboardSnapshot.fromJson(Map<String, dynamic> json) =>
+      _$DashboardSnapshotFromJson(json);
 }
 
 class DashboardRouteMap {

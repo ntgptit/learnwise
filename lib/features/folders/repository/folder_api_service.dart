@@ -21,7 +21,7 @@ class FolderApiService implements FolderRepository {
     try {
       final Map<String, dynamic> json = _extractResponseData(response.data);
       return FolderPageResult.fromJson(json);
-    } on FormatException {
+    } catch (_) {
       throw const UnexpectedResponseAppException();
     }
   }
@@ -35,7 +35,7 @@ class FolderApiService implements FolderRepository {
     try {
       final Map<String, dynamic> json = _extractResponseData(response.data);
       return FolderItem.fromJson(json);
-    } on FormatException {
+    } catch (_) {
       throw const UnexpectedResponseAppException();
     }
   }
@@ -52,7 +52,7 @@ class FolderApiService implements FolderRepository {
     try {
       final Map<String, dynamic> json = _extractResponseData(response.data);
       return FolderItem.fromJson(json);
-    } on FormatException {
+    } catch (_) {
       throw const UnexpectedResponseAppException();
     }
   }

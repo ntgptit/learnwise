@@ -2,6 +2,20 @@
 
 A new Flutter project.
 
+## Run Flutter Web With Fixed Port
+
+Use a fixed web port (`3000`) to keep frontend origin stable for backend CORS:
+
+```bash
+flutter run -d chrome --web-hostname 0.0.0.0 --web-port 3000
+```
+
+Or use the helper script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tool/run_flutter_web.ps1
+```
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

@@ -40,45 +40,60 @@ class _PasswordTextBoxState extends State<PasswordTextBox> {
   static const String _showPasswordTooltip = 'Show password';
   static const String _hidePasswordTooltip = 'Hide password';
 
-  bool _obscureText = true;
+  late final ValueNotifier<bool> _obscureTextNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureTextNotifier = ValueNotifier<bool>(true);
+  }
+
+  @override
+  void dispose() {
+    _obscureTextNotifier.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return TextBox(
-      controller: widget.controller,
-      initialValue: widget.initialValue,
-      labelText: widget.labelText,
-      hintText: widget.hintText,
-      helperText: widget.helperText,
-      errorText: widget.errorText,
-      onChanged: widget.onChanged,
-      onSubmitted: widget.onSubmitted,
-      validator: widget.validator,
-      enabled: widget.enabled,
-      textInputAction: widget.textInputAction,
-      maxLength: widget.maxLength,
-      obscureText: _obscureText,
-      suffixIcon: IconButton(
-        tooltip: _resolveTooltip(),
-        onPressed: () {
-          setState(() {
-            _obscureText = !_obscureText;
-          });
-        },
-        icon: Icon(_resolveIconData()),
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _obscureTextNotifier,
+      builder: (BuildContext context, bool obscureText, Widget? child) {
+        return TextBox(
+          controller: widget.controller,
+          initialValue: widget.initialValue,
+          labelText: widget.labelText,
+          hintText: widget.hintText,
+          helperText: widget.helperText,
+          errorText: widget.errorText,
+          onChanged: widget.onChanged,
+          onSubmitted: widget.onSubmitted,
+          validator: widget.validator,
+          enabled: widget.enabled,
+          textInputAction: widget.textInputAction,
+          maxLength: widget.maxLength,
+          obscureText: obscureText,
+          suffixIcon: IconButton(
+            tooltip: _resolveTooltip(obscureText),
+            onPressed: () {
+              _obscureTextNotifier.value = !obscureText;
+            },
+            icon: Icon(_resolveIconData(obscureText)),
+          ),
+        );
+      },
     );
   }
 
-  String _resolveTooltip() {
-    if (_obscureText) {
+  String _resolveTooltip(bool obscureText) {
+    if (obscureText) {
       return _showPasswordTooltip;
     }
     return _hidePasswordTooltip;
   }
 
-  IconData _resolveIconData() {
-    if (_obscureText) {
+  IconData _resolveIconData(bool obscureText) {
+    if (obscureText) {
       return Icons.visibility_outlined;
     }
     return Icons.visibility_off_outlined;

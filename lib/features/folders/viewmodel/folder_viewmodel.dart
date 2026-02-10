@@ -111,6 +111,50 @@ class FolderQueryController extends _$FolderQueryController {
   }
 }
 
+class FolderUiState {
+  const FolderUiState({
+    required this.isSearchVisible,
+    required this.isTransitionInProgress,
+  });
+
+  const FolderUiState.initial()
+    : isSearchVisible = false,
+      isTransitionInProgress = false;
+
+  final bool isSearchVisible;
+  final bool isTransitionInProgress;
+
+  FolderUiState copyWith({
+    bool? isSearchVisible,
+    bool? isTransitionInProgress,
+  }) {
+    return FolderUiState(
+      isSearchVisible: isSearchVisible ?? this.isSearchVisible,
+      isTransitionInProgress:
+          isTransitionInProgress ?? this.isTransitionInProgress,
+    );
+  }
+}
+
+@Riverpod(keepAlive: true)
+class FolderUiController extends _$FolderUiController {
+  @override
+  FolderUiState build() {
+    return const FolderUiState.initial();
+  }
+
+  void toggleSearchVisibility() {
+    state = state.copyWith(isSearchVisible: !state.isSearchVisible);
+  }
+
+  void setTransitionInProgress(bool isInProgress) {
+    if (state.isTransitionInProgress == isInProgress) {
+      return;
+    }
+    state = state.copyWith(isTransitionInProgress: isInProgress);
+  }
+}
+
 @Riverpod(keepAlive: true)
 class FolderController extends _$FolderController {
   late final FolderRepository _repository;
@@ -140,6 +184,30 @@ class FolderController extends _$FolderController {
     ref.read(folderQueryControllerProvider.notifier).enterFolder(folder);
   }
 
+  Future<bool> hasDirectChildren(int parentFolderId) async {
+    final FolderListQuery currentQuery = ref.read(
+      folderQueryControllerProvider,
+    );
+    final FolderListQuery probeQuery = currentQuery.copyWith(
+      parentFolderId: parentFolderId,
+      size: FolderConstants.minPageSize,
+    );
+
+    try {
+      final FolderPageResult probePage = await _repository.getFolders(
+        query: probeQuery,
+        page: FolderConstants.defaultPage,
+      );
+      if (probePage.items.isNotEmpty) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      _errorAdvisor.handle(error, fallback: AppErrorCode.folderLoadFailed);
+      return true;
+    }
+  }
+
   void goToRoot() {
     ref.read(folderQueryControllerProvider.notifier).goToRoot();
   }
@@ -153,12 +221,24 @@ class FolderController extends _$FolderController {
   }
 
   Future<void> refresh() async {
-    state = const AsyncLoading<FolderListingState>();
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
+    final FolderListingState? previousListing = _currentListing;
+    if (previousListing == null) {
+      state = const AsyncLoading<FolderListingState>();
+    }
     try {
       final FolderListingState listing = await _loadInitial(query: query);
+      if (_isQueryStale(query)) {
+        return;
+      }
       state = AsyncData<FolderListingState>(listing);
     } catch (error, stackTrace) {
+      if (_isQueryStale(query)) {
+        return;
+      }
+      if (_currentListing != null) {
+        return;
+      }
       state = AsyncError<FolderListingState>(error, stackTrace);
     }
   }
@@ -185,10 +265,16 @@ class FolderController extends _$FolderController {
         query: query,
         page: currentListing.page + 1,
       );
+      if (_isQueryStale(query)) {
+        return;
+      }
       state = AsyncData<FolderListingState>(
         currentListing.appendPage(nextPage),
       );
     } catch (error) {
+      if (_isQueryStale(query)) {
+        return;
+      }
       state = AsyncData<FolderListingState>(currentListing);
       _errorAdvisor.handle(error, fallback: AppErrorCode.folderLoadFailed);
     }
@@ -339,5 +425,12 @@ class FolderController extends _$FolderController {
       return null;
     }
     return currentState.requireValue;
+  }
+
+  bool _isQueryStale(FolderListQuery expectedQuery) {
+    final FolderListQuery currentQuery = ref.read(
+      folderQueryControllerProvider,
+    );
+    return currentQuery != expectedQuery;
   }
 }

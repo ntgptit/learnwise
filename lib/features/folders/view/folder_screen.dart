@@ -37,7 +37,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   late final TextEditingController _searchController;
   late final ScrollController _scrollController;
   Timer? _searchDebounceTimer;
-  bool _isSearchVisible = false;
 
   @override
   void initState() {
@@ -61,6 +60,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final FolderListQuery query = ref.watch(folderQueryControllerProvider);
+    final FolderUiState uiState = ref.watch(folderUiControllerProvider);
     final AsyncValue<FolderListingState> state = ref.watch(
       folderControllerProvider,
     );
@@ -82,7 +82,9 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => _onBackPressed(query),
+          onPressed: uiState.isTransitionInProgress
+              ? null
+              : () => _onBackPressed(query),
           icon: const Icon(Icons.arrow_back_rounded),
           tooltip: l10n.foldersBackToParentTooltip,
         ),
@@ -112,20 +114,33 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       ),
       body: SafeArea(
         child: state.when(
+          skipLoadingOnReload: true,
+          skipLoadingOnRefresh: true,
           data: (FolderListingState listing) {
+            final bool showInlineLoading =
+                uiState.isTransitionInProgress || state.isLoading;
+            final bool showEmptyState =
+                listing.items.isEmpty && !showInlineLoading;
             return RefreshIndicator(
               onRefresh: controller.refresh,
               child: ListView(
                 controller: _scrollController,
                 padding: const EdgeInsets.all(FolderScreenTokens.screenPadding),
                 children: <Widget>[
+                  if (showInlineLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        bottom: FolderScreenTokens.sectionSpacing,
+                      ),
+                      child: LinearProgressIndicator(),
+                    ),
                   _FolderHeaderSection(title: appBarTitle),
                   const SizedBox(height: FolderScreenTokens.sectionSpacing),
                   _FolderPrimaryActionRow(
                     rootLabel: l10n.foldersRootLabel,
                     createLabel: l10n.foldersCreateButton,
                     isRoot: query.breadcrumbs.isEmpty,
-                    onRootPressed: controller.goToRoot,
+                    onRootPressed: _onRootPressed,
                     onCreatePressed: _onCreatePressed,
                   ),
                   if (query.breadcrumbs.isNotEmpty)
@@ -141,11 +156,11 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                                   AppBreadcrumbItem(label: item.name),
                             )
                             .toList(),
-                        onRootPressed: controller.goToRoot,
-                        onItemPressed: controller.goToBreadcrumb,
+                        onRootPressed: _onRootPressed,
+                        onItemPressed: _onBreadcrumbPressed,
                       ),
                     ),
-                  if (_isSearchVisible)
+                  if (uiState.isSearchVisible)
                     Padding(
                       padding: const EdgeInsets.only(
                         top: FolderScreenTokens.sectionSpacing,
@@ -184,7 +199,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                     ),
                   ),
                   const SizedBox(height: FolderScreenTokens.sectionSpacing),
-                  if (listing.items.isEmpty)
+                  if (showEmptyState)
                     FolderEmptyState(onCreatePressed: _onCreatePressed),
                   if (listing.items.isNotEmpty)
                     ...listing.items.map((FolderItem folder) {
@@ -200,7 +215,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                         ),
                       );
                     }),
-                  if (listing.isLoadingMore)
+                  if (listing.isLoadingMore || showInlineLoading)
                     const Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: FolderScreenTokens.sectionSpacing,
@@ -256,9 +271,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     ref.read(folderControllerProvider.notifier).loadMore();
   }
 
-  void _onBackPressed(FolderListQuery query) {
+  Future<void> _onBackPressed(FolderListQuery query) async {
     if (query.breadcrumbs.isNotEmpty) {
-      ref.read(folderControllerProvider.notifier).goToParent();
+      await _runFolderTransition((FolderController controller) async {
+        controller.goToParent();
+        await _waitForFolderData();
+      });
       return;
     }
     Navigator.of(context).pushReplacementNamed(RouteNames.dashboard);
@@ -272,9 +290,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _toggleSearchVisibility() {
-    setState(() {
-      _isSearchVisible = !_isSearchVisible;
-    });
+    ref.read(folderUiControllerProvider.notifier).toggleSearchVisibility();
   }
 
   String _buildSortSummaryLabel({
@@ -383,33 +399,90 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
         .applySearch(_searchController.text);
   }
 
-  void _onOpenPressed(FolderItem folder) {
-    final FolderOpenDestination destination = resolveFolderOpenDestination(
-      folder,
+  Future<void> _onOpenPressed(FolderItem folder) async {
+    final NavigatorState navigator = Navigator.of(context);
+    await _runFolderTransition((FolderController controller) async {
+      final FolderOpenDestination destination = resolveFolderOpenDestination(
+        folder,
+      );
+
+      if (destination == FolderOpenDestination.subfolders) {
+        controller.enterFolder(folder);
+        await _waitForFolderData();
+        return;
+      }
+      if (destination == FolderOpenDestination.emptyFolder) {
+        controller.enterFolder(folder);
+        await _waitForFolderData();
+        return;
+      }
+
+      final bool hasDirectChildren = await controller.hasDirectChildren(
+        folder.id,
+      );
+      if (hasDirectChildren) {
+        controller.enterFolder(folder);
+        await _waitForFolderData();
+        return;
+      }
+      _openFlashcards(folder: folder, navigator: navigator);
+    });
+  }
+
+  void _onRootPressed() {
+    unawaited(
+      _runFolderTransition((FolderController controller) async {
+        controller.goToRoot();
+        await _waitForFolderData();
+      }),
     );
-
-    if (destination == FolderOpenDestination.subfolders) {
-      _openSubfolder(folder);
-      return;
-    }
-    if (destination == FolderOpenDestination.emptyFolder) {
-      _openSubfolder(folder);
-      return;
-    }
-    _openFlashcards(folder);
   }
 
-  void _openSubfolder(FolderItem folder) {
-    ref.read(folderControllerProvider.notifier).enterFolder(folder);
+  void _onBreadcrumbPressed(int index) {
+    unawaited(
+      _runFolderTransition((FolderController controller) async {
+        controller.goToBreadcrumb(index);
+        await _waitForFolderData();
+      }),
+    );
   }
 
-  void _openFlashcards(FolderItem folder) {
+  Future<void> _runFolderTransition(
+    Future<void> Function(FolderController controller) action,
+  ) async {
+    final FolderUiController uiController = ref.read(
+      folderUiControllerProvider.notifier,
+    );
+    if (ref.read(folderUiControllerProvider).isTransitionInProgress) {
+      return;
+    }
+    uiController.setTransitionInProgress(true);
+    try {
+      final FolderController controller = ref.read(
+        folderControllerProvider.notifier,
+      );
+      await action(controller);
+    } finally {
+      uiController.setTransitionInProgress(false);
+    }
+  }
+
+  Future<void> _waitForFolderData() async {
+    try {
+      await ref.read(folderControllerProvider.future);
+    } catch (_) {}
+  }
+
+  void _openFlashcards({
+    required FolderItem folder,
+    required NavigatorState navigator,
+  }) {
     final FlashcardManagementArgs args = FlashcardManagementArgs(
       folderId: folder.id,
       folderName: folder.name,
       totalFlashcards: folder.flashcardCount,
     );
-    Navigator.of(context).pushNamed(RouteNames.flashcards, arguments: args);
+    navigator.pushNamed(RouteNames.flashcards, arguments: args);
   }
 
   Future<void> _onCreatePressed() async {

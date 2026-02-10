@@ -58,10 +58,7 @@ class _FlashcardFlipState extends State<FlashcardFlip>
       _controller.forward();
     }
 
-    setState(() {
-      _isFront = nextIsFront;
-    });
-
+    _isFront = nextIsFront;
     widget.onFlipChanged?.call(_isFront);
   }
 

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/core/network/api_const.dart';
+import 'package:learnwise/core/network/api_constants.dart';
 import 'package:learnwise/core/network/interceptors/retry_policy.dart';
 
 void main() {
@@ -15,7 +15,7 @@ void main() {
     test('retries idempotent request for transient transport error', () {
       final RequestOptions request = RequestOptions(
         path: '/v1/items',
-        method: ApiConst.methodGet,
+        method: ApiConstants.methodGet,
       );
       final DioException error = DioException(
         requestOptions: request,
@@ -53,8 +53,8 @@ void main() {
     test('does not retry when skip flag enabled', () {
       final RequestOptions request = RequestOptions(
         path: '/v1/items',
-        method: ApiConst.methodGet,
-        extra: <String, dynamic>{ApiConst.skipRetryExtraKey: true},
+        method: ApiConstants.methodGet,
+        extra: <String, dynamic>{ApiConstants.skipRetryExtraKey: true},
       );
       final DioException error = DioException(
         requestOptions: request,
@@ -73,7 +73,7 @@ void main() {
     test('retries 5xx and not 4xx response', () {
       final RequestOptions request = RequestOptions(
         path: '/v1/items',
-        method: ApiConst.methodGet,
+        method: ApiConstants.methodGet,
       );
 
       final DioException serverError = DioException(
@@ -81,7 +81,7 @@ void main() {
         type: DioExceptionType.badResponse,
         response: Response<dynamic>(
           requestOptions: request,
-          statusCode: ApiConst.serverErrorLowerBound,
+          statusCode: ApiConstants.serverErrorLowerBound,
         ),
       );
       final DioException clientError = DioException(
@@ -89,7 +89,7 @@ void main() {
         type: DioExceptionType.badResponse,
         response: Response<dynamic>(
           requestOptions: request,
-          statusCode: ApiConst.badRequestStatusCode,
+          statusCode: ApiConstants.badRequestStatusCode,
         ),
       );
 

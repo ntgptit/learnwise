@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 
-import '../api_const.dart';
+import '../api_constants.dart';
 import '../auth_session.dart';
 
 typedef ExecuteRequest =
@@ -35,8 +35,8 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
-    options.headers[ApiConst.authorizationHeader] =
-        '${ApiConst.bearerTokenPrefix}${token!.trim()}';
+    options.headers[ApiConstants.authorizationHeader] =
+        '${ApiConstants.bearerTokenPrefix}${token!.trim()}';
     handler.next(options);
   }
 
@@ -92,7 +92,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   bool _shouldSkipAuth(RequestOptions request) {
-    final dynamic extraValue = request.extra[ApiConst.skipAuthExtraKey];
+    final dynamic extraValue = request.extra[ApiConstants.skipAuthExtraKey];
     if (extraValue is bool && extraValue) {
       return true;
     }
@@ -100,7 +100,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   bool _isRetried(RequestOptions request) {
-    final dynamic extraValue = request.extra[ApiConst.authRetriedExtraKey];
+    final dynamic extraValue = request.extra[ApiConstants.authRetriedExtraKey];
     if (extraValue is bool && extraValue) {
       return true;
     }
@@ -111,7 +111,7 @@ class AuthInterceptor extends Interceptor {
     if (statusCode == null) {
       return false;
     }
-    return statusCode == ApiConst.unauthorizedStatusCode;
+    return statusCode == ApiConstants.unauthorizedStatusCode;
   }
 
   RequestOptions _cloneAsRetried({
@@ -121,13 +121,13 @@ class AuthInterceptor extends Interceptor {
     final Map<String, dynamic> nextExtra = Map<String, dynamic>.from(
       request.extra,
     );
-    nextExtra[ApiConst.authRetriedExtraKey] = true;
+    nextExtra[ApiConstants.authRetriedExtraKey] = true;
 
     final Map<String, dynamic> nextHeaders = Map<String, dynamic>.from(
       request.headers,
     );
-    nextHeaders[ApiConst.authorizationHeader] =
-        '${ApiConst.bearerTokenPrefix}$refreshedToken';
+    nextHeaders[ApiConstants.authorizationHeader] =
+        '${ApiConstants.bearerTokenPrefix}$refreshedToken';
 
     return request.copyWith(extra: nextExtra, headers: nextHeaders);
   }

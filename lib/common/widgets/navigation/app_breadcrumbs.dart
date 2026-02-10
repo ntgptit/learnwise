@@ -26,25 +26,7 @@ class AppBreadcrumbs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final List<Widget> children = <Widget>[
-      ActionChip(label: Text(rootLabel), onPressed: onRootPressed),
-    ];
-
-    for (int index = 0; index < items.length; index++) {
-      final AppBreadcrumbItem item = items[index];
-      children.add(
-        const Icon(
-          Icons.chevron_right_rounded,
-          size: AppSizes.spacingLg,
-        ),
-      );
-      children.add(
-        ActionChip(
-          label: Text(item.label),
-          onPressed: () => onItemPressed(index),
-        ),
-      );
-    }
+    final List<Widget> children = _buildTrailChildren();
 
     return Container(
       padding: const EdgeInsets.all(AppSizes.spacingMd),
@@ -54,12 +36,33 @@ class AppBreadcrumbs extends StatelessWidget {
           color: colorScheme.outline.withValues(alpha: AppOpacities.outline26),
         ),
       ),
-      child: Wrap(
-        spacing: AppSizes.spacingXs,
-        runSpacing: AppSizes.spacingXs,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: children,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(mainAxisSize: MainAxisSize.min, children: children),
       ),
     );
+  }
+
+  List<Widget> _buildTrailChildren() {
+    final List<Widget> children = <Widget>[
+      ActionChip(label: Text(rootLabel), onPressed: onRootPressed),
+    ];
+
+    for (int index = 0; index < items.length; index++) {
+      final AppBreadcrumbItem item = items[index];
+      children.add(const SizedBox(width: AppSizes.spacingXs));
+      children.add(
+        const Icon(Icons.chevron_right_rounded, size: AppSizes.spacingLg),
+      );
+      children.add(const SizedBox(width: AppSizes.spacingXs));
+      children.add(
+        ActionChip(
+          label: Text(item.label),
+          onPressed: () => onItemPressed(index),
+        ),
+      );
+    }
+
+    return children;
   }
 }

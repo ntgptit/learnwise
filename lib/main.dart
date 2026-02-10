@@ -7,11 +7,11 @@ import 'app/theme/app_theme.dart';
 import 'core/error/global_error_handler.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const LearnWiseApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LearnWiseApp extends StatelessWidget {
+  const LearnWiseApp({super.key});
 
   @override
   Widget build(BuildContext context) {

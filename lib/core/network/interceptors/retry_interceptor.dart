@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../api_const.dart';
+import '../api_constants.dart';
 import 'retry_policy.dart';
 
 class RetryInterceptor extends Interceptor {
@@ -44,7 +44,7 @@ class RetryInterceptor extends Interceptor {
   }
 
   int _readAttempt(RequestOptions options) {
-    final dynamic value = options.extra[ApiConst.retryAttemptKey];
+    final dynamic value = options.extra[ApiConstants.retryAttemptKey];
     if (value is int && value >= 0) {
       return value;
     }
@@ -53,7 +53,7 @@ class RetryInterceptor extends Interceptor {
 
   RequestOptions _copyRequestWithAttempt(RequestOptions options, int attempt) {
     final Map<String, dynamic> extra = Map<String, dynamic>.from(options.extra);
-    extra[ApiConst.retryAttemptKey] = attempt;
+    extra[ApiConstants.retryAttemptKey] = attempt;
     return options.copyWith(extra: extra);
   }
 }

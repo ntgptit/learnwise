@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/error/api_error_mapper.dart';
 import 'package:learnwise/core/error/app_exception.dart';
 import 'package:learnwise/core/error/error_code.dart';
-import 'package:learnwise/core/network/api_const.dart';
+import 'package:learnwise/core/network/api_constants.dart';
 import 'package:learnwise/features/tts/model/tts_exceptions.dart';
 
 void main() {
@@ -36,7 +36,7 @@ void main() {
       final RequestOptions options = RequestOptions(path: '/v1/items/1');
       final Response<dynamic> response = Response<dynamic>(
         requestOptions: options,
-        statusCode: ApiConst.notFoundStatusCode,
+        statusCode: ApiConstants.notFoundStatusCode,
       );
       final DioException error = DioException(
         requestOptions: options,

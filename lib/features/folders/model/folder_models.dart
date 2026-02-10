@@ -1,23 +1,23 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'folder_const.dart';
+import 'folder_constants.dart';
 
 part 'folder_models.freezed.dart';
 part 'folder_models.g.dart';
 
 enum FolderSortBy {
-  @JsonValue(FolderConst.sortByCreatedAt)
+  @JsonValue(FolderConstants.sortByCreatedAt)
   createdAt,
-  @JsonValue(FolderConst.sortByName)
+  @JsonValue(FolderConstants.sortByName)
   name,
-  @JsonValue(FolderConst.sortByFlashcardCount)
+  @JsonValue(FolderConstants.sortByFlashcardCount)
   flashcardCount,
 }
 
 enum FolderSortDirection {
-  @JsonValue(FolderConst.sortDirectionAsc)
+  @JsonValue(FolderConstants.sortDirectionAsc)
   asc,
-  @JsonValue(FolderConst.sortDirectionDesc)
+  @JsonValue(FolderConstants.sortDirectionDesc)
   desc,
 }
 
@@ -85,7 +85,7 @@ sealed class FolderListQuery with _$FolderListQuery {
 
   factory FolderListQuery.initial() {
     return const FolderListQuery(
-      size: FolderConst.defaultPageSize,
+      size: FolderConstants.defaultPageSize,
       search: '',
       sortBy: FolderSortBy.createdAt,
       sortDirection: FolderSortDirection.desc,
@@ -96,30 +96,30 @@ sealed class FolderListQuery with _$FolderListQuery {
 
   Map<String, dynamic> toQueryParameters({required int page}) {
     final Map<String, dynamic> params = <String, dynamic>{
-      FolderConst.queryPageKey: page,
-      FolderConst.querySizeKey: size,
-      FolderConst.querySearchKey: search,
-      FolderConst.querySortByKey: _sortByToApi(sortBy),
-      FolderConst.querySortDirectionKey: _sortDirectionToApi(sortDirection),
+      FolderConstants.queryPageKey: page,
+      FolderConstants.querySizeKey: size,
+      FolderConstants.querySearchKey: search,
+      FolderConstants.querySortByKey: _sortByToApi(sortBy),
+      FolderConstants.querySortDirectionKey: _sortDirectionToApi(sortDirection),
     };
     if (parentFolderId != null) {
-      params[FolderConst.queryParentFolderIdKey] = parentFolderId;
+      params[FolderConstants.queryParentFolderIdKey] = parentFolderId;
     }
     return params;
   }
 
   String _sortByToApi(FolderSortBy value) {
     return switch (value) {
-      FolderSortBy.createdAt => FolderConst.sortByCreatedAt,
-      FolderSortBy.name => FolderConst.sortByName,
-      FolderSortBy.flashcardCount => FolderConst.sortByFlashcardCount,
+      FolderSortBy.createdAt => FolderConstants.sortByCreatedAt,
+      FolderSortBy.name => FolderConstants.sortByName,
+      FolderSortBy.flashcardCount => FolderConstants.sortByFlashcardCount,
     };
   }
 
   String _sortDirectionToApi(FolderSortDirection value) {
     return switch (value) {
-      FolderSortDirection.asc => FolderConst.sortDirectionAsc,
-      FolderSortDirection.desc => FolderConst.sortDirectionDesc,
+      FolderSortDirection.asc => FolderConstants.sortDirectionAsc,
+      FolderSortDirection.desc => FolderConstants.sortDirectionDesc,
     };
   }
 }

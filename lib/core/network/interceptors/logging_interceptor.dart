@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 
-import '../api_const.dart';
+import '../api_constants.dart';
 
-class HttpLogConst {
-  const HttpLogConst._();
+class HttpLogConstants {
+  const HttpLogConstants._();
 
   static const String logName = 'learnwise.http';
   static const String requestPrefix = 'REQ';
@@ -34,15 +34,15 @@ class LoggingInterceptor extends Interceptor {
       return;
     }
 
-    options.extra[HttpLogConst.requestStartTimeKey] =
+    options.extra[HttpLogConstants.requestStartTimeKey] =
         DateTime.now().millisecondsSinceEpoch;
 
     final Map<String, dynamic> redactedHeaders = _redactHeaders(
       options.headers,
     );
     log(
-      '${HttpLogConst.requestPrefix} ${options.method} ${options.uri} ${HttpLogConst.queryLabel}=${options.queryParameters} ${HttpLogConst.headersLabel}=$redactedHeaders',
-      name: HttpLogConst.logName,
+      '${HttpLogConstants.requestPrefix} ${options.method} ${options.uri} ${HttpLogConstants.queryLabel}=${options.queryParameters} ${HttpLogConstants.headersLabel}=$redactedHeaders',
+      name: HttpLogConstants.logName,
     );
     handler.next(options);
   }
@@ -62,8 +62,8 @@ class LoggingInterceptor extends Interceptor {
     final Object? body = shouldLogBody ? response.data : null;
 
     log(
-      '${HttpLogConst.responsePrefix} ${response.statusCode} ${response.requestOptions.method} ${response.requestOptions.uri} ${HttpLogConst.durationLabel}=$durationMs ${HttpLogConst.bodyLabel}=$body',
-      name: HttpLogConst.logName,
+      '${HttpLogConstants.responsePrefix} ${response.statusCode} ${response.requestOptions.method} ${response.requestOptions.uri} ${HttpLogConstants.durationLabel}=$durationMs ${HttpLogConstants.bodyLabel}=$body',
+      name: HttpLogConstants.logName,
     );
     handler.next(response);
   }
@@ -80,8 +80,8 @@ class LoggingInterceptor extends Interceptor {
       err.requestOptions.headers,
     );
     log(
-      '${HttpLogConst.errorPrefix} ${err.response?.statusCode} ${err.requestOptions.method} ${err.requestOptions.uri} ${HttpLogConst.durationLabel}=$durationMs ${HttpLogConst.headersLabel}=$redactedHeaders',
-      name: HttpLogConst.logName,
+      '${HttpLogConstants.errorPrefix} ${err.response?.statusCode} ${err.requestOptions.method} ${err.requestOptions.uri} ${HttpLogConstants.durationLabel}=$durationMs ${HttpLogConstants.headersLabel}=$redactedHeaders',
+      name: HttpLogConstants.logName,
       error: err,
     );
     handler.next(err);
@@ -89,7 +89,7 @@ class LoggingInterceptor extends Interceptor {
 
   bool _shouldLogBody(RequestOptions requestOptions) {
     final dynamic allowRawBodyLog =
-        requestOptions.extra[ApiConst.rawBodyLoggingExtraKey];
+        requestOptions.extra[ApiConstants.rawBodyLoggingExtraKey];
     if (allowRawBodyLog is bool && allowRawBodyLog) {
       return true;
     }
@@ -98,7 +98,7 @@ class LoggingInterceptor extends Interceptor {
 
   int _calculateDurationMs(RequestOptions requestOptions) {
     final dynamic startedAt =
-        requestOptions.extra[HttpLogConst.requestStartTimeKey];
+        requestOptions.extra[HttpLogConstants.requestStartTimeKey];
     if (startedAt is! int) {
       return 0;
     }
@@ -116,7 +116,7 @@ class LoggingInterceptor extends Interceptor {
     for (final MapEntry<String, dynamic> entry in headers.entries) {
       final String normalizedKey = entry.key.toLowerCase();
       if (_shouldRedactHeader(normalizedKey)) {
-        result[entry.key] = HttpLogConst.redactedValue;
+        result[entry.key] = HttpLogConstants.redactedValue;
         continue;
       }
       result[entry.key] = entry.value;
@@ -125,13 +125,13 @@ class LoggingInterceptor extends Interceptor {
   }
 
   bool _shouldRedactHeader(String normalizedKey) {
-    if (normalizedKey == HttpLogConst.authorizationHeaderLower) {
+    if (normalizedKey == HttpLogConstants.authorizationHeaderLower) {
       return true;
     }
-    if (normalizedKey == HttpLogConst.cookieHeaderLower) {
+    if (normalizedKey == HttpLogConstants.cookieHeaderLower) {
       return true;
     }
-    if (normalizedKey == HttpLogConst.setCookieHeaderLower) {
+    if (normalizedKey == HttpLogConstants.setCookieHeaderLower) {
       return true;
     }
     return false;

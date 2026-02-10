@@ -1,4 +1,4 @@
-import '../../core/network/api_const.dart';
+import '../../core/network/api_constants.dart';
 import 'env.dart';
 
 class AppConfig {
@@ -28,8 +28,8 @@ class AppConfig {
       case AppEnv.prod:
         return const AppConfig(
           env: AppEnv.prod,
-          baseUrl: ApiConst.prodBaseUrl,
-          apiVersion: ApiConst.apiVersion,
+          baseUrl: ApiConstants.prodBaseUrl,
+          apiVersion: ApiConstants.apiVersion,
           enableHttpLog: false,
           enableRetry: true,
           enableCrashReport: true,
@@ -38,8 +38,8 @@ class AppConfig {
       case AppEnv.stg:
         return const AppConfig(
           env: AppEnv.stg,
-          baseUrl: ApiConst.stgBaseUrl,
-          apiVersion: ApiConst.apiVersion,
+          baseUrl: ApiConstants.stgBaseUrl,
+          apiVersion: ApiConstants.apiVersion,
           enableHttpLog: true,
           enableRetry: true,
           enableCrashReport: false,
@@ -48,8 +48,8 @@ class AppConfig {
       case AppEnv.dev:
         return const AppConfig(
           env: AppEnv.dev,
-          baseUrl: ApiConst.devBaseUrl,
-          apiVersion: ApiConst.apiVersion,
+          baseUrl: ApiConstants.devBaseUrl,
+          apiVersion: ApiConstants.apiVersion,
           enableHttpLog: true,
           enableRetry: true,
           enableCrashReport: false,

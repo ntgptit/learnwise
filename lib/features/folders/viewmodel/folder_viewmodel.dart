@@ -4,7 +4,7 @@ import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/error_code.dart';
 import '../../../core/network/api_client.dart';
-import '../model/folder_const.dart';
+import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
 import '../repository/folder_api_service.dart';
 import '../repository/folder_repository.dart';
@@ -38,6 +38,27 @@ class FolderQueryController extends _$FolderQueryController {
   }
 
   void enterFolder(FolderItem folder) {
+    if (state.parentFolderId == folder.id) {
+      return;
+    }
+
+    final int existingIndex = state.breadcrumbs.indexWhere((
+      FolderBreadcrumb item,
+    ) {
+      return item.id == folder.id;
+    });
+    if (existingIndex >= FolderConstants.minPage) {
+      final List<FolderBreadcrumb> existingPath = state.breadcrumbs.sublist(
+        FolderConstants.minPage,
+        existingIndex + 1,
+      );
+      state = state.copyWith(
+        parentFolderId: folder.id,
+        breadcrumbs: existingPath,
+      );
+      return;
+    }
+
     final List<FolderBreadcrumb> breadcrumbs = <FolderBreadcrumb>[
       ...state.breadcrumbs,
       FolderBreadcrumb(id: folder.id, name: folder.name),
@@ -57,7 +78,7 @@ class FolderQueryController extends _$FolderQueryController {
       return;
     }
     final List<FolderBreadcrumb> breadcrumbs = state.breadcrumbs.sublist(
-      FolderConst.minPage,
+      FolderConstants.minPage,
       state.breadcrumbs.length - 1,
     );
     final int? parentFolderId = breadcrumbs.isEmpty
@@ -70,14 +91,14 @@ class FolderQueryController extends _$FolderQueryController {
   }
 
   void goToBreadcrumb(int index) {
-    if (index < FolderConst.minPage) {
+    if (index < FolderConstants.minPage) {
       return;
     }
     if (index >= state.breadcrumbs.length) {
       return;
     }
     final List<FolderBreadcrumb> breadcrumbs = state.breadcrumbs.sublist(
-      FolderConst.minPage,
+      FolderConstants.minPage,
       index + 1,
     );
     final int? parentFolderId = breadcrumbs.isEmpty
@@ -221,7 +242,7 @@ class FolderController extends _$FolderController {
           name: normalized.name,
           description: normalized.description,
           colorHex: normalized.colorHex,
-          updatedBy: FolderConst.optimisticActorLabel,
+          updatedBy: FolderConstants.optimisticActorLabel,
           updatedAt: DateTime.now().toUtc(),
         );
       }).toList();
@@ -275,7 +296,7 @@ class FolderController extends _$FolderController {
     try {
       final FolderPageResult page = await _repository.getFolders(
         query: query,
-        page: FolderConst.defaultPage,
+        page: FolderConstants.defaultPage,
       );
       return FolderListingState.fromPage(page);
     } catch (error) {
@@ -297,16 +318,16 @@ class FolderController extends _$FolderController {
   }
 
   bool _isInputValid(FolderUpsertInput input) {
-    if (input.name.length < FolderConst.nameMinLength) {
+    if (input.name.length < FolderConstants.nameMinLength) {
       return false;
     }
-    if (input.name.length > FolderConst.nameMaxLength) {
+    if (input.name.length > FolderConstants.nameMaxLength) {
       return false;
     }
-    if (input.description.length > FolderConst.descriptionMaxLength) {
+    if (input.description.length > FolderConstants.descriptionMaxLength) {
       return false;
     }
-    if (!FolderConst.colorHexPattern.hasMatch(input.colorHex)) {
+    if (!FolderConstants.colorHexPattern.hasMatch(input.colorHex)) {
       return false;
     }
     return true;

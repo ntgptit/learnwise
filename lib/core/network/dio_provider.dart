@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../app/config/app_config.dart';
-import '../../app/config/app_const.dart';
-import 'api_const.dart';
+import '../../app/config/app_constants.dart';
+import 'api_constants.dart';
 import 'auth_session.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
@@ -20,9 +20,9 @@ AppConfig appConfig(Ref ref) {
 @Riverpod(keepAlive: true)
 RetryPolicy retryPolicy(Ref ref) {
   return RetryPolicy(
-    maxRetryCount: AppConst.retryCount,
-    baseDelay: ApiConst.retryBaseDelay,
-    maxDelay: ApiConst.retryMaxDelay,
+    maxRetryCount: AppConstants.retryCount,
+    baseDelay: ApiConstants.retryBaseDelay,
+    maxDelay: ApiConstants.retryMaxDelay,
   );
 }
 
@@ -33,14 +33,14 @@ Dio dio(Ref ref) {
 
   final BaseOptions options = BaseOptions(
     baseUrl: config.apiBasePath,
-    connectTimeout: AppConst.apiConnectTimeout,
-    receiveTimeout: AppConst.apiReceiveTimeout,
-    sendTimeout: AppConst.apiConnectTimeout,
+    connectTimeout: AppConstants.apiConnectTimeout,
+    receiveTimeout: AppConstants.apiReceiveTimeout,
+    sendTimeout: AppConstants.apiConnectTimeout,
     responseType: ResponseType.json,
     receiveDataWhenStatusError: true,
     headers: <String, Object>{
-      ApiConst.acceptHeader: ApiConst.jsonMimeType,
-      ApiConst.contentTypeHeader: ApiConst.jsonMimeType,
+      ApiConstants.acceptHeader: ApiConstants.jsonMimeType,
+      ApiConstants.contentTypeHeader: ApiConstants.jsonMimeType,
     },
   );
 

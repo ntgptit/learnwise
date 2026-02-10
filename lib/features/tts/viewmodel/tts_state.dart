@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../model/tts_const.dart';
+import '../model/tts_constants.dart';
 import '../model/tts_models.dart';
 
 part 'tts_state.freezed.dart';
@@ -31,9 +31,9 @@ sealed class TtsState with _$TtsState {
     return const TtsState(
       inputText: '',
       languageMode: TtsLanguageMode.auto,
-      speechRate: TtsConst.defaultSpeechRate,
-      pitch: TtsConst.defaultPitch,
-      volume: TtsConst.defaultVolume,
+      speechRate: TtsConstants.defaultSpeechRate,
+      pitch: TtsConstants.defaultPitch,
+      volume: TtsConstants.defaultVolume,
       voices: <TtsVoiceOption>[],
       selectedVoiceId: null,
       status: TtsStatus.idle(),

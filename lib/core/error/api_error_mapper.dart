@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/tts/model/tts_exceptions.dart';
-import '../network/api_const.dart';
+import '../network/api_constants.dart';
 import 'app_exception.dart';
 import 'app_error_bus.dart';
 import 'error_code.dart';
@@ -99,34 +99,34 @@ class DefaultAppErrorMapper implements AppErrorMapper {
       return _mapFallback(error: error, fallback: fallback);
     }
 
-    if (statusCode == ApiConst.badRequestStatusCode) {
+    if (statusCode == ApiConstants.badRequestStatusCode) {
       return BadRequestAppException(statusCode: statusCode, cause: error);
     }
 
-    if (statusCode == ApiConst.unauthorizedStatusCode) {
+    if (statusCode == ApiConstants.unauthorizedStatusCode) {
       return UnauthorizedAppException(statusCode: statusCode, cause: error);
     }
 
-    if (statusCode == ApiConst.forbiddenStatusCode) {
+    if (statusCode == ApiConstants.forbiddenStatusCode) {
       return ForbiddenAppException(statusCode: statusCode, cause: error);
     }
 
-    if (statusCode == ApiConst.notFoundStatusCode) {
+    if (statusCode == ApiConstants.notFoundStatusCode) {
       return NotFoundAppException(statusCode: statusCode, cause: error);
     }
 
-    if (statusCode == ApiConst.conflictStatusCode) {
+    if (statusCode == ApiConstants.conflictStatusCode) {
       return ConflictAppException(statusCode: statusCode, cause: error);
     }
 
-    if (statusCode == ApiConst.unprocessableEntityStatusCode) {
+    if (statusCode == ApiConstants.unprocessableEntityStatusCode) {
       return UnprocessableEntityAppException(
         statusCode: statusCode,
         cause: error,
       );
     }
 
-    if (statusCode == ApiConst.tooManyRequestsStatusCode) {
+    if (statusCode == ApiConstants.tooManyRequestsStatusCode) {
       return TooManyRequestsAppException(statusCode: statusCode, cause: error);
     }
 
@@ -279,8 +279,8 @@ class DefaultAppErrorMapper implements AppErrorMapper {
   }
 
   bool _isServerError(int statusCode) {
-    return statusCode >= ApiConst.serverErrorLowerBound &&
-        statusCode <= ApiConst.serverErrorUpperBound;
+    return statusCode >= ApiConstants.serverErrorLowerBound &&
+        statusCode <= ApiConstants.serverErrorUpperBound;
   }
 
   bool _isTimeout(DioExceptionType type) {

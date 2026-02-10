@@ -9,8 +9,16 @@ class AppTypography {
   static const double labelLargeSize = 14;
   static const double labelMediumSize = 12;
 
-  static TextTheme textTheme([String? fontFamily]) {
-    final TextTheme base = Typography.material2021().black;
+  static TextTheme textTheme({
+    String? fontFamily,
+    required ColorScheme colorScheme,
+  }) {
+    final Typography typography = Typography.material2021(
+      colorScheme: colorScheme,
+    );
+    final TextTheme base = colorScheme.brightness == Brightness.dark
+        ? typography.white
+        : typography.black;
     return base.copyWith(
       headlineLarge: base.headlineLarge?.copyWith(
         fontFamily: fontFamily,

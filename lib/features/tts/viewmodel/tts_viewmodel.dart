@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/error_code.dart';
-import '../model/tts_const.dart';
+import '../model/tts_constants.dart';
 import '../model/tts_models.dart';
 import '../model/tts_sample_text.dart';
 import '../repository/tts_repository.dart';
@@ -150,7 +150,7 @@ class TtsController extends _$TtsController {
 
   Future<void> _loadVoicesInternal() async {
     final List<TtsVoiceOption> voices = await _ttsRepository.getAvailableVoices(
-      localePrefix: TtsConst.koreanLocalePrefix,
+      localePrefix: TtsConstants.koreanLocalePrefix,
     );
     final bool hasSelected =
         state.selectedVoiceId != null &&

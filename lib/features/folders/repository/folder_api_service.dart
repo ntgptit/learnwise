@@ -1,6 +1,6 @@
 import '../../../core/error/app_exception.dart';
 import '../../../core/network/api_client.dart';
-import '../model/folder_const.dart';
+import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
 import 'folder_repository.dart';
 
@@ -15,7 +15,7 @@ class FolderApiService implements FolderRepository {
     required int page,
   }) async {
     final dynamic response = await _apiClient.get<dynamic>(
-      FolderConst.resourcePath,
+      FolderConstants.resourcePath,
       queryParameters: query.toQueryParameters(page: page),
     );
     try {
@@ -29,7 +29,7 @@ class FolderApiService implements FolderRepository {
   @override
   Future<FolderItem> createFolder(FolderUpsertInput input) async {
     final dynamic response = await _apiClient.post<dynamic>(
-      FolderConst.resourcePath,
+      FolderConstants.resourcePath,
       data: input.toJson(),
     );
     try {
@@ -46,7 +46,7 @@ class FolderApiService implements FolderRepository {
     required FolderUpsertInput input,
   }) async {
     final dynamic response = await _apiClient.put<dynamic>(
-      '${FolderConst.resourcePath}/$folderId',
+      '${FolderConstants.resourcePath}/$folderId',
       data: input.toJson(),
     );
     try {
@@ -59,7 +59,9 @@ class FolderApiService implements FolderRepository {
 
   @override
   Future<void> deleteFolder(int folderId) async {
-    await _apiClient.delete<dynamic>('${FolderConst.resourcePath}/$folderId');
+    await _apiClient.delete<dynamic>(
+      '${FolderConstants.resourcePath}/$folderId',
+    );
   }
 
   Map<String, dynamic> _extractResponseData(dynamic data) {

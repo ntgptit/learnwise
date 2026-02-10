@@ -1,4 +1,4 @@
-import '../model/dashboard_const.dart';
+import '../model/dashboard_constants.dart';
 import '../model/dashboard_models.dart';
 import 'dashboard_repository.dart';
 
@@ -6,27 +6,27 @@ class DashboardService implements DashboardRepository {
   @override
   Future<DashboardSnapshot> loadSnapshot() async {
     return const DashboardSnapshot(
-      displayName: DashboardConst.defaultDisplayName,
-      streakDays: DashboardConst.defaultStreakDays,
-      focusCardCount: DashboardConst.focusCardCount,
+      displayName: DashboardConstants.defaultDisplayName,
+      streakDays: DashboardConstants.defaultStreakDays,
+      focusCardCount: DashboardConstants.focusCardCount,
       metrics: <DashboardMetric>[
         DashboardMetric(
           type: DashboardMetricType.studyMinutes,
-          value: DashboardConst.studyMinutes,
-          target: DashboardConst.studyMinutesTarget,
-          progress: DashboardConst.studyMinutesProgress,
+          value: DashboardConstants.studyMinutes,
+          target: DashboardConstants.studyMinutesTarget,
+          progress: DashboardConstants.studyMinutesProgress,
         ),
         DashboardMetric(
           type: DashboardMetricType.wordsMastered,
-          value: DashboardConst.wordsMastered,
-          target: DashboardConst.wordsMasteredTarget,
-          progress: DashboardConst.wordsMasteredProgress,
+          value: DashboardConstants.wordsMastered,
+          target: DashboardConstants.wordsMasteredTarget,
+          progress: DashboardConstants.wordsMasteredProgress,
         ),
         DashboardMetric(
           type: DashboardMetricType.weeklyGoal,
-          value: DashboardConst.weeklyGoalProgress,
-          target: DashboardConst.weeklyGoalTarget,
-          progress: DashboardConst.weeklyGoalProgressRatio,
+          value: DashboardConstants.weeklyGoalProgress,
+          target: DashboardConstants.weeklyGoalTarget,
+          progress: DashboardConstants.weeklyGoalProgressRatio,
         ),
       ],
       quickActions: <DashboardQuickAction>[
@@ -46,15 +46,15 @@ class DashboardService implements DashboardRepository {
       recentActivities: <DashboardRecentActivity>[
         DashboardRecentActivity(
           type: DashboardRecentActivityType.studyCompleted,
-          progress: DashboardConst.recentStudyCompletedProgress,
+          progress: DashboardConstants.recentStudyCompletedProgress,
         ),
         DashboardRecentActivity(
           type: DashboardRecentActivityType.progressUpdated,
-          progress: DashboardConst.recentProgressUpdatedProgress,
+          progress: DashboardConstants.recentProgressUpdatedProgress,
         ),
         DashboardRecentActivity(
           type: DashboardRecentActivityType.ttsPracticed,
-          progress: DashboardConst.recentTtsPracticedProgress,
+          progress: DashboardConstants.recentTtsPracticedProgress,
         ),
       ],
     );

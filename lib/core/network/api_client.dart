@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../error/api_error_mapper.dart';
 import '../error/app_exception.dart';
 import '../error/error_code.dart';
-import 'api_const.dart';
+import 'api_constants.dart';
 import 'dio_provider.dart';
 
 part 'api_client.g.dart';
@@ -293,13 +293,13 @@ class ApiClient {
     };
 
     if (!requiresAuth) {
-      mergedExtra[ApiConst.skipAuthExtraKey] = true;
+      mergedExtra[ApiConstants.skipAuthExtraKey] = true;
     }
     if (!allowRetry) {
-      mergedExtra[ApiConst.skipRetryExtraKey] = true;
+      mergedExtra[ApiConstants.skipRetryExtraKey] = true;
     }
     if (allowRawBodyLogging) {
-      mergedExtra[ApiConst.rawBodyLoggingExtraKey] = true;
+      mergedExtra[ApiConstants.rawBodyLoggingExtraKey] = true;
     }
 
     return sourceOptions.copyWith(extra: mergedExtra);

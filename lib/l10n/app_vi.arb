@@ -406,6 +406,32 @@
   "@foldersTrashEmptyDescription": {
     "description": "Empty state description for trash mode."
   },
+  "flashcardsTitle": "Flashcard",
+  "@flashcardsTitle": {
+    "description": "Fallback title for flashcard management screen."
+  },
+  "flashcardsManageTitle": "Flashcard · {folderName}",
+  "@flashcardsManageTitle": {
+    "description": "Title for flashcard management screen scoped to a folder.",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardsTotalLabel": "{count} flashcard trong thu muc nay",
+  "@flashcardsTotalLabel": {
+    "description": "Total flashcard count label on flashcard management screen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsFeatureDescription": "Ban co the quan ly danh sach flashcard cua thu muc tai day.",
+  "@flashcardsFeatureDescription": {
+    "description": "Intro text shown on flashcard management screen."
+  },
   "homeTitle": "LearnWise - Chuyen van ban thanh giong noi",
   "@homeTitle": {
     "description": "Main home screen title shown in the app bar."

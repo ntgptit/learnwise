@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../features/dashboard/view/dashboard_screen.dart';
+import '../../features/flashcards/model/flashcard_management_args.dart';
+import '../../features/flashcards/view/flashcard_management_screen.dart';
 import '../../features/folders/view/folder_screen.dart';
 import '../../features/tts/view/tts_screen.dart';
 import 'route_names.dart';
@@ -17,6 +19,13 @@ class AppRouter {
         return _material(settings: settings, child: const DashboardScreen());
       case RouteNames.folders:
         return _material(settings: settings, child: const FolderScreen());
+      case RouteNames.flashcards:
+        return _material(
+          settings: settings,
+          child: FlashcardManagementScreen(
+            args: _resolveFlashcardArgs(settings.arguments),
+          ),
+        );
       case RouteNames.tts:
         return _material(settings: settings, child: const TtsScreen());
       case RouteNames.login:
@@ -44,6 +53,13 @@ class AppRouter {
     required Widget child,
   }) {
     return MaterialPageRoute<void>(settings: settings, builder: (_) => child);
+  }
+
+  static FlashcardManagementArgs _resolveFlashcardArgs(Object? arguments) {
+    if (arguments is FlashcardManagementArgs) {
+      return arguments;
+    }
+    return const FlashcardManagementArgs.fallback();
   }
 }
 

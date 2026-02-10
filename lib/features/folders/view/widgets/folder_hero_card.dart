@@ -10,6 +10,7 @@ class FolderHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color foregroundColor = _resolveHeroForegroundColor(colorScheme);
 
     return Container(
       padding: const EdgeInsets.all(FolderScreenTokens.heroPadding),
@@ -27,7 +28,7 @@ class FolderHeroCard extends StatelessWidget {
           Text(
             l10n.foldersHeroTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: colorScheme.onPrimary,
+              color: foregroundColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -35,7 +36,7 @@ class FolderHeroCard extends StatelessWidget {
           Text(
             l10n.foldersHeroDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onPrimary.withValues(
+              color: foregroundColor.withValues(
                 alpha: FolderScreenTokens.dimOpacity,
               ),
             ),
@@ -44,4 +45,11 @@ class FolderHeroCard extends StatelessWidget {
       ),
     );
   }
+}
+
+Color _resolveHeroForegroundColor(ColorScheme colorScheme) {
+  if (colorScheme.brightness == Brightness.dark) {
+    return colorScheme.onSurface;
+  }
+  return colorScheme.onPrimary;
 }

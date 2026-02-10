@@ -63,7 +63,9 @@ class FolderListCard extends StatelessWidget {
                 FolderScreenTokens.listItemLeadingRadius,
               ),
             ),
-            margin: const EdgeInsets.only(top: FolderScreenTokens.colorDotTopMargin),
+            margin: const EdgeInsets.only(
+              top: FolderScreenTokens.colorDotTopMargin,
+            ),
             child: Icon(
               Icons.folder_outlined,
               color: folderColor,

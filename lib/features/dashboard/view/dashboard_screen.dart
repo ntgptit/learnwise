@@ -5,7 +5,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../app/router/route_names.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
-import '../model/dashboard_const.dart';
+import '../model/dashboard_constants.dart';
 import '../model/dashboard_models.dart';
 import '../viewmodel/dashboard_viewmodel.dart';
 
@@ -73,9 +73,9 @@ class DashboardScreen extends ConsumerWidget {
             label: l10n.dashboardNavFolders,
           ),
         ],
-        selectedIndex: DashboardConst.dashboardNavIndex,
+        selectedIndex: DashboardConstants.dashboardNavIndex,
         onDestinationSelected: (int index) {
-          if (index == DashboardConst.dashboardNavIndex) {
+          if (index == DashboardConstants.dashboardNavIndex) {
             return;
           }
           Navigator.of(context).pushReplacementNamed(RouteNames.folders);
@@ -95,6 +95,7 @@ class _HeroSection extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
+    final Color foregroundColor = _resolveHeroForegroundColor(colorScheme);
 
     return Container(
       padding: const EdgeInsets.all(DashboardScreenTokens.headerPadding),
@@ -118,7 +119,7 @@ class _HeroSection extends StatelessWidget {
           Text(
             l10n.dashboardGreeting(snapshot.displayName),
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: colorScheme.onPrimary,
+              color: foregroundColor,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -126,7 +127,7 @@ class _HeroSection extends StatelessWidget {
           Text(
             l10n.dashboardHeroHeadline,
             style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.onPrimary,
+              color: foregroundColor,
             ),
           ),
           const SizedBox(height: DashboardScreenTokens.heroGapLarge),
@@ -165,6 +166,7 @@ class _HeroStatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color foregroundColor = _resolveHeroForegroundColor(colorScheme);
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(DashboardScreenTokens.heroChipPadding),
@@ -178,7 +180,7 @@ class _HeroStatChip extends StatelessWidget {
         ),
         child: Row(
           children: <Widget>[
-            Icon(icon, color: colorScheme.onPrimary),
+            Icon(icon, color: foregroundColor),
             const SizedBox(width: DashboardScreenTokens.heroChipSpacing),
             Expanded(
               child: Column(
@@ -187,7 +189,7 @@ class _HeroStatChip extends StatelessWidget {
                   Text(
                     label,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: colorScheme.onPrimary.withValues(
+                      color: foregroundColor.withValues(
                         alpha: DashboardScreenTokens.dimOpacity,
                       ),
                     ),
@@ -195,7 +197,7 @@ class _HeroStatChip extends StatelessWidget {
                   Text(
                     value,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: colorScheme.onPrimary,
+                      color: foregroundColor,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -461,4 +463,11 @@ String _recentLabel(AppLocalizations l10n, DashboardRecentActivityType type) {
     case DashboardRecentActivityType.ttsPracticed:
       return l10n.dashboardRecentTtsPracticed;
   }
+}
+
+Color _resolveHeroForegroundColor(ColorScheme colorScheme) {
+  if (colorScheme.brightness == Brightness.dark) {
+    return colorScheme.onSurface;
+  }
+  return colorScheme.onPrimary;
 }

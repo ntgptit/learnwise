@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
-import '../../model/folder_const.dart';
+import '../../model/folder_constants.dart';
 import '../../model/folder_models.dart';
 import 'folder_color_resolver.dart';
 
@@ -18,7 +18,7 @@ Future<FolderUpsertInput?> showFolderEditorDialog({
     text: initialFolder?.description ?? '',
   );
   String selectedColorHex =
-      initialFolder?.colorHex ?? FolderConst.defaultColorHex;
+      initialFolder?.colorHex ?? FolderConstants.defaultColorHex;
 
   final FolderUpsertInput? input = await showDialog<FolderUpsertInput>(
     context: context,
@@ -42,7 +42,7 @@ Future<FolderUpsertInput?> showFolderEditorDialog({
                     children: <Widget>[
                       TextField(
                         controller: nameController,
-                        maxLength: FolderConst.nameMaxLength,
+                        maxLength: FolderConstants.nameMaxLength,
                         decoration: InputDecoration(
                           labelText: l10n.foldersNameLabel,
                           hintText: l10n.foldersNameHint,
@@ -51,7 +51,7 @@ Future<FolderUpsertInput?> showFolderEditorDialog({
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
                       TextField(
                         controller: descriptionController,
-                        maxLength: FolderConst.descriptionMaxLength,
+                        maxLength: FolderConstants.descriptionMaxLength,
                         maxLines: FolderScreenTokens.descriptionMaxLines,
                         decoration: InputDecoration(
                           labelText: l10n.foldersDescriptionLabel,
@@ -69,7 +69,7 @@ Future<FolderUpsertInput?> showFolderEditorDialog({
                       Wrap(
                         spacing: FolderScreenTokens.colorGridSpacing,
                         runSpacing: FolderScreenTokens.colorGridSpacing,
-                        children: FolderConst.colorPresets.map((
+                        children: FolderConstants.colorPresets.map((
                           String colorHex,
                         ) {
                           final bool isSelected = colorHex == selectedColorHex;

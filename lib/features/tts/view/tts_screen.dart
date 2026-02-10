@@ -5,7 +5,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../common/styles/icons.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
-import '../model/tts_const.dart';
+import '../model/tts_constants.dart';
 import '../model/tts_models.dart';
 import '../model/tts_sample_text.dart';
 import '../viewmodel/tts_state.dart';
@@ -148,8 +148,8 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                     final TtsVoiceOption voice = entry.value;
                     final String alias = l10n.koreanVoiceAlias(
                       index.toString().padLeft(
-                        TtsConst.voiceAliasPadWidth,
-                        TtsConst.voiceAliasPadChar,
+                        TtsConstants.voiceAliasPadWidth,
+                        TtsConstants.voiceAliasPadChar,
                       ),
                     );
                     return DropdownMenuItem<String?>(
@@ -182,22 +182,22 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
               _VoiceSlider(
                 label: l10n.speedLabel,
                 value: state.speechRate,
-                min: TtsConst.speechRateMin,
-                max: TtsConst.speechRateMax,
+                min: TtsConstants.speechRateMin,
+                max: TtsConstants.speechRateMax,
                 onChanged: isReading ? null : controller.setSpeechRate,
               ),
               _VoiceSlider(
                 label: l10n.pitchLabel,
                 value: state.pitch,
-                min: TtsConst.pitchMin,
-                max: TtsConst.pitchMax,
+                min: TtsConstants.pitchMin,
+                max: TtsConstants.pitchMax,
                 onChanged: isReading ? null : controller.setPitch,
               ),
               _VoiceSlider(
                 label: l10n.volumeLabel,
                 value: state.volume,
-                min: TtsConst.volumeMin,
-                max: TtsConst.volumeMax,
+                min: TtsConstants.volumeMin,
+                max: TtsConstants.volumeMax,
                 onChanged: isReading ? null : controller.setVolume,
               ),
               const SizedBox(height: TtsScreenTokens.sectionSpacing),
@@ -255,15 +255,15 @@ class _VoiceSlider extends StatelessWidget {
             value: value,
             min: min,
             max: max,
-            divisions: TtsConst.sliderDivisions,
-            label: value.toStringAsFixed(TtsConst.sliderPrecision),
+            divisions: TtsConstants.sliderDivisions,
+            label: value.toStringAsFixed(TtsConstants.sliderPrecision),
             onChanged: onChanged,
           ),
         ),
         SizedBox(
           width: TtsScreenTokens.sliderValueWidth,
           child: Text(
-            value.toStringAsFixed(TtsConst.sliderPrecision),
+            value.toStringAsFixed(TtsConstants.sliderPrecision),
             textAlign: TextAlign.right,
           ),
         ),

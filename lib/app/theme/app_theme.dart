@@ -8,39 +8,74 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
+    final ColorScheme colorScheme = lightColorScheme;
+    final TextTheme textTheme =
+        AppTypography.textTheme(colorScheme: colorScheme).apply(
+          bodyColor: colorScheme.onSurface,
+          displayColor: colorScheme.onSurface,
+        );
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: lightColorScheme,
-      textTheme: AppTypography.textTheme(),
-      scaffoldBackgroundColor: lightColorScheme.surface,
+      colorScheme: colorScheme,
+      textTheme: textTheme,
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(
+          color: colorScheme.onSurface,
+          size: AppSizes.spacingLg,
+        ),
         toolbarHeight: AppSizes.size72,
       ),
-      iconTheme: const IconThemeData(size: AppSizes.spacingLg),
+      iconTheme: IconThemeData(
+        size: AppSizes.spacingLg,
+        color: colorScheme.onSurface,
+      ),
     );
   }
 
   static ThemeData dark() {
+    final ColorScheme colorScheme = darkColorScheme;
+    final TextTheme textTheme =
+        AppTypography.textTheme(colorScheme: colorScheme).apply(
+          bodyColor: colorScheme.onSurface,
+          displayColor: colorScheme.onSurface,
+        );
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: darkColorScheme,
-      textTheme: AppTypography.textTheme(),
+      colorScheme: colorScheme,
+      textTheme: textTheme,
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        iconTheme: IconThemeData(
+          color: colorScheme.onSurface,
+          size: AppSizes.spacingLg,
+        ),
         toolbarHeight: AppSizes.size72,
       ),
-      iconTheme: const IconThemeData(size: AppSizes.spacingLg),
+      iconTheme: IconThemeData(
+        size: AppSizes.spacingLg,
+        color: colorScheme.onSurface,
+      ),
     );
   }
 }

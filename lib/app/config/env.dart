@@ -1,4 +1,4 @@
-import 'app_const.dart';
+import 'app_constants.dart';
 
 enum AppEnv {
   dev,
@@ -7,8 +7,8 @@ enum AppEnv {
 
   static AppEnv fromDartDefine() {
     final String raw = const String.fromEnvironment(
-      AppConst.appEnvDefineKey,
-      defaultValue: AppConst.defaultAppEnv,
+      AppConstants.appEnvDefineKey,
+      defaultValue: AppConstants.defaultAppEnv,
     );
     return fromValue(raw);
   }

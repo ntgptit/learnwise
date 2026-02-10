@@ -1,5 +1,5 @@
-class FolderConst {
-  const FolderConst._();
+class FolderConstants {
+  const FolderConstants._();
 
   static const String resourcePath = '/folders';
   static const String queryPageKey = 'page';

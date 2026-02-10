@@ -14,7 +14,7 @@ void main() {
   testWidgets('Dashboard renders with overview and quick actions', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const LearnWiseApp());
     await tester.pumpAndSettle();
 
     expect(find.text('LearnWise Dashboard'), findsOneWidget);
@@ -32,7 +32,7 @@ void main() {
   testWidgets('Dashboard quick action buttons are visible', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const LearnWiseApp());
     await tester.pumpAndSettle();
 
     await tester.drag(find.byType(ListView), const Offset(0, -600));

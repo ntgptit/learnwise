@@ -4,8 +4,8 @@ class AppCircularProgress extends StatelessWidget {
   const AppCircularProgress({
     super.key,
     required this.value,
-    this.size = _CircularProgressConst.defaultSize,
-    this.strokeWidth = _CircularProgressConst.defaultStrokeWidth,
+    this.size = _CircularProgressConstants.defaultSize,
+    this.strokeWidth = _CircularProgressConstants.defaultStrokeWidth,
     this.label,
   }) : assert(value >= 0, 'value must be >= 0.'),
        assert(value <= 1, 'value must be <= 1.'),
@@ -33,8 +33,8 @@ class AppCircularProgress extends StatelessWidget {
   }
 }
 
-class _CircularProgressConst {
-  const _CircularProgressConst._();
+class _CircularProgressConstants {
+  const _CircularProgressConstants._();
 
   static const double defaultSize = 44;
   static const double defaultStrokeWidth = 4;

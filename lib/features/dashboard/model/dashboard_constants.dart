@@ -1,5 +1,5 @@
-class DashboardConst {
-  const DashboardConst._();
+class DashboardConstants {
+  const DashboardConstants._();
 
   static const String defaultDisplayName = 'Learner';
 

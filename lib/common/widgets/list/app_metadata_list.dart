@@ -24,8 +24,9 @@ class AppMetadataList extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final Color textColor =
         color ?? colorScheme.onSurface.withValues(alpha: AppOpacities.muted82);
-    final TextStyle? baseStyle = Theme.of(context).textTheme.labelMedium
-        ?.copyWith(color: textColor);
+    final TextStyle? baseStyle = Theme.of(
+      context,
+    ).textTheme.labelMedium?.copyWith(color: textColor);
 
     final List<Widget> children = <Widget>[];
     for (int index = 0; index < items.length; index++) {

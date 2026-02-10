@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'tts_const.dart';
+import 'tts_constants.dart';
 
 part 'tts_models.freezed.dart';
 part 'tts_models.g.dart';
@@ -9,9 +9,9 @@ part 'tts_models.g.dart';
 sealed class TtsVoiceSettings with _$TtsVoiceSettings {
   @JsonSerializable(explicitToJson: true)
   const factory TtsVoiceSettings({
-    @Default(TtsConst.defaultSpeechRate) double speechRate,
-    @Default(TtsConst.defaultVolume) double volume,
-    @Default(TtsConst.defaultPitch) double pitch,
+    @Default(TtsConstants.defaultSpeechRate) double speechRate,
+    @Default(TtsConstants.defaultVolume) double volume,
+    @Default(TtsConstants.defaultPitch) double pitch,
   }) = _TtsVoiceSettings;
 
   factory TtsVoiceSettings.fromJson(Map<String, dynamic> json) =>

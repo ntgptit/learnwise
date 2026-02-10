@@ -406,6 +406,32 @@
   "@foldersTrashEmptyDescription": {
     "description": "Empty state description for trash mode."
   },
+  "flashcardsTitle": "Flashcards",
+  "@flashcardsTitle": {
+    "description": "Fallback title for flashcard management screen."
+  },
+  "flashcardsManageTitle": "Flashcards · {folderName}",
+  "@flashcardsManageTitle": {
+    "description": "Title for flashcard management screen scoped to a folder.",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardsTotalLabel": "{count} flashcards in this folder",
+  "@flashcardsTotalLabel": {
+    "description": "Total flashcard count label on flashcard management screen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsFeatureDescription": "Manage flashcards in this folder from this screen.",
+  "@flashcardsFeatureDescription": {
+    "description": "Intro text shown on flashcard management screen."
+  },
   "homeTitle": "LearnWise - Text To Speech",
   "@homeTitle": {
     "description": "Main home screen title shown in the app bar."

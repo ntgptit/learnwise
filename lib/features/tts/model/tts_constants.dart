@@ -1,5 +1,5 @@
-class TtsConst {
-  const TtsConst._();
+class TtsConstants {
+  const TtsConstants._();
 
   static const double defaultSpeechRate = 0.48;
   static const double defaultPitch = 1.0;

@@ -1,5 +1,5 @@
-class AppConst {
-  const AppConst._();
+class AppConstants {
+  const AppConstants._();
 
   static const int retryCount = 2;
   static const int pageSize = 20;

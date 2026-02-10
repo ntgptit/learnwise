@@ -2,15 +2,15 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 
-import '../api_const.dart';
+import '../api_constants.dart';
 
 typedef RandomFraction = double Function();
 
 class RetryPolicy {
   RetryPolicy({
     required this.maxRetryCount,
-    this.baseDelay = ApiConst.retryBaseDelay,
-    this.maxDelay = ApiConst.retryMaxDelay,
+    this.baseDelay = ApiConstants.retryBaseDelay,
+    this.maxDelay = ApiConstants.retryMaxDelay,
     RandomFraction? randomFraction,
   }) : _randomFraction = randomFraction ?? Random().nextDouble;
 
@@ -49,8 +49,8 @@ class RetryPolicy {
       return false;
     }
 
-    return statusCode >= ApiConst.serverErrorLowerBound &&
-        statusCode <= ApiConst.serverErrorUpperBound;
+    return statusCode >= ApiConstants.serverErrorLowerBound &&
+        statusCode <= ApiConstants.serverErrorUpperBound;
   }
 
   Duration delayForAttempt(int attempt) {
@@ -68,7 +68,7 @@ class RetryPolicy {
   }
 
   bool _shouldSkipRetry(RequestOptions request) {
-    final dynamic skipRetry = request.extra[ApiConst.skipRetryExtraKey];
+    final dynamic skipRetry = request.extra[ApiConstants.skipRetryExtraKey];
     if (skipRetry is bool && skipRetry) {
       return true;
     }
@@ -77,13 +77,13 @@ class RetryPolicy {
 
   bool _isIdempotentMethod(String method) {
     final String normalizedMethod = method.toUpperCase();
-    if (normalizedMethod == ApiConst.methodGet) {
+    if (normalizedMethod == ApiConstants.methodGet) {
       return true;
     }
-    if (normalizedMethod == ApiConst.methodHead) {
+    if (normalizedMethod == ApiConstants.methodHead) {
       return true;
     }
-    if (normalizedMethod == ApiConst.methodOptions) {
+    if (normalizedMethod == ApiConstants.methodOptions) {
       return true;
     }
     return false;

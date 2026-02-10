@@ -1,5 +1,5 @@
-class ApiConst {
-  const ApiConst._();
+class ApiConstants {
+  const ApiConstants._();
 
   static const String apiVersion = 'v1';
 

@@ -8,9 +8,11 @@ import '../../../app/router/route_names.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
-import '../model/folder_const.dart';
+import '../../flashcards/model/flashcard_management_args.dart';
+import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
 import '../viewmodel/folder_viewmodel.dart';
+import 'folder_open_flow.dart';
 import 'widgets/folder_editor_dialog.dart';
 import 'widgets/folder_empty_state.dart';
 import 'widgets/folder_list_card.dart';
@@ -235,7 +237,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             label: l10n.dashboardNavFolders,
           ),
         ],
-        selectedIndex: FolderConst.foldersNavIndex,
+        selectedIndex: FolderConstants.foldersNavIndex,
         onDestinationSelected: _onBottomNavSelected,
       ),
     );
@@ -248,7 +250,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     if (position == null) {
       return;
     }
-    if (position.extentAfter > FolderConst.loadMoreThresholdPx) {
+    if (position.extentAfter > FolderConstants.loadMoreThresholdPx) {
       return;
     }
     ref.read(folderControllerProvider.notifier).loadMore();
@@ -263,7 +265,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _onBottomNavSelected(int index) {
-    if (index == FolderConst.foldersNavIndex) {
+    if (index == FolderConstants.foldersNavIndex) {
       return;
     }
     Navigator.of(context).pushReplacementNamed(RouteNames.dashboard);
@@ -382,7 +384,32 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _onOpenPressed(FolderItem folder) {
+    final FolderOpenDestination destination = resolveFolderOpenDestination(
+      folder,
+    );
+
+    if (destination == FolderOpenDestination.subfolders) {
+      _openSubfolder(folder);
+      return;
+    }
+    if (destination == FolderOpenDestination.emptyFolder) {
+      _openSubfolder(folder);
+      return;
+    }
+    _openFlashcards(folder);
+  }
+
+  void _openSubfolder(FolderItem folder) {
     ref.read(folderControllerProvider.notifier).enterFolder(folder);
+  }
+
+  void _openFlashcards(FolderItem folder) {
+    final FlashcardManagementArgs args = FlashcardManagementArgs(
+      folderId: folder.id,
+      folderName: folder.name,
+      totalFlashcards: folder.flashcardCount,
+    );
+    Navigator.of(context).pushNamed(RouteNames.flashcards, arguments: args);
   }
 
   Future<void> _onCreatePressed() async {

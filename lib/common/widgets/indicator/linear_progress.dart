@@ -4,7 +4,7 @@ class AppLinearProgress extends StatelessWidget {
   const AppLinearProgress({
     super.key,
     required this.value,
-    this.height = _LinearProgressConst.defaultHeight,
+    this.height = _LinearProgressConstants.defaultHeight,
     this.backgroundColor,
   }) : assert(value >= 0, 'value must be >= 0.'),
        assert(value <= 1, 'value must be <= 1.'),
@@ -24,8 +24,8 @@ class AppLinearProgress extends StatelessWidget {
   }
 }
 
-class _LinearProgressConst {
-  const _LinearProgressConst._();
+class _LinearProgressConstants {
+  const _LinearProgressConstants._();
 
   static const double defaultHeight = 8;
 }

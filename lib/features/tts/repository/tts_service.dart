@@ -1,6 +1,6 @@
 import 'package:flutter_tts/flutter_tts.dart';
 
-import '../model/tts_const.dart';
+import '../model/tts_constants.dart';
 import '../model/tts_exceptions.dart';
 import '../model/tts_models.dart';
 import 'tts_repository.dart';
@@ -12,7 +12,7 @@ class TtsService implements TtsRepository {
 
   late final FlutterTts _flutterTts;
   bool _isInitialized = false;
-  final RegExp _hangulPattern = RegExp(TtsConst.hangulPattern);
+  final RegExp _hangulPattern = RegExp(TtsConstants.hangulPattern);
 
   @override
   Future<void> init({
@@ -23,7 +23,7 @@ class TtsService implements TtsRepository {
     }
 
     try {
-      await _flutterTts.setLanguage(TtsConst.englishLanguageCode);
+      await _flutterTts.setLanguage(TtsConstants.englishLanguageCode);
       await _applyVoiceSettings(settings);
       await _flutterTts.awaitSpeakCompletion(true);
       _isInitialized = true;
@@ -67,13 +67,13 @@ class TtsService implements TtsRepository {
   String _resolveLanguage(String text, TtsLanguageMode mode) {
     switch (mode) {
       case TtsLanguageMode.english:
-        return TtsConst.englishLanguageCode;
+        return TtsConstants.englishLanguageCode;
       case TtsLanguageMode.korean:
-        return TtsConst.koreanLanguageCode;
+        return TtsConstants.koreanLanguageCode;
       case TtsLanguageMode.auto:
         return _hangulPattern.hasMatch(text)
-            ? TtsConst.koreanLanguageCode
-            : TtsConst.englishLanguageCode;
+            ? TtsConstants.koreanLanguageCode
+            : TtsConstants.englishLanguageCode;
     }
   }
 
@@ -109,9 +109,12 @@ class TtsService implements TtsRepository {
         }
 
         final Map<String, dynamic> rawVoice = Map<String, dynamic>.from(item);
-        final String id = _readString(rawVoice, TtsConst.voiceIdKeys);
-        final String name = _readString(rawVoice, TtsConst.voiceNameKeys);
-        final String locale = _readString(rawVoice, TtsConst.voiceLocaleKeys);
+        final String id = _readString(rawVoice, TtsConstants.voiceIdKeys);
+        final String name = _readString(rawVoice, TtsConstants.voiceNameKeys);
+        final String locale = _readString(
+          rawVoice,
+          TtsConstants.voiceLocaleKeys,
+        );
         final String dedupeKey = '${id.toLowerCase()}|${locale.toLowerCase()}';
 
         if (id.isEmpty || seen.contains(dedupeKey)) {
@@ -137,7 +140,7 @@ class TtsService implements TtsRepository {
           TtsVoiceOption(
             id: id,
             name: name.isEmpty ? id : name,
-            locale: locale.isEmpty ? TtsConst.unknownVoiceLocale : locale,
+            locale: locale.isEmpty ? TtsConstants.unknownVoiceLocale : locale,
             params: params,
           ),
         );

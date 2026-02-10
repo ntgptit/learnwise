@@ -7,7 +7,7 @@ class QuizProgressBar extends StatelessWidget {
     super.key,
     required this.progressValue,
     required this.progressText,
-    this.height = _QuizProgressBarConst.defaultHeight,
+    this.height = _QuizProgressBarConstants.defaultHeight,
   }) : assert(progressValue >= 0, 'progressValue must be >= 0.'),
        assert(progressValue <= 1, 'progressValue must be <= 1.'),
        assert(height > 0, 'height must be greater than 0.');
@@ -29,8 +29,8 @@ class QuizProgressBar extends StatelessWidget {
   }
 }
 
-class _QuizProgressBarConst {
-  const _QuizProgressBarConst._();
+class _QuizProgressBarConstants {
+  const _QuizProgressBarConstants._();
 
   static const double defaultHeight = 10;
 }

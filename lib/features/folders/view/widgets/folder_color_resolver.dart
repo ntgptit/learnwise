@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 
-import '../../model/folder_const.dart';
+import '../../model/folder_constants.dart';
 
 Color resolveFolderColor(String colorHex, Color fallbackColor) {
   final String normalizedHex = colorHex.replaceFirst('#', '');
 
-  if (normalizedHex.length == FolderConst.colorHexRgbLength) {
+  if (normalizedHex.length == FolderConstants.colorHexRgbLength) {
     final int? value = int.tryParse(
-      '${FolderConst.colorHexDefaultAlpha}$normalizedHex',
-      radix: FolderConst.colorHexRadix,
+      '${FolderConstants.colorHexDefaultAlpha}$normalizedHex',
+      radix: FolderConstants.colorHexRadix,
     );
     if (value != null) {
       return Color(value);
     }
   }
 
-  if (normalizedHex.length == FolderConst.colorHexArgbLength) {
+  if (normalizedHex.length == FolderConstants.colorHexArgbLength) {
     final int? value = int.tryParse(
       normalizedHex,
-      radix: FolderConst.colorHexRadix,
+      radix: FolderConstants.colorHexRadix,
     );
     if (value != null) {
       return Color(value);

@@ -53,7 +53,9 @@ class AppMetricCard extends StatelessWidget {
             const SizedBox(height: AppSizes.spacingXs),
             Text(
               value,
-              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             if (progress != null) ...<Widget>[
               const SizedBox(height: AppSizes.spacing2Xs),

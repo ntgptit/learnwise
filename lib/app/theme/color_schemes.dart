@@ -14,7 +14,14 @@ const ColorScheme lightColorScheme = ColorScheme(
   onSurface: AppColors.onSurface,
 );
 
-final ColorScheme darkColorScheme = ColorScheme.fromSeed(
-  seedColor: AppColors.primary,
-  brightness: Brightness.dark,
-);
+final ColorScheme darkColorScheme =
+    ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.dark,
+    ).copyWith(
+      surface: const Color(0xFF0F1416),
+      onSurface: const Color(0xFFE6ECEE),
+      surfaceContainerHighest: const Color(0xFF2A3134),
+      onSurfaceVariant: const Color(0xFFBEC8CC),
+      outline: const Color(0xFF879296),
+    );

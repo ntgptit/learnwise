@@ -41,7 +41,7 @@ public class FlashcardController {
     ResponseEntity<PageResponse<FlashcardResponse>> getFlashcards(
             @PathVariable Long deckId,
             @ModelAttribute FlashcardListRequest request) {
-        final FlashcardListQuery query = FlashcardListQuery.fromRequest(deckId, request);
+        final var query = FlashcardListQuery.fromRequest(deckId, request);
         log.debug(
                 "Get flashcards with deckId={}, page={}, size={}",
                 deckId,
@@ -55,7 +55,7 @@ public class FlashcardController {
     ResponseEntity<FlashcardResponse> createFlashcard(
             @PathVariable Long deckId,
             @Valid @RequestBody FlashcardCreateRequest request) {
-        final FlashcardResponse response = this.flashcardService.createFlashcard(deckId, request);
+        final var response = this.flashcardService.createFlashcard(deckId, request);
         log.info("Created flashcard with id={} in deckId={}", response.id(), deckId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

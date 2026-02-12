@@ -376,8 +376,10 @@ class FolderController extends _$FolderController {
           name: normalized.name,
           description: normalized.description,
           colorHex: normalized.colorHex,
-          updatedBy: FolderConstants.optimisticActorLabel,
-          updatedAt: DateTime.now().toUtc(),
+          audit: item.audit.copyWith(
+            updatedBy: FolderConstants.optimisticActorLabel,
+            updatedAt: DateTime.now().toUtc(),
+          ),
         );
       }).toList();
       state = AsyncData<FolderListingState>(

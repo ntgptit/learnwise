@@ -1,9 +1,17 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../core/model/audit_metadata.dart';
+import '../../../core/model/auditable_model.dart';
 import 'deck_constants.dart';
 
 part 'deck_models.freezed.dart';
 part 'deck_models.g.dart';
+
+const String _deckItemAuditJsonKey = 'audit';
+
+Object? _readDeckItemAuditValue(Map<dynamic, dynamic> json, String key) {
+  return AuditMetadata.readFlatJsonMap(json);
+}
 
 enum DeckSortBy {
   @JsonValue(DeckConstants.sortByCreatedAt)
@@ -21,6 +29,9 @@ enum DeckSortDirection {
 
 @freezed
 sealed class DeckItem with _$DeckItem {
+  const DeckItem._();
+
+  @With<AuditableModel>()
   @JsonSerializable(explicitToJson: true)
   const factory DeckItem({
     required int id,
@@ -28,14 +39,20 @@ sealed class DeckItem with _$DeckItem {
     required String name,
     required String description,
     required int flashcardCount,
-    required String createdBy,
-    required String updatedBy,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(
+      name: _deckItemAuditJsonKey,
+      readValue: _readDeckItemAuditValue,
+    )
+    required AuditMetadata audit,
   }) = _DeckItem;
 
   factory DeckItem.fromJson(Map<String, dynamic> json) =>
       _$DeckItemFromJson(json);
+
+  String get createdBy => audit.createdBy;
+  String get updatedBy => audit.updatedBy;
+  DateTime get createdAt => audit.createdAt;
+  DateTime get updatedAt => audit.updatedAt;
 }
 
 @freezed

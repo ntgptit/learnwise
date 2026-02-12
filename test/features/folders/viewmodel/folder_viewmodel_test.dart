@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:learnwise/core/model/audit_metadata.dart';
 import 'package:learnwise/features/folders/model/folder_models.dart';
 import 'package:learnwise/features/folders/repository/folder_repository.dart';
 import 'package:learnwise/features/folders/viewmodel/folder_viewmodel.dart';
@@ -266,9 +267,11 @@ FolderItem _item(int id) {
     directDeckCount: 0,
     flashcardCount: 0,
     childFolderCount: 0,
-    createdBy: 'tester',
-    updatedBy: 'tester',
-    createdAt: DateTime.utc(2026, 1, 1),
-    updatedAt: DateTime.utc(2026, 1, 1),
+    audit: AuditMetadata(
+      createdBy: 'tester',
+      updatedBy: 'tester',
+      createdAt: DateTime.utc(2026, 1, 1),
+      updatedAt: DateTime.utc(2026, 1, 1),
+    ),
   );
 }

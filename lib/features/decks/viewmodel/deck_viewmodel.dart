@@ -199,8 +199,10 @@ class DeckController extends _$DeckController {
         return item.copyWith(
           name: normalized.name,
           description: normalized.description,
-          updatedBy: DeckConstants.optimisticActorLabel,
-          updatedAt: DateTime.now().toUtc(),
+          audit: item.audit.copyWith(
+            updatedBy: DeckConstants.optimisticActorLabel,
+            updatedAt: DateTime.now().toUtc(),
+          ),
         );
       }).toList();
       state = AsyncData<DeckListingState>(

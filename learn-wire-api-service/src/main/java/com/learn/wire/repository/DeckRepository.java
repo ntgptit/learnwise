@@ -40,11 +40,11 @@ public interface DeckRepository extends JpaRepository<DeckEntity, Long> {
             FROM DeckEntity deck
             WHERE deck.deletedAt IS NULL
               AND deck.folderId = :folderId
-              AND LOWER(deck.name) = LOWER(:name)
+              AND deck.normalizedName = :normalizedName
             """)
-    boolean existsActiveByFolderAndName(
+    boolean existsActiveByFolderAndNormalizedName(
             @Param("folderId") Long folderId,
-            @Param("name") String name);
+            @Param("normalizedName") String normalizedName);
 
     @Query("""
             SELECT CASE WHEN COUNT(deck.id) > 0 THEN true ELSE false END
@@ -52,11 +52,11 @@ public interface DeckRepository extends JpaRepository<DeckEntity, Long> {
             WHERE deck.deletedAt IS NULL
               AND deck.folderId = :folderId
               AND deck.id <> :excludeDeckId
-              AND LOWER(deck.name) = LOWER(:name)
+              AND deck.normalizedName = :normalizedName
             """)
-    boolean existsActiveByFolderAndNameExcludingDeckId(
+    boolean existsActiveByFolderAndNormalizedNameExcludingDeckId(
             @Param("folderId") Long folderId,
-            @Param("name") String name,
+            @Param("normalizedName") String normalizedName,
             @Param("excludeDeckId") Long excludeDeckId);
 
     @Query("""

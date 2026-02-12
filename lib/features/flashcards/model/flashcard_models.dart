@@ -1,9 +1,17 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../core/model/audit_metadata.dart';
+import '../../../core/model/auditable_model.dart';
 import 'flashcard_constants.dart';
 
 part 'flashcard_models.freezed.dart';
 part 'flashcard_models.g.dart';
+
+const String _flashcardItemAuditJsonKey = 'audit';
+
+Object? _readFlashcardItemAuditValue(Map<dynamic, dynamic> json, String key) {
+  return AuditMetadata.readFlatJsonMap(json);
+}
 
 enum FlashcardSortBy {
   @JsonValue(FlashcardConstants.sortByCreatedAt)
@@ -21,20 +29,29 @@ enum FlashcardSortDirection {
 
 @freezed
 sealed class FlashcardItem with _$FlashcardItem {
+  const FlashcardItem._();
+
+  @With<AuditableModel>()
   @JsonSerializable(explicitToJson: true)
   const factory FlashcardItem({
     required int id,
     required int deckId,
     required String frontText,
     required String backText,
-    required String createdBy,
-    required String updatedBy,
-    required DateTime createdAt,
-    required DateTime updatedAt,
+    @JsonKey(
+      name: _flashcardItemAuditJsonKey,
+      readValue: _readFlashcardItemAuditValue,
+    )
+    required AuditMetadata audit,
   }) = _FlashcardItem;
 
   factory FlashcardItem.fromJson(Map<String, dynamic> json) =>
       _$FlashcardItemFromJson(json);
+
+  String get createdBy => audit.createdBy;
+  String get updatedBy => audit.updatedBy;
+  DateTime get createdAt => audit.createdAt;
+  DateTime get updatedAt => audit.updatedAt;
 }
 
 @freezed

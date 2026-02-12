@@ -4,10 +4,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -97,16 +99,18 @@ public class DeckServiceImpl implements DeckService {
         validateRequest(request.name(), request.description());
         validateFolderAllowsDeckCreation(folderId);
         final String normalizedName = normalizeName(request.name());
-        validateNameUniquenessForCreate(folderId, normalizedName);
+        final String normalizedNameForIndex = normalizeNameForIndex(normalizedName);
+        validateNameUniquenessForCreate(folderId, normalizedNameForIndex);
 
         final DeckEntity entity = this.deckMapper.toEntity(request);
         entity.setFolderId(folderId);
         entity.setName(normalizedName);
+        entity.setNormalizedName(normalizedNameForIndex);
         entity.setDescription(normalizeDescription(request.description()));
         entity.setCreatedBy(DeckConst.DEFAULT_ACTOR);
         entity.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
 
-        final DeckEntity created = this.deckRepository.save(entity);
+        final DeckEntity created = persistDeckWithDuplicateNameGuard(entity);
         return toResponse(created, 0L);
     }
 
@@ -115,13 +119,15 @@ public class DeckServiceImpl implements DeckService {
         log.info("Update deck id={} in folderId={}", deckId, folderId);
         validateRequest(request.name(), request.description());
         final String normalizedName = normalizeName(request.name());
+        final String normalizedNameForIndex = normalizeNameForIndex(normalizedName);
         final DeckEntity deck = getActiveDeckEntity(folderId, deckId);
-        validateNameUniquenessForUpdate(folderId, deckId, normalizedName);
+        validateNameUniquenessForUpdate(folderId, deckId, normalizedNameForIndex);
         this.deckMapper.updateEntity(request, deck);
         deck.setName(normalizedName);
+        deck.setNormalizedName(normalizedNameForIndex);
         deck.setDescription(normalizeDescription(request.description()));
         deck.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
-        final DeckEntity updated = this.deckRepository.save(deck);
+        final DeckEntity updated = persistDeckWithDuplicateNameGuard(deck);
         final long flashcardCount = this.flashcardRepository.countByDeckIdAndDeletedAtIsNull(deckId);
         return toResponse(updated, flashcardCount);
     }
@@ -147,6 +153,7 @@ public class DeckServiceImpl implements DeckService {
         }
 
         deck.setDeletedAt(Instant.now());
+        deck.setNormalizedName(null);
         deck.setDeletedBy(DeckConst.DEFAULT_ACTOR);
         deck.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
         this.deckRepository.save(deck);
@@ -243,23 +250,37 @@ public class DeckServiceImpl implements DeckService {
         throw new BusinessException(DeckConst.FOLDER_HAS_SUBFOLDERS_KEY);
     }
 
-    private void validateNameUniquenessForCreate(Long folderId, String normalizedName) {
-        final boolean hasDuplicateName = this.deckRepository.existsActiveByFolderAndName(folderId, normalizedName);
+    private void validateNameUniquenessForCreate(Long folderId, String normalizedNameForIndex) {
+        final boolean hasDuplicateName = this.deckRepository.existsActiveByFolderAndNormalizedName(
+                folderId,
+                normalizedNameForIndex);
         if (!hasDuplicateName) {
             return;
         }
         throw new BusinessException(DeckConst.DUPLICATE_NAME_KEY);
     }
 
-    private void validateNameUniquenessForUpdate(Long folderId, Long deckId, String normalizedName) {
-        final boolean hasDuplicateName = this.deckRepository.existsActiveByFolderAndNameExcludingDeckId(
+    private void validateNameUniquenessForUpdate(Long folderId, Long deckId, String normalizedNameForIndex) {
+        final boolean hasDuplicateName = this.deckRepository.existsActiveByFolderAndNormalizedNameExcludingDeckId(
                 folderId,
-                normalizedName,
+                normalizedNameForIndex,
                 deckId);
         if (!hasDuplicateName) {
             return;
         }
         throw new BusinessException(DeckConst.DUPLICATE_NAME_KEY);
+    }
+
+    private DeckEntity persistDeckWithDuplicateNameGuard(DeckEntity deck) {
+        try {
+            return this.deckRepository.save(deck);
+        } catch (DataIntegrityViolationException exception) {
+            log.warn(
+                    "Duplicate active deck name with folderId={} and name={}",
+                    deck.getFolderId(),
+                    deck.getName());
+            throw new BusinessException(DeckConst.DUPLICATE_NAME_KEY);
+        }
     }
 
     private DeckEntity getActiveDeckEntity(Long folderId, Long deckId) {
@@ -293,6 +314,11 @@ public class DeckServiceImpl implements DeckService {
 
     private String normalizeName(String value) {
         return StringUtils.trimToEmpty(value);
+    }
+
+    private String normalizeNameForIndex(String value) {
+        final String normalizedName = normalizeName(value);
+        return normalizedName.toLowerCase(Locale.ROOT);
     }
 
     private String normalizeDescription(String value) {

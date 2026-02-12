@@ -203,8 +203,10 @@ class FlashcardController extends _$FlashcardController {
         return item.copyWith(
           frontText: normalized.frontText,
           backText: normalized.backText,
-          updatedBy: FlashcardConstants.optimisticActorLabel,
-          updatedAt: DateTime.now().toUtc(),
+          audit: item.audit.copyWith(
+            updatedBy: FlashcardConstants.optimisticActorLabel,
+            updatedAt: DateTime.now().toUtc(),
+          ),
         );
       }).toList();
       state = AsyncData<FlashcardListingState>(

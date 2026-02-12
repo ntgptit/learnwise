@@ -13,6 +13,7 @@ public interface DeckMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "folderId", ignore = true)
+    @Mapping(target = "normalizedName", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)
@@ -23,6 +24,7 @@ public interface DeckMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "folderId", ignore = true)
+    @Mapping(target = "normalizedName", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)

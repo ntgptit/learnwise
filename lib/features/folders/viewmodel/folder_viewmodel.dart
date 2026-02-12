@@ -76,6 +76,7 @@ class FolderQueryController extends _$FolderQueryController {
         id: folder.id,
         name: folder.name,
         directFlashcardCount: folder.directFlashcardCount,
+        directDeckCount: folder.directDeckCount,
       ),
     ];
     state = state.copyWith(parentFolderId: folder.id, breadcrumbs: breadcrumbs);

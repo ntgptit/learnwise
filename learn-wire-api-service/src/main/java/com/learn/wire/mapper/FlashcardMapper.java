@@ -12,7 +12,7 @@ import com.learn.wire.entity.FlashcardEntity;
 public interface FlashcardMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "folderId", ignore = true)
+    @Mapping(target = "deckId", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)
@@ -22,7 +22,7 @@ public interface FlashcardMapper {
     FlashcardEntity toEntity(FlashcardCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "folderId", ignore = true)
+    @Mapping(target = "deckId", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)

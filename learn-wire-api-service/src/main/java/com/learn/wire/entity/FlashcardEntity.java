@@ -34,8 +34,8 @@ public class FlashcardEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "folder_id", nullable = false)
-    private Long folderId;
+    @Column(name = "deck_id", nullable = false)
+    private Long deckId;
 
     @Column(name = "front_text", nullable = false, length = FlashcardConst.FRONT_TEXT_MAX_LENGTH)
     private String frontText;

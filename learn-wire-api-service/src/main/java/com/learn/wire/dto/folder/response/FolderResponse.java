@@ -11,6 +11,7 @@ public record FolderResponse(
         int directFlashcardCount,
         int flashcardCount,
         int childFolderCount,
+        int directDeckCount,
         String createdBy,
         String updatedBy,
         Instant createdAt,

@@ -7,18 +7,18 @@ import com.learn.wire.dto.flashcard.request.FlashcardListRequest;
 import com.learn.wire.exception.BadRequestException;
 
 public record FlashcardListQuery(
-        Long folderId,
+        Long deckId,
         int page,
         int size,
         String search,
         FlashcardSortField sortField,
         SortDirection sortDirection) {
 
-    public static FlashcardListQuery fromRequest(Long folderId, FlashcardListRequest request) {
+    public static FlashcardListQuery fromRequest(Long deckId, FlashcardListRequest request) {
         if (request == null) {
             throw new BadRequestException(ErrorMessageConst.COMMON_ERROR_INVALID_REQUEST);
         }
-        if (folderId == null) {
+        if (deckId == null) {
             throw new BadRequestException(ErrorMessageConst.COMMON_ERROR_INVALID_REQUEST);
         }
 
@@ -38,7 +38,7 @@ public record FlashcardListQuery(
                 FlashcardConst.SORT_DIRECTION_INVALID_KEY);
         final String search = normalizeSearch(request.getSearch());
         return new FlashcardListQuery(
-                folderId,
+                deckId,
                 page,
                 size,
                 search,

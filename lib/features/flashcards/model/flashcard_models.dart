@@ -24,7 +24,7 @@ sealed class FlashcardItem with _$FlashcardItem {
   @JsonSerializable(explicitToJson: true)
   const factory FlashcardItem({
     required int id,
-    required int folderId,
+    required int deckId,
     required String frontText,
     required String backText,
     required String createdBy,
@@ -55,7 +55,7 @@ sealed class FlashcardListQuery with _$FlashcardListQuery {
 
   @JsonSerializable(explicitToJson: true)
   const factory FlashcardListQuery({
-    required int folderId,
+    required int deckId,
     required int size,
     required String search,
     required FlashcardSortBy sortBy,
@@ -65,9 +65,9 @@ sealed class FlashcardListQuery with _$FlashcardListQuery {
   factory FlashcardListQuery.fromJson(Map<String, dynamic> json) =>
       _$FlashcardListQueryFromJson(json);
 
-  factory FlashcardListQuery.initial({required int folderId}) {
+  factory FlashcardListQuery.initial({required int deckId}) {
     return FlashcardListQuery(
-      folderId: folderId,
+      deckId: deckId,
       size: FlashcardConstants.defaultPageSize,
       search: '',
       sortBy: FlashcardSortBy.createdAt,

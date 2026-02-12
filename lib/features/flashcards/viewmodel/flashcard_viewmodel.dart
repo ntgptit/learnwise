@@ -22,8 +22,8 @@ FlashcardRepository flashcardRepository(Ref ref) {
 @Riverpod(keepAlive: true)
 class FlashcardQueryController extends _$FlashcardQueryController {
   @override
-  FlashcardListQuery build(int folderId) {
-    return FlashcardListQuery.initial(folderId: folderId);
+  FlashcardListQuery build(int deckId) {
+    return FlashcardListQuery.initial(deckId: deckId);
   }
 
   void setSearch(String value) {
@@ -71,11 +71,11 @@ class FlashcardController extends _$FlashcardController {
   bool _isBootstrapCompleted = false;
   bool _isQueryListenerBound = false;
   int _queryRequestVersion = FlashcardConstants.defaultPage;
-  late int _folderId;
+  late int _deckId;
 
   @override
-  Future<FlashcardListingState> build(int folderId) async {
-    _folderId = folderId;
+  Future<FlashcardListingState> build(int deckId) async {
+    _deckId = deckId;
     _repository = ref.read(flashcardRepositoryProvider);
     _errorAdvisor = ref.read(appErrorAdvisorProvider);
     _bindQueryListener();
@@ -88,26 +88,26 @@ class FlashcardController extends _$FlashcardController {
   }
 
   void applySearch(String searchText) {
-    ref.read(flashcardQueryControllerProvider(_folderId).notifier).setSearch(
-      searchText,
-    );
+    ref
+        .read(flashcardQueryControllerProvider(_deckId).notifier)
+        .setSearch(searchText);
   }
 
   void applySortBy(FlashcardSortBy value) {
     ref
-        .read(flashcardQueryControllerProvider(_folderId).notifier)
+        .read(flashcardQueryControllerProvider(_deckId).notifier)
         .setSortBy(value);
   }
 
   void applySortDirection(FlashcardSortDirection value) {
     ref
-        .read(flashcardQueryControllerProvider(_folderId).notifier)
+        .read(flashcardQueryControllerProvider(_deckId).notifier)
         .setSortDirection(value);
   }
 
   Future<void> refresh() async {
     final FlashcardListQuery query = ref.read(
-      flashcardQueryControllerProvider(_folderId),
+      flashcardQueryControllerProvider(_deckId),
     );
     await _reloadForQuery(query: query, isRefresh: true);
   }
@@ -125,7 +125,7 @@ class FlashcardController extends _$FlashcardController {
     }
 
     final FlashcardListQuery query = ref.read(
-      flashcardQueryControllerProvider(_folderId),
+      flashcardQueryControllerProvider(_deckId),
     );
     state = AsyncData<FlashcardListingState>(
       currentListing.copyWith(isLoadingMore: true),
@@ -164,13 +164,15 @@ class FlashcardController extends _$FlashcardController {
     }
 
     try {
-      await _repository.createFlashcard(folderId: _folderId, input: normalized);
+      await _repository.createFlashcard(deckId: _deckId, input: normalized);
       await refresh();
       return const FlashcardSubmitResult.success();
     } catch (error) {
       final String? formErrorMessage = _resolveFormErrorMessage(error);
       if (formErrorMessage != null) {
-        return FlashcardSubmitResult.failure(formErrorMessage: formErrorMessage);
+        return FlashcardSubmitResult.failure(
+          formErrorMessage: formErrorMessage,
+        );
       }
       _errorAdvisor.handle(error, fallback: AppErrorCode.flashcardCreateFailed);
       return const FlashcardSubmitResult.failure();
@@ -212,7 +214,7 @@ class FlashcardController extends _$FlashcardController {
 
     try {
       await _repository.updateFlashcard(
-        folderId: _folderId,
+        deckId: _deckId,
         flashcardId: flashcardId,
         input: normalized,
       );
@@ -224,7 +226,9 @@ class FlashcardController extends _$FlashcardController {
       }
       final String? formErrorMessage = _resolveFormErrorMessage(error);
       if (formErrorMessage != null) {
-        return FlashcardSubmitResult.failure(formErrorMessage: formErrorMessage);
+        return FlashcardSubmitResult.failure(
+          formErrorMessage: formErrorMessage,
+        );
       }
       _errorAdvisor.handle(error, fallback: AppErrorCode.flashcardUpdateFailed);
       return const FlashcardSubmitResult.failure();
@@ -248,7 +252,7 @@ class FlashcardController extends _$FlashcardController {
 
     try {
       await _repository.deleteFlashcard(
-        folderId: _folderId,
+        deckId: _deckId,
         flashcardId: flashcardId,
       );
       await refresh();
@@ -276,13 +280,15 @@ class FlashcardController extends _$FlashcardController {
   }
 
   Future<FlashcardListingState> _loadBootstrapListing() async {
-    FlashcardListQuery query = ref.read(flashcardQueryControllerProvider(_folderId));
+    FlashcardListQuery query = ref.read(
+      flashcardQueryControllerProvider(_deckId),
+    );
     while (true) {
       final FlashcardListingState listing = await _loadInitial(query: query);
       if (!_isQueryStale(query)) {
         return listing;
       }
-      query = ref.read(flashcardQueryControllerProvider(_folderId));
+      query = ref.read(flashcardQueryControllerProvider(_deckId));
     }
   }
 
@@ -291,7 +297,7 @@ class FlashcardController extends _$FlashcardController {
       return;
     }
     _isQueryListenerBound = true;
-    ref.listen<FlashcardListQuery>(flashcardQueryControllerProvider(_folderId), (
+    ref.listen<FlashcardListQuery>(flashcardQueryControllerProvider(_deckId), (
       FlashcardListQuery? previousQuery,
       FlashcardListQuery nextQuery,
     ) {
@@ -395,7 +401,7 @@ class FlashcardController extends _$FlashcardController {
 
   bool _isQueryStale(FlashcardListQuery expectedQuery) {
     final FlashcardListQuery currentQuery = ref.read(
-      flashcardQueryControllerProvider(_folderId),
+      flashcardQueryControllerProvider(_deckId),
     );
     return currentQuery != expectedQuery;
   }

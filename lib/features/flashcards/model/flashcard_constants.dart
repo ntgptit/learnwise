@@ -1,7 +1,7 @@
 class FlashcardConstants {
   const FlashcardConstants._();
 
-  static const String foldersResourcePath = '/folders';
+  static const String decksResourcePath = '/decks';
   static const String flashcardsPathSegment = 'flashcards';
   static const String queryPageKey = 'page';
   static const String querySizeKey = 'size';

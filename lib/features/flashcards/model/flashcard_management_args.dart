@@ -1,20 +1,24 @@
 class FlashcardManagementArgs {
   const FlashcardManagementArgs({
-    required this.folderId,
+    required this.deckId,
+    required this.deckName,
     required this.folderName,
     required this.totalFlashcards,
   });
 
   const FlashcardManagementArgs.fallback()
-    : folderId = fallbackFolderId,
+    : deckId = fallbackDeckId,
+      deckName = fallbackDeckName,
       folderName = fallbackFolderName,
       totalFlashcards = fallbackTotalFlashcards;
 
-  static const int fallbackFolderId = 0;
+  static const int fallbackDeckId = 0;
+  static const String fallbackDeckName = '';
   static const String fallbackFolderName = '';
   static const int fallbackTotalFlashcards = 0;
 
-  final int folderId;
+  final int deckId;
+  final String deckName;
   final String folderName;
   final int totalFlashcards;
 }

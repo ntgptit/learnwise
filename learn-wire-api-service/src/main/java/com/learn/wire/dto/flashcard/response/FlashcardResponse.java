@@ -4,7 +4,7 @@ import java.time.Instant;
 
 public record FlashcardResponse(
         Long id,
-        Long folderId,
+        Long deckId,
         String frontText,
         String backText,
         String createdBy,

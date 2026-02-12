@@ -263,6 +263,7 @@ FolderItem _item(int id) {
     colorHex: '#123456',
     parentFolderId: null,
     directFlashcardCount: 0,
+    directDeckCount: 0,
     flashcardCount: 0,
     childFolderCount: 0,
     createdBy: 'tester',

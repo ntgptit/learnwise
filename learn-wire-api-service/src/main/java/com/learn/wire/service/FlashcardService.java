@@ -10,9 +10,9 @@ public interface FlashcardService {
 
     PageResponse<FlashcardResponse> getFlashcards(FlashcardListQuery query);
 
-    FlashcardResponse createFlashcard(Long folderId, FlashcardCreateRequest request);
+    FlashcardResponse createFlashcard(Long deckId, FlashcardCreateRequest request);
 
-    FlashcardResponse updateFlashcard(Long folderId, Long flashcardId, FlashcardUpdateRequest request);
+    FlashcardResponse updateFlashcard(Long deckId, Long flashcardId, FlashcardUpdateRequest request);
 
-    void deleteFlashcard(Long folderId, Long flashcardId);
+    void deleteFlashcard(Long deckId, Long flashcardId);
 }

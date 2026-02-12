@@ -28,6 +28,7 @@ sealed class FolderBreadcrumb with _$FolderBreadcrumb {
     required int id,
     required String name,
     required int directFlashcardCount,
+    required int directDeckCount,
   }) = _FolderBreadcrumb;
 
   factory FolderBreadcrumb.fromJson(Map<String, dynamic> json) =>
@@ -44,6 +45,7 @@ sealed class FolderItem with _$FolderItem {
     required String colorHex,
     required int? parentFolderId,
     required int directFlashcardCount,
+    required int directDeckCount,
     required int flashcardCount,
     required int childFolderCount,
     required String createdBy,

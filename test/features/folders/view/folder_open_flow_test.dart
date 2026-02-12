@@ -17,23 +17,25 @@ void main() {
       expect(destination, FolderOpenDestination.subfolders);
     });
 
-    test('returns flashcards when folder has no child and has flashcards', () {
+    test('returns decks when folder has no child and has decks', () {
       final FolderItem folder = _buildFolder(
         childFolderCount: 0,
         flashcardCount: 3,
+        directDeckCount: 1,
       );
 
       final FolderOpenDestination destination = resolveFolderOpenDestination(
         folder,
       );
 
-      expect(destination, FolderOpenDestination.flashcards);
+      expect(destination, FolderOpenDestination.decks);
     });
 
     test('returns emptyFolder when folder has no child and no flashcards', () {
       final FolderItem folder = _buildFolder(
         childFolderCount: 0,
         flashcardCount: 0,
+        directDeckCount: 0,
       );
 
       final FolderOpenDestination destination = resolveFolderOpenDestination(
@@ -48,6 +50,7 @@ void main() {
 FolderItem _buildFolder({
   required int childFolderCount,
   required int flashcardCount,
+  int directDeckCount = 0,
 }) {
   return FolderItem(
     id: 1,
@@ -56,6 +59,7 @@ FolderItem _buildFolder({
     colorHex: '#123456',
     parentFolderId: null,
     directFlashcardCount: flashcardCount,
+    directDeckCount: directDeckCount,
     flashcardCount: flashcardCount,
     childFolderCount: childFolderCount,
     createdBy: 'tester',

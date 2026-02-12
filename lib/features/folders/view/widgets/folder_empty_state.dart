@@ -9,12 +9,12 @@ class FolderEmptyState extends StatelessWidget {
     super.key,
     required this.description,
     required this.onCreatePressed,
-    required this.onOpenFlashcardsPressed,
+    required this.onCreateDeckPressed,
   });
 
   final String description;
   final VoidCallback? onCreatePressed;
-  final VoidCallback? onOpenFlashcardsPressed;
+  final VoidCallback? onCreateDeckPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +34,9 @@ class FolderEmptyState extends StatelessWidget {
             label: Text(l10n.foldersCreateButton),
           ),
           FilledButton.tonalIcon(
-            onPressed: onOpenFlashcardsPressed,
-            icon: const Icon(Icons.style_outlined),
-            label: Text(l10n.flashcardsTitle),
+            onPressed: onCreateDeckPressed,
+            icon: const Icon(Icons.collections_bookmark_outlined),
+            label: Text(l10n.decksCreateButton),
           ),
         ],
       ),

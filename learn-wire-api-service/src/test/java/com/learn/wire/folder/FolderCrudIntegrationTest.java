@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.learn.wire.constant.FolderConst;
 import com.learn.wire.dto.common.response.PageResponse;
+import com.learn.wire.dto.deck.request.DeckCreateRequest;
 import com.learn.wire.dto.folder.query.FolderListQuery;
 import com.learn.wire.dto.folder.request.FolderCreateRequest;
 import com.learn.wire.dto.folder.request.FolderListRequest;
@@ -25,6 +26,7 @@ import com.learn.wire.exception.BadRequestException;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.FolderNotFoundException;
 import com.learn.wire.repository.FolderRepository;
+import com.learn.wire.service.DeckService;
 import com.learn.wire.service.FolderService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +50,7 @@ class FolderCrudIntegrationTest {
     private static final String DISABLE_REF_INTEGRITY_SQL = "SET REFERENTIAL_INTEGRITY FALSE";
     private static final String ENABLE_REF_INTEGRITY_SQL = "SET REFERENTIAL_INTEGRITY TRUE";
     private static final String TRUNCATE_FLASHCARDS_SQL = "TRUNCATE TABLE flashcards";
+    private static final String TRUNCATE_DECKS_SQL = "TRUNCATE TABLE decks";
     private static final String TRUNCATE_FOLDERS_SQL = "TRUNCATE TABLE folders";
 
     private static Long rootAlphaId;
@@ -62,6 +65,9 @@ class FolderCrudIntegrationTest {
     private FolderRepository folderRepository;
 
     @Autowired
+    private DeckService deckService;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Test
@@ -69,6 +75,7 @@ class FolderCrudIntegrationTest {
     void createFolders_shouldPersistHierarchyAndAuditFields() {
         this.jdbcTemplate.execute(DISABLE_REF_INTEGRITY_SQL);
         this.jdbcTemplate.execute(TRUNCATE_FLASHCARDS_SQL);
+        this.jdbcTemplate.execute(TRUNCATE_DECKS_SQL);
         this.jdbcTemplate.execute(TRUNCATE_FOLDERS_SQL);
         this.jdbcTemplate.execute(ENABLE_REF_INTEGRITY_SQL);
 
@@ -177,7 +184,10 @@ class FolderCrudIntegrationTest {
 
     @Test
     @Order(7)
-    void createFolder_shouldRejectWhenParentHasDirectFlashcards() {
+    void createFolder_shouldRejectWhenParentHasDirectDecks() {
+        this.deckService.createDeck(
+                rootBetaId,
+                new DeckCreateRequest("Beta Deck", "Deck to block nested folders"));
         assertThatThrownBy(() -> this.folderService.createFolder(
                 new FolderCreateRequest("Nested under Beta", DESCRIPTION, COLOR_ALPHA, rootBetaId)))
                 .isInstanceOf(BusinessException.class);
@@ -185,7 +195,7 @@ class FolderCrudIntegrationTest {
 
     @Test
     @Order(8)
-    void updateFolder_shouldRejectMoveToParentWithDirectFlashcards() {
+    void updateFolder_shouldRejectMoveToParentWithDirectDecks() {
         assertThatThrownBy(() -> this.folderService.updateFolder(
                 rootGammaId,
                 new FolderUpdateRequest(ROOT_GAMMA_NAME, DESCRIPTION, COLOR_GAMMA, rootBetaId)))

@@ -197,6 +197,10 @@
   "@foldersEmptyDescription": {
     "description": "Empty state description on folder screen."
   },
+  "foldersCreateBlockedByDecks": "This folder already has decks. You cannot create subfolders here.",
+  "@foldersCreateBlockedByDecks": {
+    "description": "Message shown when creating subfolders is blocked because current folder contains decks."
+  },
   "foldersCreateBlockedByFlashcards": "This folder already has flashcards. You cannot create subfolders here.",
   "@foldersCreateBlockedByFlashcards": {
     "description": "Message shown when creating subfolders is blocked because current folder contains flashcards."
@@ -383,6 +387,15 @@
       }
     }
   },
+  "foldersDeckCountLabel": "{count} decks",
+  "@foldersDeckCountLabel": {
+    "description": "Label showing direct deck count in folder card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "foldersSubfolderCountLabel": "{count} subfolders",
   "@foldersSubfolderCountLabel": {
     "description": "Label showing direct subfolder count in folder card.",
@@ -441,6 +454,139 @@
   "@foldersTrashEmptyDescription": {
     "description": "Empty state description for trash mode."
   },
+  "decksSectionTitle": "Decks",
+  "@decksSectionTitle": {
+    "description": "Section title for deck list inside folder screen."
+  },
+  "decksCreateButton": "New deck",
+  "@decksCreateButton": {
+    "description": "Button label to create a new deck."
+  },
+  "decksLoadingLabel": "Loading decks...",
+  "@decksLoadingLabel": {
+    "description": "Loading label for deck list inside folder."
+  },
+  "decksErrorTitle": "Unable to load decks",
+  "@decksErrorTitle": {
+    "description": "Error title for deck section."
+  },
+  "decksErrorDescription": "Please refresh and try again.",
+  "@decksErrorDescription": {
+    "description": "Error description for deck section."
+  },
+  "decksRetryLabel": "Retry",
+  "@decksRetryLabel": {
+    "description": "Retry label for deck section."
+  },
+  "decksCreateDialogTitle": "Create deck",
+  "@decksCreateDialogTitle": {
+    "description": "Dialog title for creating deck."
+  },
+  "decksEditDialogTitle": "Edit deck",
+  "@decksEditDialogTitle": {
+    "description": "Dialog title for editing deck."
+  },
+  "decksNameLabel": "Deck name",
+  "@decksNameLabel": {
+    "description": "Label for deck name input."
+  },
+  "decksNameHint": "Example: TOEIC Part 5",
+  "@decksNameHint": {
+    "description": "Hint for deck name input."
+  },
+  "decksNameRequiredValidation": "Deck name is required.",
+  "@decksNameRequiredValidation": {
+    "description": "Validation message when deck name is empty."
+  },
+  "decksNameMinLengthValidation": "Deck name must be at least {min} characters.",
+  "@decksNameMinLengthValidation": {
+    "description": "Validation message when deck name is shorter than minimum length.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "decksNameMaxLengthValidation": "Deck name must be at most {max} characters.",
+  "@decksNameMaxLengthValidation": {
+    "description": "Validation message when deck name exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "decksDescriptionLabel": "Description",
+  "@decksDescriptionLabel": {
+    "description": "Label for deck description input."
+  },
+  "decksDescriptionHint": "Describe this deck focus",
+  "@decksDescriptionHint": {
+    "description": "Hint for deck description input."
+  },
+  "decksDescriptionMaxLengthValidation": "Description must be at most {max} characters.",
+  "@decksDescriptionMaxLengthValidation": {
+    "description": "Validation message when deck description exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "decksCancelLabel": "Cancel",
+  "@decksCancelLabel": {
+    "description": "Cancel action label in deck dialogs."
+  },
+  "decksSaveLabel": "Save",
+  "@decksSaveLabel": {
+    "description": "Save action label in create deck dialog."
+  },
+  "decksUpdateLabel": "Update",
+  "@decksUpdateLabel": {
+    "description": "Update action label in edit deck dialog."
+  },
+  "decksDeleteDialogTitle": "Delete deck",
+  "@decksDeleteDialogTitle": {
+    "description": "Dialog title for deleting deck."
+  },
+  "decksDeleteDialogMessage": "Delete \"{deckName}\"? This action cannot be undone.",
+  "@decksDeleteDialogMessage": {
+    "description": "Dialog message for deleting deck.",
+    "placeholders": {
+      "deckName": {
+        "type": "String"
+      }
+    }
+  },
+  "decksDeleteConfirmLabel": "Delete",
+  "@decksDeleteConfirmLabel": {
+    "description": "Delete action label in deck delete dialog."
+  },
+  "decksNoDescriptionLabel": "No description provided.",
+  "@decksNoDescriptionLabel": {
+    "description": "Fallback text when deck description is empty."
+  },
+  "decksFlashcardCountLabel": "{count} flashcards",
+  "@decksFlashcardCountLabel": {
+    "description": "Label showing flashcard count in deck card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "decksEditTooltip": "Edit deck",
+  "@decksEditTooltip": {
+    "description": "Tooltip for edit deck action."
+  },
+  "decksOpenTooltip": "Open deck",
+  "@decksOpenTooltip": {
+    "description": "Tooltip for opening a deck."
+  },
+  "decksDeleteTooltip": "Delete deck",
+  "@decksDeleteTooltip": {
+    "description": "Tooltip for delete deck action."
+  },
   "flashcardsTitle": "Flashcards",
   "@flashcardsTitle": {
     "description": "Fallback title for flashcard management screen."
@@ -454,7 +600,7 @@
       }
     }
   },
-  "flashcardsTotalLabel": "{count} flashcards in this folder",
+  "flashcardsTotalLabel": "{count} flashcards in this deck",
   "@flashcardsTotalLabel": {
     "description": "Total flashcard count label on flashcard management screen.",
     "placeholders": {

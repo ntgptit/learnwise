@@ -47,8 +47,10 @@ public class SecurityConfig {
                         SecurityConst.SWAGGER_UI_HTML_PATH,
                         ApiConst.FOLDERS_PATH,
                         ApiConst.FOLDERS_WILDCARD_PATH,
-                        ApiConst.FLASHCARDS_ROOT_WILDCARD_PATH,
-                        ApiConst.FLASHCARDS_WILDCARD_PATH)
+                        ApiConst.DECKS_ROOT_WILDCARD_PATH,
+                        ApiConst.DECKS_WILDCARD_PATH,
+                        ApiConst.DECK_FLASHCARDS_ROOT_WILDCARD_PATH,
+                        ApiConst.DECK_FLASHCARDS_WILDCARD_PATH)
                 .permitAll()
                 .anyRequest()
                 .authenticated());

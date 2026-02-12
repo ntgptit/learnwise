@@ -42,13 +42,13 @@ class FlashcardApiService implements FlashcardRepository {
         page: page,
       );
       log(
-        '$_listRequestLogPrefix folderId=${query.folderId} page=$page queryParams=$requestQueryParams',
+        '$_listRequestLogPrefix deckId=${query.deckId} page=$page queryParams=$requestQueryParams',
         name: _logName,
       );
     }
 
     final dynamic response = await _apiClient.get<dynamic>(
-      _buildResourcePath(query.folderId),
+      _buildResourcePath(query.deckId),
       queryParameters: query.toQueryParameters(page: page),
     );
     try {
@@ -56,7 +56,7 @@ class FlashcardApiService implements FlashcardRepository {
       final FlashcardPageResult pageResult = FlashcardPageResult.fromJson(json);
       if (kDebugMode) {
         log(
-          '$_listResponseLogPrefix folderId=${query.folderId} page=${pageResult.page} items=${pageResult.items.length}',
+          '$_listResponseLogPrefix deckId=${query.deckId} page=${pageResult.page} items=${pageResult.items.length}',
           name: _logName,
         );
       }
@@ -64,7 +64,7 @@ class FlashcardApiService implements FlashcardRepository {
     } catch (_) {
       if (kDebugMode) {
         log(
-          '$_listErrorLogPrefix folderId=${query.folderId} page=$page',
+          '$_listErrorLogPrefix deckId=${query.deckId} page=$page',
           name: _logName,
         );
       }
@@ -74,18 +74,18 @@ class FlashcardApiService implements FlashcardRepository {
 
   @override
   Future<FlashcardItem> createFlashcard({
-    required int folderId,
+    required int deckId,
     required FlashcardUpsertInput input,
   }) async {
     if (kDebugMode) {
       log(
-        '$_createRequestLogPrefix folderId=$folderId body=${input.toJson()}',
+        '$_createRequestLogPrefix deckId=$deckId body=${input.toJson()}',
         name: _logName,
       );
     }
 
     final dynamic response = await _apiClient.post<dynamic>(
-      _buildResourcePath(folderId),
+      _buildResourcePath(deckId),
       data: input.toJson(),
     );
     try {
@@ -93,14 +93,14 @@ class FlashcardApiService implements FlashcardRepository {
       final FlashcardItem item = FlashcardItem.fromJson(json);
       if (kDebugMode) {
         log(
-          '$_createResponseLogPrefix folderId=$folderId id=${item.id}',
+          '$_createResponseLogPrefix deckId=$deckId id=${item.id}',
           name: _logName,
         );
       }
       return item;
     } catch (_) {
       if (kDebugMode) {
-        log('$_createErrorLogPrefix folderId=$folderId', name: _logName);
+        log('$_createErrorLogPrefix deckId=$deckId', name: _logName);
       }
       throw const UnexpectedResponseAppException();
     }
@@ -108,19 +108,19 @@ class FlashcardApiService implements FlashcardRepository {
 
   @override
   Future<FlashcardItem> updateFlashcard({
-    required int folderId,
+    required int deckId,
     required int flashcardId,
     required FlashcardUpsertInput input,
   }) async {
     if (kDebugMode) {
       log(
-        '$_updateRequestLogPrefix folderId=$folderId flashcardId=$flashcardId body=${input.toJson()}',
+        '$_updateRequestLogPrefix deckId=$deckId flashcardId=$flashcardId body=${input.toJson()}',
         name: _logName,
       );
     }
 
     final dynamic response = await _apiClient.put<dynamic>(
-      '${_buildResourcePath(folderId)}/$flashcardId',
+      '${_buildResourcePath(deckId)}/$flashcardId',
       data: input.toJson(),
     );
     try {
@@ -128,7 +128,7 @@ class FlashcardApiService implements FlashcardRepository {
       final FlashcardItem item = FlashcardItem.fromJson(json);
       if (kDebugMode) {
         log(
-          '$_updateResponseLogPrefix folderId=$folderId flashcardId=$flashcardId',
+          '$_updateResponseLogPrefix deckId=$deckId flashcardId=$flashcardId',
           name: _logName,
         );
       }
@@ -136,7 +136,7 @@ class FlashcardApiService implements FlashcardRepository {
     } catch (_) {
       if (kDebugMode) {
         log(
-          '$_updateErrorLogPrefix folderId=$folderId flashcardId=$flashcardId',
+          '$_updateErrorLogPrefix deckId=$deckId flashcardId=$flashcardId',
           name: _logName,
         );
       }
@@ -146,16 +146,16 @@ class FlashcardApiService implements FlashcardRepository {
 
   @override
   Future<void> deleteFlashcard({
-    required int folderId,
+    required int deckId,
     required int flashcardId,
   }) async {
     await _apiClient.delete<dynamic>(
-      '${_buildResourcePath(folderId)}/$flashcardId',
+      '${_buildResourcePath(deckId)}/$flashcardId',
     );
   }
 
-  String _buildResourcePath(int folderId) {
-    return '${FlashcardConstants.foldersResourcePath}/$folderId/${FlashcardConstants.flashcardsPathSegment}';
+  String _buildResourcePath(int deckId) {
+    return '${FlashcardConstants.decksResourcePath}/$deckId/${FlashcardConstants.flashcardsPathSegment}';
   }
 
   Map<String, dynamic> _extractResponseData(dynamic data) {

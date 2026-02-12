@@ -8,11 +8,14 @@ import '../../../app/router/route_names.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
+import '../../decks/model/deck_models.dart';
+import '../../decks/view/widgets/deck_editor_dialog.dart';
+import '../../decks/view/widgets/deck_list_card.dart';
+import '../../decks/viewmodel/deck_viewmodel.dart';
 import '../../flashcards/model/flashcard_management_args.dart';
 import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
 import '../viewmodel/folder_viewmodel.dart';
-import 'folder_open_flow.dart';
 import 'widgets/folder_editor_dialog.dart';
 import 'widgets/folder_empty_state.dart';
 import 'widgets/folder_list_card.dart';
@@ -67,15 +70,23 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final FolderController controller = ref.read(
       folderControllerProvider.notifier,
     );
-    final bool canCreateFolderAtCurrentLevel = _canCreateFolderAtCurrentLevel(
-      query,
-    );
+    final int? currentFolderId = query.parentFolderId;
+    final AsyncValue<DeckListingState>? deckState = currentFolderId == null
+        ? null
+        : ref.watch(deckControllerProvider(currentFolderId));
     final FolderListingState? listingSnapshot = state.hasValue
         ? state.requireValue
         : null;
-    final bool canOpenFlashcardsAtCurrentLevel = _canOpenFlashcardsAtCurrentLevel(
+    final DeckListingState? deckListingSnapshot =
+        deckState != null && deckState.hasValue ? deckState.requireValue : null;
+    final bool canCreateFolderAtCurrentLevel = _canCreateFolderAtCurrentLevel(
+      query: query,
+      deckListing: deckListingSnapshot,
+    );
+    final bool canCreateDeckAtCurrentLevel = _canCreateDeckAtCurrentLevel(
       query: query,
       listing: listingSnapshot,
+      deckListing: deckListingSnapshot,
     );
 
     if (_searchController.text != query.search) {
@@ -105,11 +116,11 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             tooltip: l10n.foldersCreateButton,
           ),
           IconButton(
-            onPressed: canOpenFlashcardsAtCurrentLevel
-                ? _onOpenCurrentFolderFlashcards
+            onPressed: canCreateDeckAtCurrentLevel
+                ? _onCreateDeckPressed
                 : null,
-            icon: const Icon(Icons.style_outlined),
-            tooltip: l10n.flashcardsTitle,
+            icon: const Icon(Icons.collections_bookmark_outlined),
+            tooltip: l10n.decksCreateButton,
           ),
           IconButton(
             onPressed: _toggleSearchVisibility,
@@ -134,15 +145,28 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
           data: (FolderListingState listing) {
+            final bool isInsideFolder = query.breadcrumbs.isNotEmpty;
+            final bool hasDeckData = deckListingSnapshot != null;
+            final bool hasDeckItems =
+                hasDeckData && deckListingSnapshot.items.isNotEmpty;
+            final bool showDeckLoading =
+                isInsideFolder &&
+                (deckState?.isLoading ?? false) &&
+                !hasDeckData;
+            final bool showDeckError =
+                isInsideFolder && deckState?.hasError == true && !hasDeckData;
             final bool showInlineLoading = uiState.isTransitionInProgress;
             final bool showEmptyState =
                 listing.items.isEmpty &&
+                !hasDeckItems &&
+                !showDeckLoading &&
+                !showDeckError &&
                 !uiState.isTransitionInProgress &&
                 !state.isLoading;
             return Stack(
               children: <Widget>[
                 RefreshIndicator(
-                  onRefresh: controller.refresh,
+                  onRefresh: _refreshAll,
                   child: ListView(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(
@@ -154,18 +178,22 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       _FolderPrimaryActionRow(
                         rootLabel: l10n.foldersRootLabel,
                         createLabel: l10n.foldersCreateButton,
-                        flashcardsLabel: l10n.flashcardsTitle,
+                        createDeckLabel: l10n.decksCreateButton,
                         isRoot: query.breadcrumbs.isEmpty,
                         onRootPressed: _onRootPressed,
                         onCreatePressed: canCreateFolderAtCurrentLevel
                             ? _onCreatePressed
                             : null,
-                        showFlashcardsButton: query.breadcrumbs.isNotEmpty,
-                        onFlashcardsPressed: canOpenFlashcardsAtCurrentLevel
-                            ? _onOpenCurrentFolderFlashcards
+                        showDeckButton: query.breadcrumbs.isNotEmpty,
+                        onCreateDeckPressed: canCreateDeckAtCurrentLevel
+                            ? _onCreateDeckPressed
                             : null,
                       ),
-                      if (query.breadcrumbs.isNotEmpty)
+                      if (query.breadcrumbs.isNotEmpty &&
+                          (hasDeckItems ||
+                              showDeckLoading ||
+                              showDeckError ||
+                              canCreateDeckAtCurrentLevel))
                         Padding(
                           padding: const EdgeInsets.only(
                             top: FolderScreenTokens.sectionSpacing,
@@ -229,13 +257,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           onCreatePressed: canCreateFolderAtCurrentLevel
                               ? _onCreatePressed
                               : null,
-                          onOpenFlashcardsPressed:
-                              canOpenFlashcardsAtCurrentLevel
-                              ? _onOpenCurrentFolderFlashcards
+                          onCreateDeckPressed: canCreateDeckAtCurrentLevel
+                              ? _onCreateDeckPressed
                               : null,
-                          description: canCreateFolderAtCurrentLevel
-                              ? l10n.foldersEmptyDescription
-                              : l10n.foldersCreateBlockedByFlashcards,
+                          description: !canCreateFolderAtCurrentLevel
+                              ? l10n.foldersCreateBlockedByDecks
+                              : l10n.foldersEmptyDescription,
                         ),
                       if (listing.items.isNotEmpty)
                         ...listing.items.map((FolderItem folder) {
@@ -252,6 +279,53 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           );
                         }),
                       if (listing.isLoadingMore)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: FolderScreenTokens.sectionSpacing,
+                          ),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      if (query.breadcrumbs.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: FolderScreenTokens.sectionSpacing,
+                            bottom: FolderScreenTokens.cardSpacing,
+                          ),
+                          child: Text(
+                            l10n.decksSectionTitle,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      if (showDeckLoading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: FolderScreenTokens.sectionSpacing,
+                          ),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      if (showDeckError)
+                        ErrorState(
+                          title: l10n.decksErrorTitle,
+                          message: l10n.decksErrorDescription,
+                          retryLabel: l10n.decksRetryLabel,
+                          onRetry: _refreshDecks,
+                        ),
+                      if (hasDeckItems)
+                        ...deckListingSnapshot.items.map((DeckItem deck) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: FolderScreenTokens.cardSpacing,
+                            ),
+                            child: DeckListCard(
+                              deck: deck,
+                              onOpenPressed: () => _onOpenDeckPressed(deck),
+                              onEditPressed: () => _onEditDeckPressed(deck),
+                              onDeletePressed: () => _onDeleteDeckPressed(deck),
+                            ),
+                          );
+                        }),
+                      if (deckListingSnapshot?.isLoadingMore == true)
                         const Padding(
                           padding: EdgeInsets.symmetric(
                             vertical: FolderScreenTokens.sectionSpacing,
@@ -319,6 +393,13 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       return;
     }
     ref.read(folderControllerProvider.notifier).loadMore();
+    final int? currentFolderId = ref
+        .read(folderQueryControllerProvider)
+        .parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    ref.read(deckControllerProvider(currentFolderId).notifier).loadMore();
   }
 
   Future<void> _onBackPressed(FolderListQuery query) async {
@@ -415,7 +496,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     );
 
     if (action == _FolderMenuAction.refresh) {
-      controller.refresh();
+      _refreshAll();
       return;
     }
     if (action == _FolderMenuAction.sortByCreatedAt) {
@@ -447,22 +528,39 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     ref
         .read(folderControllerProvider.notifier)
         .applySearch(_searchController.text);
+    final int? currentFolderId = ref
+        .read(folderQueryControllerProvider)
+        .parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    ref
+        .read(deckControllerProvider(currentFolderId).notifier)
+        .applySearch(_searchController.text);
   }
 
-  bool _canCreateFolderAtCurrentLevel(FolderListQuery query) {
+  bool _canCreateFolderAtCurrentLevel({
+    required FolderListQuery query,
+    required DeckListingState? deckListing,
+  }) {
     if (query.breadcrumbs.isEmpty) {
       return true;
     }
+    if (deckListing != null &&
+        deckListing.totalElements > FolderConstants.minPage) {
+      return false;
+    }
     final FolderBreadcrumb currentFolder = query.breadcrumbs.last;
-    if (currentFolder.directFlashcardCount > FolderConstants.minPage) {
+    if (currentFolder.directDeckCount > FolderConstants.minPage) {
       return false;
     }
     return true;
   }
 
-  bool _canOpenFlashcardsAtCurrentLevel({
+  bool _canCreateDeckAtCurrentLevel({
     required FolderListQuery query,
     required FolderListingState? listing,
+    required DeckListingState? deckListing,
   }) {
     if (query.breadcrumbs.isEmpty) {
       return false;
@@ -476,51 +574,16 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     if (listing.totalElements > FolderConstants.minPage) {
       return false;
     }
+    if (deckListing == null) {
+      return true;
+    }
     return true;
   }
 
-  void _onOpenCurrentFolderFlashcards() {
-    final FolderListQuery query = ref.read(folderQueryControllerProvider);
-    if (query.breadcrumbs.isEmpty) {
-      return;
-    }
-    final FolderBreadcrumb currentFolder = query.breadcrumbs.last;
-    final NavigatorState navigator = Navigator.of(context);
-    _openFlashcardsByArgs(
-      folderId: currentFolder.id,
-      folderName: currentFolder.name,
-      totalFlashcards: currentFolder.directFlashcardCount,
-      navigator: navigator,
-    );
-  }
-
   Future<void> _onOpenPressed(FolderItem folder) async {
-    final NavigatorState navigator = Navigator.of(context);
     await _runFolderTransition((FolderController controller) async {
-      final FolderOpenDestination destination = resolveFolderOpenDestination(
-        folder,
-      );
-
-      if (destination == FolderOpenDestination.subfolders) {
-        controller.enterFolder(folder);
-        await _waitForFolderData();
-        return;
-      }
-      if (destination == FolderOpenDestination.emptyFolder) {
-        controller.enterFolder(folder);
-        await _waitForFolderData();
-        return;
-      }
-
-      final bool hasDirectChildren = await controller.hasDirectChildren(
-        folder.id,
-      );
-      if (hasDirectChildren) {
-        controller.enterFolder(folder);
-        await _waitForFolderData();
-        return;
-      }
-      _openFlashcards(folder: folder, navigator: navigator);
+      controller.enterFolder(folder);
+      await _waitForFolderData();
     });
   }
 
@@ -574,37 +637,54 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     } catch (_) {}
   }
 
-  void _openFlashcards({
-    required FolderItem folder,
-    required NavigatorState navigator,
-  }) {
-    _openFlashcardsByArgs(
-      folderId: folder.id,
-      folderName: folder.name,
-      totalFlashcards: folder.flashcardCount,
-      navigator: navigator,
-    );
+  Future<void> _refreshDecks() async {
+    final int? currentFolderId = ref
+        .read(folderQueryControllerProvider)
+        .parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    await ref.read(deckControllerProvider(currentFolderId).notifier).refresh();
   }
 
-  void _openFlashcardsByArgs({
-    required int folderId,
-    required String folderName,
+  Future<void> _refreshAll() async {
+    await ref.read(folderControllerProvider.notifier).refresh();
+    final int? currentFolderId = ref
+        .read(folderQueryControllerProvider)
+        .parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    await ref.read(deckControllerProvider(currentFolderId).notifier).refresh();
+  }
+
+  void _openFlashcardsByDeck({
+    required DeckItem deck,
     required int totalFlashcards,
     required NavigatorState navigator,
   }) {
     final FlashcardManagementArgs args = FlashcardManagementArgs(
-      folderId: folderId,
-      folderName: folderName,
+      deckId: deck.id,
+      deckName: deck.name,
+      folderName: ref.read(folderQueryControllerProvider).breadcrumbs.last.name,
       totalFlashcards: totalFlashcards,
     );
     navigator.pushNamed(RouteNames.flashcards, arguments: args).then((_) async {
       await ref.read(folderControllerProvider.notifier).refresh();
+      await _refreshDecks();
     });
   }
 
   Future<void> _onCreatePressed() async {
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
-    if (!_canCreateFolderAtCurrentLevel(query)) {
+    final int? currentFolderId = query.parentFolderId;
+    final DeckListingState? deckListing = currentFolderId == null
+        ? null
+        : _resolveDeckListingSnapshot(currentFolderId);
+    if (!_canCreateFolderAtCurrentLevel(
+      query: query,
+      deckListing: deckListing,
+    )) {
       return;
     }
     final FolderController controller = ref.read(
@@ -615,6 +695,105 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       initialFolder: null,
       onSubmit: controller.submitCreateFolder,
     );
+  }
+
+  Future<void> _onCreateDeckPressed() async {
+    final FolderListQuery query = ref.read(folderQueryControllerProvider);
+    final int? currentFolderId = query.parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    final FolderListingState? listing = ref
+        .read(folderControllerProvider)
+        .maybeWhen(
+          data: (FolderListingState value) => value,
+          orElse: () => null,
+        );
+    final DeckListingState? deckListing = _resolveDeckListingSnapshot(
+      currentFolderId,
+    );
+    if (!_canCreateDeckAtCurrentLevel(
+      query: query,
+      listing: listing,
+      deckListing: deckListing,
+    )) {
+      return;
+    }
+    final DeckController controller = ref.read(
+      deckControllerProvider(currentFolderId).notifier,
+    );
+    await showDeckEditorDialog(
+      context: context,
+      initialDeck: null,
+      onSubmit: controller.submitCreateDeck,
+    );
+  }
+
+  void _onOpenDeckPressed(DeckItem deck) {
+    final NavigatorState navigator = Navigator.of(context);
+    _openFlashcardsByDeck(
+      deck: deck,
+      totalFlashcards: deck.flashcardCount,
+      navigator: navigator,
+    );
+  }
+
+  Future<void> _onEditDeckPressed(DeckItem deck) async {
+    final int? currentFolderId = ref
+        .read(folderQueryControllerProvider)
+        .parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    final DeckController controller = ref.read(
+      deckControllerProvider(currentFolderId).notifier,
+    );
+    await showDeckEditorDialog(
+      context: context,
+      initialDeck: deck,
+      onSubmit: (DeckUpsertInput input) {
+        return controller.submitUpdateDeck(deckId: deck.id, input: input);
+      },
+    );
+  }
+
+  Future<void> _onDeleteDeckPressed(DeckItem deck) async {
+    final int? currentFolderId = ref
+        .read(folderQueryControllerProvider)
+        .parentFolderId;
+    if (currentFolderId == null) {
+      return;
+    }
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return ConfirmDialog(
+          title: l10n.decksDeleteDialogTitle,
+          message: l10n.decksDeleteDialogMessage(deck.name),
+          confirmLabel: l10n.decksDeleteConfirmLabel,
+          cancelLabel: l10n.decksCancelLabel,
+          onConfirm: () => Navigator.of(dialogContext).pop(true),
+          onCancel: () => Navigator.of(dialogContext).pop(false),
+        );
+      },
+    );
+    if (confirmed != true) {
+      return;
+    }
+    await ref
+        .read(deckControllerProvider(currentFolderId).notifier)
+        .deleteDeck(deck.id);
+  }
+
+  DeckListingState? _resolveDeckListingSnapshot(int folderId) {
+    final AsyncValue<DeckListingState> deckState = ref.read(
+      deckControllerProvider(folderId),
+    );
+    if (!deckState.hasValue) {
+      return null;
+    }
+    return deckState.requireValue;
   }
 
   Future<void> _onEditPressed(FolderItem folder) async {
@@ -701,22 +880,22 @@ class _FolderPrimaryActionRow extends StatelessWidget {
   const _FolderPrimaryActionRow({
     required this.rootLabel,
     required this.createLabel,
-    required this.flashcardsLabel,
+    required this.createDeckLabel,
     required this.isRoot,
     required this.onRootPressed,
     required this.onCreatePressed,
-    required this.showFlashcardsButton,
-    required this.onFlashcardsPressed,
+    required this.showDeckButton,
+    required this.onCreateDeckPressed,
   });
 
   final String rootLabel;
   final String createLabel;
-  final String flashcardsLabel;
+  final String createDeckLabel;
   final bool isRoot;
   final VoidCallback onRootPressed;
   final VoidCallback? onCreatePressed;
-  final bool showFlashcardsButton;
-  final VoidCallback? onFlashcardsPressed;
+  final bool showDeckButton;
+  final VoidCallback? onCreateDeckPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -741,12 +920,12 @@ class _FolderPrimaryActionRow extends StatelessWidget {
           icon: const Icon(Icons.add_rounded),
           label: Text(createLabel),
         ),
-        if (showFlashcardsButton) ...<Widget>[
+        if (showDeckButton) ...<Widget>[
           const SizedBox(width: FolderScreenTokens.primaryActionGap),
           FilledButton.tonalIcon(
-            onPressed: onFlashcardsPressed,
-            icon: const Icon(Icons.style_outlined),
-            label: Text(flashcardsLabel),
+            onPressed: onCreateDeckPressed,
+            icon: const Icon(Icons.collections_bookmark_outlined),
+            label: Text(createDeckLabel),
           ),
         ],
       ],

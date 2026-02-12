@@ -44,7 +44,7 @@ class _FlashcardManagementScreenState
   void initState() {
     super.initState();
     final FlashcardListQuery query = ref.read(
-      flashcardQueryControllerProvider(widget.args.folderId),
+      flashcardQueryControllerProvider(widget.args.deckId),
     );
     _searchController = TextEditingController(text: query.search);
     _scrollController = ScrollController()..addListener(_onScroll);
@@ -63,15 +63,15 @@ class _FlashcardManagementScreenState
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final int folderId = widget.args.folderId;
+    final int deckId = widget.args.deckId;
     final FlashcardListQuery query = ref.watch(
-      flashcardQueryControllerProvider(folderId),
+      flashcardQueryControllerProvider(deckId),
     );
     final AsyncValue<FlashcardListingState> state = ref.watch(
-      flashcardControllerProvider(folderId),
+      flashcardControllerProvider(deckId),
     );
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(folderId).notifier,
+      flashcardControllerProvider(deckId).notifier,
     );
     if (_searchController.text != query.search) {
       _searchController.value = TextEditingValue(
@@ -130,7 +130,9 @@ class _FlashcardManagementScreenState
                         l10n.flashcardsTotalLabel(listing.totalElements),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: FlashcardScreenTokens.sectionSpacing),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionSpacing,
+                      ),
                       if (_isSearchVisible)
                         Padding(
                           padding: const EdgeInsets.only(
@@ -153,7 +155,10 @@ class _FlashcardManagementScreenState
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               Text(
-                                _buildSortSummaryLabel(l10n: l10n, query: query),
+                                _buildSortSummaryLabel(
+                                  l10n: l10n,
+                                  query: query,
+                                ),
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
                               const SizedBox(
@@ -164,7 +169,9 @@ class _FlashcardManagementScreenState
                           ),
                         ),
                       ),
-                      const SizedBox(height: FlashcardScreenTokens.sectionSpacing),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionSpacing,
+                      ),
                       if (showEmptyState)
                         EmptyState(
                           title: l10n.flashcardsEmptyTitle,
@@ -256,7 +263,9 @@ class _FlashcardManagementScreenState
     if (position.extentAfter > FlashcardConstants.loadMoreThresholdPx) {
       return;
     }
-    ref.read(flashcardControllerProvider(widget.args.folderId).notifier).loadMore();
+    ref
+        .read(flashcardControllerProvider(widget.args.deckId).notifier)
+        .loadMore();
   }
 
   void _onBackPressed() {
@@ -284,7 +293,7 @@ class _FlashcardManagementScreenState
 
   void _onMenuActionSelected(_FlashcardMenuAction action) {
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.folderId).notifier,
+      flashcardControllerProvider(widget.args.deckId).notifier,
     );
     if (action == _FlashcardMenuAction.refresh) {
       controller.refresh();
@@ -313,7 +322,7 @@ class _FlashcardManagementScreenState
   void _submitSearch() {
     _searchDebounceTimer?.cancel();
     ref
-        .read(flashcardControllerProvider(widget.args.folderId).notifier)
+        .read(flashcardControllerProvider(widget.args.deckId).notifier)
         .applySearch(_searchController.text);
   }
 
@@ -368,7 +377,7 @@ class _FlashcardManagementScreenState
 
   Future<void> _onCreatePressed() async {
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.folderId).notifier,
+      flashcardControllerProvider(widget.args.deckId).notifier,
     );
     await showFlashcardEditorDialog(
       context: context,
@@ -379,7 +388,7 @@ class _FlashcardManagementScreenState
 
   Future<void> _onEditPressed(FlashcardItem item) async {
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.folderId).notifier,
+      flashcardControllerProvider(widget.args.deckId).notifier,
     );
     await showFlashcardEditorDialog(
       context: context,
@@ -412,15 +421,15 @@ class _FlashcardManagementScreenState
       return;
     }
     await ref
-        .read(flashcardControllerProvider(widget.args.folderId).notifier)
+        .read(flashcardControllerProvider(widget.args.deckId).notifier)
         .deleteFlashcard(item.id);
   }
 
   String _resolveTitle(AppLocalizations l10n) {
-    if (widget.args.folderName.isEmpty) {
+    if (widget.args.deckName.isEmpty) {
       return l10n.flashcardsTitle;
     }
-    return l10n.flashcardsManageTitle(widget.args.folderName);
+    return l10n.flashcardsManageTitle(widget.args.deckName);
   }
 }
 
@@ -532,7 +541,9 @@ class _FlashcardListCard extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onDeletePressed,
-                  tooltip: AppLocalizations.of(context)!.flashcardsDeleteTooltip,
+                  tooltip: AppLocalizations.of(
+                    context,
+                  )!.flashcardsDeleteTooltip,
                   icon: const Icon(Icons.delete_outline_rounded),
                 ),
               ],

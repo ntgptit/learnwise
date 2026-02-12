@@ -197,6 +197,10 @@
   "@foldersEmptyDescription": {
     "description": "Empty state description on folder screen."
   },
+  "foldersCreateBlockedByDecks": "Thư mục này đã có bộ thẻ. Bạn không thể tạo thư mục con tại đây.",
+  "@foldersCreateBlockedByDecks": {
+    "description": "Message shown when creating subfolders is blocked because current folder contains decks."
+  },
   "foldersCreateBlockedByFlashcards": "Thư mục này đã có flashcard. Bạn không thể tạo thư mục con tại đây.",
   "@foldersCreateBlockedByFlashcards": {
     "description": "Message shown when creating subfolders is blocked because current folder contains flashcards."
@@ -383,6 +387,15 @@
       }
     }
   },
+  "foldersDeckCountLabel": "{count} bộ thẻ",
+  "@foldersDeckCountLabel": {
+    "description": "Label showing direct deck count in folder card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "foldersSubfolderCountLabel": "{count} thư mục con",
   "@foldersSubfolderCountLabel": {
     "description": "Label showing direct subfolder count in folder card.",
@@ -441,6 +454,139 @@
   "@foldersTrashEmptyDescription": {
     "description": "Empty state description for trash mode."
   },
+  "decksSectionTitle": "Bộ thẻ",
+  "@decksSectionTitle": {
+    "description": "Section title for deck list inside folder screen."
+  },
+  "decksCreateButton": "Tạo bộ thẻ",
+  "@decksCreateButton": {
+    "description": "Button label to create a new deck."
+  },
+  "decksLoadingLabel": "Đang tải bộ thẻ...",
+  "@decksLoadingLabel": {
+    "description": "Loading label for deck list inside folder."
+  },
+  "decksErrorTitle": "Không thể tải danh sách bộ thẻ",
+  "@decksErrorTitle": {
+    "description": "Error title for deck section."
+  },
+  "decksErrorDescription": "Vui lòng tải lại và thử lại.",
+  "@decksErrorDescription": {
+    "description": "Error description for deck section."
+  },
+  "decksRetryLabel": "Thử lại",
+  "@decksRetryLabel": {
+    "description": "Retry label for deck section."
+  },
+  "decksCreateDialogTitle": "Tạo bộ thẻ",
+  "@decksCreateDialogTitle": {
+    "description": "Dialog title for creating deck."
+  },
+  "decksEditDialogTitle": "Cập nhật bộ thẻ",
+  "@decksEditDialogTitle": {
+    "description": "Dialog title for editing deck."
+  },
+  "decksNameLabel": "Tên bộ thẻ",
+  "@decksNameLabel": {
+    "description": "Label for deck name input."
+  },
+  "decksNameHint": "Ví dụ: TOEIC Part 5",
+  "@decksNameHint": {
+    "description": "Hint for deck name input."
+  },
+  "decksNameRequiredValidation": "Tên bộ thẻ là bắt buộc.",
+  "@decksNameRequiredValidation": {
+    "description": "Validation message when deck name is empty."
+  },
+  "decksNameMinLengthValidation": "Tên bộ thẻ phải có ít nhất {min} ký tự.",
+  "@decksNameMinLengthValidation": {
+    "description": "Validation message when deck name is shorter than minimum length.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "decksNameMaxLengthValidation": "Tên bộ thẻ tối đa {max} ký tự.",
+  "@decksNameMaxLengthValidation": {
+    "description": "Validation message when deck name exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "decksDescriptionLabel": "Mô tả",
+  "@decksDescriptionLabel": {
+    "description": "Label for deck description input."
+  },
+  "decksDescriptionHint": "Mô tả trọng tâm của bộ thẻ",
+  "@decksDescriptionHint": {
+    "description": "Hint for deck description input."
+  },
+  "decksDescriptionMaxLengthValidation": "Mô tả tối đa {max} ký tự.",
+  "@decksDescriptionMaxLengthValidation": {
+    "description": "Validation message when deck description exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "decksCancelLabel": "Hủy",
+  "@decksCancelLabel": {
+    "description": "Cancel action label in deck dialogs."
+  },
+  "decksSaveLabel": "Lưu",
+  "@decksSaveLabel": {
+    "description": "Save action label in create deck dialog."
+  },
+  "decksUpdateLabel": "Cập nhật",
+  "@decksUpdateLabel": {
+    "description": "Update action label in edit deck dialog."
+  },
+  "decksDeleteDialogTitle": "Xóa bộ thẻ",
+  "@decksDeleteDialogTitle": {
+    "description": "Dialog title for deleting deck."
+  },
+  "decksDeleteDialogMessage": "Xóa \"{deckName}\"? Hành động này không thể hoàn tác.",
+  "@decksDeleteDialogMessage": {
+    "description": "Dialog message for deleting deck.",
+    "placeholders": {
+      "deckName": {
+        "type": "String"
+      }
+    }
+  },
+  "decksDeleteConfirmLabel": "Xóa",
+  "@decksDeleteConfirmLabel": {
+    "description": "Delete action label in deck delete dialog."
+  },
+  "decksNoDescriptionLabel": "Chưa có mô tả.",
+  "@decksNoDescriptionLabel": {
+    "description": "Fallback text when deck description is empty."
+  },
+  "decksFlashcardCountLabel": "{count} flashcard",
+  "@decksFlashcardCountLabel": {
+    "description": "Label showing flashcard count in deck card.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "decksEditTooltip": "Sửa bộ thẻ",
+  "@decksEditTooltip": {
+    "description": "Tooltip for edit deck action."
+  },
+  "decksOpenTooltip": "Mở bộ thẻ",
+  "@decksOpenTooltip": {
+    "description": "Tooltip for opening a deck."
+  },
+  "decksDeleteTooltip": "Xóa bộ thẻ",
+  "@decksDeleteTooltip": {
+    "description": "Tooltip for delete deck action."
+  },
   "flashcardsTitle": "Flashcard",
   "@flashcardsTitle": {
     "description": "Fallback title for flashcard management screen."
@@ -454,7 +600,7 @@
       }
     }
   },
-  "flashcardsTotalLabel": "{count} flashcard trong thư mục này",
+  "flashcardsTotalLabel": "{count} flashcard trong bộ thẻ này",
   "@flashcardsTotalLabel": {
     "description": "Total flashcard count label on flashcard management screen.",
     "placeholders": {

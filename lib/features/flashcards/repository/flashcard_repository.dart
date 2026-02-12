@@ -7,18 +7,15 @@ abstract class FlashcardRepository {
   });
 
   Future<FlashcardItem> createFlashcard({
-    required int folderId,
+    required int deckId,
     required FlashcardUpsertInput input,
   });
 
   Future<FlashcardItem> updateFlashcard({
-    required int folderId,
+    required int deckId,
     required int flashcardId,
     required FlashcardUpsertInput input,
   });
 
-  Future<void> deleteFlashcard({
-    required int folderId,
-    required int flashcardId,
-  });
+  Future<void> deleteFlashcard({required int deckId, required int flashcardId});
 }

@@ -36,7 +36,7 @@ class FakeFlashcardRepository implements FlashcardRepository {
 
   @override
   Future<FlashcardItem> createFlashcard({
-    required int folderId,
+    required int deckId,
     required FlashcardUpsertInput input,
   }) async {
     throw UnimplementedError();
@@ -44,7 +44,7 @@ class FakeFlashcardRepository implements FlashcardRepository {
 
   @override
   Future<void> deleteFlashcard({
-    required int folderId,
+    required int deckId,
     required int flashcardId,
   }) async {
     throw UnimplementedError();
@@ -52,7 +52,7 @@ class FakeFlashcardRepository implements FlashcardRepository {
 
   @override
   Future<FlashcardItem> updateFlashcard({
-    required int folderId,
+    required int deckId,
     required int flashcardId,
     required FlashcardUpsertInput input,
   }) async {
@@ -62,16 +62,18 @@ class FakeFlashcardRepository implements FlashcardRepository {
 
 void main() {
   group('FlashcardController', () {
-    test('uses folderId from provider family in list query', () async {
-      const int folderId = 77;
+    test('uses deckId from provider family in list query', () async {
+      const int deckId = 77;
       final FakeFlashcardRepository fakeRepository = FakeFlashcardRepository();
       final ProviderContainer container = ProviderContainer(
-        overrides: [flashcardRepositoryProvider.overrideWithValue(fakeRepository)],
+        overrides: [
+          flashcardRepositoryProvider.overrideWithValue(fakeRepository),
+        ],
       );
       addTearDown(container.dispose);
 
       final Future<FlashcardListingState> initialFuture = container.read(
-        flashcardControllerProvider(folderId).future,
+        flashcardControllerProvider(deckId).future,
       );
       fakeRepository.dequeuePendingResponse().complete(
         _buildPageResult(items: <FlashcardItem>[_item(1)]),
@@ -79,19 +81,21 @@ void main() {
       await initialFuture;
 
       expect(fakeRepository.getFlashcardsCalls, 1);
-      expect(fakeRepository.capturedQueries.first.folderId, folderId);
+      expect(fakeRepository.capturedQueries.first.deckId, deckId);
     });
 
     test('keeps previous data while query is reloading', () async {
-      const int folderId = 42;
+      const int deckId = 42;
       final FakeFlashcardRepository fakeRepository = FakeFlashcardRepository();
       final ProviderContainer container = ProviderContainer(
-        overrides: [flashcardRepositoryProvider.overrideWithValue(fakeRepository)],
+        overrides: [
+          flashcardRepositoryProvider.overrideWithValue(fakeRepository),
+        ],
       );
       addTearDown(container.dispose);
 
       final Future<FlashcardListingState> initialFuture = container.read(
-        flashcardControllerProvider(folderId).future,
+        flashcardControllerProvider(deckId).future,
       );
       fakeRepository.dequeuePendingResponse().complete(
         _buildPageResult(items: <FlashcardItem>[_item(1)]),
@@ -99,12 +103,12 @@ void main() {
       await initialFuture;
 
       container
-          .read(flashcardQueryControllerProvider(folderId).notifier)
+          .read(flashcardQueryControllerProvider(deckId).notifier)
           .setSearch('jvm');
       await Future<void>.delayed(Duration.zero);
 
       final AsyncValue<FlashcardListingState> reloadingState = container.read(
-        flashcardControllerProvider(folderId),
+        flashcardControllerProvider(deckId),
       );
       expect(reloadingState.isLoading, true);
       expect(reloadingState.hasValue, true);
@@ -117,21 +121,23 @@ void main() {
         _buildPageResult(items: const <FlashcardItem>[]),
       );
       final FlashcardListingState searchListing = await container.read(
-        flashcardControllerProvider(folderId).future,
+        flashcardControllerProvider(deckId).future,
       );
       expect(searchListing.items, isEmpty);
     });
 
     test('does not reload when normalized query does not change', () async {
-      const int folderId = 9;
+      const int deckId = 9;
       final FakeFlashcardRepository fakeRepository = FakeFlashcardRepository();
       final ProviderContainer container = ProviderContainer(
-        overrides: [flashcardRepositoryProvider.overrideWithValue(fakeRepository)],
+        overrides: [
+          flashcardRepositoryProvider.overrideWithValue(fakeRepository),
+        ],
       );
       addTearDown(container.dispose);
 
       final Future<FlashcardListingState> initialFuture = container.read(
-        flashcardControllerProvider(folderId).future,
+        flashcardControllerProvider(deckId).future,
       );
       fakeRepository.dequeuePendingResponse().complete(
         _buildPageResult(items: <FlashcardItem>[_item(1)]),
@@ -140,7 +146,7 @@ void main() {
       expect(fakeRepository.getFlashcardsCalls, 1);
 
       final FlashcardQueryController queryController = container.read(
-        flashcardQueryControllerProvider(folderId).notifier,
+        flashcardQueryControllerProvider(deckId).notifier,
       );
       queryController.setSearch('   ');
       queryController.setSortBy(FlashcardSortBy.createdAt);
@@ -152,9 +158,7 @@ void main() {
   });
 }
 
-FlashcardPageResult _buildPageResult({
-  required List<FlashcardItem> items,
-}) {
+FlashcardPageResult _buildPageResult({required List<FlashcardItem> items}) {
   return FlashcardPageResult(
     items: items,
     page: 0,
@@ -172,7 +176,7 @@ FlashcardPageResult _buildPageResult({
 FlashcardItem _item(int id) {
   return FlashcardItem(
     id: id,
-    folderId: 1,
+    deckId: 1,
     frontText: 'Front $id',
     backText: 'Back $id',
     createdBy: 'tester',

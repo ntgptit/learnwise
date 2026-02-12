@@ -25,4 +25,5 @@ class FlashcardConstants {
   static const int backTextMinLength = 1;
   static const int backTextMaxLength = 2000;
   static const String optimisticActorLabel = 'system';
+  static const int previewItemLimit = 5;
 }

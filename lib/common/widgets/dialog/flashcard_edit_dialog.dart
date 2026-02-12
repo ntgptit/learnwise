@@ -5,16 +5,7 @@ import 'app_dialog.dart';
 
 class FlashcardEditDialog extends StatelessWidget {
   const FlashcardEditDialog({
-    super.key,
-    required this.frontController,
-    required this.backController,
-    required this.onConfirm,
-    required this.onCancel,
-    required this.title,
-    required this.confirmLabel,
-    required this.cancelLabel,
-    required this.frontLabel,
-    required this.backLabel,
+    required this.frontController, required this.backController, required this.onConfirm, required this.onCancel, required this.title, required this.confirmLabel, required this.cancelLabel, required this.frontLabel, required this.backLabel, super.key,
   });
 
   final TextEditingController frontController;

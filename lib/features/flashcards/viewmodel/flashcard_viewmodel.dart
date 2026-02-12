@@ -49,6 +49,68 @@ class FlashcardQueryController extends _$FlashcardQueryController {
   }
 }
 
+class FlashcardUiState {
+  const FlashcardUiState({
+    required this.isSearchVisible,
+    required this.previewIndex,
+    required this.starredFlashcardIds,
+  });
+
+  const FlashcardUiState.initial()
+    : isSearchVisible = false,
+      previewIndex = FlashcardConstants.defaultPage,
+      starredFlashcardIds = const <int>{};
+
+  final bool isSearchVisible;
+  final int previewIndex;
+  final Set<int> starredFlashcardIds;
+
+  FlashcardUiState copyWith({
+    bool? isSearchVisible,
+    int? previewIndex,
+    Set<int>? starredFlashcardIds,
+  }) {
+    return FlashcardUiState(
+      isSearchVisible: isSearchVisible ?? this.isSearchVisible,
+      previewIndex: previewIndex ?? this.previewIndex,
+      starredFlashcardIds: starredFlashcardIds ?? this.starredFlashcardIds,
+    );
+  }
+}
+
+@Riverpod(keepAlive: true)
+class FlashcardUiController extends _$FlashcardUiController {
+  @override
+  FlashcardUiState build(int deckId) {
+    return const FlashcardUiState.initial();
+  }
+
+  void toggleSearchVisibility() {
+    state = state.copyWith(isSearchVisible: !state.isSearchVisible);
+  }
+
+  void setPreviewIndex(int index) {
+    if (index < FlashcardConstants.defaultPage) {
+      return;
+    }
+    if (state.previewIndex == index) {
+      return;
+    }
+    state = state.copyWith(previewIndex: index);
+  }
+
+  void toggleStar(int flashcardId) {
+    final Set<int> nextStarredIds = Set<int>.from(state.starredFlashcardIds);
+    if (nextStarredIds.contains(flashcardId)) {
+      nextStarredIds.remove(flashcardId);
+      state = state.copyWith(starredFlashcardIds: nextStarredIds);
+      return;
+    }
+    nextStarredIds.add(flashcardId);
+    state = state.copyWith(starredFlashcardIds: nextStarredIds);
+  }
+}
+
 class FlashcardSubmitResult {
   const FlashcardSubmitResult._({
     required this.isSuccess,
@@ -195,7 +257,7 @@ class FlashcardController extends _$FlashcardController {
     final FlashcardListingState? snapshot = _currentListing;
     if (snapshot != null) {
       final List<FlashcardItem> optimisticItems = snapshot.items.map((
-        FlashcardItem item,
+        item,
       ) {
         if (item.id != flashcardId) {
           return item;
@@ -244,7 +306,7 @@ class FlashcardController extends _$FlashcardController {
     }
 
     final List<FlashcardItem> optimisticItems = snapshot.items.where((
-      FlashcardItem item,
+      item,
     ) {
       return item.id != flashcardId;
     }).toList();
@@ -300,8 +362,8 @@ class FlashcardController extends _$FlashcardController {
     }
     _isQueryListenerBound = true;
     ref.listen<FlashcardListQuery>(flashcardQueryControllerProvider(_deckId), (
-      FlashcardListQuery? previousQuery,
-      FlashcardListQuery nextQuery,
+      previousQuery,
+      nextQuery,
     ) {
       if (!_isBootstrapCompleted) {
         return;

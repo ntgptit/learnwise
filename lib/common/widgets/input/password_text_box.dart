@@ -58,7 +58,7 @@ class _PasswordTextBoxState extends State<PasswordTextBox> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: _obscureTextNotifier,
-      builder: (BuildContext context, bool obscureText, Widget? child) {
+      builder: (context, obscureText, child) {
         return TextBox(
           controller: widget.controller,
           initialValue: widget.initialValue,

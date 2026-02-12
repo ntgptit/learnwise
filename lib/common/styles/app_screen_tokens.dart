@@ -96,14 +96,49 @@ class FlashcardScreenTokens {
   const FlashcardScreenTokens._();
 
   static const double screenPadding = AppSizes.spacingMd;
+  static const double toolbarHeight = AppSizes.size72;
   static const double sectionSpacing = AppSizes.spacingMd;
+  static const double sectionSpacingLarge = AppSizes.spacingLg;
+  static const double sectionHeaderBottomGap = AppSizes.spacingSm;
+
+  static const double heroCardHeight = AppSizes.size240;
+  static const double heroCardRadius = AppSizes.radiusLg;
+  static const double heroCardPadding = AppSizes.spacingLg;
+  static const double heroViewportFraction = 0.94;
+  static const double heroPagerGap = AppSizes.spacingSm;
+  static const double heroDotSize = AppSizes.spacing2Xs;
+  static const double heroDotSpacing = AppSizes.spacing2Xs;
+
+  static const double metadataAvatarSize = AppSizes.size22;
+  static const double metadataGap = AppSizes.spacingSm;
+  static const double metadataDividerHeight = AppSizes.spacingMd;
+  static const double metadataDividerWidth = AppSizes.size1;
+  static const double metadataHorizontalGap = AppSizes.spacingXs;
+
+  static const double bannerHeight = AppSizes.size40;
+  static const double bannerRadius = AppSizes.radiusSm;
+  static const double bannerInnerGap = AppSizes.spacingXs;
+
+  static const double actionTileSpacing = AppSizes.spacingSm;
   static const double cardSpacing = AppSizes.spacingSm;
   static const double cardPadding = AppSizes.spacingMd;
   static const double cardRadius = AppSizes.radiusLg;
+  static const double cardHeaderGap = AppSizes.spacingSm;
+  static const double cardHeaderIconGap = AppSizes.spacingXs;
+  static const double cardTextGap = AppSizes.spacingSm;
+  static const double overlayEdgeInset = 0;
+
+  static const double bottomCtaTopSpacing = AppSizes.spacingMd;
+  static const double bottomCtaHeight = AppSizes.size48;
+  static const double bottomCtaRadius = AppSizes.radiusPill;
+  static const double bottomListPadding = AppSizes.size72;
+
   static const double outlineOpacity = AppOpacities.outline26;
+  static const double surfaceSoftOpacity = AppOpacities.soft20;
+  static const double mutedTextOpacity = AppOpacities.muted82;
   static const double listMetadataGap = AppSizes.spacing2Xs;
   static const int previewMaxLines = 2;
-  static const int backTextMaxLines = 4;
+  static const int backTextMaxLines = 8;
 
   static const double editorDialogWidthFactor = 0.92;
   static const double editorDialogMinWidth = 320;

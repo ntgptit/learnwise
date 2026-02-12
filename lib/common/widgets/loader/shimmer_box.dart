@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -35,7 +36,8 @@ class _ShimmerBoxState extends State<ShimmerBox>
     _controller = AnimationController(
       vsync: this,
       duration: AppDurations.shimmerLoop,
-    )..repeat();
+    );
+    unawaited(_controller.repeat());
   }
 
   @override
@@ -52,7 +54,7 @@ class _ShimmerBoxState extends State<ShimmerBox>
 
     return AnimatedBuilder(
       animation: _controller,
-      builder: (BuildContext context, Widget? child) {
+      builder: (context, child) {
         final double t = _controller.value;
         final double dx = -1 + (2 * t);
 

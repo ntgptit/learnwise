@@ -14,10 +14,7 @@ class AppBottomNavDestination {
 
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({
-    super.key,
-    required this.destinations,
-    required this.selectedIndex,
-    required this.onDestinationSelected,
+    required this.destinations, required this.selectedIndex, required this.onDestinationSelected, super.key,
   }) : assert(destinations.length > 0, 'destinations must not be empty.');
 
   final List<AppBottomNavDestination> destinations;
@@ -41,7 +38,7 @@ class AppBottomNavBar extends StatelessWidget {
       onDestinationSelected: onDestinationSelected,
       destinations: destinations
           .map(
-            (AppBottomNavDestination destination) => NavigationDestination(
+            (destination) => NavigationDestination(
               icon: Icon(destination.icon),
               selectedIcon: destination.selectedIcon == null
                   ? null

@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
-    super.key,
-    required this.label,
+    required this.label, super.key,
     this.onPressed,
     this.expanded = true,
   });

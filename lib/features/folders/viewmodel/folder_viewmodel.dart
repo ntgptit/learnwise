@@ -53,9 +53,7 @@ class FolderQueryController extends _$FolderQueryController {
       return;
     }
 
-    final int existingIndex = state.breadcrumbs.indexWhere((
-      FolderBreadcrumb item,
-    ) {
+    final int existingIndex = state.breadcrumbs.indexWhere((item) {
       return item.id == folder.id;
     });
     if (existingIndex >= FolderConstants.minPage) {
@@ -166,7 +164,7 @@ class FolderUiController extends _$FolderUiController {
     state = state.copyWith(isSearchVisible: !state.isSearchVisible);
   }
 
-  void setTransitionInProgress(bool isInProgress) {
+  void setTransitionInProgress({required bool isInProgress}) {
     if (state.isTransitionInProgress == isInProgress) {
       return;
     }
@@ -366,9 +364,7 @@ class FolderController extends _$FolderController {
 
     final FolderListingState? snapshot = _currentListing;
     if (snapshot != null) {
-      final List<FolderItem> optimisticItems = snapshot.items.map((
-        FolderItem item,
-      ) {
+      final List<FolderItem> optimisticItems = snapshot.items.map((item) {
         if (item.id != folderId) {
           return item;
         }
@@ -417,9 +413,7 @@ class FolderController extends _$FolderController {
       return false;
     }
 
-    final List<FolderItem> optimisticItems = snapshot.items.where((
-      FolderItem item,
-    ) {
+    final List<FolderItem> optimisticItems = snapshot.items.where((item) {
       return item.id != folderId;
     }).toList();
     state = AsyncData<FolderListingState>(
@@ -469,8 +463,8 @@ class FolderController extends _$FolderController {
     }
     _isQueryListenerBound = true;
     ref.listen<FolderListQuery>(folderQueryControllerProvider, (
-      FolderListQuery? previousQuery,
-      FolderListQuery nextQuery,
+      previousQuery,
+      nextQuery,
     ) {
       if (!_isBootstrapCompleted) {
         return;

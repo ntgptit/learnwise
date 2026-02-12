@@ -37,11 +37,13 @@ class TtsController extends _$TtsController {
     _ttsRepository = ref.read(ttsRepositoryProvider);
     _errorAdvisor = ref.read(appErrorAdvisorProvider);
     if (ref.read(ttsAutoBootstrapProvider)) {
-      Future<void>.microtask(() async {
-        if (ref.mounted) {
-          await initialize();
-        }
-      });
+      unawaited(
+        Future<void>.microtask(() async {
+          if (ref.mounted) {
+            await initialize();
+          }
+        }),
+      );
     }
     return TtsState.initial();
   }
@@ -154,7 +156,7 @@ class TtsController extends _$TtsController {
     );
     final bool hasSelected =
         state.selectedVoiceId != null &&
-        voices.any((TtsVoiceOption voice) => voice.id == state.selectedVoiceId);
+        voices.any((voice) => voice.id == state.selectedVoiceId);
     state = state.copyWith(
       voices: voices,
       selectedVoiceId: hasSelected ? state.selectedVoiceId : null,

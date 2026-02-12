@@ -38,6 +38,9 @@ sealed class FlashcardItem with _$FlashcardItem {
     required int deckId,
     required String frontText,
     required String backText,
+    @JsonKey(defaultValue: '') required String pronunciation,
+    @JsonKey(defaultValue: '') required String note,
+    @JsonKey(defaultValue: false) required bool isBookmarked,
     @JsonKey(
       name: _flashcardItemAuditJsonKey,
       readValue: _readFlashcardItemAuditValue,

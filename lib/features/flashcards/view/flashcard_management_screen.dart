@@ -8,14 +8,19 @@ import '../../../app/router/route_names.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
-import '../../folders/model/folder_constants.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_management_args.dart';
 import '../model/flashcard_models.dart';
 import '../viewmodel/flashcard_viewmodel.dart';
-import 'widgets/flashcard_editor_dialog.dart';
+import 'widgets/flashcard_card_section_header.dart';
+import 'widgets/flashcard_content_card.dart';
+import 'widgets/flashcard_mock_banner.dart';
+import 'widgets/flashcard_preview_carousel.dart';
+import 'widgets/flashcard_set_metadata_section.dart';
+import 'widgets/flashcard_study_action_section.dart';
 
 enum _FlashcardMenuAction {
+  toggleSearch,
   refresh,
   sortByCreatedAt,
   sortByFrontText,
@@ -24,7 +29,7 @@ enum _FlashcardMenuAction {
 }
 
 class FlashcardManagementScreen extends ConsumerStatefulWidget {
-  const FlashcardManagementScreen({super.key, required this.args});
+  const FlashcardManagementScreen({required this.args, super.key});
 
   final FlashcardManagementArgs args;
 
@@ -37,17 +42,25 @@ class _FlashcardManagementScreenState
     extends ConsumerState<FlashcardManagementScreen> {
   late final TextEditingController _searchController;
   late final ScrollController _scrollController;
+  late final PageController _previewPageController;
   Timer? _searchDebounceTimer;
-  bool _isSearchVisible = false;
 
   @override
   void initState() {
     super.initState();
+    final int deckId = widget.args.deckId;
     final FlashcardListQuery query = ref.read(
-      flashcardQueryControllerProvider(widget.args.deckId),
+      flashcardQueryControllerProvider(deckId),
+    );
+    final FlashcardUiState uiState = ref.read(
+      flashcardUiControllerProvider(deckId),
     );
     _searchController = TextEditingController(text: query.search);
     _scrollController = ScrollController()..addListener(_onScroll);
+    _previewPageController = PageController(
+      initialPage: uiState.previewIndex,
+      viewportFraction: FlashcardScreenTokens.heroViewportFraction,
+    );
   }
 
   @override
@@ -57,6 +70,7 @@ class _FlashcardManagementScreenState
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
+    _previewPageController.dispose();
     super.dispose();
   }
 
@@ -67,12 +81,19 @@ class _FlashcardManagementScreenState
     final FlashcardListQuery query = ref.watch(
       flashcardQueryControllerProvider(deckId),
     );
+    final FlashcardUiState uiState = ref.watch(
+      flashcardUiControllerProvider(deckId),
+    );
     final AsyncValue<FlashcardListingState> state = ref.watch(
       flashcardControllerProvider(deckId),
     );
     final FlashcardController controller = ref.read(
       flashcardControllerProvider(deckId).notifier,
     );
+    final FlashcardUiController uiController = ref.read(
+      flashcardUiControllerProvider(deckId).notifier,
+    );
+
     if (_searchController.text != query.search) {
       _searchController.value = TextEditingValue(
         text: query.search,
@@ -82,6 +103,7 @@ class _FlashcardManagementScreenState
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: FlashcardScreenTokens.toolbarHeight,
         title: Text(_resolveTitle(l10n)),
         leading: IconButton(
           onPressed: _onBackPressed,
@@ -89,21 +111,18 @@ class _FlashcardManagementScreenState
         ),
         actions: <Widget>[
           IconButton(
-            onPressed: _onCreatePressed,
-            icon: const Icon(Icons.add_rounded),
-            tooltip: l10n.flashcardsCreateButton,
-          ),
-          IconButton(
-            onPressed: _toggleSearchVisibility,
-            icon: const Icon(Icons.search_rounded),
-            tooltip: l10n.flashcardsSearchHint,
+            onPressed: () => _showActionToast(l10n.flashcardsBookmarkSetToast),
+            icon: const Icon(Icons.bookmark_border_rounded),
+            tooltip: l10n.flashcardsBookmarkSetTooltip,
           ),
           PopupMenuButton<_FlashcardMenuAction>(
             onSelected: _onMenuActionSelected,
-            tooltip: l10n.flashcardsRefreshTooltip,
-            itemBuilder: (BuildContext context) {
-              return _buildMenuItems(l10n: l10n, query: query);
-            },
+            tooltip: l10n.flashcardsMoreActionsTooltip,
+            itemBuilder: (context) => _buildMenuItems(
+              l10n: l10n,
+              query: query,
+              isSearchVisible: uiState.isSearchVisible,
+            ),
           ),
         ],
       ),
@@ -111,10 +130,16 @@ class _FlashcardManagementScreenState
         child: state.when(
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
-          data: (FlashcardListingState listing) {
-            final bool showInlineLoading = state.isLoading;
-            final bool showEmptyState =
-                listing.items.isEmpty && !state.isLoading;
+          data: (listing) {
+            _syncPreviewPage(
+              listingCount: listing.items.length,
+              previewIndex: uiState.previewIndex,
+              uiController: uiController,
+            );
+            final int safePreviewIndex = _resolveSafePreviewIndex(
+              listingCount: listing.items.length,
+              previewIndex: uiState.previewIndex,
+            );
 
             return Stack(
               children: <Widget>[
@@ -122,77 +147,113 @@ class _FlashcardManagementScreenState
                   onRefresh: controller.refresh,
                   child: ListView(
                     controller: _scrollController,
-                    padding: const EdgeInsets.all(
+                    padding: const EdgeInsets.fromLTRB(
                       FlashcardScreenTokens.screenPadding,
+                      FlashcardScreenTokens.screenPadding,
+                      FlashcardScreenTokens.screenPadding,
+                      FlashcardScreenTokens.bottomListPadding,
                     ),
                     children: <Widget>[
-                      Text(
-                        l10n.flashcardsTotalLabel(listing.totalElements),
-                        style: Theme.of(context).textTheme.titleMedium,
+                      FlashcardPreviewCarousel(
+                        items: listing.items,
+                        pageController: _previewPageController,
+                        previewIndex: safePreviewIndex,
+                        onPageChanged: uiController.setPreviewIndex,
+                        onExpandPressed: () =>
+                            _showActionToast(l10n.flashcardsExpandPreviewToast),
+                      ),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionSpacingLarge,
+                      ),
+                      FlashcardMockBanner(
+                        onInfoPressed: () =>
+                            _showActionToast(l10n.flashcardsBannerInfoToast),
                       ),
                       const SizedBox(
                         height: FlashcardScreenTokens.sectionSpacing,
                       ),
-                      if (_isSearchVisible)
+                      FlashcardSetMetadataSection(
+                        title: _resolveSetTitle(l10n),
+                        ownerName: widget.args.ownerName,
+                        totalFlashcards: listing.totalElements,
+                      ),
+                      if (widget.args.deckDescription.trim().isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(
-                            bottom: FlashcardScreenTokens.sectionSpacing,
+                            top: FlashcardScreenTokens.metadataGap,
                           ),
-                          child: _FlashcardSearchField(
-                            searchController: _searchController,
-                            onSearchChanged: _onSearchChanged,
-                            onSearchSubmitted: _submitSearch,
-                          ),
-                        ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: PopupMenuButton<_FlashcardMenuAction>(
-                          onSelected: _onMenuActionSelected,
-                          itemBuilder: (BuildContext context) {
-                            return _buildMenuItems(l10n: l10n, query: query);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                _buildSortSummaryLabel(
-                                  l10n: l10n,
-                                  query: query,
-                                ),
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                              const SizedBox(
-                                width: FlashcardScreenTokens.listMetadataGap,
-                              ),
-                              const Icon(Icons.expand_more_rounded),
-                            ],
+                          child: Text(
+                            widget.args.deckDescription.trim(),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
+                      if (uiState.isSearchVisible)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: FlashcardScreenTokens.sectionSpacing,
+                          ),
+                          child: SearchField(
+                            controller: _searchController,
+                            onChanged: _onSearchChanged,
+                            hint: l10n.flashcardsSearchHint,
+                          ),
+                        ),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionSpacingLarge,
+                      ),
+                      FlashcardStudyActionSection(
+                        actions: _buildStudyActions(l10n: l10n),
                       ),
                       const SizedBox(
-                        height: FlashcardScreenTokens.sectionSpacing,
+                        height: FlashcardScreenTokens.sectionSpacingLarge,
                       ),
-                      if (showEmptyState)
+                      FlashcardCardSectionHeader(
+                        title: l10n.flashcardsCardSectionTitle,
+                        sortLabel: _buildSortSummaryLabel(
+                          l10n: l10n,
+                          query: query,
+                        ),
+                        onSortPressed: () =>
+                            _showActionToast(l10n.flashcardsSortHintToast),
+                      ),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionHeaderBottomGap,
+                      ),
+                      if (listing.items.isEmpty)
                         EmptyState(
                           title: l10n.flashcardsEmptyTitle,
                           subtitle: l10n.flashcardsEmptyDescription,
                           icon: Icons.style_outlined,
-                          action: FilledButton.tonalIcon(
-                            onPressed: _onCreatePressed,
-                            icon: const Icon(Icons.add_rounded),
-                            label: Text(l10n.flashcardsCreateButton),
+                          action: FilledButton(
+                            onPressed: () => _showActionToast(
+                              l10n.flashcardsCreatePlaceholderToast,
+                            ),
+                            child: Text(l10n.flashcardsCreateButton),
                           ),
                         ),
                       if (listing.items.isNotEmpty)
-                        ...listing.items.map((FlashcardItem item) {
+                        ...listing.items.map((item) {
+                          final bool isStarred =
+                              item.isBookmarked ||
+                              uiState.starredFlashcardIds.contains(item.id);
                           return Padding(
                             padding: const EdgeInsets.only(
                               bottom: FlashcardScreenTokens.cardSpacing,
                             ),
-                            child: _FlashcardListCard(
+                            child: FlashcardContentCard(
                               item: item,
-                              onEditPressed: () => _onEditPressed(item),
-                              onDeletePressed: () => _onDeletePressed(item),
+                              isStarred: isStarred,
+                              onAudioPressed: () => _showActionToast(
+                                l10n.flashcardsAudioPlayToast(item.frontText),
+                              ),
+                              onStarPressed: () {
+                                uiController.toggleStar(item.id);
+                                _showActionToast(
+                                  isStarred
+                                      ? l10n.flashcardsUnbookmarkToast
+                                      : l10n.flashcardsBookmarkToast,
+                                );
+                              },
                             ),
                           );
                         }),
@@ -207,12 +268,12 @@ class _FlashcardManagementScreenState
                   ),
                 ),
                 Positioned(
-                  top: FolderScreenTokens.loadingOverlayEdgeInset,
-                  left: FolderScreenTokens.loadingOverlayEdgeInset,
-                  right: FolderScreenTokens.loadingOverlayEdgeInset,
+                  top: FlashcardScreenTokens.overlayEdgeInset,
+                  left: FlashcardScreenTokens.overlayEdgeInset,
+                  right: FlashcardScreenTokens.overlayEdgeInset,
                   child: IgnorePointer(
                     child: AnimatedOpacity(
-                      opacity: showInlineLoading ? 1 : 0,
+                      opacity: state.isLoading ? 1 : 0,
                       duration: AppDurations.animationFast,
                       child: const LinearProgressIndicator(),
                     ),
@@ -221,7 +282,7 @@ class _FlashcardManagementScreenState
               ],
             );
           },
-          error: (Object error, StackTrace stackTrace) {
+          error: (error, stackTrace) {
             return ErrorState(
               title: l10n.flashcardsErrorTitle,
               message: l10n.flashcardsErrorDescription,
@@ -234,23 +295,59 @@ class _FlashcardManagementScreenState
           },
         ),
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        destinations: <AppBottomNavDestination>[
-          AppBottomNavDestination(
-            icon: Icons.dashboard_outlined,
-            selectedIcon: Icons.dashboard_rounded,
-            label: l10n.dashboardNavHome,
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(
+          FlashcardScreenTokens.screenPadding,
+          FlashcardScreenTokens.bottomCtaTopSpacing,
+          FlashcardScreenTokens.screenPadding,
+          FlashcardScreenTokens.screenPadding,
+        ),
+        child: SizedBox(
+          height: FlashcardScreenTokens.bottomCtaHeight,
+          child: FilledButton(
+            onPressed: () => _showActionToast(l10n.flashcardsStudySetToast),
+            child: Text(l10n.flashcardsStudySetButton),
           ),
-          AppBottomNavDestination(
-            icon: Icons.folder_open_outlined,
-            selectedIcon: Icons.folder_rounded,
-            label: l10n.dashboardNavFolders,
-          ),
-        ],
-        selectedIndex: FolderConstants.foldersNavIndex,
-        onDestinationSelected: _onBottomNavSelected,
+        ),
       ),
     );
+  }
+
+  List<FlashcardStudyAction> _buildStudyActions({
+    required AppLocalizations l10n,
+  }) {
+    return <FlashcardStudyAction>[
+      FlashcardStudyAction(
+        label: l10n.flashcardsActionFlipcard,
+        icon: Icons.style_outlined,
+        onPressed: () => _showActionToast(l10n.flashcardsActionFlipcardToast),
+      ),
+      FlashcardStudyAction(
+        label: l10n.flashcardsActionLearn,
+        icon: Icons.autorenew_rounded,
+        onPressed: () => _showActionToast(l10n.flashcardsActionLearnToast),
+      ),
+      FlashcardStudyAction(
+        label: l10n.flashcardsActionTest,
+        icon: Icons.description_outlined,
+        onPressed: () => _showActionToast(l10n.flashcardsActionTestToast),
+      ),
+      FlashcardStudyAction(
+        label: l10n.flashcardsActionMatch,
+        icon: Icons.view_stream_outlined,
+        onPressed: () => _showActionToast(l10n.flashcardsActionMatchToast),
+      ),
+      FlashcardStudyAction(
+        label: l10n.flashcardsActionBlast,
+        icon: Icons.rocket_launch_outlined,
+        onPressed: () => _showActionToast(l10n.flashcardsActionBlastToast),
+      ),
+      FlashcardStudyAction(
+        label: l10n.flashcardsActionBlocks,
+        icon: Icons.grid_view_outlined,
+        onPressed: () => _showActionToast(l10n.flashcardsActionBlocksToast),
+      ),
+    ];
   }
 
   void _onScroll() {
@@ -263,9 +360,11 @@ class _FlashcardManagementScreenState
     if (position.extentAfter > FlashcardConstants.loadMoreThresholdPx) {
       return;
     }
-    ref
-        .read(flashcardControllerProvider(widget.args.deckId).notifier)
-        .loadMore();
+    unawaited(
+      ref
+          .read(flashcardControllerProvider(widget.args.deckId).notifier)
+          .loadMore(),
+    );
   }
 
   void _onBackPressed() {
@@ -274,78 +373,59 @@ class _FlashcardManagementScreenState
       navigator.pop(true);
       return;
     }
-    navigator.pushReplacementNamed(RouteNames.folders);
-  }
-
-  void _onBottomNavSelected(int index) {
-    if (index == FolderConstants.foldersNavIndex) {
-      Navigator.of(context).pushReplacementNamed(RouteNames.folders);
-      return;
-    }
-    Navigator.of(context).pushReplacementNamed(RouteNames.dashboard);
-  }
-
-  void _toggleSearchVisibility() {
-    setState(() {
-      _isSearchVisible = !_isSearchVisible;
-    });
+    unawaited(navigator.pushReplacementNamed(RouteNames.folders));
   }
 
   void _onMenuActionSelected(_FlashcardMenuAction action) {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
     final FlashcardController controller = ref.read(
       flashcardControllerProvider(widget.args.deckId).notifier,
     );
+    final FlashcardUiController uiController = ref.read(
+      flashcardUiControllerProvider(widget.args.deckId).notifier,
+    );
+
+    if (action == _FlashcardMenuAction.toggleSearch) {
+      uiController.toggleSearchVisibility();
+      return;
+    }
     if (action == _FlashcardMenuAction.refresh) {
-      controller.refresh();
+      unawaited(controller.refresh());
       return;
     }
     if (action == _FlashcardMenuAction.sortByCreatedAt) {
       controller.applySortBy(FlashcardSortBy.createdAt);
+      _showActionToast(l10n.flashcardsSortHintToast);
       return;
     }
     if (action == _FlashcardMenuAction.sortByFrontText) {
       controller.applySortBy(FlashcardSortBy.frontText);
+      _showActionToast(l10n.flashcardsSortHintToast);
       return;
     }
     if (action == _FlashcardMenuAction.sortDirectionDesc) {
       controller.applySortDirection(FlashcardSortDirection.desc);
+      _showActionToast(l10n.flashcardsSortHintToast);
       return;
     }
     controller.applySortDirection(FlashcardSortDirection.asc);
-  }
-
-  void _onSearchChanged(String value) {
-    _searchDebounceTimer?.cancel();
-    _searchDebounceTimer = Timer(AppDurations.debounceMedium, _submitSearch);
-  }
-
-  void _submitSearch() {
-    _searchDebounceTimer?.cancel();
-    ref
-        .read(flashcardControllerProvider(widget.args.deckId).notifier)
-        .applySearch(_searchController.text);
-  }
-
-  String _buildSortSummaryLabel({
-    required AppLocalizations l10n,
-    required FlashcardListQuery query,
-  }) {
-    final String sortByLabel = switch (query.sortBy) {
-      FlashcardSortBy.createdAt => l10n.flashcardsSortByCreatedAt,
-      FlashcardSortBy.frontText => l10n.flashcardsSortByFrontText,
-    };
-    final String sortDirectionLabel = switch (query.sortDirection) {
-      FlashcardSortDirection.desc => l10n.flashcardsSortDirectionDesc,
-      FlashcardSortDirection.asc => l10n.flashcardsSortDirectionAsc,
-    };
-    return '$sortByLabel \u00b7 $sortDirectionLabel';
+    _showActionToast(l10n.flashcardsSortHintToast);
   }
 
   List<PopupMenuEntry<_FlashcardMenuAction>> _buildMenuItems({
     required AppLocalizations l10n,
     required FlashcardListQuery query,
+    required bool isSearchVisible,
   }) {
     return <PopupMenuEntry<_FlashcardMenuAction>>[
+      PopupMenuItem<_FlashcardMenuAction>(
+        value: _FlashcardMenuAction.toggleSearch,
+        child: Text(
+          isSearchVisible
+              ? l10n.flashcardsHideSearchAction
+              : l10n.flashcardsShowSearchAction,
+        ),
+      ),
       PopupMenuItem<_FlashcardMenuAction>(
         value: _FlashcardMenuAction.refresh,
         child: Text(l10n.flashcardsRefreshTooltip),
@@ -375,182 +455,87 @@ class _FlashcardManagementScreenState
     ];
   }
 
-  Future<void> _onCreatePressed() async {
-    final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.deckId).notifier,
-    );
-    await showFlashcardEditorDialog(
-      context: context,
-      initialFlashcard: null,
-      onSubmit: controller.submitCreateFlashcard,
-    );
+  void _onSearchChanged(String value) {
+    _searchDebounceTimer?.cancel();
+    _searchDebounceTimer = Timer(AppDurations.debounceMedium, _submitSearch);
   }
 
-  Future<void> _onEditPressed(FlashcardItem item) async {
-    final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.deckId).notifier,
-    );
-    await showFlashcardEditorDialog(
-      context: context,
-      initialFlashcard: item,
-      onSubmit: (FlashcardUpsertInput input) {
-        return controller.submitUpdateFlashcard(
-          flashcardId: item.id,
-          input: input,
-        );
-      },
-    );
-  }
-
-  Future<void> _onDeletePressed(FlashcardItem item) async {
-    final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return ConfirmDialog(
-          title: l10n.flashcardsDeleteDialogTitle,
-          message: l10n.flashcardsDeleteDialogMessage(item.frontText),
-          confirmLabel: l10n.flashcardsDeleteConfirmLabel,
-          cancelLabel: l10n.flashcardsCancelLabel,
-          onConfirm: () => Navigator.of(dialogContext).pop(true),
-          onCancel: () => Navigator.of(dialogContext).pop(false),
-        );
-      },
-    );
-    if (confirmed != true) {
-      return;
-    }
-    await ref
+  void _submitSearch() {
+    _searchDebounceTimer?.cancel();
+    ref
         .read(flashcardControllerProvider(widget.args.deckId).notifier)
-        .deleteFlashcard(item.id);
+        .applySearch(_searchController.text);
   }
 
   String _resolveTitle(AppLocalizations l10n) {
-    if (widget.args.deckName.isEmpty) {
+    if (widget.args.deckName.trim().isEmpty) {
       return l10n.flashcardsTitle;
     }
-    return l10n.flashcardsManageTitle(widget.args.deckName);
+    return widget.args.deckName.trim();
   }
-}
 
-class _FlashcardSearchField extends StatelessWidget {
-  const _FlashcardSearchField({
-    required this.searchController,
-    required this.onSearchChanged,
-    required this.onSearchSubmitted,
-  });
-
-  final TextEditingController searchController;
-  final ValueChanged<String> onSearchChanged;
-  final VoidCallback onSearchSubmitted;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
-        border: Border.all(
-          color: colorScheme.outline.withValues(
-            alpha: FlashcardScreenTokens.outlineOpacity,
-          ),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: FlashcardScreenTokens.cardSpacing,
-      ),
-      child: TextField(
-        controller: searchController,
-        onChanged: onSearchChanged,
-        onSubmitted: (_) => onSearchSubmitted(),
-        decoration: InputDecoration(
-          hintText: l10n.flashcardsSearchHint,
-          border: InputBorder.none,
-          prefixIcon: const Icon(Icons.search_rounded),
-          suffixIcon: IconButton(
-            onPressed: onSearchSubmitted,
-            icon: const Icon(Icons.arrow_forward_rounded),
-          ),
-        ),
-      ),
-    );
+  String _resolveSetTitle(AppLocalizations l10n) {
+    if (widget.args.folderName.trim().isEmpty) {
+      return _resolveTitle(l10n);
+    }
+    return widget.args.folderName.trim();
   }
-}
 
-class _FlashcardListCard extends StatelessWidget {
-  const _FlashcardListCard({
-    required this.item,
-    required this.onEditPressed,
-    required this.onDeletePressed,
-  });
+  String _buildSortSummaryLabel({
+    required AppLocalizations l10n,
+    required FlashcardListQuery query,
+  }) {
+    final String sortByLabel = switch (query.sortBy) {
+      FlashcardSortBy.createdAt => l10n.flashcardsSortByCreatedAt,
+      FlashcardSortBy.frontText => l10n.flashcardsSortByFrontText,
+    };
+    final String sortDirectionLabel = switch (query.sortDirection) {
+      FlashcardSortDirection.desc => l10n.flashcardsSortDirectionDesc,
+      FlashcardSortDirection.asc => l10n.flashcardsSortDirectionAsc,
+    };
+    return '$sortByLabel \u00b7 $sortDirectionLabel';
+  }
 
-  final FlashcardItem item;
-  final VoidCallback onEditPressed;
-  final VoidCallback onDeletePressed;
+  void _showActionToast(String message) {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
-        side: BorderSide(
-          color: colorScheme.outline.withValues(
-            alpha: FlashcardScreenTokens.outlineOpacity,
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(FlashcardScreenTokens.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              item.frontText,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-              maxLines: FlashcardScreenTokens.previewMaxLines,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: FlashcardScreenTokens.listMetadataGap),
-            Text(
-              item.backText,
-              style: theme.textTheme.bodyMedium,
-              maxLines: FlashcardScreenTokens.previewMaxLines,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: FlashcardScreenTokens.cardSpacing),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    item.updatedBy,
-                    style: theme.textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  onPressed: onEditPressed,
-                  tooltip: AppLocalizations.of(context)!.flashcardsEditTooltip,
-                  icon: const Icon(Icons.edit_outlined),
-                ),
-                IconButton(
-                  onPressed: onDeletePressed,
-                  tooltip: AppLocalizations.of(
-                    context,
-                  )!.flashcardsDeleteTooltip,
-                  icon: const Icon(Icons.delete_outline_rounded),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+  int _resolveSafePreviewIndex({
+    required int listingCount,
+    required int previewIndex,
+  }) {
+    final int dotCount = listingCount == FlashcardConstants.defaultPage
+        ? 1
+        : listingCount > FlashcardConstants.previewItemLimit
+        ? FlashcardConstants.previewItemLimit
+        : listingCount;
+    final int maxIndex = dotCount - 1;
+    if (previewIndex > maxIndex) {
+      return maxIndex;
+    }
+    return previewIndex;
+  }
+
+  void _syncPreviewPage({
+    required int listingCount,
+    required int previewIndex,
+    required FlashcardUiController uiController,
+  }) {
+    final int safeIndex = _resolveSafePreviewIndex(
+      listingCount: listingCount,
+      previewIndex: previewIndex,
     );
+    if (safeIndex == previewIndex) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      uiController.setPreviewIndex(safeIndex);
+      if (_previewPageController.hasClients) {
+        _previewPageController.jumpToPage(safeIndex);
+      }
+    });
   }
 }

@@ -6,10 +6,7 @@ import '../../../../common/widgets/widgets.dart';
 
 class FolderEmptyState extends StatelessWidget {
   const FolderEmptyState({
-    super.key,
-    required this.description,
-    required this.onCreatePressed,
-    required this.onCreateDeckPressed,
+    required this.description, required this.onCreatePressed, required this.onCreateDeckPressed, super.key,
   });
 
   final String description;

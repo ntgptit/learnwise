@@ -6,10 +6,7 @@ import '../../../app/theme/colors.dart';
 
 class QuizOptionItem extends StatelessWidget {
   const QuizOptionItem({
-    super.key,
-    required this.label,
-    required this.text,
-    required this.onTap,
+    required this.label, required this.text, required this.onTap, super.key,
     this.selected = false,
     this.correct = false,
     this.disabled = false,

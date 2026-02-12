@@ -53,11 +53,11 @@ Future<bool> showFolderEditorDialog({
   final bool? isSubmitted = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (BuildContext dialogContext) {
+    builder: (dialogContext) {
       return StatefulBuilder(
         builder:
             (
-              BuildContext context,
+              context,
               void Function(void Function()) setDialogState,
             ) {
               final double screenWidth = MediaQuery.sizeOf(context).width;
@@ -126,7 +126,7 @@ Future<bool> showFolderEditorDialog({
                               spacing: FolderScreenTokens.colorGridSpacing,
                               runSpacing: FolderScreenTokens.colorGridSpacing,
                               children: FolderConstants.colorPresets.map((
-                                String colorHex,
+                                colorHex,
                               ) {
                                 final bool isSelected =
                                     colorHex == selectedColorHex;

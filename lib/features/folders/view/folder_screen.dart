@@ -130,7 +130,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           PopupMenuButton<_FolderMenuAction>(
             onSelected: _onMenuActionSelected,
             tooltip: l10n.foldersRefreshTooltip,
-            itemBuilder: (BuildContext context) {
+            itemBuilder: (context) {
               return _buildMenuItems(
                 l10n: l10n,
                 query: query,
@@ -144,7 +144,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
         child: state.when(
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
-          data: (FolderListingState listing) {
+          data: (listing) {
             final bool isInsideFolder = query.breadcrumbs.isNotEmpty;
             final bool hasDeckData = deckListingSnapshot != null;
             final bool hasDeckItems =
@@ -202,8 +202,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                             rootLabel: l10n.foldersRootLabel,
                             items: query.breadcrumbs
                                 .map(
-                                  (FolderBreadcrumb item) =>
-                                      AppBreadcrumbItem(label: item.name),
+                                  (item) => AppBreadcrumbItem(label: item.name),
                                 )
                                 .toList(),
                             onRootPressed: _onRootPressed,
@@ -226,7 +225,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                         alignment: Alignment.centerLeft,
                         child: PopupMenuButton<_FolderMenuAction>(
                           onSelected: _onMenuActionSelected,
-                          itemBuilder: (BuildContext context) {
+                          itemBuilder: (context) {
                             return _buildMenuItems(
                               l10n: l10n,
                               query: query,
@@ -265,7 +264,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                               : l10n.foldersEmptyDescription,
                         ),
                       if (listing.items.isNotEmpty)
-                        ...listing.items.map((FolderItem folder) {
+                        ...listing.items.map((folder) {
                           return Padding(
                             padding: const EdgeInsets.only(
                               bottom: FolderScreenTokens.cardSpacing,
@@ -312,7 +311,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           onRetry: _refreshDecks,
                         ),
                       if (hasDeckItems)
-                        ...deckListingSnapshot.items.map((DeckItem deck) {
+                        ...deckListingSnapshot.items.map((deck) {
                           return Padding(
                             padding: const EdgeInsets.only(
                               bottom: FolderScreenTokens.cardSpacing,
@@ -350,7 +349,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
               ],
             );
           },
-          error: (Object error, StackTrace stackTrace) {
+          error: (error, stackTrace) {
             return ErrorState(
               title: l10n.foldersErrorTitle,
               message: l10n.foldersErrorDescription,
@@ -392,32 +391,34 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     if (position.extentAfter > FolderConstants.loadMoreThresholdPx) {
       return;
     }
-    ref.read(folderControllerProvider.notifier).loadMore();
+    unawaited(ref.read(folderControllerProvider.notifier).loadMore());
     final int? currentFolderId = ref
         .read(folderQueryControllerProvider)
         .parentFolderId;
     if (currentFolderId == null) {
       return;
     }
-    ref.read(deckControllerProvider(currentFolderId).notifier).loadMore();
+    unawaited(
+      ref.read(deckControllerProvider(currentFolderId).notifier).loadMore(),
+    );
   }
 
   Future<void> _onBackPressed(FolderListQuery query) async {
     if (query.breadcrumbs.isNotEmpty) {
-      await _runFolderTransition((FolderController controller) async {
+      await _runFolderTransition((controller) async {
         controller.goToParent();
         await _waitForFolderData();
       });
       return;
     }
-    Navigator.of(context).pushReplacementNamed(RouteNames.dashboard);
+    unawaited(Navigator.of(context).pushReplacementNamed(RouteNames.dashboard));
   }
 
   void _onBottomNavSelected(int index) {
     if (index == FolderConstants.foldersNavIndex) {
       return;
     }
-    Navigator.of(context).pushReplacementNamed(RouteNames.dashboard);
+    unawaited(Navigator.of(context).pushReplacementNamed(RouteNames.dashboard));
   }
 
   void _toggleSearchVisibility() {
@@ -496,7 +497,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     );
 
     if (action == _FolderMenuAction.refresh) {
-      _refreshAll();
+      unawaited(_refreshAll());
       return;
     }
     if (action == _FolderMenuAction.sortByCreatedAt) {
@@ -581,7 +582,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   Future<void> _onOpenPressed(FolderItem folder) async {
-    await _runFolderTransition((FolderController controller) async {
+    await _runFolderTransition((controller) async {
       controller.enterFolder(folder);
       await _waitForFolderData();
     });
@@ -589,7 +590,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
 
   void _onRootPressed() {
     unawaited(
-      _runFolderTransition((FolderController controller) async {
+      _runFolderTransition((controller) async {
         controller.goToRoot();
         await _waitForFolderData();
       }),
@@ -598,7 +599,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
 
   void _onBreadcrumbPressed(int index) {
     unawaited(
-      _runFolderTransition((FolderController controller) async {
+      _runFolderTransition((controller) async {
         controller.goToBreadcrumb(index);
         await _waitForFolderData();
       }),
@@ -609,14 +610,14 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     Future<void> Function(FolderController controller) action,
   ) async {
     final DateTime transitionStartedAt = DateTime.now();
-    final Duration minimumTransitionDuration = AppDurations.animationFast;
+    const Duration minimumTransitionDuration = AppDurations.animationFast;
     final FolderUiController uiController = ref.read(
       folderUiControllerProvider.notifier,
     );
     if (ref.read(folderUiControllerProvider).isTransitionInProgress) {
       return;
     }
-    uiController.setTransitionInProgress(true);
+    uiController.setTransitionInProgress(isInProgress: true);
     try {
       final FolderController controller = ref.read(
         folderControllerProvider.notifier,
@@ -627,7 +628,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       if (elapsed < minimumTransitionDuration) {
         await Future<void>.delayed(minimumTransitionDuration - elapsed);
       }
-      uiController.setTransitionInProgress(false);
+      uiController.setTransitionInProgress(isInProgress: false);
     }
   }
 
@@ -668,11 +669,17 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       deckName: deck.name,
       folderName: ref.read(folderQueryControllerProvider).breadcrumbs.last.name,
       totalFlashcards: totalFlashcards,
+      ownerName: deck.updatedBy,
+      deckDescription: deck.description,
     );
-    navigator.pushNamed(RouteNames.flashcards, arguments: args).then((_) async {
-      await ref.read(folderControllerProvider.notifier).refresh();
-      await _refreshDecks();
-    });
+    unawaited(
+      navigator.pushNamed(RouteNames.flashcards, arguments: args).then((
+        _,
+      ) async {
+        await ref.read(folderControllerProvider.notifier).refresh();
+        await _refreshDecks();
+      }),
+    );
   }
 
   Future<void> _onCreatePressed() async {
@@ -705,10 +712,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     }
     final FolderListingState? listing = ref
         .read(folderControllerProvider)
-        .maybeWhen(
-          data: (FolderListingState value) => value,
-          orElse: () => null,
-        );
+        .maybeWhen(data: (value) => value, orElse: () => null);
     final DeckListingState? deckListing = _resolveDeckListingSnapshot(
       currentFolderId,
     );
@@ -751,7 +755,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     await showDeckEditorDialog(
       context: context,
       initialDeck: deck,
-      onSubmit: (DeckUpsertInput input) {
+      onSubmit: (input) {
         return controller.submitUpdateDeck(deckId: deck.id, input: input);
       },
     );
@@ -767,7 +771,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return ConfirmDialog(
           title: l10n.decksDeleteDialogTitle,
           message: l10n.decksDeleteDialogMessage(deck.name),
@@ -803,7 +807,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     await showFolderEditorDialog(
       context: context,
       initialFolder: folder,
-      onSubmit: (FolderUpsertInput input) {
+      onSubmit: (input) {
         return controller.submitUpdateFolder(folderId: folder.id, input: input);
       },
     );
@@ -813,7 +817,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return ConfirmDialog(
           title: l10n.foldersDeleteDialogTitle,
           message: l10n.foldersDeleteDialogMessage(folder.name),

@@ -4,9 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class VocabListItem extends StatelessWidget {
   const VocabListItem({
-    super.key,
-    required this.term,
-    required this.meaning,
+    required this.term, required this.meaning, super.key,
     this.onTap,
     this.trailing,
   });

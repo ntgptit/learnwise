@@ -5,8 +5,7 @@ import '../../styles/app_sizes.dart';
 
 class AppMetadataList extends StatelessWidget {
   const AppMetadataList({
-    super.key,
-    required this.items,
+    required this.items, super.key,
     this.spacing = AppSizes.spacing2Xs,
     this.color,
   });

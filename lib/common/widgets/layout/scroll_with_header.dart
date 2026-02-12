@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 class ScrollWithHeader extends StatelessWidget {
   const ScrollWithHeader({
-    super.key,
-    required this.header,
-    required this.slivers,
+    required this.header, required this.slivers, super.key,
     this.pinnedHeader = true,
   });
 

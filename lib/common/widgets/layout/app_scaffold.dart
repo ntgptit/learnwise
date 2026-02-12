@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
-    super.key,
-    required this.body,
+    required this.body, super.key,
     this.title,
     this.actions = const <Widget>[],
     this.floatingActionButton,

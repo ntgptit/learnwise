@@ -9,7 +9,7 @@ final GlobalKey<ScaffoldMessengerState> appScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 class GlobalErrorHandler extends ConsumerWidget {
-  const GlobalErrorHandler({super.key, required this.child});
+  const GlobalErrorHandler({required this.child, super.key});
 
   final Widget child;
 
@@ -18,8 +18,8 @@ class GlobalErrorHandler extends ConsumerWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     ref.listen<AppErrorEvent?>(appErrorBusProvider, (
-      AppErrorEvent? previous,
-      AppErrorEvent? next,
+      previous,
+      next,
     ) {
       if (next == null || previous?.id == next.id) {
         return;

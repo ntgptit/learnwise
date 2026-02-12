@@ -28,10 +28,10 @@ class SkeletonList extends StatelessWidget {
     return ListView.separated(
       padding: padding,
       itemCount: safeItemCount,
-      separatorBuilder: (BuildContext context, int index) {
+      separatorBuilder: (context, index) {
         return SizedBox(height: safeItemSpacing);
       },
-      itemBuilder: (BuildContext context, int index) {
+      itemBuilder: (context, index) {
         return ShimmerBox(height: safeItemHeight, borderRadius: 12);
       },
     );

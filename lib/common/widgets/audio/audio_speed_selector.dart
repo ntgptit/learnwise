@@ -11,10 +11,7 @@ class AudioSpeedOption {
 
 class AudioSpeedSelector extends StatelessWidget {
   const AudioSpeedSelector({
-    super.key,
-    required this.selectedValue,
-    required this.options,
-    required this.onChanged,
+    required this.selectedValue, required this.options, required this.onChanged, super.key,
   });
 
   final double selectedValue;
@@ -27,7 +24,7 @@ class AudioSpeedSelector extends StatelessWidget {
       spacing: AppSizes.spacingXs,
       children: options
           .map(
-            (AudioSpeedOption option) => ChoiceChip(
+            (option) => ChoiceChip(
               selected: option.value == selectedValue,
               label: Text(option.label),
               onSelected: (_) => onChanged(option.value),

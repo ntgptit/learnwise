@@ -16,8 +16,7 @@ class AppActionIconItem {
 
 class AppActionIconRow extends StatelessWidget {
   const AppActionIconRow({
-    super.key,
-    required this.items,
+    required this.items, super.key,
     this.spacing = AppSizes.spacing2Xs,
   });
 

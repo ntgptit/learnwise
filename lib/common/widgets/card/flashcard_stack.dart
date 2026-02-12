@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class FlashcardStack extends StatelessWidget {
   const FlashcardStack({
-    super.key,
-    required this.cards,
+    required this.cards, super.key,
     this.maxVisible = 3,
     this.stackOffset = AppSizes.spacingXs,
   });

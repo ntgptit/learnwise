@@ -4,13 +4,7 @@ import 'app_dialog.dart';
 
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({
-    super.key,
-    required this.title,
-    required this.message,
-    required this.onConfirm,
-    required this.onCancel,
-    required this.confirmLabel,
-    required this.cancelLabel,
+    required this.title, required this.message, required this.onConfirm, required this.onCancel, required this.confirmLabel, required this.cancelLabel, super.key,
   });
 
   final String title;

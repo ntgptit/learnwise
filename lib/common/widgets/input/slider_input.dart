@@ -4,12 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class SliderInput extends StatelessWidget {
   const SliderInput({
-    super.key,
-    required this.value,
-    required this.onChanged,
-    required this.min,
-    required this.max,
-    required this.displayValueText,
+    required this.value, required this.onChanged, required this.min, required this.max, required this.displayValueText, super.key,
     this.divisions,
     this.label,
   }) : assert(min < max, 'min must be less than max.');

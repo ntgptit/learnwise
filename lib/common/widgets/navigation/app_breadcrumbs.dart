@@ -11,11 +11,7 @@ class AppBreadcrumbItem {
 
 class AppBreadcrumbs extends StatelessWidget {
   const AppBreadcrumbs({
-    super.key,
-    required this.rootLabel,
-    required this.items,
-    required this.onRootPressed,
-    required this.onItemPressed,
+    required this.rootLabel, required this.items, required this.onRootPressed, required this.onItemPressed, super.key,
   });
 
   final String rootLabel;

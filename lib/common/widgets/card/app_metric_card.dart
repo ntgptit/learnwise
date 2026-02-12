@@ -5,10 +5,7 @@ import 'app_card.dart';
 
 class AppMetricCard extends StatelessWidget {
   const AppMetricCard({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.value,
+    required this.icon, required this.label, required this.value, super.key,
     this.progress,
     this.minHeight = AppSizes.size72,
     this.padding = const EdgeInsets.all(AppSizes.spacingSm),

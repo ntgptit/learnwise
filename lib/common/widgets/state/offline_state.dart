@@ -4,9 +4,7 @@ import 'error_state.dart';
 
 class OfflineState extends StatelessWidget {
   const OfflineState({
-    super.key,
-    required this.title,
-    required this.message,
+    required this.title, required this.message, super.key,
     this.onRetry,
   });
 

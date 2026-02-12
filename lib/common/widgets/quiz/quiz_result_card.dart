@@ -6,11 +6,7 @@ import '../card/app_card.dart';
 
 class QuizResultCard extends StatelessWidget {
   const QuizResultCard({
-    super.key,
-    required this.titleText,
-    required this.correctText,
-    required this.scoreText,
-    required this.progressValue,
+    required this.titleText, required this.correctText, required this.scoreText, required this.progressValue, super.key,
     this.onRetry,
     this.retryLabel,
   }) : assert(progressValue >= 0, 'progressValue must be >= 0.'),

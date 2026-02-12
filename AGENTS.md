@@ -34,7 +34,8 @@ flutter test
 
 - `tool/verify_riverpod_annotation.dart`
   - Enforce Riverpod Annotation + DI usage.
-  - Block manual `Provider(...)` declarations in non-generated files.
+  - Block manual provider declarations in non-generated files.
+  - Block manual `mounted` checks (`mounted`, `context.mounted`), allow only `ref.mounted`.
 - `tool/verify_common_widget_boundaries.dart`
   - Keep `lib/common/widgets` render-only.
   - Block navigation/throw/feature-bound widget leakage.

@@ -4,9 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class QuizProgressBar extends StatelessWidget {
   const QuizProgressBar({
-    super.key,
-    required this.progressValue,
-    required this.progressText,
+    required this.progressValue, required this.progressText, super.key,
     this.height = _QuizProgressBarConstants.defaultHeight,
   }) : assert(progressValue >= 0, 'progressValue must be >= 0.'),
        assert(progressValue <= 1, 'progressValue must be <= 1.'),

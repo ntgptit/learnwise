@@ -6,7 +6,7 @@ enum AppEnv {
   prod;
 
   static AppEnv fromDartDefine() {
-    final String raw = const String.fromEnvironment(
+    const String raw = String.fromEnvironment(
       AppConstants.appEnvDefineKey,
       defaultValue: AppConstants.defaultAppEnv,
     );

@@ -191,7 +191,7 @@ class DeckController extends _$DeckController {
     final DeckListingState? snapshot = _currentListing;
     if (snapshot != null) {
       final List<DeckItem> optimisticItems = snapshot.items.map((
-        DeckItem item,
+        item,
       ) {
         if (item.id != deckId) {
           return item;
@@ -245,7 +245,7 @@ class DeckController extends _$DeckController {
     }
 
     final List<DeckItem> optimisticItems = snapshot.items.where((
-      DeckItem item,
+      item,
     ) {
       return item.id != deckId;
     }).toList();
@@ -294,8 +294,8 @@ class DeckController extends _$DeckController {
     }
     _isQueryListenerBound = true;
     ref.listen<DeckListQuery>(deckQueryControllerProvider(_folderId), (
-      DeckListQuery? previousQuery,
-      DeckListQuery nextQuery,
+      previousQuery,
+      nextQuery,
     ) {
       if (!_isBootstrapCompleted) {
         return;

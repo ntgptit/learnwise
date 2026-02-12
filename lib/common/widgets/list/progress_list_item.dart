@@ -5,9 +5,7 @@ import '../indicator/linear_progress.dart';
 
 class ProgressListItem extends StatelessWidget {
   const ProgressListItem({
-    super.key,
-    required this.title,
-    required this.progress,
+    required this.title, required this.progress, super.key,
     this.onTap,
   });
 

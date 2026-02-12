@@ -18,8 +18,7 @@ class SelectOption<T> {
 
 class SelectBox<T> extends StatelessWidget {
   const SelectBox({
-    super.key,
-    required this.options,
+    required this.options, super.key,
     this.value,
     this.onChanged,
     this.labelText,
@@ -55,7 +54,7 @@ class SelectBox<T> extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         ),
       ),
-      items: options.map((SelectOption<T> option) {
+      items: options.map((option) {
         return DropdownMenuItem<T>(
           value: option.value,
           enabled: option.enabled,

@@ -155,7 +155,7 @@ void main() {
       expect(reloadingState.isLoading, true);
       expect(reloadingState.hasValue, true);
       expect(
-        reloadingState.requireValue.items.map((FolderItem item) => item.id),
+        reloadingState.requireValue.items.map((item) => item.id),
         <int>[1],
       );
 
@@ -206,7 +206,7 @@ void main() {
       );
       expect(latestState.hasValue, true);
       expect(
-        latestState.requireValue.items.map((FolderItem item) => item.id),
+        latestState.requireValue.items.map((item) => item.id),
         <int>[9],
       );
     });

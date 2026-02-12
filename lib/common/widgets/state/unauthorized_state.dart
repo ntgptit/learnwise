@@ -5,10 +5,7 @@ import 'empty_state.dart';
 
 class UnauthorizedState extends StatelessWidget {
   const UnauthorizedState({
-    super.key,
-    required this.title,
-    required this.message,
-    required this.actionLabel,
+    required this.title, required this.message, required this.actionLabel, super.key,
     this.onSignIn,
   });
 

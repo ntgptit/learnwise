@@ -4,11 +4,7 @@ import 'app_dialog.dart';
 
 class InfoDialog extends StatelessWidget {
   const InfoDialog({
-    super.key,
-    required this.title,
-    required this.message,
-    required this.onAcknowledge,
-    required this.buttonLabel,
+    required this.title, required this.message, required this.onAcknowledge, required this.buttonLabel, super.key,
   });
 
   final String title;

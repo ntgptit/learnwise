@@ -10,11 +10,7 @@ enum _FolderCardAction { open, edit, delete }
 
 class FolderListCard extends StatelessWidget {
   const FolderListCard({
-    super.key,
-    required this.folder,
-    required this.onOpenPressed,
-    required this.onEditPressed,
-    required this.onDeletePressed,
+    required this.folder, required this.onOpenPressed, required this.onEditPressed, required this.onDeletePressed, super.key,
   });
 
   final FolderItem folder;
@@ -100,7 +96,7 @@ class FolderListCard extends StatelessWidget {
             ),
           ),
           PopupMenuButton<_FolderCardAction>(
-            onSelected: (_FolderCardAction action) {
+            onSelected: (action) {
               if (action == _FolderCardAction.open) {
                 onOpenPressed();
                 return;
@@ -111,7 +107,7 @@ class FolderListCard extends StatelessWidget {
               }
               onDeletePressed();
             },
-            itemBuilder: (BuildContext context) {
+            itemBuilder: (context) {
               return <PopupMenuEntry<_FolderCardAction>>[
                 PopupMenuItem<_FolderCardAction>(
                   value: _FolderCardAction.open,

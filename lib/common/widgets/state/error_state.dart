@@ -6,8 +6,7 @@ import '../buttons/primary_button.dart';
 
 class ErrorState extends StatelessWidget {
   const ErrorState({
-    super.key,
-    required this.title,
+    required this.title, super.key,
     this.message,
     this.retryLabel,
     this.onRetry,

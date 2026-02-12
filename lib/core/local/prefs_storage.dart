@@ -19,7 +19,7 @@ abstract class PrefsStorage {
 
   Future<void> clearLocaleCode();
 
-  Future<void> saveDarkModeEnabled(bool enabled);
+  Future<void> saveDarkModeEnabled({required bool enabled});
 
   Future<bool?> readDarkModeEnabled();
 
@@ -65,7 +65,7 @@ class SharedPrefsStorage implements PrefsStorage {
   }
 
   @override
-  Future<void> saveDarkModeEnabled(bool enabled) async {
+  Future<void> saveDarkModeEnabled({required bool enabled}) async {
     final SharedPreferences prefs = await _prefs();
     await prefs.setBool(PrefsStorageKey.darkModeEnabled, enabled);
   }

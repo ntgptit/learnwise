@@ -4,7 +4,7 @@ import '../../styles/app_sizes.dart';
 import 'app_card.dart';
 
 class FlashcardBack extends StatelessWidget {
-  const FlashcardBack({super.key, required this.meaning, this.example});
+  const FlashcardBack({required this.meaning, super.key, this.example});
 
   final String meaning;
   final String? example;

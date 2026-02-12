@@ -18,7 +18,7 @@ class LearnWiseApp extends StatelessWidget {
     return ProviderScope(
       child: MaterialApp(
         scaffoldMessengerKey: appScaffoldMessengerKey,
-        onGenerateTitle: (BuildContext context) =>
+        onGenerateTitle: (context) =>
             AppLocalizations.of(context)!.appTitle,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
@@ -26,7 +26,7 @@ class LearnWiseApp extends StatelessWidget {
         supportedLocales: AppLocalizations.supportedLocales,
         initialRoute: AppRouter.initialRoute,
         onGenerateRoute: AppRouter.onGenerateRoute,
-        builder: (BuildContext context, Widget? child) {
+        builder: (context, child) {
           if (child == null) {
             return const SizedBox.shrink();
           }

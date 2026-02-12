@@ -154,7 +154,7 @@ class DeckApiService implements DeckRepository {
 
   Map<String, dynamic> _extractResponseData(dynamic data) {
     if (data == null) {
-      throw UnexpectedResponseAppException();
+      throw const UnexpectedResponseAppException();
     }
     return _ensureMap(data);
   }
@@ -166,6 +166,6 @@ class DeckApiService implements DeckRepository {
     if (data is Map) {
       return Map<String, dynamic>.from(data);
     }
-    throw UnexpectedResponseAppException();
+    throw const UnexpectedResponseAppException();
   }
 }

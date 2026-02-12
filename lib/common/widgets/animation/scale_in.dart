@@ -4,8 +4,7 @@ import '../../styles/app_durations.dart';
 
 class ScaleIn extends StatelessWidget {
   const ScaleIn({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = AppDurations.animationNormal,
     this.beginScale = 0.94,
     this.endScale = 1,
@@ -39,7 +38,7 @@ class ScaleIn extends StatelessWidget {
       duration: safeDuration,
       curve: curve,
       child: child,
-      builder: (BuildContext context, double value, Widget? child) {
+      builder: (context, value, child) {
         return Transform.scale(
           scale: value,
           alignment: alignment,

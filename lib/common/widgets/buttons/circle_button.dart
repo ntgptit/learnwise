@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class CircleButton extends StatelessWidget {
   const CircleButton({
-    super.key,
-    required this.icon,
+    required this.icon, super.key,
     this.onPressed,
     this.backgroundColor,
     this.foregroundColor,

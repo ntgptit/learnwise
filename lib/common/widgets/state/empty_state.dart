@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
-    super.key,
-    required this.title,
+    required this.title, super.key,
     this.subtitle,
     this.icon = Icons.inbox_rounded,
     this.action,

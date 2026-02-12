@@ -8,7 +8,7 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    final ColorScheme colorScheme = lightColorScheme;
+    const ColorScheme colorScheme = lightColorScheme;
     final TextTheme textTheme =
         AppTypography.textTheme(colorScheme: colorScheme).apply(
           bodyColor: colorScheme.onSurface,

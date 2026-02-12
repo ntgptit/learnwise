@@ -153,7 +153,7 @@ class FolderApiService implements FolderRepository {
 
   Map<String, dynamic> _extractResponseData(dynamic data) {
     if (data == null) {
-      throw UnexpectedResponseAppException();
+      throw const UnexpectedResponseAppException();
     }
     return _ensureMap(data);
   }
@@ -165,6 +165,6 @@ class FolderApiService implements FolderRepository {
     if (data is Map) {
       return Map<String, dynamic>.from(data);
     }
-    throw UnexpectedResponseAppException();
+    throw const UnexpectedResponseAppException();
   }
 }

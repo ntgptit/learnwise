@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppCircularProgress extends StatelessWidget {
   const AppCircularProgress({
-    super.key,
-    required this.value,
+    required this.value, super.key,
     this.size = _CircularProgressConstants.defaultSize,
     this.strokeWidth = _CircularProgressConstants.defaultStrokeWidth,
     this.label,

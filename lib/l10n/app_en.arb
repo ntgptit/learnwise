@@ -752,6 +752,147 @@
   "@flashcardsDeleteConfirmLabel": {
     "description": "Confirm button label in flashcard delete dialog."
   },
+  "flashcardsOwnerFallback": "Unknown owner",
+  "@flashcardsOwnerFallback": {
+    "description": "Fallback owner name when deck owner is not available."
+  },
+  "flashcardsPreviewPlaceholder": "No preview card yet",
+  "@flashcardsPreviewPlaceholder": {
+    "description": "Placeholder text in hero preview when there is no flashcard item."
+  },
+  "flashcardsExpandPreviewTooltip": "Expand preview",
+  "@flashcardsExpandPreviewTooltip": {
+    "description": "Tooltip for expanding the preview card."
+  },
+  "flashcardsExpandPreviewToast": "Preview mode is not available yet.",
+  "@flashcardsExpandPreviewToast": {
+    "description": "Toast shown when user taps expand preview action."
+  },
+  "flashcardsBannerPlaceholder": "Recommended learning banner",
+  "@flashcardsBannerPlaceholder": {
+    "description": "Placeholder label for mock banner area."
+  },
+  "flashcardsBannerInfoTooltip": "Banner info",
+  "@flashcardsBannerInfoTooltip": {
+    "description": "Tooltip for banner information button."
+  },
+  "flashcardsBannerInfoToast": "Banner action is not available yet.",
+  "@flashcardsBannerInfoToast": {
+    "description": "Toast shown when user taps banner info."
+  },
+  "flashcardsCardSectionTitle": "View cards",
+  "@flashcardsCardSectionTitle": {
+    "description": "Section title above flashcard list content."
+  },
+  "flashcardsSortHintToast": "Sorting option updated.",
+  "@flashcardsSortHintToast": {
+    "description": "Toast shown after changing sort option."
+  },
+  "flashcardsShowSearchAction": "Show search",
+  "@flashcardsShowSearchAction": {
+    "description": "Menu action to show search field."
+  },
+  "flashcardsHideSearchAction": "Hide search",
+  "@flashcardsHideSearchAction": {
+    "description": "Menu action to hide search field."
+  },
+  "flashcardsBookmarkSetTooltip": "Bookmark this set",
+  "@flashcardsBookmarkSetTooltip": {
+    "description": "Tooltip for bookmarking flashcard set."
+  },
+  "flashcardsBookmarkSetToast": "Set bookmark is not available yet.",
+  "@flashcardsBookmarkSetToast": {
+    "description": "Toast shown when bookmarking set action is tapped."
+  },
+  "flashcardsMoreActionsTooltip": "More actions",
+  "@flashcardsMoreActionsTooltip": {
+    "description": "Tooltip for more actions menu in flashcard screen."
+  },
+  "flashcardsCreatePlaceholderToast": "Create flashcard flow is not available yet.",
+  "@flashcardsCreatePlaceholderToast": {
+    "description": "Toast shown when create action placeholder is tapped."
+  },
+  "flashcardsStudySetButton": "Study this set",
+  "@flashcardsStudySetButton": {
+    "description": "Primary bottom CTA label on flashcard screen."
+  },
+  "flashcardsStudySetToast": "Study mode is not available yet.",
+  "@flashcardsStudySetToast": {
+    "description": "Toast shown when study set CTA is tapped."
+  },
+  "flashcardsActionFlipcard": "Flip cards",
+  "@flashcardsActionFlipcard": {
+    "description": "Label for flip-card learning action."
+  },
+  "flashcardsActionLearn": "Learn",
+  "@flashcardsActionLearn": {
+    "description": "Label for learn action."
+  },
+  "flashcardsActionTest": "Test",
+  "@flashcardsActionTest": {
+    "description": "Label for test action."
+  },
+  "flashcardsActionMatch": "Match cards",
+  "@flashcardsActionMatch": {
+    "description": "Label for match action."
+  },
+  "flashcardsActionBlast": "Blast",
+  "@flashcardsActionBlast": {
+    "description": "Label for blast action."
+  },
+  "flashcardsActionBlocks": "Blocks",
+  "@flashcardsActionBlocks": {
+    "description": "Label for blocks action."
+  },
+  "flashcardsActionFlipcardToast": "Flip-card mode is not available yet.",
+  "@flashcardsActionFlipcardToast": {
+    "description": "Toast shown when flip-card action is tapped."
+  },
+  "flashcardsActionLearnToast": "Learn mode is not available yet.",
+  "@flashcardsActionLearnToast": {
+    "description": "Toast shown when learn action is tapped."
+  },
+  "flashcardsActionTestToast": "Test mode is not available yet.",
+  "@flashcardsActionTestToast": {
+    "description": "Toast shown when test action is tapped."
+  },
+  "flashcardsActionMatchToast": "Match mode is not available yet.",
+  "@flashcardsActionMatchToast": {
+    "description": "Toast shown when match action is tapped."
+  },
+  "flashcardsActionBlastToast": "Blast mode is not available yet.",
+  "@flashcardsActionBlastToast": {
+    "description": "Toast shown when blast action is tapped."
+  },
+  "flashcardsActionBlocksToast": "Blocks mode is not available yet.",
+  "@flashcardsActionBlocksToast": {
+    "description": "Toast shown when blocks action is tapped."
+  },
+  "flashcardsPlayAudioTooltip": "Play pronunciation",
+  "@flashcardsPlayAudioTooltip": {
+    "description": "Tooltip for flashcard audio action."
+  },
+  "flashcardsBookmarkTooltip": "Bookmark card",
+  "@flashcardsBookmarkTooltip": {
+    "description": "Tooltip for flashcard bookmark action."
+  },
+  "flashcardsAudioPlayToast": "Play audio for \"{frontText}\" is not available yet.",
+  "@flashcardsAudioPlayToast": {
+    "description": "Toast shown when play audio action is tapped.",
+    "placeholders": {
+      "frontText": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardsBookmarkToast": "Card bookmarked.",
+  "@flashcardsBookmarkToast": {
+    "description": "Toast shown when card is bookmarked."
+  },
+  "flashcardsUnbookmarkToast": "Card bookmark removed.",
+  "@flashcardsUnbookmarkToast": {
+    "description": "Toast shown when card bookmark is removed."
+  },
   "homeTitle": "LearnWise - Text To Speech",
   "@homeTitle": {
     "description": "Main home screen title shown in the app bar."

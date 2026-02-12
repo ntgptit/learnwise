@@ -4,10 +4,9 @@ import 'app_text_field.dart';
 
 class SearchField extends StatelessWidget {
   const SearchField({
-    super.key,
+    required this.hint, super.key,
     this.controller,
     this.onChanged,
-    required this.hint,
   });
 
   final TextEditingController? controller;

@@ -114,7 +114,7 @@ void main() {
       expect(reloadingState.isLoading, true);
       expect(reloadingState.hasValue, true);
       expect(
-        reloadingState.requireValue.items.map((FlashcardItem item) => item.id),
+        reloadingState.requireValue.items.map((item) => item.id),
         <int>[1],
       );
 
@@ -180,6 +180,9 @@ FlashcardItem _item(int id) {
     deckId: 1,
     frontText: 'Front $id',
     backText: 'Back $id',
+    pronunciation: '',
+    note: '',
+    isBookmarked: false,
     audit: AuditMetadata(
       createdBy: 'tester',
       updatedBy: 'tester',

@@ -4,10 +4,7 @@ import '../../../../common/styles/app_sizes.dart';
 
 class SwipeableListItem extends StatelessWidget {
   const SwipeableListItem({
-    super.key,
-    required this.dismissKey,
-    required this.child,
-    required this.onDismissed,
+    required this.dismissKey, required this.child, required this.onDismissed, super.key,
     this.confirmDismiss,
     this.background,
     this.secondaryBackground,

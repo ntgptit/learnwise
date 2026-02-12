@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppIconButton extends StatelessWidget {
   const AppIconButton({
-    super.key,
-    required this.icon,
+    required this.icon, super.key,
     this.onPressed,
     this.tooltip,
   });

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -6,9 +7,9 @@ import '../../styles/app_durations.dart';
 
 class FlashcardFlip extends StatefulWidget {
   const FlashcardFlip({
-    super.key,
     required this.front,
     required this.back,
+    super.key,
     this.duration = AppDurations.animationEmphasized,
     this.initiallyFront = true,
     this.onFlipChanged,
@@ -52,10 +53,10 @@ class _FlashcardFlipState extends State<FlashcardFlip>
 
     final bool nextIsFront = !_isFront;
     if (nextIsFront) {
-      _controller.reverse();
+      unawaited(_controller.reverse());
     }
     if (!nextIsFront) {
-      _controller.forward();
+      unawaited(_controller.forward());
     }
 
     _isFront = nextIsFront;
@@ -68,7 +69,7 @@ class _FlashcardFlipState extends State<FlashcardFlip>
       onTap: _toggle,
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (BuildContext context, Widget? child) {
+        builder: (context, child) {
           final double angle = _controller.value * pi;
           final bool showFront = angle <= pi / 2;
 

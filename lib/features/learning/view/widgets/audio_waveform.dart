@@ -4,8 +4,7 @@ import '../../../../common/styles/app_sizes.dart';
 
 class AudioWaveform extends StatelessWidget {
   const AudioWaveform({
-    super.key,
-    required this.amplitudes,
+    required this.amplitudes, super.key,
     this.height = 28,
     this.minBarHeight = 4,
     this.barWidth = 3,
@@ -36,7 +35,7 @@ class AudioWaveform extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: safeAmplitudes.map((double amplitude) {
+      children: safeAmplitudes.map((amplitude) {
         final double clampedAmplitude = amplitude.clamp(0, 1).toDouble();
         final double barHeight =
             safeMinBarHeight +

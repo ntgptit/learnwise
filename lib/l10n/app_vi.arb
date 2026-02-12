@@ -752,6 +752,147 @@
   "@flashcardsDeleteConfirmLabel": {
     "description": "Confirm button label in flashcard delete dialog."
   },
+  "flashcardsOwnerFallback": "Chưa rõ người tạo",
+  "@flashcardsOwnerFallback": {
+    "description": "Fallback owner name when deck owner is not available."
+  },
+  "flashcardsPreviewPlaceholder": "Chưa có thẻ để xem trước",
+  "@flashcardsPreviewPlaceholder": {
+    "description": "Placeholder text in hero preview when there is no flashcard item."
+  },
+  "flashcardsExpandPreviewTooltip": "Mở rộng xem trước",
+  "@flashcardsExpandPreviewTooltip": {
+    "description": "Tooltip for expanding the preview card."
+  },
+  "flashcardsExpandPreviewToast": "Chế độ xem trước nâng cao chưa sẵn sàng.",
+  "@flashcardsExpandPreviewToast": {
+    "description": "Toast shown when user taps expand preview action."
+  },
+  "flashcardsBannerPlaceholder": "Khu vực banner học tập",
+  "@flashcardsBannerPlaceholder": {
+    "description": "Placeholder label for mock banner area."
+  },
+  "flashcardsBannerInfoTooltip": "Thông tin banner",
+  "@flashcardsBannerInfoTooltip": {
+    "description": "Tooltip for banner information button."
+  },
+  "flashcardsBannerInfoToast": "Tác vụ banner chưa sẵn sàng.",
+  "@flashcardsBannerInfoToast": {
+    "description": "Toast shown when user taps banner info."
+  },
+  "flashcardsCardSectionTitle": "Card 보기",
+  "@flashcardsCardSectionTitle": {
+    "description": "Section title above flashcard list content."
+  },
+  "flashcardsSortHintToast": "Đã cập nhật cách sắp xếp.",
+  "@flashcardsSortHintToast": {
+    "description": "Toast shown after changing sort option."
+  },
+  "flashcardsShowSearchAction": "Hiện ô tìm kiếm",
+  "@flashcardsShowSearchAction": {
+    "description": "Menu action to show search field."
+  },
+  "flashcardsHideSearchAction": "Ẩn ô tìm kiếm",
+  "@flashcardsHideSearchAction": {
+    "description": "Menu action to hide search field."
+  },
+  "flashcardsBookmarkSetTooltip": "Đánh dấu bộ thẻ",
+  "@flashcardsBookmarkSetTooltip": {
+    "description": "Tooltip for bookmarking flashcard set."
+  },
+  "flashcardsBookmarkSetToast": "Chức năng đánh dấu bộ thẻ chưa sẵn sàng.",
+  "@flashcardsBookmarkSetToast": {
+    "description": "Toast shown when bookmarking set action is tapped."
+  },
+  "flashcardsMoreActionsTooltip": "Thao tác khác",
+  "@flashcardsMoreActionsTooltip": {
+    "description": "Tooltip for more actions menu in flashcard screen."
+  },
+  "flashcardsCreatePlaceholderToast": "Luồng tạo flashcard chưa sẵn sàng.",
+  "@flashcardsCreatePlaceholderToast": {
+    "description": "Toast shown when create action placeholder is tapped."
+  },
+  "flashcardsStudySetButton": "Học bộ thẻ này",
+  "@flashcardsStudySetButton": {
+    "description": "Primary bottom CTA label on flashcard screen."
+  },
+  "flashcardsStudySetToast": "Chế độ học bộ thẻ chưa sẵn sàng.",
+  "@flashcardsStudySetToast": {
+    "description": "Toast shown when study set CTA is tapped."
+  },
+  "flashcardsActionFlipcard": "Lật thẻ",
+  "@flashcardsActionFlipcard": {
+    "description": "Label for flip-card learning action."
+  },
+  "flashcardsActionLearn": "Học",
+  "@flashcardsActionLearn": {
+    "description": "Label for learn action."
+  },
+  "flashcardsActionTest": "Kiểm tra",
+  "@flashcardsActionTest": {
+    "description": "Label for test action."
+  },
+  "flashcardsActionMatch": "Ghép thẻ",
+  "@flashcardsActionMatch": {
+    "description": "Label for match action."
+  },
+  "flashcardsActionBlast": "Blast",
+  "@flashcardsActionBlast": {
+    "description": "Label for blast action."
+  },
+  "flashcardsActionBlocks": "Blocks",
+  "@flashcardsActionBlocks": {
+    "description": "Label for blocks action."
+  },
+  "flashcardsActionFlipcardToast": "Chế độ lật thẻ chưa sẵn sàng.",
+  "@flashcardsActionFlipcardToast": {
+    "description": "Toast shown when flip-card action is tapped."
+  },
+  "flashcardsActionLearnToast": "Chế độ học chưa sẵn sàng.",
+  "@flashcardsActionLearnToast": {
+    "description": "Toast shown when learn action is tapped."
+  },
+  "flashcardsActionTestToast": "Chế độ kiểm tra chưa sẵn sàng.",
+  "@flashcardsActionTestToast": {
+    "description": "Toast shown when test action is tapped."
+  },
+  "flashcardsActionMatchToast": "Chế độ ghép thẻ chưa sẵn sàng.",
+  "@flashcardsActionMatchToast": {
+    "description": "Toast shown when match action is tapped."
+  },
+  "flashcardsActionBlastToast": "Chế độ Blast chưa sẵn sàng.",
+  "@flashcardsActionBlastToast": {
+    "description": "Toast shown when blast action is tapped."
+  },
+  "flashcardsActionBlocksToast": "Chế độ Blocks chưa sẵn sàng.",
+  "@flashcardsActionBlocksToast": {
+    "description": "Toast shown when blocks action is tapped."
+  },
+  "flashcardsPlayAudioTooltip": "Phát phát âm",
+  "@flashcardsPlayAudioTooltip": {
+    "description": "Tooltip for flashcard audio action."
+  },
+  "flashcardsBookmarkTooltip": "Đánh dấu thẻ",
+  "@flashcardsBookmarkTooltip": {
+    "description": "Tooltip for flashcard bookmark action."
+  },
+  "flashcardsAudioPlayToast": "Phát âm cho \"{frontText}\" chưa sẵn sàng.",
+  "@flashcardsAudioPlayToast": {
+    "description": "Toast shown when play audio action is tapped.",
+    "placeholders": {
+      "frontText": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardsBookmarkToast": "Đã đánh dấu thẻ.",
+  "@flashcardsBookmarkToast": {
+    "description": "Toast shown when card is bookmarked."
+  },
+  "flashcardsUnbookmarkToast": "Đã bỏ đánh dấu thẻ.",
+  "@flashcardsUnbookmarkToast": {
+    "description": "Toast shown when card bookmark is removed."
+  },
   "homeTitle": "LearnWise - Chuyển văn bản thành giọng nói",
   "@homeTitle": {
     "description": "Main home screen title shown in the app bar."

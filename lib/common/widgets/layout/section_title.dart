@@ -5,8 +5,7 @@ import '../../styles/app_sizes.dart';
 
 class SectionTitle extends StatelessWidget {
   const SectionTitle({
-    super.key,
-    required this.title,
+    required this.title, super.key,
     this.subtitle,
     this.trailing,
   });

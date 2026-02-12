@@ -38,8 +38,8 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     ref.listen<String>(
-      ttsControllerProvider.select((TtsState state) => state.inputText),
-      (String? previous, String next) {
+      ttsControllerProvider.select((state) => state.inputText),
+      (previous, next) {
         if (_textController.text == next) {
           return;
         }
@@ -92,7 +92,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                 initialValue: state.languageMode,
                 onChanged: isReading
                     ? null
-                    : (TtsLanguageMode? value) {
+                    : (value) {
                         if (value == null) {
                           return;
                         }
@@ -142,7 +142,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                     child: Text(l10n.systemDefaultVoice),
                   ),
                   ...state.voices.asMap().entries.map((
-                    MapEntry<int, TtsVoiceOption> entry,
+                    entry,
                   ) {
                     final int index = entry.key + 1;
                     final TtsVoiceOption voice = entry.value;
@@ -167,7 +167,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                 runSpacing: TtsScreenTokens.subsectionSpacing,
                 children: samples
                     .map(
-                      (TtsSampleText sample) => ActionChip(
+                      (sample) => ActionChip(
                         label: Text(sample.label),
                         onPressed: isReading
                             ? null

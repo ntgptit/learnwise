@@ -9,11 +9,7 @@ enum _DeckCardAction { open, edit, delete }
 
 class DeckListCard extends StatelessWidget {
   const DeckListCard({
-    super.key,
-    required this.deck,
-    required this.onOpenPressed,
-    required this.onEditPressed,
-    required this.onDeletePressed,
+    required this.deck, required this.onOpenPressed, required this.onEditPressed, required this.onDeletePressed, super.key,
   });
 
   final DeckItem deck;
@@ -95,7 +91,7 @@ class DeckListCard extends StatelessWidget {
             ),
           ),
           PopupMenuButton<_DeckCardAction>(
-            onSelected: (_DeckCardAction action) {
+            onSelected: (action) {
               if (action == _DeckCardAction.open) {
                 onOpenPressed();
                 return;
@@ -106,7 +102,7 @@ class DeckListCard extends StatelessWidget {
               }
               onDeletePressed();
             },
-            itemBuilder: (BuildContext context) {
+            itemBuilder: (context) {
               return <PopupMenuEntry<_DeckCardAction>>[
                 PopupMenuItem<_DeckCardAction>(
                   value: _DeckCardAction.open,

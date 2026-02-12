@@ -6,13 +6,7 @@ import '../../model/folder_models.dart';
 
 class FolderFilterSection extends StatelessWidget {
   const FolderFilterSection({
-    super.key,
-    required this.query,
-    required this.searchController,
-    required this.onSearchChanged,
-    required this.onSearchSubmitted,
-    required this.onSortByChanged,
-    required this.onSortDirectionChanged,
+    required this.query, required this.searchController, required this.onSearchChanged, required this.onSearchSubmitted, required this.onSortByChanged, required this.onSortDirectionChanged, super.key,
   });
 
   final FolderListQuery query;
@@ -56,7 +50,7 @@ class FolderFilterSection extends StatelessWidget {
           DropdownButtonFormField<FolderSortBy>(
             initialValue: query.sortBy,
             decoration: InputDecoration(labelText: l10n.foldersSortByLabel),
-            onChanged: (FolderSortBy? value) {
+            onChanged: (value) {
               if (value == null) {
                 return;
               }
@@ -90,7 +84,7 @@ class FolderFilterSection extends StatelessWidget {
               ),
             ],
             selected: <FolderSortDirection>{query.sortDirection},
-            onSelectionChanged: (Set<FolderSortDirection> values) {
+            onSelectionChanged: (values) {
               if (values.isEmpty) {
                 return;
               }

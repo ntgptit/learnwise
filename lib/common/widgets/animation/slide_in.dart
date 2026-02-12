@@ -4,8 +4,7 @@ import '../../styles/app_durations.dart';
 
 class SlideIn extends StatelessWidget {
   const SlideIn({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = AppDurations.animationNormal,
     this.beginOffset = const Offset(0, 0.08),
     this.endOffset = Offset.zero,
@@ -32,7 +31,7 @@ class SlideIn extends StatelessWidget {
       duration: safeDuration,
       curve: curve,
       child: child,
-      builder: (BuildContext context, Offset value, Widget? child) {
+      builder: (context, value, child) {
         return FractionalTranslation(translation: value, child: child);
       },
     );

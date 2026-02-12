@@ -4,9 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class ActionButton extends StatelessWidget {
   const ActionButton({
-    super.key,
-    required this.label,
-    required this.icon,
+    required this.label, required this.icon, super.key,
     this.onPressed,
     this.isPrimary = false,
   });

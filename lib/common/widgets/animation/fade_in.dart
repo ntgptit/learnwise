@@ -4,8 +4,7 @@ import '../../styles/app_durations.dart';
 
 class FadeIn extends StatelessWidget {
   const FadeIn({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.duration = AppDurations.animationFast,
     this.delay = Duration.zero,
     this.curve = Curves.easeOut,
@@ -42,7 +41,7 @@ class FadeIn extends StatelessWidget {
       duration: totalDuration,
       curve: Curves.linear,
       child: child,
-      builder: (BuildContext context, double rawProgress, Widget? child) {
+      builder: (context, rawProgress, child) {
         final double delayedProgress = _applyDelay(
           progress: rawProgress,
           delayRatio: delayRatio,

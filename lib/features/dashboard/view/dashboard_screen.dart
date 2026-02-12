@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
@@ -26,7 +28,7 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.dashboardTitle)),
       body: SafeArea(
         child: state.when(
-          data: (DashboardSnapshot snapshot) {
+          data: (snapshot) {
             return RefreshIndicator(
               onRefresh: controller.refresh,
               child: ListView(
@@ -47,7 +49,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             );
           },
-          error: (Object error, StackTrace stackTrace) {
+          error: (error, stackTrace) {
             return ErrorState(
               title: l10n.dashboardErrorTitle,
               message: l10n.dashboardErrorDescription,
@@ -74,11 +76,13 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ],
         selectedIndex: DashboardConstants.dashboardNavIndex,
-        onDestinationSelected: (int index) {
+        onDestinationSelected: (index) {
           if (index == DashboardConstants.dashboardNavIndex) {
             return;
           }
-          Navigator.of(context).pushReplacementNamed(RouteNames.folders);
+          unawaited(
+            Navigator.of(context).pushReplacementNamed(RouteNames.folders),
+          );
         },
       ),
     );
@@ -229,7 +233,7 @@ class _MetricSection extends StatelessWidget {
         ),
         const SizedBox(height: DashboardScreenTokens.sectionTitleGap),
         LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
+          builder: (context, constraints) {
             final double itemWidth =
                 (constraints.maxWidth -
                     DashboardScreenTokens.metricGridSpacing) /
@@ -238,7 +242,7 @@ class _MetricSection extends StatelessWidget {
             return Wrap(
               spacing: DashboardScreenTokens.metricGridSpacing,
               runSpacing: DashboardScreenTokens.metricGridSpacing,
-              children: snapshot.metrics.map((DashboardMetric metric) {
+              children: snapshot.metrics.map((metric) {
                 return SizedBox(
                   width: itemWidth,
                   child: AppMetricCard(
@@ -281,7 +285,7 @@ class _QuickActionSection extends StatelessWidget {
         Wrap(
           spacing: DashboardScreenTokens.quickActionSpacing,
           runSpacing: DashboardScreenTokens.quickActionSpacing,
-          children: snapshot.quickActions.map((DashboardQuickAction action) {
+          children: snapshot.quickActions.map((action) {
             return FilledButton.tonalIcon(
               icon: Icon(_actionIcon(action.type)),
               onPressed: () =>
@@ -366,7 +370,7 @@ class _RecentSection extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: DashboardScreenTokens.sectionTitleGap),
-        ...snapshot.recentActivities.map((DashboardRecentActivity activity) {
+        ...snapshot.recentActivities.map((activity) {
           return Container(
             margin: const EdgeInsets.only(
               bottom: DashboardScreenTokens.recentItemGap,

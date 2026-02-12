@@ -5,8 +5,7 @@ import '../../styles/app_opacities.dart';
 
 class AppCard extends StatelessWidget {
   const AppCard({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.padding = const EdgeInsets.all(AppSizes.spacingMd),
     this.margin,
     this.backgroundColor,

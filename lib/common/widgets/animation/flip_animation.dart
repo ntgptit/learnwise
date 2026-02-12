@@ -6,10 +6,7 @@ import '../../styles/app_durations.dart';
 
 class FlipAnimation extends StatelessWidget {
   const FlipAnimation({
-    super.key,
-    required this.front,
-    required this.back,
-    required this.isFlipped,
+    required this.front, required this.back, required this.isFlipped, super.key,
     this.onTap,
     this.duration = AppDurations.animationEmphasized,
     this.curve = Curves.easeInOutCubic,
@@ -34,7 +31,7 @@ class FlipAnimation extends StatelessWidget {
       tween: Tween<double>(end: isFlipped ? 1 : 0),
       duration: safeDuration,
       curve: curve,
-      builder: (BuildContext context, double value, Widget? child) {
+      builder: (context, value, child) {
         final double angle = value * pi;
         final bool showFront = angle <= pi / 2;
 

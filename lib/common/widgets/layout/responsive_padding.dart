@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class ResponsivePadding extends StatelessWidget {
   const ResponsivePadding({
-    super.key,
-    required this.child,
+    required this.child, super.key,
     this.mobile = const EdgeInsets.all(AppSizes.spacingMd),
     this.tablet = const EdgeInsets.symmetric(
       horizontal: AppSizes.spacingLg,
@@ -29,7 +28,7 @@ class ResponsivePadding extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+      builder: (context, constraints) {
         final double width = constraints.maxWidth;
         if (width >= desktopBreakpoint) {
           return Padding(padding: desktop, child: child);

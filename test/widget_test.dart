@@ -12,7 +12,7 @@ import 'package:learnwise/main.dart';
 
 void main() {
   testWidgets('Dashboard renders with overview and quick actions', (
-    WidgetTester tester,
+    tester,
   ) async {
     await tester.pumpWidget(const LearnWiseApp());
     await tester.pumpAndSettle();
@@ -30,7 +30,7 @@ void main() {
   });
 
   testWidgets('Dashboard quick action buttons are visible', (
-    WidgetTester tester,
+    tester,
   ) async {
     await tester.pumpWidget(const LearnWiseApp());
     await tester.pumpAndSettle();

@@ -4,10 +4,7 @@ import '../indicator/app_badge.dart';
 
 class ModuleListItem extends StatelessWidget {
   const ModuleListItem({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.progressLabel,
+    required this.title, required this.subtitle, required this.progressLabel, super.key,
     this.onTap,
   });
 

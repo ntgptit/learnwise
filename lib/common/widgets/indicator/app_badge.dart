@@ -4,8 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class AppBadge extends StatelessWidget {
   const AppBadge({
-    super.key,
-    required this.label,
+    required this.label, super.key,
     this.backgroundColor,
     this.foregroundColor,
   });

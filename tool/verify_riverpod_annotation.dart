@@ -8,8 +8,26 @@ class RiverpodDiGuardConst {
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
   static const String lineCommentPrefix = '//';
-  static const String providerGenericPattern = r'\bProvider\s*<';
-  static const String providerFactoryPattern = r'\bProvider\s*\(';
+  static const String refMountedPattern = r'\bref\.mounted\b';
+  static const String mountedPattern = r'\bmounted\b';
+  static const List<String> manualProviderTypes = <String>[
+    'Provider',
+    'StateProvider',
+    'StateNotifierProvider',
+    'ChangeNotifierProvider',
+    'FutureProvider',
+    'StreamProvider',
+    'NotifierProvider',
+    'AsyncNotifierProvider',
+    'AutoDisposeProvider',
+    'AutoDisposeStateProvider',
+    'AutoDisposeStateNotifierProvider',
+    'AutoDisposeChangeNotifierProvider',
+    'AutoDisposeFutureProvider',
+    'AutoDisposeStreamProvider',
+    'AutoDisposeNotifierProvider',
+    'AutoDisposeAsyncNotifierProvider',
+  ];
 }
 
 class Violation {
@@ -17,19 +35,18 @@ class Violation {
     required this.filePath,
     required this.lineNumber,
     required this.lineContent,
+    required this.reason,
   });
 
   final String filePath;
   final int lineNumber;
   final String lineContent;
+  final String reason;
 }
 
-final RegExp _providerGenericRegExp = RegExp(
-  RiverpodDiGuardConst.providerGenericPattern,
-);
-final RegExp _providerFactoryRegExp = RegExp(
-  RiverpodDiGuardConst.providerFactoryPattern,
-);
+final List<RegExp> _manualProviderRegExps = _buildManualProviderPatterns();
+final RegExp _refMountedRegExp = RegExp(RiverpodDiGuardConst.refMountedPattern);
+final RegExp _mountedRegExp = RegExp(RiverpodDiGuardConst.mountedPattern);
 
 Future<void> main() async {
   final Directory libDir = Directory(RiverpodDiGuardConst.libDirectory);
@@ -56,6 +73,19 @@ Future<void> main() async {
             filePath: file.path.replaceAll('\\', '/'),
             lineNumber: index + 1,
             lineContent: lines[index].trim(),
+            reason: 'Manual provider declaration is forbidden.',
+          ),
+        );
+      }
+
+      if (_containsManualMounted(sourceLine)) {
+        violations.add(
+          Violation(
+            filePath: file.path.replaceAll('\\', '/'),
+            lineNumber: index + 1,
+            lineContent: lines[index].trim(),
+            reason:
+                'Manual mounted check is forbidden. Use Riverpod lifecycle (`ref.mounted`) or redesign flow.',
           ),
         );
       }
@@ -63,17 +93,19 @@ Future<void> main() async {
   }
 
   if (violations.isEmpty) {
-    stdout.writeln('Riverpod DI guard passed: no manual Provider usage found.');
+    stdout.writeln(
+      'Riverpod DI guard passed: no manual provider or mounted usage found.',
+    );
     return;
   }
 
   stderr.writeln('Riverpod DI guard failed.');
   stderr.writeln(
-    'Use @riverpod/@Riverpod annotations instead of manual Provider(...) declarations.',
+    'Use @riverpod/@Riverpod annotations and avoid manual mounted checks.',
   );
   for (final Violation violation in violations) {
     stderr.writeln(
-      '${violation.filePath}:${violation.lineNumber}: ${violation.lineContent}',
+      '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
     );
   }
   exitCode = 1;
@@ -114,11 +146,31 @@ String _stripLineComment(String sourceLine) {
 }
 
 bool _containsManualProvider(String line) {
-  if (_providerGenericRegExp.hasMatch(line)) {
-    return true;
-  }
-  if (_providerFactoryRegExp.hasMatch(line)) {
-    return true;
+  for (final RegExp regExp in _manualProviderRegExps) {
+    if (regExp.hasMatch(line)) {
+      return true;
+    }
   }
   return false;
+}
+
+bool _containsManualMounted(String line) {
+  if (!_mountedRegExp.hasMatch(line)) {
+    return false;
+  }
+  if (_refMountedRegExp.hasMatch(line)) {
+    return false;
+  }
+  return true;
+}
+
+List<RegExp> _buildManualProviderPatterns() {
+  final List<RegExp> patterns = <RegExp>[];
+  for (final String providerType in RiverpodDiGuardConst.manualProviderTypes) {
+    patterns.add(RegExp('\\b$providerType\\s*<'));
+    patterns.add(
+      RegExp('\\b$providerType\\s*(?:\\.[A-Za-z_][A-Za-z0-9_]*)?\\s*\\('),
+    );
+  }
+  return patterns;
 }

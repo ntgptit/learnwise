@@ -49,6 +49,7 @@ export 'layout/spaced_column.dart';
 export 'layout/spaced_row.dart';
 export 'list/module_list_item.dart';
 export 'list/app_action_icon_row.dart';
+export 'list/app_action_tile.dart';
 export 'list/app_metadata_list.dart';
 export 'list/progress_list_item.dart';
 export 'list/vocab_list_item.dart';

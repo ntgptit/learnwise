@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AudioPlayerButton extends StatelessWidget {
-  const AudioPlayerButton({super.key, required this.isPlaying, this.onPressed});
+  const AudioPlayerButton({required this.isPlaying, super.key, this.onPressed});
 
   final bool isPlaying;
   final VoidCallback? onPressed;

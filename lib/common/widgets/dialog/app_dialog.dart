@@ -4,10 +4,7 @@ import '../../styles/app_sizes.dart';
 
 class AppDialog extends StatelessWidget {
   const AppDialog({
-    super.key,
-    required this.title,
-    required this.content,
-    required this.actions,
+    required this.title, required this.content, required this.actions, super.key,
   });
 
   final String title;

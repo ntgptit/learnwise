@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 class SegmentedControl extends StatelessWidget {
   const SegmentedControl({
-    super.key,
-    required this.labels,
-    required this.selected,
-    required this.onSelectionChanged,
+    required this.labels, required this.selected, required this.onSelectionChanged, super.key,
     this.emptySelectionAllowed = false,
   });
 
@@ -21,7 +18,7 @@ class SegmentedControl extends StatelessWidget {
     }
 
     return SegmentedButton<int>(
-      segments: List<ButtonSegment<int>>.generate(labels.length, (int index) {
+      segments: List<ButtonSegment<int>>.generate(labels.length, (index) {
         return ButtonSegment<int>(value: index, label: Text(labels[index]));
       }),
       selected: selected,

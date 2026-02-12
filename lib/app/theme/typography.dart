@@ -10,8 +10,7 @@ class AppTypography {
   static const double labelMediumSize = 12;
 
   static TextTheme textTheme({
-    String? fontFamily,
-    required ColorScheme colorScheme,
+    required ColorScheme colorScheme, String? fontFamily,
   }) {
     final Typography typography = Typography.material2021(
       colorScheme: colorScheme,

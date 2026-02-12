@@ -50,11 +50,11 @@ Future<bool> showFlashcardEditorDialog({
   final bool? isSubmitted = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (BuildContext dialogContext) {
+    builder: (dialogContext) {
       return StatefulBuilder(
         builder:
             (
-              BuildContext context,
+              context,
               void Function(void Function()) setDialogState,
             ) {
               final double screenWidth = MediaQuery.sizeOf(context).width;

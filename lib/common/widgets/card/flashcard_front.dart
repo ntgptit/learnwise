@@ -5,8 +5,7 @@ import 'app_card.dart';
 
 class FlashcardFront extends StatelessWidget {
   const FlashcardFront({
-    super.key,
-    required this.word,
+    required this.word, super.key,
     this.pronunciation,
     this.trailing,
   });

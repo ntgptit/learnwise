@@ -5,10 +5,7 @@ import 'quiz_progress_bar.dart';
 
 class QuizQuestionHeader extends StatelessWidget {
   const QuizQuestionHeader({
-    super.key,
-    required this.question,
-    required this.progressValue,
-    required this.progressText,
+    required this.question, required this.progressValue, required this.progressText, super.key,
     this.trailing,
   });
 

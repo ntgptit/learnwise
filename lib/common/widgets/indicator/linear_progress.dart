@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppLinearProgress extends StatelessWidget {
   const AppLinearProgress({
-    super.key,
-    required this.value,
+    required this.value, super.key,
     this.height = _LinearProgressConstants.defaultHeight,
     this.backgroundColor,
   }) : assert(value >= 0, 'value must be >= 0.'),

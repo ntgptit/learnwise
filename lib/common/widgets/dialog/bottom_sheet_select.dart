@@ -11,9 +11,7 @@ class BottomSheetSelectOption<T> {
 
 class BottomSheetSelect<T> extends StatelessWidget {
   const BottomSheetSelect({
-    super.key,
-    required this.options,
-    required this.onSelected,
+    required this.options, required this.onSelected, super.key,
     this.title,
   });
 
@@ -41,10 +39,10 @@ class BottomSheetSelect<T> extends StatelessWidget {
             child: ListView.separated(
               shrinkWrap: true,
               itemCount: options.length,
-              separatorBuilder: (BuildContext context, int index) {
+              separatorBuilder: (context, index) {
                 return const Divider(height: AppSizes.size1);
               },
-              itemBuilder: (BuildContext context, int index) {
+              itemBuilder: (context, index) {
                 final BottomSheetSelectOption<T> option = options[index];
                 return ListTile(
                   title: Text(option.label),

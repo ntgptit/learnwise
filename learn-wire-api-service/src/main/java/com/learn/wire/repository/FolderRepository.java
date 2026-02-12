@@ -17,6 +17,8 @@ public interface FolderRepository extends JpaRepository<FolderEntity, Long> {
 
     List<FolderEntity> findByDeletedAtIsNull();
 
+    boolean existsByParentFolderIdAndDeletedAtIsNull(Long parentFolderId);
+
     @Query("""
             SELECT folder
             FROM FolderEntity folder
@@ -44,6 +46,36 @@ public interface FolderRepository extends JpaRepository<FolderEntity, Long> {
             GROUP BY folder.parentFolderId
             """)
     List<ParentChildCountProjection> countActiveChildrenByParentIds(@Param("parentIds") List<Long> parentIds);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(folder.id) > 0 THEN true ELSE false END
+            FROM FolderEntity folder
+            WHERE folder.deletedAt IS NULL
+              AND LOWER(folder.name) = LOWER(:name)
+              AND (
+                (:parentFolderId IS NULL AND folder.parentFolderId IS NULL)
+                OR folder.parentFolderId = :parentFolderId
+              )
+            """)
+    boolean existsActiveByParentAndName(
+            @Param("parentFolderId") Long parentFolderId,
+            @Param("name") String name);
+
+    @Query("""
+            SELECT CASE WHEN COUNT(folder.id) > 0 THEN true ELSE false END
+            FROM FolderEntity folder
+            WHERE folder.deletedAt IS NULL
+              AND folder.id <> :excludeFolderId
+              AND LOWER(folder.name) = LOWER(:name)
+              AND (
+                (:parentFolderId IS NULL AND folder.parentFolderId IS NULL)
+                OR folder.parentFolderId = :parentFolderId
+              )
+            """)
+    boolean existsActiveByParentAndNameExcludingFolderId(
+            @Param("parentFolderId") Long parentFolderId,
+            @Param("name") String name,
+            @Param("excludeFolderId") Long excludeFolderId);
 
     interface ParentChildCountProjection {
         Long getParentFolderId();

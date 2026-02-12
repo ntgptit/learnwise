@@ -24,8 +24,11 @@ enum FolderSortDirection {
 @freezed
 sealed class FolderBreadcrumb with _$FolderBreadcrumb {
   @JsonSerializable(explicitToJson: true)
-  const factory FolderBreadcrumb({required int id, required String name}) =
-      _FolderBreadcrumb;
+  const factory FolderBreadcrumb({
+    required int id,
+    required String name,
+    required int directFlashcardCount,
+  }) = _FolderBreadcrumb;
 
   factory FolderBreadcrumb.fromJson(Map<String, dynamic> json) =>
       _$FolderBreadcrumbFromJson(json);
@@ -40,6 +43,7 @@ sealed class FolderItem with _$FolderItem {
     required String description,
     required String colorHex,
     required int? parentFolderId,
+    required int directFlashcardCount,
     required int flashcardCount,
     required int childFolderCount,
     required String createdBy,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/error/api_error_mapper.dart';
@@ -26,14 +28,23 @@ class FolderQueryController extends _$FolderQueryController {
 
   void setSearch(String value) {
     final String normalized = value.trim();
+    if (state.search == normalized) {
+      return;
+    }
     state = state.copyWith(search: normalized);
   }
 
   void setSortBy(FolderSortBy value) {
+    if (state.sortBy == value) {
+      return;
+    }
     state = state.copyWith(sortBy: value);
   }
 
   void setSortDirection(FolderSortDirection value) {
+    if (state.sortDirection == value) {
+      return;
+    }
     state = state.copyWith(sortDirection: value);
   }
 
@@ -61,12 +72,19 @@ class FolderQueryController extends _$FolderQueryController {
 
     final List<FolderBreadcrumb> breadcrumbs = <FolderBreadcrumb>[
       ...state.breadcrumbs,
-      FolderBreadcrumb(id: folder.id, name: folder.name),
+      FolderBreadcrumb(
+        id: folder.id,
+        name: folder.name,
+        directFlashcardCount: folder.directFlashcardCount,
+      ),
     ];
     state = state.copyWith(parentFolderId: folder.id, breadcrumbs: breadcrumbs);
   }
 
   void goToRoot() {
+    if (state.parentFolderId == null && state.breadcrumbs.isEmpty) {
+      return;
+    }
     state = state.copyWith(
       parentFolderId: null,
       breadcrumbs: const <FolderBreadcrumb>[],
@@ -155,17 +173,37 @@ class FolderUiController extends _$FolderUiController {
   }
 }
 
+class FolderSubmitResult {
+  const FolderSubmitResult._({required this.isSuccess, this.nameErrorMessage});
+
+  const FolderSubmitResult.success() : this._(isSuccess: true);
+
+  const FolderSubmitResult.failure({String? nameErrorMessage})
+    : this._(isSuccess: false, nameErrorMessage: nameErrorMessage);
+
+  final bool isSuccess;
+  final String? nameErrorMessage;
+}
+
 @Riverpod(keepAlive: true)
 class FolderController extends _$FolderController {
   late final FolderRepository _repository;
   late final AppErrorAdvisor _errorAdvisor;
+  bool _isBootstrapCompleted = false;
+  bool _isQueryListenerBound = false;
+  int _queryRequestVersion = FolderConstants.defaultPage;
 
   @override
   Future<FolderListingState> build() async {
     _repository = ref.read(folderRepositoryProvider);
     _errorAdvisor = ref.read(appErrorAdvisorProvider);
-    final FolderListQuery query = ref.watch(folderQueryControllerProvider);
-    return _loadInitial(query: query);
+    _bindQueryListener();
+    _isBootstrapCompleted = false;
+    try {
+      return await _loadBootstrapListing();
+    } finally {
+      _isBootstrapCompleted = true;
+    }
   }
 
   void applySearch(String searchText) {
@@ -222,25 +260,7 @@ class FolderController extends _$FolderController {
 
   Future<void> refresh() async {
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
-    final FolderListingState? previousListing = _currentListing;
-    if (previousListing == null) {
-      state = const AsyncLoading<FolderListingState>();
-    }
-    try {
-      final FolderListingState listing = await _loadInitial(query: query);
-      if (_isQueryStale(query)) {
-        return;
-      }
-      state = AsyncData<FolderListingState>(listing);
-    } catch (error, stackTrace) {
-      if (_isQueryStale(query)) {
-        return;
-      }
-      if (_currentListing != null) {
-        return;
-      }
-      state = AsyncError<FolderListingState>(error, stackTrace);
-    }
+    await _reloadForQuery(query: query, isRefresh: true);
   }
 
   Future<void> loadMore() async {
@@ -281,6 +301,11 @@ class FolderController extends _$FolderController {
   }
 
   Future<bool> createFolder(FolderUpsertInput input) async {
+    final FolderSubmitResult result = await submitCreateFolder(input);
+    return result.isSuccess;
+  }
+
+  Future<FolderSubmitResult> submitCreateFolder(FolderUpsertInput input) async {
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
     final FolderUpsertInput normalized = _normalizeInput(
       input.copyWith(parentFolderId: query.parentFolderId),
@@ -290,20 +315,42 @@ class FolderController extends _$FolderController {
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
       );
-      return false;
+      return const FolderSubmitResult.failure();
     }
 
     try {
       await _repository.createFolder(normalized);
       await refresh();
-      return true;
+      return const FolderSubmitResult.success();
     } catch (error) {
+      final AppException exception = _errorAdvisor.toAppException(
+        error,
+        fallback: AppErrorCode.folderCreateFailed,
+      );
+      final String? nameErrorMessage = _resolveNameConflictErrorMessage(
+        exception: exception,
+        error: error,
+      );
+      if (nameErrorMessage != null) {
+        return FolderSubmitResult.failure(nameErrorMessage: nameErrorMessage);
+      }
       _errorAdvisor.handle(error, fallback: AppErrorCode.folderCreateFailed);
-      return false;
+      return const FolderSubmitResult.failure();
     }
   }
 
   Future<bool> updateFolder({
+    required int folderId,
+    required FolderUpsertInput input,
+  }) async {
+    final FolderSubmitResult result = await submitUpdateFolder(
+      folderId: folderId,
+      input: input,
+    );
+    return result.isSuccess;
+  }
+
+  Future<FolderSubmitResult> submitUpdateFolder({
     required int folderId,
     required FolderUpsertInput input,
   }) async {
@@ -313,7 +360,7 @@ class FolderController extends _$FolderController {
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
       );
-      return false;
+      return const FolderSubmitResult.failure();
     }
 
     final FolderListingState? snapshot = _currentListing;
@@ -340,13 +387,24 @@ class FolderController extends _$FolderController {
     try {
       await _repository.updateFolder(folderId: folderId, input: normalized);
       await refresh();
-      return true;
+      return const FolderSubmitResult.success();
     } catch (error) {
       if (snapshot != null) {
         state = AsyncData<FolderListingState>(snapshot);
       }
+      final AppException exception = _errorAdvisor.toAppException(
+        error,
+        fallback: AppErrorCode.folderUpdateFailed,
+      );
+      final String? nameErrorMessage = _resolveNameConflictErrorMessage(
+        exception: exception,
+        error: error,
+      );
+      if (nameErrorMessage != null) {
+        return FolderSubmitResult.failure(nameErrorMessage: nameErrorMessage);
+      }
       _errorAdvisor.handle(error, fallback: AppErrorCode.folderUpdateFailed);
-      return false;
+      return const FolderSubmitResult.failure();
     }
   }
 
@@ -391,6 +449,93 @@ class FolderController extends _$FolderController {
     }
   }
 
+  Future<FolderListingState> _loadBootstrapListing() async {
+    FolderListQuery query = ref.read(folderQueryControllerProvider);
+    while (true) {
+      final FolderListingState listing = await _loadInitial(query: query);
+      if (!_isQueryStale(query)) {
+        return listing;
+      }
+      query = ref.read(folderQueryControllerProvider);
+    }
+  }
+
+  void _bindQueryListener() {
+    if (_isQueryListenerBound) {
+      return;
+    }
+    _isQueryListenerBound = true;
+    ref.listen<FolderListQuery>(folderQueryControllerProvider, (
+      FolderListQuery? previousQuery,
+      FolderListQuery nextQuery,
+    ) {
+      if (!_isBootstrapCompleted) {
+        return;
+      }
+      if (previousQuery == nextQuery) {
+        return;
+      }
+      unawaited(_reloadForQuery(query: nextQuery, isRefresh: false));
+    });
+  }
+
+  Future<void> _reloadForQuery({
+    required FolderListQuery query,
+    required bool isRefresh,
+  }) async {
+    final int requestVersion = _nextQueryRequestVersion();
+    _setLoadingState(isRefresh: isRefresh);
+
+    try {
+      final FolderListingState listing = await _loadInitial(query: query);
+      if (_shouldSkipCommit(query: query, requestVersion: requestVersion)) {
+        return;
+      }
+      state = AsyncData<FolderListingState>(listing);
+    } catch (error, stackTrace) {
+      if (_shouldSkipCommit(query: query, requestVersion: requestVersion)) {
+        return;
+      }
+      final FolderListingState? previousListing = _currentListing;
+      if (previousListing != null) {
+        state = AsyncData<FolderListingState>(previousListing);
+        return;
+      }
+      state = AsyncError<FolderListingState>(error, stackTrace);
+    }
+  }
+
+  void _setLoadingState({required bool isRefresh}) {
+    final AsyncValue<FolderListingState> previousState = state;
+    if (!previousState.hasValue && !previousState.hasError) {
+      state = const AsyncLoading<FolderListingState>();
+      return;
+    }
+    // ignore: invalid_use_of_internal_member
+    state = const AsyncLoading<FolderListingState>().copyWithPrevious(
+      previousState,
+      isRefresh: isRefresh,
+    );
+  }
+
+  int _nextQueryRequestVersion() {
+    _queryRequestVersion++;
+    return _queryRequestVersion;
+  }
+
+  bool _shouldSkipCommit({
+    required FolderListQuery query,
+    required int requestVersion,
+  }) {
+    if (_isQueryStale(query)) {
+      return true;
+    }
+    if (requestVersion != _queryRequestVersion) {
+      return true;
+    }
+    return false;
+  }
+
   FolderUpsertInput _normalizeInput(FolderUpsertInput input) {
     final String name = input.name.trim();
     final String description = input.description.trim();
@@ -432,5 +577,19 @@ class FolderController extends _$FolderController {
       folderQueryControllerProvider,
     );
     return currentQuery != expectedQuery;
+  }
+
+  String? _resolveNameConflictErrorMessage({
+    required AppException exception,
+    required Object error,
+  }) {
+    if (exception.code != AppErrorCode.conflict) {
+      return null;
+    }
+    final String? backendMessage = _errorAdvisor.extractBackendMessage(error);
+    if (backendMessage != null) {
+      return backendMessage;
+    }
+    return AppExceptionMessage.conflict;
   }
 }

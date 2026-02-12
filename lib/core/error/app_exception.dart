@@ -21,6 +21,10 @@ class AppExceptionMessage {
   static const String folderUpdateFailed = 'Failed to update folder.';
   static const String folderDeleteFailed = 'Failed to delete folder.';
   static const String folderRestoreFailed = 'Failed to restore folder.';
+  static const String flashcardLoadFailed = 'Failed to load flashcards.';
+  static const String flashcardCreateFailed = 'Failed to create flashcard.';
+  static const String flashcardUpdateFailed = 'Failed to update flashcard.';
+  static const String flashcardDeleteFailed = 'Failed to delete flashcard.';
   static const String ttsInitFailed = 'Failed to initialize text-to-speech.';
   static const String ttsLoadVoicesFailed =
       'Failed to load text-to-speech voices.';
@@ -49,6 +53,10 @@ class AppExceptionKey {
   static const String folderUpdateFailed = 'error.folderUpdateFailed';
   static const String folderDeleteFailed = 'error.folderDeleteFailed';
   static const String folderRestoreFailed = 'error.folderRestoreFailed';
+  static const String flashcardLoadFailed = 'error.flashcardLoadFailed';
+  static const String flashcardCreateFailed = 'error.flashcardCreateFailed';
+  static const String flashcardUpdateFailed = 'error.flashcardUpdateFailed';
+  static const String flashcardDeleteFailed = 'error.flashcardDeleteFailed';
   static const String ttsInitFailed = 'error.ttsInitFailed';
   static const String ttsLoadVoicesFailed = 'error.ttsLoadVoicesFailed';
   static const String ttsReadFailed = 'error.ttsReadFailed';

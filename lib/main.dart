@@ -17,6 +17,7 @@ class LearnWiseApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
       child: MaterialApp(
+        scaffoldMessengerKey: appScaffoldMessengerKey,
         onGenerateTitle: (BuildContext context) =>
             AppLocalizations.of(context)!.appTitle,
         theme: AppTheme.light(),

@@ -1,30 +1,30 @@
-{
+﻿{
   "@@locale": "vi",
   "appTitle": "LearnWise TTS",
   "@appTitle": {
     "description": "Application title used by MaterialApp."
   },
-  "dashboardTitle": "Bang dieu khien LearnWise",
+  "dashboardTitle": "Bảng điều khiển LearnWise",
   "@dashboardTitle": {
     "description": "Dashboard app bar title."
   },
-  "dashboardLoadingLabel": "Dang tai bang dieu khien...",
+  "dashboardLoadingLabel": "Đang tải bảng điều khiển...",
   "@dashboardLoadingLabel": {
     "description": "Loading label for dashboard screen."
   },
-  "dashboardErrorTitle": "Khong the tai bang dieu khien",
+  "dashboardErrorTitle": "Không thể tải bảng điều khiển",
   "@dashboardErrorTitle": {
     "description": "Dashboard load error title."
   },
-  "dashboardErrorDescription": "Vui long keo de tai lai hoac thu lai.",
+  "dashboardErrorDescription": "Vui lòng kéo để tải lại hoặc thử lại.",
   "@dashboardErrorDescription": {
     "description": "Dashboard load error description."
   },
-  "dashboardRetryLabel": "Thu lai",
+  "dashboardRetryLabel": "Thử lại",
   "@dashboardRetryLabel": {
     "description": "Retry button label on dashboard error state."
   },
-  "dashboardGreeting": "Xin chao, {name}",
+  "dashboardGreeting": "Xin chào, {name}",
   "@dashboardGreeting": {
     "description": "Greeting text in dashboard hero section.",
     "placeholders": {
@@ -33,15 +33,15 @@
       }
     }
   },
-  "dashboardHeroHeadline": "Xay dung nhip hoc tap moi ngay",
+  "dashboardHeroHeadline": "Xây dựng nhịp học tập mỗi ngày",
   "@dashboardHeroHeadline": {
     "description": "Headline text in dashboard hero section."
   },
-  "dashboardStreakLabel": "Chuoi ngay hoc",
+  "dashboardStreakLabel": "Chuỗi ngày học",
   "@dashboardStreakLabel": {
     "description": "Streak label in dashboard hero stats."
   },
-  "dashboardStreakValue": "{days} ngay",
+  "dashboardStreakValue": "{days} ngày",
   "@dashboardStreakValue": {
     "description": "Streak value with day count.",
     "placeholders": {
@@ -50,11 +50,11 @@
       }
     }
   },
-  "dashboardGoalProgressLabel": "Muc tieu hom nay",
+  "dashboardGoalProgressLabel": "Mục tiêu hôm nay",
   "@dashboardGoalProgressLabel": {
     "description": "Focus label in dashboard hero stats."
   },
-  "dashboardFocusCountLabel": "{count} the",
+  "dashboardFocusCountLabel": "{count} thẻ",
   "@dashboardFocusCountLabel": {
     "description": "Focus card count in dashboard.",
     "placeholders": {
@@ -63,23 +63,23 @@
       }
     }
   },
-  "dashboardOverviewTitle": "Tong quan",
+  "dashboardOverviewTitle": "Tổng quan",
   "@dashboardOverviewTitle": {
     "description": "Dashboard overview section title."
   },
-  "dashboardMetricStudyMinutesLabel": "Thoi gian hoc",
+  "dashboardMetricStudyMinutesLabel": "Thời gian học",
   "@dashboardMetricStudyMinutesLabel": {
     "description": "Metric title for study minutes."
   },
-  "dashboardMetricWordsMasteredLabel": "Tu da nho",
+  "dashboardMetricWordsMasteredLabel": "Từ đã nhớ",
   "@dashboardMetricWordsMasteredLabel": {
     "description": "Metric title for mastered words."
   },
-  "dashboardMetricWeeklyGoalLabel": "Muc tieu tuan",
+  "dashboardMetricWeeklyGoalLabel": "Mục tiêu tuần",
   "@dashboardMetricWeeklyGoalLabel": {
     "description": "Metric title for weekly goal."
   },
-  "dashboardMetricMinutesValue": "{minutes} phut",
+  "dashboardMetricMinutesValue": "{minutes} phút",
   "@dashboardMetricMinutesValue": {
     "description": "Metric value text for minutes.",
     "placeholders": {
@@ -88,7 +88,7 @@
       }
     }
   },
-  "dashboardMetricWordsValue": "{words} tu",
+  "dashboardMetricWordsValue": "{words} từ",
   "@dashboardMetricWordsValue": {
     "description": "Metric value text for words.",
     "placeholders": {
@@ -97,7 +97,7 @@
       }
     }
   },
-  "dashboardMetricGoalValue": "{done}/{target} buoi",
+  "dashboardMetricGoalValue": "{done}/{target} buổi",
   "@dashboardMetricGoalValue": {
     "description": "Metric value text for weekly goal.",
     "placeholders": {
@@ -109,163 +109,198 @@
       }
     }
   },
-  "dashboardQuickActionsTitle": "Thao tac nhanh",
+  "dashboardQuickActionsTitle": "Thao tác nhanh",
   "@dashboardQuickActionsTitle": {
     "description": "Quick actions section title."
   },
-  "dashboardActionLearning": "Bat dau hoc",
+  "dashboardActionLearning": "Bắt đầu học",
   "@dashboardActionLearning": {
     "description": "Quick action label for learning screen."
   },
-  "dashboardActionProgress": "Mo tien do",
+  "dashboardActionProgress": "Mở tiến độ",
   "@dashboardActionProgress": {
     "description": "Quick action label for progress screen."
   },
-  "dashboardActionTts": "Mo phong TTS",
+  "dashboardActionTts": "Mở phòng TTS",
   "@dashboardActionTts": {
     "description": "Quick action label for TTS screen."
   },
-  "dashboardTodayFocusTitle": "Trong tam hom nay",
+  "dashboardTodayFocusTitle": "Trọng tâm hôm nay",
   "@dashboardTodayFocusTitle": {
     "description": "Today focus section title."
   },
-  "dashboardRecentTitle": "Hoat dong gan day",
+  "dashboardRecentTitle": "Hoạt động gần đây",
   "@dashboardRecentTitle": {
     "description": "Recent activity section title."
   },
-  "dashboardRecentStudyCompleted": "Da hoan thanh mot khoi hoc tap trung",
+  "dashboardRecentStudyCompleted": "Đã hoàn thành một khối học tập trung",
   "@dashboardRecentStudyCompleted": {
     "description": "Recent activity text for study completion."
   },
-  "dashboardRecentProgressUpdated": "Da cap nhat ke hoach tien do tuan",
+  "dashboardRecentProgressUpdated": "Đã cập nhật kế hoạch tiến độ tuần",
   "@dashboardRecentProgressUpdated": {
     "description": "Recent activity text for progress update."
   },
-  "dashboardRecentTtsPracticed": "Da luyen phat am bang TTS",
+  "dashboardRecentTtsPracticed": "Đã luyện phát âm bằng TTS",
   "@dashboardRecentTtsPracticed": {
     "description": "Recent activity text for TTS practice."
   },
-  "dashboardNavHome": "Bang dieu khien",
+  "dashboardNavHome": "Bảng điều khiển",
   "@dashboardNavHome": {
     "description": "Bottom navigation label for dashboard tab."
   },
-  "dashboardNavFolders": "Thu muc",
+  "dashboardNavFolders": "Thư mục",
   "@dashboardNavFolders": {
     "description": "Bottom navigation label for folders tab."
   },
-  "foldersTitle": "Quan ly thu muc",
+  "foldersTitle": "Quản lý thư mục",
   "@foldersTitle": {
     "description": "App bar title for folder management screen."
   },
-  "foldersRefreshTooltip": "Tai lai danh sach thu muc",
+  "foldersRefreshTooltip": "Tải lại danh sách thư mục",
   "@foldersRefreshTooltip": {
     "description": "Tooltip for folder refresh action."
   },
-  "foldersLoadingLabel": "Dang tai danh sach thu muc...",
+  "foldersLoadingLabel": "Đang tải danh sách thư mục...",
   "@foldersLoadingLabel": {
     "description": "Loading state message on folder screen."
   },
-  "foldersErrorTitle": "Khong the tai danh sach thu muc",
+  "foldersErrorTitle": "Không thể tải danh sách thư mục",
   "@foldersErrorTitle": {
     "description": "Error title on folder screen."
   },
-  "foldersErrorDescription": "Vui long tai lai va thu lai.",
+  "foldersErrorDescription": "Vui lòng tải lại và thử lại.",
   "@foldersErrorDescription": {
     "description": "Error description on folder screen."
   },
-  "foldersRetryLabel": "Thu lai",
+  "foldersRetryLabel": "Thử lại",
   "@foldersRetryLabel": {
     "description": "Retry button label for folder load error."
   },
-  "foldersHeroTitle": "To chuc thu muc hoc tap cua ban",
+  "foldersHeroTitle": "Tổ chức thư mục học tập của bạn",
   "@foldersHeroTitle": {
     "description": "Hero card title on folder screen."
   },
-  "foldersHeroDescription": "Tao, cap nhat va quan ly bo thu muc tap trung theo muc tieu hoc tap.",
+  "foldersHeroDescription": "Tạo, cập nhật và quản lý bộ thư mục tập trung theo mục tiêu học tập.",
   "@foldersHeroDescription": {
     "description": "Hero card description on folder screen."
   },
-  "foldersCreateButton": "Tao thu muc",
+  "foldersCreateButton": "Tạo thư mục",
   "@foldersCreateButton": {
     "description": "Button label to create a new folder."
   },
-  "foldersEmptyTitle": "Chua co thu muc nao",
+  "foldersEmptyTitle": "Chưa có thư mục nào",
   "@foldersEmptyTitle": {
     "description": "Empty state title on folder screen."
   },
-  "foldersEmptyDescription": "Hay tao thu muc dau tien de sap xep chu de va the.",
+  "foldersEmptyDescription": "Hãy tạo thư mục đầu tiên để sắp xếp chủ đề và thẻ.",
   "@foldersEmptyDescription": {
     "description": "Empty state description on folder screen."
   },
-  "foldersCreateDialogTitle": "Tao thu muc",
+  "foldersCreateBlockedByFlashcards": "Thư mục này đã có flashcard. Bạn không thể tạo thư mục con tại đây.",
+  "@foldersCreateBlockedByFlashcards": {
+    "description": "Message shown when creating subfolders is blocked because current folder contains flashcards."
+  },
+  "foldersCreateDialogTitle": "Tạo thư mục",
   "@foldersCreateDialogTitle": {
     "description": "Dialog title for creating folder."
   },
-  "foldersEditDialogTitle": "Cap nhat thu muc",
+  "foldersEditDialogTitle": "Cập nhật thư mục",
   "@foldersEditDialogTitle": {
     "description": "Dialog title for editing folder."
   },
-  "foldersNameLabel": "Ten thu muc",
+  "foldersNameLabel": "Tên thư mục",
   "@foldersNameLabel": {
     "description": "Label for folder name input."
   },
-  "foldersNameHint": "Vi du: TOEIC tuan 1",
+  "foldersNameHint": "Ví dụ: TOEIC tuần 1",
   "@foldersNameHint": {
     "description": "Hint for folder name input."
   },
-  "foldersDescriptionLabel": "Mo ta",
+  "foldersNameRequiredValidation": "Tên thư mục là bắt buộc.",
+  "@foldersNameRequiredValidation": {
+    "description": "Validation message when folder name is empty."
+  },
+  "foldersNameMinLengthValidation": "Tên thư mục phải có ít nhất {min} ký tự.",
+  "@foldersNameMinLengthValidation": {
+    "description": "Validation message when folder name is shorter than minimum length.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersNameMaxLengthValidation": "Tên thư mục tối đa {max} ký tự.",
+  "@foldersNameMaxLengthValidation": {
+    "description": "Validation message when folder name exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersDescriptionLabel": "Mô tả",
   "@foldersDescriptionLabel": {
     "description": "Label for folder description input."
   },
-  "foldersDescriptionHint": "Mo ta trong tam cua thu muc",
+  "foldersDescriptionHint": "Mô tả trọng tâm của thư mục",
   "@foldersDescriptionHint": {
     "description": "Hint for folder description input."
   },
-  "foldersColorLabel": "Mau thu muc",
+  "foldersDescriptionMaxLengthValidation": "Mô tả tối đa {max} ký tự.",
+  "@foldersDescriptionMaxLengthValidation": {
+    "description": "Validation message when folder description exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersColorLabel": "Màu thư mục",
   "@foldersColorLabel": {
     "description": "Label for folder color palette."
   },
-  "foldersSearchHint": "Tim thu muc theo ten hoac mo ta",
+  "foldersSearchHint": "Tìm thư mục theo tên hoặc mô tả",
   "@foldersSearchHint": {
     "description": "Hint for folder search input."
   },
-  "foldersSortByLabel": "Sap xep theo",
+  "foldersSortByLabel": "Sắp xếp theo",
   "@foldersSortByLabel": {
     "description": "Label for sort by selector."
   },
-  "foldersSortByUpdatedAt": "Cap nhat gan nhat",
+  "foldersSortByUpdatedAt": "Cập nhật gần nhất",
   "@foldersSortByUpdatedAt": {
     "description": "Sort option for updated time."
   },
-  "foldersSortByCreatedAt": "Thoi diem tao",
+  "foldersSortByCreatedAt": "Thời điểm tạo",
   "@foldersSortByCreatedAt": {
     "description": "Sort option for created time."
   },
-  "foldersSortByName": "Ten thu muc",
+  "foldersSortByName": "Tên thư mục",
   "@foldersSortByName": {
     "description": "Sort option for folder name."
   },
-  "foldersSortByFlashcardCount": "So luong flashcard",
+  "foldersSortByFlashcardCount": "Số lượng flashcard",
   "@foldersSortByFlashcardCount": {
     "description": "Sort option for aggregate flashcard count."
   },
-  "foldersSortDirectionDesc": "Giam dan",
+  "foldersSortDirectionDesc": "Giảm dần",
   "@foldersSortDirectionDesc": {
     "description": "Sort direction descending label."
   },
-  "foldersSortDirectionAsc": "Tang dan",
+  "foldersSortDirectionAsc": "Tăng dần",
   "@foldersSortDirectionAsc": {
     "description": "Sort direction ascending label."
   },
-  "foldersViewActiveLabel": "Dang dung",
+  "foldersViewActiveLabel": "Đang dùng",
   "@foldersViewActiveLabel": {
     "description": "Folder view mode label for active folders."
   },
-  "foldersViewTrashLabel": "Thung rac",
+  "foldersViewTrashLabel": "Thùng rác",
   "@foldersViewTrashLabel": {
     "description": "Folder view mode label for deleted folders."
   },
-  "foldersPagingLabel": "Trang {page}/{totalPages} · {totalItems} thu muc",
+  "foldersPagingLabel": "Trang {page}/{totalPages} · {totalItems} thư mục",
   "@foldersPagingLabel": {
     "description": "Paging summary on folder screen.",
     "placeholders": {
@@ -280,7 +315,7 @@
       }
     }
   },
-  "foldersPreviousPageTooltip": "Trang truoc",
+  "foldersPreviousPageTooltip": "Trang trước",
   "@foldersPreviousPageTooltip": {
     "description": "Tooltip for previous page action."
   },
@@ -288,7 +323,7 @@
   "@foldersNextPageTooltip": {
     "description": "Tooltip for next page action."
   },
-  "foldersAuditLabel": "Cap nhat boi: {actor}",
+  "foldersAuditLabel": "Cập nhật bởi: {actor}",
   "@foldersAuditLabel": {
     "description": "Audit label showing last updater.",
     "placeholders": {
@@ -297,23 +332,23 @@
       }
     }
   },
-  "foldersCancelLabel": "Huy",
+  "foldersCancelLabel": "Hủy",
   "@foldersCancelLabel": {
     "description": "Cancel action label in folder dialogs."
   },
-  "foldersSaveLabel": "Luu",
+  "foldersSaveLabel": "Lưu",
   "@foldersSaveLabel": {
     "description": "Save action label in create folder dialog."
   },
-  "foldersUpdateLabel": "Cap nhat",
+  "foldersUpdateLabel": "Cập nhật",
   "@foldersUpdateLabel": {
     "description": "Update action label in edit folder dialog."
   },
-  "foldersDeleteDialogTitle": "Xoa thu muc",
+  "foldersDeleteDialogTitle": "Xóa thư mục",
   "@foldersDeleteDialogTitle": {
     "description": "Dialog title for deleting folder."
   },
-  "foldersDeleteDialogMessage": "Xoa \"{folderName}\"? Hanh dong nay khong the hoan tac.",
+  "foldersDeleteDialogMessage": "Xóa \"{folderName}\"? Hành động này không thể hoàn tác.",
   "@foldersDeleteDialogMessage": {
     "description": "Dialog message for deleting folder.",
     "placeholders": {
@@ -322,15 +357,15 @@
       }
     }
   },
-  "foldersDeleteConfirmLabel": "Xoa",
+  "foldersDeleteConfirmLabel": "Xóa",
   "@foldersDeleteConfirmLabel": {
     "description": "Delete action label in delete dialog."
   },
-  "foldersNoDescriptionLabel": "Chua co mo ta.",
+  "foldersNoDescriptionLabel": "Chưa có mô tả.",
   "@foldersNoDescriptionLabel": {
     "description": "Fallback text when folder description is empty."
   },
-  "foldersColorCodeLabel": "Mau: {colorHex}",
+  "foldersColorCodeLabel": "Màu: {colorHex}",
   "@foldersColorCodeLabel": {
     "description": "Label showing folder color code.",
     "placeholders": {
@@ -348,7 +383,7 @@
       }
     }
   },
-  "foldersSubfolderCountLabel": "{count} thu muc con",
+  "foldersSubfolderCountLabel": "{count} thư mục con",
   "@foldersSubfolderCountLabel": {
     "description": "Label showing direct subfolder count in folder card.",
     "placeholders": {
@@ -357,35 +392,35 @@
       }
     }
   },
-  "foldersEditTooltip": "Sua thu muc",
+  "foldersEditTooltip": "Sửa thư mục",
   "@foldersEditTooltip": {
     "description": "Tooltip for edit folder action."
   },
-  "foldersOpenTooltip": "Mo thu muc",
+  "foldersOpenTooltip": "Mở thư mục",
   "@foldersOpenTooltip": {
     "description": "Tooltip for opening a folder."
   },
-  "foldersBackToParentTooltip": "Quay lai thu muc cha",
+  "foldersBackToParentTooltip": "Quay lại thư mục cha",
   "@foldersBackToParentTooltip": {
     "description": "Tooltip for app bar back action in nested folders."
   },
-  "foldersRootLabel": "Goc",
+  "foldersRootLabel": "Gốc",
   "@foldersRootLabel": {
     "description": "Label for root breadcrumb."
   },
-  "foldersDeleteTooltip": "Xoa thu muc",
+  "foldersDeleteTooltip": "Xóa thư mục",
   "@foldersDeleteTooltip": {
     "description": "Tooltip for delete folder action."
   },
-  "foldersRestoreTooltip": "Khoi phuc thu muc",
+  "foldersRestoreTooltip": "Khôi phục thư mục",
   "@foldersRestoreTooltip": {
     "description": "Tooltip for restore folder action."
   },
-  "foldersRestoreDialogTitle": "Khoi phuc thu muc",
+  "foldersRestoreDialogTitle": "Khôi phục thư mục",
   "@foldersRestoreDialogTitle": {
     "description": "Dialog title for restoring folder."
   },
-  "foldersRestoreDialogMessage": "Khoi phuc \"{folderName}\" ve danh sach dang dung?",
+  "foldersRestoreDialogMessage": "Khôi phục \"{folderName}\" về danh sách đang dùng?",
   "@foldersRestoreDialogMessage": {
     "description": "Dialog message for restoring folder.",
     "placeholders": {
@@ -394,15 +429,15 @@
       }
     }
   },
-  "foldersRestoreConfirmLabel": "Khoi phuc",
+  "foldersRestoreConfirmLabel": "Khôi phục",
   "@foldersRestoreConfirmLabel": {
     "description": "Restore action label in restore dialog."
   },
-  "foldersTrashEmptyTitle": "Thung rac dang trong",
+  "foldersTrashEmptyTitle": "Thùng rác đang trống",
   "@foldersTrashEmptyTitle": {
     "description": "Empty state title for trash mode."
   },
-  "foldersTrashEmptyDescription": "Thu muc da xoa se hien thi tai day.",
+  "foldersTrashEmptyDescription": "Thư mục đã xóa sẽ hiển thị tại đây.",
   "@foldersTrashEmptyDescription": {
     "description": "Empty state description for trash mode."
   },
@@ -419,7 +454,7 @@
       }
     }
   },
-  "flashcardsTotalLabel": "{count} flashcard trong thu muc nay",
+  "flashcardsTotalLabel": "{count} flashcard trong thư mục này",
   "@flashcardsTotalLabel": {
     "description": "Total flashcard count label on flashcard management screen.",
     "placeholders": {
@@ -428,23 +463,162 @@
       }
     }
   },
-  "flashcardsFeatureDescription": "Ban co the quan ly danh sach flashcard cua thu muc tai day.",
+  "flashcardsFeatureDescription": "Bạn có thể quản lý danh sách flashcard của thư mục tại đây.",
   "@flashcardsFeatureDescription": {
     "description": "Intro text shown on flashcard management screen."
   },
-  "homeTitle": "LearnWise - Chuyen van ban thanh giong noi",
+  "flashcardsLoadingLabel": "Đang tải danh sách flashcard...",
+  "@flashcardsLoadingLabel": {
+    "description": "Loading label for flashcard listing screen."
+  },
+  "flashcardsErrorTitle": "Không thể tải danh sách flashcard",
+  "@flashcardsErrorTitle": {
+    "description": "Error title shown when flashcard listing fails."
+  },
+  "flashcardsErrorDescription": "Vui lòng kiểm tra kết nối và thử lại.",
+  "@flashcardsErrorDescription": {
+    "description": "Error description shown when flashcard listing fails."
+  },
+  "flashcardsRetryLabel": "Thử lại",
+  "@flashcardsRetryLabel": {
+    "description": "Retry button label for flashcard error state."
+  },
+  "flashcardsCreateButton": "Tạo flashcard",
+  "@flashcardsCreateButton": {
+    "description": "Primary action label for creating flashcard."
+  },
+  "flashcardsSearchHint": "Tìm flashcard",
+  "@flashcardsSearchHint": {
+    "description": "Search hint on flashcard listing screen."
+  },
+  "flashcardsRefreshTooltip": "Tải lại",
+  "@flashcardsRefreshTooltip": {
+    "description": "Tooltip label for flashcard refresh action."
+  },
+  "flashcardsSortByCreatedAt": "Thời điểm tạo",
+  "@flashcardsSortByCreatedAt": {
+    "description": "Sort option by created timestamp for flashcards."
+  },
+  "flashcardsSortByFrontText": "Mặt trước",
+  "@flashcardsSortByFrontText": {
+    "description": "Sort option by flashcard front text."
+  },
+  "flashcardsSortDirectionDesc": "Mới nhất trước",
+  "@flashcardsSortDirectionDesc": {
+    "description": "Sort direction label descending for flashcards."
+  },
+  "flashcardsSortDirectionAsc": "Cũ nhất trước",
+  "@flashcardsSortDirectionAsc": {
+    "description": "Sort direction label ascending for flashcards."
+  },
+  "flashcardsEmptyTitle": "Chưa có flashcard",
+  "@flashcardsEmptyTitle": {
+    "description": "Empty title for flashcard listing screen."
+  },
+  "flashcardsEmptyDescription": "Hãy tạo flashcard đầu tiên trong thư mục này.",
+  "@flashcardsEmptyDescription": {
+    "description": "Empty description for flashcard listing screen."
+  },
+  "flashcardsCreateDialogTitle": "Tạo flashcard",
+  "@flashcardsCreateDialogTitle": {
+    "description": "Dialog title for creating flashcard."
+  },
+  "flashcardsEditDialogTitle": "Cập nhật flashcard",
+  "@flashcardsEditDialogTitle": {
+    "description": "Dialog title for updating flashcard."
+  },
+  "flashcardsFrontLabel": "Mặt trước",
+  "@flashcardsFrontLabel": {
+    "description": "Input label for flashcard front text."
+  },
+  "flashcardsFrontHint": "Ví dụ: JVM là gì?",
+  "@flashcardsFrontHint": {
+    "description": "Input hint for flashcard front text."
+  },
+  "flashcardsBackLabel": "Mặt sau",
+  "@flashcardsBackLabel": {
+    "description": "Input label for flashcard back text."
+  },
+  "flashcardsBackHint": "Ví dụ: Java Virtual Machine",
+  "@flashcardsBackHint": {
+    "description": "Input hint for flashcard back text."
+  },
+  "flashcardsFrontRequiredValidation": "Nội dung mặt trước là bắt buộc.",
+  "@flashcardsFrontRequiredValidation": {
+    "description": "Validation message for empty flashcard front text."
+  },
+  "flashcardsFrontMaxLengthValidation": "Nội dung mặt trước tối đa {max} ký tự.",
+  "@flashcardsFrontMaxLengthValidation": {
+    "description": "Validation message when front text exceeds max length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsBackRequiredValidation": "Nội dung mặt sau là bắt buộc.",
+  "@flashcardsBackRequiredValidation": {
+    "description": "Validation message for empty flashcard back text."
+  },
+  "flashcardsBackMaxLengthValidation": "Nội dung mặt sau tối đa {max} ký tự.",
+  "@flashcardsBackMaxLengthValidation": {
+    "description": "Validation message when back text exceeds max length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsSaveLabel": "Lưu",
+  "@flashcardsSaveLabel": {
+    "description": "Primary action label for saving a new flashcard."
+  },
+  "flashcardsUpdateLabel": "Cập nhật",
+  "@flashcardsUpdateLabel": {
+    "description": "Primary action label for updating a flashcard."
+  },
+  "flashcardsCancelLabel": "Hủy",
+  "@flashcardsCancelLabel": {
+    "description": "Cancel action label in flashcard dialog."
+  },
+  "flashcardsEditTooltip": "Sửa",
+  "@flashcardsEditTooltip": {
+    "description": "Tooltip label for edit flashcard action."
+  },
+  "flashcardsDeleteTooltip": "Xóa",
+  "@flashcardsDeleteTooltip": {
+    "description": "Tooltip label for delete flashcard action."
+  },
+  "flashcardsDeleteDialogTitle": "Xóa flashcard",
+  "@flashcardsDeleteDialogTitle": {
+    "description": "Title for flashcard delete confirmation dialog."
+  },
+  "flashcardsDeleteDialogMessage": "Bạn có chắc muốn xóa \"{frontText}\" không?",
+  "@flashcardsDeleteDialogMessage": {
+    "description": "Delete confirmation message for flashcard.",
+    "placeholders": {
+      "frontText": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardsDeleteConfirmLabel": "Xóa",
+  "@flashcardsDeleteConfirmLabel": {
+    "description": "Confirm button label in flashcard delete dialog."
+  },
+  "homeTitle": "LearnWise - Chuyển văn bản thành giọng nói",
   "@homeTitle": {
     "description": "Main home screen title shown in the app bar."
   },
-  "inputSectionTitle": "Nhap noi dung can doc:",
+  "inputSectionTitle": "Nhập nội dung cần đọc:",
   "@inputSectionTitle": {
     "description": "Section title above the main text input."
   },
-  "languageLabel": "Ngon ngu",
+  "languageLabel": "Ngôn ngữ",
   "@languageLabel": {
     "description": "Input label for language mode selector."
   },
-  "languageAuto": "Tu dong (EN/KO)",
+  "languageAuto": "Tự động (EN/KO)",
   "@languageAuto": {
     "description": "Language option for automatic English/Korean detection."
   },
@@ -456,19 +630,19 @@
   "@languageKorean": {
     "description": "Language option for Korean."
   },
-  "koreanVoicesSectionTitle": "Danh sach giong doc tieng Han:",
+  "koreanVoicesSectionTitle": "Danh sách giọng đọc tiếng Hàn:",
   "@koreanVoicesSectionTitle": {
     "description": "Section title above the Korean voice controls."
   },
-  "loadingVoices": "Dang tai danh sach giong...",
+  "loadingVoices": "Đang tải danh sách giọng...",
   "@loadingVoices": {
     "description": "Button text while voices are being loaded."
   },
-  "loadKoreanVoices": "Lay danh sach giong Han",
+  "loadKoreanVoices": "Lấy danh sách giọng Hàn",
   "@loadKoreanVoices": {
     "description": "Button text to refresh/load Korean voices."
   },
-  "koreanVoicesCount": "Tong so giong Han tim thay: {count}",
+  "koreanVoicesCount": "Tổng số giọng Hàn tìm thấy: {count}",
   "@koreanVoicesCount": {
     "description": "Shows how many Korean voices are available.",
     "placeholders": {
@@ -477,15 +651,15 @@
       }
     }
   },
-  "selectKoreanVoiceLabel": "Chon giong doc Han",
+  "selectKoreanVoiceLabel": "Chọn giọng đọc Hàn",
   "@selectKoreanVoiceLabel": {
     "description": "Input label for selecting a Korean voice."
   },
-  "systemDefaultVoice": "Mac dinh he thong",
+  "systemDefaultVoice": "Mặc định hệ thống",
   "@systemDefaultVoice": {
     "description": "Option label for using system default voice."
   },
-  "koreanVoiceAlias": "Giong Han {index}",
+  "koreanVoiceAlias": "Giọng Hàn {index}",
   "@koreanVoiceAlias": {
     "description": "Generic alias for a Korean voice item in the dropdown.",
     "placeholders": {
@@ -494,35 +668,35 @@
       }
     }
   },
-  "sampleSectionTitle": "Mau test hardcode:",
+  "sampleSectionTitle": "Mẫu test hardcode:",
   "@sampleSectionTitle": {
     "description": "Section title above sample text chips."
   },
-  "voiceSettingsSectionTitle": "Dieu chinh giong doc:",
+  "voiceSettingsSectionTitle": "Điều chỉnh giọng đọc:",
   "@voiceSettingsSectionTitle": {
     "description": "Section title above voice setting sliders."
   },
-  "speedLabel": "Toc do",
+  "speedLabel": "Tốc độ",
   "@speedLabel": {
     "description": "Label for speech speed slider."
   },
-  "pitchLabel": "Cao do",
+  "pitchLabel": "Cao độ",
   "@pitchLabel": {
     "description": "Label for speech pitch slider."
   },
-  "volumeLabel": "Am luong",
+  "volumeLabel": "Âm lượng",
   "@volumeLabel": {
     "description": "Label for speech volume slider."
   },
-  "inputHint": "Vi du: Hom nay ban muon hoc gi?",
+  "inputHint": "Ví dụ: Hôm nay bạn muốn học gì?",
   "@inputHint": {
     "description": "Placeholder hint for the text input."
   },
-  "readButton": "Doc",
+  "readButton": "Đọc",
   "@readButton": {
     "description": "Primary button to start text-to-speech."
   },
-  "stopButton": "Dung",
+  "stopButton": "Dừng",
   "@stopButton": {
     "description": "Secondary button to stop text-to-speech."
   },
@@ -554,91 +728,107 @@
   "@sampleAutoText": {
     "description": "Sample content for mixed auto-detect speech."
   },
-  "snackInitFailed": "Khoi tao TTS that bai. Vui long thu lai.",
+  "snackInitFailed": "Khởi tạo TTS thất bại. Vui lòng thử lại.",
   "@snackInitFailed": {
     "description": "Snackbar message when TTS initialization fails."
   },
-  "snackLoadVoicesFailed": "Khong tai duoc danh sach giong doc.",
+  "snackLoadVoicesFailed": "Không tải được danh sách giọng đọc.",
   "@snackLoadVoicesFailed": {
     "description": "Snackbar message when loading voices fails."
   },
-  "snackReadFailed": "Doc van ban that bai.",
+  "snackReadFailed": "Đọc văn bản thất bại.",
   "@snackReadFailed": {
     "description": "Snackbar message when speaking text fails."
   },
-  "snackStopFailed": "Dung doc that bai.",
+  "snackStopFailed": "Dừng đọc thất bại.",
   "@snackStopFailed": {
     "description": "Snackbar message when stopping speech fails."
   },
-  "snackBadRequest": "Yeu cau khong hop le. Vui long kiem tra du lieu.",
+  "snackBadRequest": "Yêu cầu không hợp lệ. Vui lòng kiểm tra dữ liệu.",
   "@snackBadRequest": {
     "description": "Snackbar message for bad request errors."
   },
-  "snackUnauthorized": "Phien dang nhap het han. Vui long dang nhap lai.",
+  "snackUnauthorized": "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
   "@snackUnauthorized": {
     "description": "Snackbar message for unauthorized errors."
   },
-  "snackForbidden": "Ban khong co quyen thuc hien thao tac nay.",
+  "snackForbidden": "Bạn không có quyền thực hiện thao tác này.",
   "@snackForbidden": {
     "description": "Snackbar message for forbidden errors."
   },
-  "snackNotFound": "Khong tim thay du lieu duoc yeu cau.",
+  "snackNotFound": "Không tìm thấy dữ liệu được yêu cầu.",
   "@snackNotFound": {
     "description": "Snackbar message for not found errors."
   },
-  "snackConflict": "Du lieu da thay doi. Vui long tai lai va thu lai.",
+  "snackConflict": "Dữ liệu đã thay đổi. Vui lòng tải lại và thử lại.",
   "@snackConflict": {
     "description": "Snackbar message for conflict errors."
   },
-  "snackUnprocessableEntity": "Du lieu gui len khong hop le.",
+  "snackUnprocessableEntity": "Dữ liệu gửi lên không hợp lệ.",
   "@snackUnprocessableEntity": {
     "description": "Snackbar message for unprocessable entity errors."
   },
-  "snackTooManyRequests": "Qua nhieu yeu cau. Vui long thu lai sau it phut.",
+  "snackTooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau ít phút.",
   "@snackTooManyRequests": {
     "description": "Snackbar message for rate limit errors."
   },
-  "snackServerError": "May chu dang gap loi. Vui long thu lai sau.",
+  "snackServerError": "Máy chủ đang gặp lỗi. Vui lòng thử lại sau.",
   "@snackServerError": {
     "description": "Snackbar message for server errors."
   },
-  "snackNetworkUnavailable": "Khong co ket noi mang.",
+  "snackNetworkUnavailable": "Không có kết nối mạng.",
   "@snackNetworkUnavailable": {
     "description": "Snackbar message for connection errors."
   },
-  "snackTimeout": "Het thoi gian cho phan hoi. Vui long thu lai.",
+  "snackTimeout": "Hết thời gian chờ phản hồi. Vui lòng thử lại.",
   "@snackTimeout": {
     "description": "Snackbar message for timeout errors."
   },
-  "snackUnexpectedResponse": "Phan hoi tu may chu khong dung dinh dang.",
+  "snackUnexpectedResponse": "Phản hồi từ máy chủ không đúng định dạng.",
   "@snackUnexpectedResponse": {
     "description": "Snackbar message for malformed response errors."
   },
-  "snackDashboardLoadFailed": "Khong the tai du lieu bang dieu khien.",
+  "snackDashboardLoadFailed": "Không thể tải dữ liệu bảng điều khiển.",
   "@snackDashboardLoadFailed": {
     "description": "Snackbar message when dashboard fails to load."
   },
-  "snackFolderLoadFailed": "Khong the tai danh sach thu muc.",
+  "snackFolderLoadFailed": "Không thể tải danh sách thư mục.",
   "@snackFolderLoadFailed": {
     "description": "Snackbar message when folder list fails to load."
   },
-  "snackFolderCreateFailed": "Khong the tao thu muc.",
+  "snackFolderCreateFailed": "Không thể tạo thư mục.",
   "@snackFolderCreateFailed": {
     "description": "Snackbar message when folder creation fails."
   },
-  "snackFolderUpdateFailed": "Khong the cap nhat thu muc.",
+  "snackFolderUpdateFailed": "Không thể cập nhật thư mục.",
   "@snackFolderUpdateFailed": {
     "description": "Snackbar message when folder update fails."
   },
-  "snackFolderDeleteFailed": "Khong the xoa thu muc.",
+  "snackFolderDeleteFailed": "Không thể xóa thư mục.",
   "@snackFolderDeleteFailed": {
     "description": "Snackbar message when folder deletion fails."
   },
-  "snackFolderRestoreFailed": "Khong the khoi phuc thu muc.",
+  "snackFolderRestoreFailed": "Không thể khôi phục thư mục.",
   "@snackFolderRestoreFailed": {
     "description": "Snackbar message when folder restore fails."
   },
-  "snackUnknownError": "Da co loi xay ra. Vui long thu lai.",
+  "snackFlashcardLoadFailed": "Không thể tải danh sách flashcard.",
+  "@snackFlashcardLoadFailed": {
+    "description": "Snackbar message when flashcard list fails to load."
+  },
+  "snackFlashcardCreateFailed": "Không thể tạo flashcard.",
+  "@snackFlashcardCreateFailed": {
+    "description": "Snackbar message when flashcard creation fails."
+  },
+  "snackFlashcardUpdateFailed": "Không thể cập nhật flashcard.",
+  "@snackFlashcardUpdateFailed": {
+    "description": "Snackbar message when flashcard update fails."
+  },
+  "snackFlashcardDeleteFailed": "Không thể xóa flashcard.",
+  "@snackFlashcardDeleteFailed": {
+    "description": "Snackbar message when flashcard deletion fails."
+  },
+  "snackUnknownError": "Đã có lỗi xảy ra. Vui lòng thử lại.",
   "@snackUnknownError": {
     "description": "Fallback snackbar message for unexpected errors."
   }

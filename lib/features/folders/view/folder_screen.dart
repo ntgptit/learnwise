@@ -67,6 +67,16 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final FolderController controller = ref.read(
       folderControllerProvider.notifier,
     );
+    final bool canCreateFolderAtCurrentLevel = _canCreateFolderAtCurrentLevel(
+      query,
+    );
+    final FolderListingState? listingSnapshot = state.hasValue
+        ? state.requireValue
+        : null;
+    final bool canOpenFlashcardsAtCurrentLevel = _canOpenFlashcardsAtCurrentLevel(
+      query: query,
+      listing: listingSnapshot,
+    );
 
     if (_searchController.text != query.search) {
       _searchController.value = TextEditingValue(
@@ -90,9 +100,16 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
         ),
         actions: <Widget>[
           IconButton(
-            onPressed: _onCreatePressed,
+            onPressed: canCreateFolderAtCurrentLevel ? _onCreatePressed : null,
             icon: const Icon(Icons.add_rounded),
             tooltip: l10n.foldersCreateButton,
+          ),
+          IconButton(
+            onPressed: canOpenFlashcardsAtCurrentLevel
+                ? _onOpenCurrentFolderFlashcards
+                : null,
+            icon: const Icon(Icons.style_outlined),
+            tooltip: l10n.flashcardsTitle,
           ),
           IconButton(
             onPressed: _toggleSearchVisibility,
@@ -117,113 +134,146 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
           data: (FolderListingState listing) {
-            final bool showInlineLoading =
-                uiState.isTransitionInProgress || state.isLoading;
+            final bool showInlineLoading = uiState.isTransitionInProgress;
             final bool showEmptyState =
-                listing.items.isEmpty && !showInlineLoading;
-            return RefreshIndicator(
-              onRefresh: controller.refresh,
-              child: ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(FolderScreenTokens.screenPadding),
-                children: <Widget>[
-                  if (showInlineLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        bottom: FolderScreenTokens.sectionSpacing,
-                      ),
-                      child: LinearProgressIndicator(),
+                listing.items.isEmpty &&
+                !uiState.isTransitionInProgress &&
+                !state.isLoading;
+            return Stack(
+              children: <Widget>[
+                RefreshIndicator(
+                  onRefresh: controller.refresh,
+                  child: ListView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(
+                      FolderScreenTokens.screenPadding,
                     ),
-                  _FolderHeaderSection(title: appBarTitle),
-                  const SizedBox(height: FolderScreenTokens.sectionSpacing),
-                  _FolderPrimaryActionRow(
-                    rootLabel: l10n.foldersRootLabel,
-                    createLabel: l10n.foldersCreateButton,
-                    isRoot: query.breadcrumbs.isEmpty,
-                    onRootPressed: _onRootPressed,
-                    onCreatePressed: _onCreatePressed,
-                  ),
-                  if (query.breadcrumbs.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: FolderScreenTokens.sectionSpacing,
-                      ),
-                      child: AppBreadcrumbs(
+                    children: <Widget>[
+                      _FolderHeaderSection(title: appBarTitle),
+                      const SizedBox(height: FolderScreenTokens.sectionSpacing),
+                      _FolderPrimaryActionRow(
                         rootLabel: l10n.foldersRootLabel,
-                        items: query.breadcrumbs
-                            .map(
-                              (FolderBreadcrumb item) =>
-                                  AppBreadcrumbItem(label: item.name),
-                            )
-                            .toList(),
+                        createLabel: l10n.foldersCreateButton,
+                        flashcardsLabel: l10n.flashcardsTitle,
+                        isRoot: query.breadcrumbs.isEmpty,
                         onRootPressed: _onRootPressed,
-                        onItemPressed: _onBreadcrumbPressed,
+                        onCreatePressed: canCreateFolderAtCurrentLevel
+                            ? _onCreatePressed
+                            : null,
+                        showFlashcardsButton: query.breadcrumbs.isNotEmpty,
+                        onFlashcardsPressed: canOpenFlashcardsAtCurrentLevel
+                            ? _onOpenCurrentFolderFlashcards
+                            : null,
                       ),
-                    ),
-                  if (uiState.isSearchVisible)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: FolderScreenTokens.sectionSpacing,
-                      ),
-                      child: _FolderSearchField(
-                        searchController: _searchController,
-                        onSearchChanged: _onSearchChanged,
-                        onSearchSubmitted: _submitSearch,
-                      ),
-                    ),
-                  const SizedBox(height: FolderScreenTokens.sectionSpacing),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: PopupMenuButton<_FolderMenuAction>(
-                      onSelected: _onMenuActionSelected,
-                      itemBuilder: (BuildContext context) {
-                        return _buildMenuItems(
-                          l10n: l10n,
-                          query: query,
-                          includeRefresh: false,
-                        );
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text(
-                            _buildSortSummaryLabel(l10n: l10n, query: query),
-                            style: Theme.of(context).textTheme.titleSmall,
+                      if (query.breadcrumbs.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: FolderScreenTokens.sectionSpacing,
                           ),
-                          const SizedBox(
-                            width: FolderScreenTokens.sortLabelIconGap,
+                          child: AppBreadcrumbs(
+                            rootLabel: l10n.foldersRootLabel,
+                            items: query.breadcrumbs
+                                .map(
+                                  (FolderBreadcrumb item) =>
+                                      AppBreadcrumbItem(label: item.name),
+                                )
+                                .toList(),
+                            onRootPressed: _onRootPressed,
+                            onItemPressed: _onBreadcrumbPressed,
                           ),
-                          const Icon(Icons.expand_more_rounded),
-                        ],
+                        ),
+                      if (uiState.isSearchVisible)
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: FolderScreenTokens.sectionSpacing,
+                          ),
+                          child: _FolderSearchField(
+                            searchController: _searchController,
+                            onSearchChanged: _onSearchChanged,
+                            onSearchSubmitted: _submitSearch,
+                          ),
+                        ),
+                      const SizedBox(height: FolderScreenTokens.sectionSpacing),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: PopupMenuButton<_FolderMenuAction>(
+                          onSelected: _onMenuActionSelected,
+                          itemBuilder: (BuildContext context) {
+                            return _buildMenuItems(
+                              l10n: l10n,
+                              query: query,
+                              includeRefresh: false,
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Text(
+                                _buildSortSummaryLabel(
+                                  l10n: l10n,
+                                  query: query,
+                                ),
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const SizedBox(
+                                width: FolderScreenTokens.sortLabelIconGap,
+                              ),
+                              const Icon(Icons.expand_more_rounded),
+                            ],
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: FolderScreenTokens.sectionSpacing),
+                      if (showEmptyState)
+                        FolderEmptyState(
+                          onCreatePressed: canCreateFolderAtCurrentLevel
+                              ? _onCreatePressed
+                              : null,
+                          onOpenFlashcardsPressed:
+                              canOpenFlashcardsAtCurrentLevel
+                              ? _onOpenCurrentFolderFlashcards
+                              : null,
+                          description: canCreateFolderAtCurrentLevel
+                              ? l10n.foldersEmptyDescription
+                              : l10n.foldersCreateBlockedByFlashcards,
+                        ),
+                      if (listing.items.isNotEmpty)
+                        ...listing.items.map((FolderItem folder) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: FolderScreenTokens.cardSpacing,
+                            ),
+                            child: FolderListCard(
+                              folder: folder,
+                              onOpenPressed: () => _onOpenPressed(folder),
+                              onEditPressed: () => _onEditPressed(folder),
+                              onDeletePressed: () => _onDeletePressed(folder),
+                            ),
+                          );
+                        }),
+                      if (listing.isLoadingMore)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: FolderScreenTokens.sectionSpacing,
+                          ),
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: FolderScreenTokens.loadingOverlayEdgeInset,
+                  left: FolderScreenTokens.loadingOverlayEdgeInset,
+                  right: FolderScreenTokens.loadingOverlayEdgeInset,
+                  child: IgnorePointer(
+                    child: AnimatedOpacity(
+                      opacity: showInlineLoading ? 1 : 0,
+                      duration: AppDurations.animationFast,
+                      child: const LinearProgressIndicator(),
                     ),
                   ),
-                  const SizedBox(height: FolderScreenTokens.sectionSpacing),
-                  if (showEmptyState)
-                    FolderEmptyState(onCreatePressed: _onCreatePressed),
-                  if (listing.items.isNotEmpty)
-                    ...listing.items.map((FolderItem folder) {
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: FolderScreenTokens.cardSpacing,
-                        ),
-                        child: FolderListCard(
-                          folder: folder,
-                          onOpenPressed: () => _onOpenPressed(folder),
-                          onEditPressed: () => _onEditPressed(folder),
-                          onDeletePressed: () => _onDeletePressed(folder),
-                        ),
-                      );
-                    }),
-                  if (listing.isLoadingMore || showInlineLoading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: FolderScreenTokens.sectionSpacing,
-                      ),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                ],
-              ),
+                ),
+              ],
             );
           },
           error: (Object error, StackTrace stackTrace) {
@@ -399,6 +449,51 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
         .applySearch(_searchController.text);
   }
 
+  bool _canCreateFolderAtCurrentLevel(FolderListQuery query) {
+    if (query.breadcrumbs.isEmpty) {
+      return true;
+    }
+    final FolderBreadcrumb currentFolder = query.breadcrumbs.last;
+    if (currentFolder.directFlashcardCount > FolderConstants.minPage) {
+      return false;
+    }
+    return true;
+  }
+
+  bool _canOpenFlashcardsAtCurrentLevel({
+    required FolderListQuery query,
+    required FolderListingState? listing,
+  }) {
+    if (query.breadcrumbs.isEmpty) {
+      return false;
+    }
+    if (query.search.isNotEmpty) {
+      return false;
+    }
+    if (listing == null) {
+      return false;
+    }
+    if (listing.totalElements > FolderConstants.minPage) {
+      return false;
+    }
+    return true;
+  }
+
+  void _onOpenCurrentFolderFlashcards() {
+    final FolderListQuery query = ref.read(folderQueryControllerProvider);
+    if (query.breadcrumbs.isEmpty) {
+      return;
+    }
+    final FolderBreadcrumb currentFolder = query.breadcrumbs.last;
+    final NavigatorState navigator = Navigator.of(context);
+    _openFlashcardsByArgs(
+      folderId: currentFolder.id,
+      folderName: currentFolder.name,
+      totalFlashcards: currentFolder.directFlashcardCount,
+      navigator: navigator,
+    );
+  }
+
   Future<void> _onOpenPressed(FolderItem folder) async {
     final NavigatorState navigator = Navigator.of(context);
     await _runFolderTransition((FolderController controller) async {
@@ -450,6 +545,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   Future<void> _runFolderTransition(
     Future<void> Function(FolderController controller) action,
   ) async {
+    final DateTime transitionStartedAt = DateTime.now();
+    final Duration minimumTransitionDuration = AppDurations.animationFast;
     final FolderUiController uiController = ref.read(
       folderUiControllerProvider.notifier,
     );
@@ -463,6 +560,10 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       );
       await action(controller);
     } finally {
+      final Duration elapsed = DateTime.now().difference(transitionStartedAt);
+      if (elapsed < minimumTransitionDuration) {
+        await Future<void>.delayed(minimumTransitionDuration - elapsed);
+      }
       uiController.setTransitionInProgress(false);
     }
   }
@@ -477,36 +578,56 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     required FolderItem folder,
     required NavigatorState navigator,
   }) {
-    final FlashcardManagementArgs args = FlashcardManagementArgs(
+    _openFlashcardsByArgs(
       folderId: folder.id,
       folderName: folder.name,
       totalFlashcards: folder.flashcardCount,
+      navigator: navigator,
     );
-    navigator.pushNamed(RouteNames.flashcards, arguments: args);
+  }
+
+  void _openFlashcardsByArgs({
+    required int folderId,
+    required String folderName,
+    required int totalFlashcards,
+    required NavigatorState navigator,
+  }) {
+    final FlashcardManagementArgs args = FlashcardManagementArgs(
+      folderId: folderId,
+      folderName: folderName,
+      totalFlashcards: totalFlashcards,
+    );
+    navigator.pushNamed(RouteNames.flashcards, arguments: args).then((_) async {
+      await ref.read(folderControllerProvider.notifier).refresh();
+    });
   }
 
   Future<void> _onCreatePressed() async {
-    final FolderUpsertInput? input = await showFolderEditorDialog(
-      context: context,
-      initialFolder: null,
-    );
-    if (input == null) {
+    final FolderListQuery query = ref.read(folderQueryControllerProvider);
+    if (!_canCreateFolderAtCurrentLevel(query)) {
       return;
     }
-    await ref.read(folderControllerProvider.notifier).createFolder(input);
+    final FolderController controller = ref.read(
+      folderControllerProvider.notifier,
+    );
+    await showFolderEditorDialog(
+      context: context,
+      initialFolder: null,
+      onSubmit: controller.submitCreateFolder,
+    );
   }
 
   Future<void> _onEditPressed(FolderItem folder) async {
-    final FolderUpsertInput? input = await showFolderEditorDialog(
+    final FolderController controller = ref.read(
+      folderControllerProvider.notifier,
+    );
+    await showFolderEditorDialog(
       context: context,
       initialFolder: folder,
+      onSubmit: (FolderUpsertInput input) {
+        return controller.submitUpdateFolder(folderId: folder.id, input: input);
+      },
     );
-    if (input == null) {
-      return;
-    }
-    await ref
-        .read(folderControllerProvider.notifier)
-        .updateFolder(folderId: folder.id, input: input);
   }
 
   Future<void> _onDeletePressed(FolderItem folder) async {
@@ -580,16 +701,22 @@ class _FolderPrimaryActionRow extends StatelessWidget {
   const _FolderPrimaryActionRow({
     required this.rootLabel,
     required this.createLabel,
+    required this.flashcardsLabel,
     required this.isRoot,
     required this.onRootPressed,
     required this.onCreatePressed,
+    required this.showFlashcardsButton,
+    required this.onFlashcardsPressed,
   });
 
   final String rootLabel;
   final String createLabel;
+  final String flashcardsLabel;
   final bool isRoot;
   final VoidCallback onRootPressed;
-  final VoidCallback onCreatePressed;
+  final VoidCallback? onCreatePressed;
+  final bool showFlashcardsButton;
+  final VoidCallback? onFlashcardsPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -614,6 +741,14 @@ class _FolderPrimaryActionRow extends StatelessWidget {
           icon: const Icon(Icons.add_rounded),
           label: Text(createLabel),
         ),
+        if (showFlashcardsButton) ...<Widget>[
+          const SizedBox(width: FolderScreenTokens.primaryActionGap),
+          FilledButton.tonalIcon(
+            onPressed: onFlashcardsPressed,
+            icon: const Icon(Icons.style_outlined),
+            label: Text(flashcardsLabel),
+          ),
+        ],
       ],
     );
   }

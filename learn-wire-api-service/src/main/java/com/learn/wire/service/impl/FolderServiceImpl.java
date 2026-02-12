@@ -86,10 +86,12 @@ public class FolderServiceImpl implements FolderService {
     public FolderResponse createFolder(FolderCreateRequest request) {
         log.info("Create folder with parentFolderId={}", request.parentFolderId());
         validateRequest(request.name(), request.description(), request.colorHex());
-        validateParentFilter(request.parentFolderId());
+        validateParentAllowsSubfolderCreation(request.parentFolderId());
+        final String normalizedName = normalizeName(request.name());
+        validateNameUniquenessForCreate(normalizedName, request.parentFolderId());
 
         final FolderEntity entity = this.mapper.toEntity(request);
-        entity.setName(normalizeName(request.name()));
+        entity.setName(normalizedName);
         entity.setDescription(normalizeDescription(request.description()));
         entity.setColorHex(normalizeColorHex(request.colorHex()));
         entity.setParentFolderId(request.parentFolderId());
@@ -107,6 +109,7 @@ public class FolderServiceImpl implements FolderService {
     public FolderResponse updateFolder(Long folderId, FolderUpdateRequest request) {
         log.info("Update folder id={} with new parent={}", folderId, request.parentFolderId());
         validateRequest(request.name(), request.description(), request.colorHex());
+        final String normalizedName = normalizeName(request.name());
 
         final FolderEntity entity = getActiveFolderEntity(folderId);
         final Long oldParentFolderId = entity.getParentFolderId();
@@ -116,14 +119,17 @@ public class FolderServiceImpl implements FolderService {
         final List<FolderEntity> activeFolders = this.repository.findByDeletedAtIsNull();
         final Map<Long, FolderEntity> folderById = toFolderById(activeFolders);
         validateParentForUpdate(folderId, newParentFolderId, folderById);
+        validateNameUniquenessForUpdate(folderId, normalizedName, newParentFolderId);
+        final boolean isParentChanged = !isSameParent(oldParentFolderId, newParentFolderId);
 
-        if (!isSameParent(oldParentFolderId, newParentFolderId)) {
+        if (isParentChanged) {
+            validateParentAllowsSubfolderCreationForUpdate(newParentFolderId, folderById);
             applyAggregateDeltaToAncestors(oldParentFolderId, -subtreeAggregate, folderById);
             applyAggregateDeltaToAncestors(newParentFolderId, subtreeAggregate, folderById);
         }
 
         this.mapper.updateEntity(request, entity);
-        entity.setName(normalizeName(request.name()));
+        entity.setName(normalizedName);
         entity.setDescription(normalizeDescription(request.description()));
         entity.setColorHex(normalizeColorHex(request.colorHex()));
         entity.setParentFolderId(newParentFolderId);
@@ -181,6 +187,7 @@ public class FolderServiceImpl implements FolderService {
                 entity.getDescription(),
                 entity.getColorHex(),
                 entity.getParentFolderId(),
+                entity.getDirectFlashcardCount(),
                 entity.getAggregateFlashcardCount(),
                 childFolderCount,
                 entity.getCreatedBy(),
@@ -319,6 +326,35 @@ public class FolderServiceImpl implements FolderService {
         }
     }
 
+    private void validateParentAllowsSubfolderCreation(Long parentFolderId) {
+        if (parentFolderId == null) {
+            return;
+        }
+        final FolderEntity parentFolder = this.repository
+                .findByIdAndDeletedAtIsNull(parentFolderId)
+                .orElseThrow(() -> new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY));
+        if (!hasDirectFlashcards(parentFolder)) {
+            return;
+        }
+        throw new BusinessException(FolderConst.PARENT_HAS_FLASHCARDS_KEY);
+    }
+
+    private void validateParentAllowsSubfolderCreationForUpdate(
+            Long parentFolderId,
+            Map<Long, FolderEntity> folderById) {
+        if (parentFolderId == null) {
+            return;
+        }
+        final FolderEntity parentFolder = folderById.get(parentFolderId);
+        if (parentFolder == null) {
+            throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
+        }
+        if (!hasDirectFlashcards(parentFolder)) {
+            return;
+        }
+        throw new BusinessException(FolderConst.PARENT_HAS_FLASHCARDS_KEY);
+    }
+
     private boolean isSameParent(Long value, Long expected) {
         if (value == null && expected == null) {
             return true;
@@ -327,6 +363,32 @@ public class FolderServiceImpl implements FolderService {
             return false;
         }
         return value.equals(expected);
+    }
+
+    private void validateNameUniquenessForCreate(String normalizedName, Long parentFolderId) {
+        final boolean hasDuplicateName = this.repository.existsActiveByParentAndName(parentFolderId, normalizedName);
+        if (!hasDuplicateName) {
+            return;
+        }
+        throw new BusinessException(FolderConst.DUPLICATE_NAME_KEY);
+    }
+
+    private void validateNameUniquenessForUpdate(Long folderId, String normalizedName, Long parentFolderId) {
+        final boolean hasDuplicateName = this.repository.existsActiveByParentAndNameExcludingFolderId(
+                parentFolderId,
+                normalizedName,
+                folderId);
+        if (!hasDuplicateName) {
+            return;
+        }
+        throw new BusinessException(FolderConst.DUPLICATE_NAME_KEY);
+    }
+
+    private boolean hasDirectFlashcards(FolderEntity folderEntity) {
+        if (folderEntity.getDirectFlashcardCount() <= FolderConst.MIN_PAGE) {
+            return false;
+        }
+        return true;
     }
 
     private FolderEntity getActiveFolderEntity(Long folderId) {

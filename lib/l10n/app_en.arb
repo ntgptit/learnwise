@@ -197,6 +197,10 @@
   "@foldersEmptyDescription": {
     "description": "Empty state description on folder screen."
   },
+  "foldersCreateBlockedByFlashcards": "This folder already has flashcards. You cannot create subfolders here.",
+  "@foldersCreateBlockedByFlashcards": {
+    "description": "Message shown when creating subfolders is blocked because current folder contains flashcards."
+  },
   "foldersCreateDialogTitle": "Create folder",
   "@foldersCreateDialogTitle": {
     "description": "Dialog title for creating folder."
@@ -213,6 +217,28 @@
   "@foldersNameHint": {
     "description": "Hint for folder name input."
   },
+  "foldersNameRequiredValidation": "Folder name is required.",
+  "@foldersNameRequiredValidation": {
+    "description": "Validation message when folder name is empty."
+  },
+  "foldersNameMinLengthValidation": "Folder name must be at least {min} characters.",
+  "@foldersNameMinLengthValidation": {
+    "description": "Validation message when folder name is shorter than minimum length.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "foldersNameMaxLengthValidation": "Folder name must be at most {max} characters.",
+  "@foldersNameMaxLengthValidation": {
+    "description": "Validation message when folder name exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "foldersDescriptionLabel": "Description",
   "@foldersDescriptionLabel": {
     "description": "Label for folder description input."
@@ -220,6 +246,15 @@
   "foldersDescriptionHint": "Describe this folder focus",
   "@foldersDescriptionHint": {
     "description": "Hint for folder description input."
+  },
+  "foldersDescriptionMaxLengthValidation": "Description must be at most {max} characters.",
+  "@foldersDescriptionMaxLengthValidation": {
+    "description": "Validation message when folder description exceeds maximum length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
   },
   "foldersColorLabel": "Folder color",
   "@foldersColorLabel": {
@@ -432,6 +467,145 @@
   "@flashcardsFeatureDescription": {
     "description": "Intro text shown on flashcard management screen."
   },
+  "flashcardsLoadingLabel": "Loading flashcards...",
+  "@flashcardsLoadingLabel": {
+    "description": "Loading label for flashcard listing screen."
+  },
+  "flashcardsErrorTitle": "Unable to load flashcards",
+  "@flashcardsErrorTitle": {
+    "description": "Error title shown when flashcard listing fails."
+  },
+  "flashcardsErrorDescription": "Please check your connection and try again.",
+  "@flashcardsErrorDescription": {
+    "description": "Error description shown when flashcard listing fails."
+  },
+  "flashcardsRetryLabel": "Retry",
+  "@flashcardsRetryLabel": {
+    "description": "Retry button label for flashcard error state."
+  },
+  "flashcardsCreateButton": "Create flashcard",
+  "@flashcardsCreateButton": {
+    "description": "Primary action label for creating flashcard."
+  },
+  "flashcardsSearchHint": "Search flashcards",
+  "@flashcardsSearchHint": {
+    "description": "Search hint on flashcard listing screen."
+  },
+  "flashcardsRefreshTooltip": "Refresh",
+  "@flashcardsRefreshTooltip": {
+    "description": "Tooltip label for flashcard refresh action."
+  },
+  "flashcardsSortByCreatedAt": "Created time",
+  "@flashcardsSortByCreatedAt": {
+    "description": "Sort option by created timestamp for flashcards."
+  },
+  "flashcardsSortByFrontText": "Front text",
+  "@flashcardsSortByFrontText": {
+    "description": "Sort option by flashcard front text."
+  },
+  "flashcardsSortDirectionDesc": "Newest first",
+  "@flashcardsSortDirectionDesc": {
+    "description": "Sort direction label descending for flashcards."
+  },
+  "flashcardsSortDirectionAsc": "Oldest first",
+  "@flashcardsSortDirectionAsc": {
+    "description": "Sort direction label ascending for flashcards."
+  },
+  "flashcardsEmptyTitle": "No flashcards yet",
+  "@flashcardsEmptyTitle": {
+    "description": "Empty title for flashcard listing screen."
+  },
+  "flashcardsEmptyDescription": "Create your first flashcard in this folder.",
+  "@flashcardsEmptyDescription": {
+    "description": "Empty description for flashcard listing screen."
+  },
+  "flashcardsCreateDialogTitle": "Create flashcard",
+  "@flashcardsCreateDialogTitle": {
+    "description": "Dialog title for creating flashcard."
+  },
+  "flashcardsEditDialogTitle": "Edit flashcard",
+  "@flashcardsEditDialogTitle": {
+    "description": "Dialog title for updating flashcard."
+  },
+  "flashcardsFrontLabel": "Front",
+  "@flashcardsFrontLabel": {
+    "description": "Input label for flashcard front text."
+  },
+  "flashcardsFrontHint": "Example: What is JVM?",
+  "@flashcardsFrontHint": {
+    "description": "Input hint for flashcard front text."
+  },
+  "flashcardsBackLabel": "Back",
+  "@flashcardsBackLabel": {
+    "description": "Input label for flashcard back text."
+  },
+  "flashcardsBackHint": "Example: Java Virtual Machine",
+  "@flashcardsBackHint": {
+    "description": "Input hint for flashcard back text."
+  },
+  "flashcardsFrontRequiredValidation": "Front text is required.",
+  "@flashcardsFrontRequiredValidation": {
+    "description": "Validation message for empty flashcard front text."
+  },
+  "flashcardsFrontMaxLengthValidation": "Front text must be {max} characters or fewer.",
+  "@flashcardsFrontMaxLengthValidation": {
+    "description": "Validation message when front text exceeds max length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsBackRequiredValidation": "Back text is required.",
+  "@flashcardsBackRequiredValidation": {
+    "description": "Validation message for empty flashcard back text."
+  },
+  "flashcardsBackMaxLengthValidation": "Back text must be {max} characters or fewer.",
+  "@flashcardsBackMaxLengthValidation": {
+    "description": "Validation message when back text exceeds max length.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsSaveLabel": "Save",
+  "@flashcardsSaveLabel": {
+    "description": "Primary action label for saving a new flashcard."
+  },
+  "flashcardsUpdateLabel": "Update",
+  "@flashcardsUpdateLabel": {
+    "description": "Primary action label for updating a flashcard."
+  },
+  "flashcardsCancelLabel": "Cancel",
+  "@flashcardsCancelLabel": {
+    "description": "Cancel action label in flashcard dialog."
+  },
+  "flashcardsEditTooltip": "Edit",
+  "@flashcardsEditTooltip": {
+    "description": "Tooltip label for edit flashcard action."
+  },
+  "flashcardsDeleteTooltip": "Delete",
+  "@flashcardsDeleteTooltip": {
+    "description": "Tooltip label for delete flashcard action."
+  },
+  "flashcardsDeleteDialogTitle": "Delete flashcard",
+  "@flashcardsDeleteDialogTitle": {
+    "description": "Title for flashcard delete confirmation dialog."
+  },
+  "flashcardsDeleteDialogMessage": "Are you sure you want to delete \"{frontText}\"?",
+  "@flashcardsDeleteDialogMessage": {
+    "description": "Delete confirmation message for flashcard.",
+    "placeholders": {
+      "frontText": {
+        "type": "String"
+      }
+    }
+  },
+  "flashcardsDeleteConfirmLabel": "Delete",
+  "@flashcardsDeleteConfirmLabel": {
+    "description": "Confirm button label in flashcard delete dialog."
+  },
   "homeTitle": "LearnWise - Text To Speech",
   "@homeTitle": {
     "description": "Main home screen title shown in the app bar."
@@ -637,6 +811,22 @@
   "snackFolderRestoreFailed": "Unable to restore folder.",
   "@snackFolderRestoreFailed": {
     "description": "Snackbar message when folder restore fails."
+  },
+  "snackFlashcardLoadFailed": "Unable to load flashcards.",
+  "@snackFlashcardLoadFailed": {
+    "description": "Snackbar message when flashcard list fails to load."
+  },
+  "snackFlashcardCreateFailed": "Unable to create flashcard.",
+  "@snackFlashcardCreateFailed": {
+    "description": "Snackbar message when flashcard creation fails."
+  },
+  "snackFlashcardUpdateFailed": "Unable to update flashcard.",
+  "@snackFlashcardUpdateFailed": {
+    "description": "Snackbar message when flashcard update fails."
+  },
+  "snackFlashcardDeleteFailed": "Unable to delete flashcard.",
+  "@snackFlashcardDeleteFailed": {
+    "description": "Snackbar message when flashcard deletion fails."
   },
   "snackUnknownError": "Something went wrong. Please try again.",
   "@snackUnknownError": {

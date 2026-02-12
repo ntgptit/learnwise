@@ -1,8 +1,19 @@
 logging:
   level:
     com.learn.wire: DEBUG
+    # Show SQL queries
+    org.hibernate.SQL: DEBUG
+    # Show SQL bind parameters (values)
+    org.hibernate.orm.jdbc.bind: TRACE
 
 spring:
+  jpa:
+    properties:
+      hibernate:
+        # Format SQL for readability
+        format_sql: true
+        # Show SQL comments with additional context
+        use_sql_comments: true
   flyway:
     placeholders:
       seed_demo_data: ${APP_DB_SEED_DEMO_DATA:true}

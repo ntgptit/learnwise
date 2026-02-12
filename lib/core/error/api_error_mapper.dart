@@ -239,6 +239,42 @@ class DefaultAppErrorMapper implements AppErrorMapper {
       );
     }
 
+    if (fallback == AppErrorCode.flashcardLoadFailed) {
+      return UnknownAppException(
+        code: AppErrorCode.flashcardLoadFailed,
+        message: AppExceptionMessage.flashcardLoadFailed,
+        messageKey: AppExceptionKey.flashcardLoadFailed,
+        cause: error,
+      );
+    }
+
+    if (fallback == AppErrorCode.flashcardCreateFailed) {
+      return UnknownAppException(
+        code: AppErrorCode.flashcardCreateFailed,
+        message: AppExceptionMessage.flashcardCreateFailed,
+        messageKey: AppExceptionKey.flashcardCreateFailed,
+        cause: error,
+      );
+    }
+
+    if (fallback == AppErrorCode.flashcardUpdateFailed) {
+      return UnknownAppException(
+        code: AppErrorCode.flashcardUpdateFailed,
+        message: AppExceptionMessage.flashcardUpdateFailed,
+        messageKey: AppExceptionKey.flashcardUpdateFailed,
+        cause: error,
+      );
+    }
+
+    if (fallback == AppErrorCode.flashcardDeleteFailed) {
+      return UnknownAppException(
+        code: AppErrorCode.flashcardDeleteFailed,
+        message: AppExceptionMessage.flashcardDeleteFailed,
+        messageKey: AppExceptionKey.flashcardDeleteFailed,
+        cause: error,
+      );
+    }
+
     if (fallback == AppErrorCode.ttsInitFailed) {
       return TtsAppException(
         code: AppErrorCode.ttsInitFailed,
@@ -307,7 +343,13 @@ class AppErrorAdvisor {
 
   void handle(Object error, {AppErrorCode fallback = AppErrorCode.unknown}) {
     final AppException exception = toAppException(error, fallback: fallback);
-    _ref.read(appErrorBusProvider.notifier).report(exception.code);
+    final String? backendMessage = _resolveBackendMessage(
+      error: error,
+      exception: exception,
+    );
+    _ref
+        .read(appErrorBusProvider.notifier)
+        .report(exception.code, message: backendMessage);
   }
 
   AppException toAppException(
@@ -315,5 +357,47 @@ class AppErrorAdvisor {
     AppErrorCode fallback = AppErrorCode.unknown,
   }) {
     return _mapper.toAppException(error, fallback: fallback);
+  }
+
+  String? extractBackendMessage(Object? error) {
+    return _extractBackendMessage(error);
+  }
+
+  String? _resolveBackendMessage({
+    required Object error,
+    required AppException exception,
+  }) {
+    final String? errorMessage = _extractBackendMessage(error);
+    if (errorMessage != null) {
+      return errorMessage;
+    }
+    return _extractBackendMessage(exception.cause);
+  }
+
+  String? _extractBackendMessage(Object? error) {
+    if (error is DioException) {
+      return _extractBackendMessageFromPayload(error.response?.data);
+    }
+
+    if (error is AppException) {
+      return _extractBackendMessage(error.cause);
+    }
+
+    return null;
+  }
+
+  String? _extractBackendMessageFromPayload(dynamic payload) {
+    if (payload is! Map) {
+      return null;
+    }
+    final dynamic rawMessage = payload['message'];
+    if (rawMessage is! String) {
+      return null;
+    }
+    final String normalized = rawMessage.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    return normalized;
   }
 }

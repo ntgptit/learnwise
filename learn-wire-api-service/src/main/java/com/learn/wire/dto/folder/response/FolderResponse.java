@@ -8,6 +8,7 @@ public record FolderResponse(
         String description,
         String colorHex,
         Long parentFolderId,
+        int directFlashcardCount,
         int flashcardCount,
         int childFolderCount,
         String createdBy,

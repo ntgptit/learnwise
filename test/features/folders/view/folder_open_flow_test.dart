@@ -55,6 +55,7 @@ FolderItem _buildFolder({
     description: 'Description',
     colorHex: '#123456',
     parentFolderId: null,
+    directFlashcardCount: flashcardCount,
     flashcardCount: flashcardCount,
     childFolderCount: childFolderCount,
     createdBy: 'tester',

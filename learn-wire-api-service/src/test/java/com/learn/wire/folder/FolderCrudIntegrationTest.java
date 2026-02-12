@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.learn.wire.constant.FolderConst;
 import com.learn.wire.dto.common.response.PageResponse;
@@ -21,6 +22,7 @@ import com.learn.wire.dto.folder.request.FolderUpdateRequest;
 import com.learn.wire.dto.folder.response.FolderResponse;
 import com.learn.wire.entity.FolderEntity;
 import com.learn.wire.exception.BadRequestException;
+import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.FolderNotFoundException;
 import com.learn.wire.repository.FolderRepository;
 import com.learn.wire.service.FolderService;
@@ -43,6 +45,10 @@ class FolderCrudIntegrationTest {
     private static final String COLOR_BETA = "#2563EB";
     private static final String COLOR_GAMMA = "#F59E0B";
     private static final String UPDATED_NAME = "Alpha Root Updated";
+    private static final String DISABLE_REF_INTEGRITY_SQL = "SET REFERENTIAL_INTEGRITY FALSE";
+    private static final String ENABLE_REF_INTEGRITY_SQL = "SET REFERENTIAL_INTEGRITY TRUE";
+    private static final String TRUNCATE_FLASHCARDS_SQL = "TRUNCATE TABLE flashcards";
+    private static final String TRUNCATE_FOLDERS_SQL = "TRUNCATE TABLE folders";
 
     private static Long rootAlphaId;
     private static Long rootBetaId;
@@ -55,9 +61,17 @@ class FolderCrudIntegrationTest {
     @Autowired
     private FolderRepository folderRepository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Test
     @Order(1)
     void createFolders_shouldPersistHierarchyAndAuditFields() {
+        this.jdbcTemplate.execute(DISABLE_REF_INTEGRITY_SQL);
+        this.jdbcTemplate.execute(TRUNCATE_FLASHCARDS_SQL);
+        this.jdbcTemplate.execute(TRUNCATE_FOLDERS_SQL);
+        this.jdbcTemplate.execute(ENABLE_REF_INTEGRITY_SQL);
+
         final FolderResponse rootAlpha = this.folderService.createFolder(
                 new FolderCreateRequest(ROOT_ALPHA_NAME, DESCRIPTION, COLOR_ALPHA, null));
         final FolderResponse rootBeta = this.folderService.createFolder(
@@ -80,6 +94,18 @@ class FolderCrudIntegrationTest {
 
     @Test
     @Order(2)
+    void createFolder_shouldRejectDuplicateNameInSameParent() {
+        assertThatThrownBy(() -> this.folderService.createFolder(
+                new FolderCreateRequest(ROOT_ALPHA_NAME, DESCRIPTION, COLOR_ALPHA, null)))
+                .isInstanceOf(BusinessException.class);
+
+        assertThatThrownBy(() -> this.folderService.createFolder(
+                new FolderCreateRequest(CHILD_NAME, DESCRIPTION, COLOR_ALPHA, rootAlphaId)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @Order(3)
     void getFolders_shouldReturnRootLevelWhenParentFolderIdIsNull() {
         final PageResponse<FolderResponse> rootPage = this.folderService.getFolders(
                 _toFolderListQuery(
@@ -94,7 +120,7 @@ class FolderCrudIntegrationTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void getFolders_shouldReturnDirectChildrenByParentFolderId() {
         final PageResponse<FolderResponse> childPage = this.folderService.getFolders(
                 _toFolderListQuery(
@@ -108,7 +134,7 @@ class FolderCrudIntegrationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void getFolders_shouldSupportSortByNameAndCreatedAt() {
         final PageResponse<FolderResponse> sortedByName = this.folderService.getFolders(
                 _toFolderListQuery(
@@ -130,7 +156,7 @@ class FolderCrudIntegrationTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void getFolders_shouldSortByFlashcardCountIncludingSubfolders() {
         _setDirectFlashcardCount(rootAlphaId, 2);
         _setDirectFlashcardCount(rootBetaId, 4);
@@ -150,7 +176,24 @@ class FolderCrudIntegrationTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
+    void createFolder_shouldRejectWhenParentHasDirectFlashcards() {
+        assertThatThrownBy(() -> this.folderService.createFolder(
+                new FolderCreateRequest("Nested under Beta", DESCRIPTION, COLOR_ALPHA, rootBetaId)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @Order(8)
+    void updateFolder_shouldRejectMoveToParentWithDirectFlashcards() {
+        assertThatThrownBy(() -> this.folderService.updateFolder(
+                rootGammaId,
+                new FolderUpdateRequest(ROOT_GAMMA_NAME, DESCRIPTION, COLOR_GAMMA, rootBetaId)))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @Order(9)
     void updateFolder_shouldValidateParentCycleAndApplyChanges() {
         final FolderUpdateRequest invalidParentRequest =
                 new FolderUpdateRequest(UPDATED_NAME, DESCRIPTION, COLOR_ALPHA, alphaChildId);
@@ -158,6 +201,11 @@ class FolderCrudIntegrationTest {
                 rootAlphaId,
                 invalidParentRequest))
                 .isInstanceOf(BadRequestException.class);
+
+        assertThatThrownBy(() -> this.folderService.updateFolder(
+                rootGammaId,
+                new FolderUpdateRequest(ROOT_BETA_NAME, DESCRIPTION, COLOR_GAMMA, null)))
+                .isInstanceOf(BusinessException.class);
 
         final FolderResponse updated = this.folderService.updateFolder(
                 rootAlphaId,
@@ -168,7 +216,7 @@ class FolderCrudIntegrationTest {
     }
 
     @Test
-    @Order(7)
+    @Order(10)
     void deleteFolder_shouldSoftDeleteSubtree() {
         this.folderService.deleteFolder(rootAlphaId);
 

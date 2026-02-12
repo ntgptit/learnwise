@@ -8,8 +8,11 @@ part 'app_error_bus.g.dart';
 
 @freezed
 sealed class AppErrorEvent with _$AppErrorEvent {
-  const factory AppErrorEvent({required int id, required AppErrorCode code}) =
-      _AppErrorEvent;
+  const factory AppErrorEvent({
+    required int id,
+    required AppErrorCode code,
+    String? message,
+  }) = _AppErrorEvent;
 }
 
 @Riverpod(keepAlive: true)
@@ -21,9 +24,9 @@ class AppErrorBus extends _$AppErrorBus {
     return null;
   }
 
-  void report(AppErrorCode code) {
+  void report(AppErrorCode code, {String? message}) {
     _nextErrorId++;
-    state = AppErrorEvent(id: _nextErrorId, code: code);
+    state = AppErrorEvent(id: _nextErrorId, code: code, message: message);
   }
 
   void consume(int eventId) {

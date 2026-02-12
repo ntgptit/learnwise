@@ -5,6 +5,9 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import 'app_error_bus.dart';
 import 'error_code.dart';
 
+final GlobalKey<ScaffoldMessengerState> appScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 class GlobalErrorHandler extends ConsumerWidget {
   const GlobalErrorHandler({super.key, required this.child});
 
@@ -22,7 +25,7 @@ class GlobalErrorHandler extends ConsumerWidget {
         return;
       }
 
-      final String message = switch (next.code) {
+      final String defaultMessage = switch (next.code) {
         AppErrorCode.ttsInitFailed => l10n.snackInitFailed,
         AppErrorCode.ttsLoadVoicesFailed => l10n.snackLoadVoicesFailed,
         AppErrorCode.ttsReadFailed => l10n.snackReadFailed,
@@ -44,12 +47,19 @@ class GlobalErrorHandler extends ConsumerWidget {
         AppErrorCode.folderUpdateFailed => l10n.snackFolderUpdateFailed,
         AppErrorCode.folderDeleteFailed => l10n.snackFolderDeleteFailed,
         AppErrorCode.folderRestoreFailed => l10n.snackFolderRestoreFailed,
+        AppErrorCode.flashcardLoadFailed => l10n.snackFlashcardLoadFailed,
+        AppErrorCode.flashcardCreateFailed => l10n.snackFlashcardCreateFailed,
+        AppErrorCode.flashcardUpdateFailed => l10n.snackFlashcardUpdateFailed,
+        AppErrorCode.flashcardDeleteFailed => l10n.snackFlashcardDeleteFailed,
         AppErrorCode.unknown => l10n.snackUnknownError,
       };
-
-      final ScaffoldMessengerState? messenger = ScaffoldMessenger.maybeOf(
-        context,
+      final String message = _resolveMessage(
+        customMessage: next.message,
+        defaultMessage: defaultMessage,
       );
+
+      final ScaffoldMessengerState? messenger =
+          appScaffoldMessengerKey.currentState;
       if (messenger != null) {
         messenger
           ..hideCurrentSnackBar()
@@ -59,5 +69,19 @@ class GlobalErrorHandler extends ConsumerWidget {
     });
 
     return child;
+  }
+
+  String _resolveMessage({
+    required String? customMessage,
+    required String defaultMessage,
+  }) {
+    if (customMessage == null) {
+      return defaultMessage;
+    }
+    final String normalized = customMessage.trim();
+    if (normalized.isEmpty) {
+      return defaultMessage;
+    }
+    return normalized;
   }
 }

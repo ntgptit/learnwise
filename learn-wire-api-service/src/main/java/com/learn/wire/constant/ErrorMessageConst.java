@@ -10,6 +10,10 @@ public final class ErrorMessageConst {
     public static final String COMMON_ERROR_RUNTIME = "common.error.runtime";
     public static final String FOLDER_ERROR_NOT_FOUND = "folder.error.notFound";
     public static final String FOLDER_ERROR_NEGATIVE_AGGREGATE = "folder.error.negativeAggregate";
+    public static final String FOLDER_ERROR_DUPLICATE_NAME = "folder.error.duplicateName";
+    public static final String FOLDER_ERROR_PARENT_HAS_FLASHCARDS = "folder.error.parentHasFlashcards";
+    public static final String FLASHCARD_ERROR_NOT_FOUND = "flashcard.error.notFound";
+    public static final String FLASHCARD_ERROR_FOLDER_HAS_SUBFOLDERS = "flashcard.error.folderHasSubfolders";
 
     public static final String FOLDER_VALIDATION_NAME_REQUIRED = "folder.validation.name.required";
     public static final String FOLDER_VALIDATION_NAME_TOO_LONG = "folder.validation.name.tooLong";
@@ -22,4 +26,12 @@ public final class ErrorMessageConst {
     public static final String FOLDER_VALIDATION_PARENT_NOT_FOUND = "folder.validation.parent.notFound";
     public static final String FOLDER_VALIDATION_PARENT_SELF = "folder.validation.parent.self";
     public static final String FOLDER_VALIDATION_PARENT_CYCLE = "folder.validation.parent.cycle";
+    public static final String FLASHCARD_VALIDATION_FRONT_REQUIRED = "flashcard.validation.front.required";
+    public static final String FLASHCARD_VALIDATION_FRONT_TOO_LONG = "flashcard.validation.front.tooLong";
+    public static final String FLASHCARD_VALIDATION_BACK_REQUIRED = "flashcard.validation.back.required";
+    public static final String FLASHCARD_VALIDATION_BACK_TOO_LONG = "flashcard.validation.back.tooLong";
+    public static final String FLASHCARD_VALIDATION_PAGE_INVALID = "flashcard.validation.page.invalid";
+    public static final String FLASHCARD_VALIDATION_SIZE_INVALID = "flashcard.validation.size.invalid";
+    public static final String FLASHCARD_VALIDATION_SORT_BY_INVALID = "flashcard.validation.sortBy.invalid";
+    public static final String FLASHCARD_VALIDATION_SORT_DIRECTION_INVALID = "flashcard.validation.sortDirection.invalid";
 }

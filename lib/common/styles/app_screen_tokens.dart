@@ -84,6 +84,32 @@ class FolderScreenTokens {
   static const double listItemTitleMetaGap = AppSizes.spacing2Xs;
   static const int nameMaxLines = 1;
   static const double surfaceSoftOpacity = AppOpacities.soft20;
+  static const double editorDialogWidthFactor = 0.92;
+  static const double editorDialogMinWidth = 320;
+  static const double editorDialogMaxWidth = 520;
+  static const double editorDialogSubmitIndicatorSize = AppSizes.size18;
+  static const double editorDialogSubmitIndicatorStrokeWidth = 2;
+  static const double loadingOverlayEdgeInset = 0;
+}
+
+class FlashcardScreenTokens {
+  const FlashcardScreenTokens._();
+
+  static const double screenPadding = AppSizes.spacingMd;
+  static const double sectionSpacing = AppSizes.spacingMd;
+  static const double cardSpacing = AppSizes.spacingSm;
+  static const double cardPadding = AppSizes.spacingMd;
+  static const double cardRadius = AppSizes.radiusLg;
+  static const double outlineOpacity = AppOpacities.outline26;
+  static const double listMetadataGap = AppSizes.spacing2Xs;
+  static const int previewMaxLines = 2;
+  static const int backTextMaxLines = 4;
+
+  static const double editorDialogWidthFactor = 0.92;
+  static const double editorDialogMinWidth = 320;
+  static const double editorDialogMaxWidth = 560;
+  static const double editorDialogSubmitIndicatorSize = AppSizes.size18;
+  static const double editorDialogSubmitIndicatorStrokeWidth = 2;
 }
 
 class TtsScreenTokens {

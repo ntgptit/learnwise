@@ -41,6 +41,8 @@ public final class FolderConst {
     public static final String PARENT_SELF_KEY = ErrorMessageConst.FOLDER_VALIDATION_PARENT_SELF;
     public static final String PARENT_CYCLE_KEY = ErrorMessageConst.FOLDER_VALIDATION_PARENT_CYCLE;
     public static final String NEGATIVE_AGGREGATE_KEY = ErrorMessageConst.FOLDER_ERROR_NEGATIVE_AGGREGATE;
+    public static final String DUPLICATE_NAME_KEY = ErrorMessageConst.FOLDER_ERROR_DUPLICATE_NAME;
+    public static final String PARENT_HAS_FLASHCARDS_KEY = ErrorMessageConst.FOLDER_ERROR_PARENT_HAS_FLASHCARDS;
 
     public static final String NAME_IS_REQUIRED_MESSAGE = "{" + NAME_IS_REQUIRED_KEY + "}";
     public static final String NAME_TOO_LONG_MESSAGE = "{" + NAME_TOO_LONG_KEY + "}";

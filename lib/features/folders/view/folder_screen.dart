@@ -176,6 +176,19 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       FolderScreenTokens.screenPadding,
                     ),
                     children: <Widget>[
+                      if (query.breadcrumbs.isNotEmpty) ...<Widget>[
+                        AppBreadcrumbs(
+                          rootLabel: l10n.foldersRootLabel,
+                          items: query.breadcrumbs
+                              .map(
+                                (item) => AppBreadcrumbItem(label: item.name),
+                              )
+                              .toList(),
+                          onRootPressed: _onRootPressed,
+                          onItemPressed: _onBreadcrumbPressed,
+                        ),
+                        const SizedBox(height: FolderScreenTokens.sectionSpacing),
+                      ],
                       _FolderHeaderSection(title: appBarTitle),
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
                       _FolderPrimaryActionRow(
@@ -192,26 +205,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                             ? _onCreateDeckPressed
                             : null,
                       ),
-                      if (query.breadcrumbs.isNotEmpty &&
-                          (hasDeckItems ||
-                              showDeckLoading ||
-                              showDeckError ||
-                              canCreateDeckAtCurrentLevel))
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: FolderScreenTokens.sectionSpacing,
-                          ),
-                          child: AppBreadcrumbs(
-                            rootLabel: l10n.foldersRootLabel,
-                            items: query.breadcrumbs
-                                .map(
-                                  (item) => AppBreadcrumbItem(label: item.name),
-                                )
-                                .toList(),
-                            onRootPressed: _onRootPressed,
-                            onItemPressed: _onBreadcrumbPressed,
-                          ),
-                        ),
                       if (uiState.isSearchVisible)
                         Padding(
                           padding: const EdgeInsets.only(
@@ -287,7 +280,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           ),
                           child: Center(child: CircularProgressIndicator()),
                         ),
-                      if (query.breadcrumbs.isNotEmpty)
+                      if (query.breadcrumbs.isNotEmpty &&
+                          (hasDeckItems || showDeckLoading || showDeckError))
                         Padding(
                           padding: const EdgeInsets.only(
                             top: FolderScreenTokens.sectionSpacing,

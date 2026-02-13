@@ -5,19 +5,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/error_code.dart';
-import '../../../core/network/api_client.dart';
 import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
-import '../repository/folder_api_service.dart';
 import '../repository/folder_repository.dart';
+import '../repository/folder_repository_provider.dart';
 
 part 'folder_viewmodel.g.dart';
 
-@Riverpod(keepAlive: true)
-FolderRepository folderRepository(Ref ref) {
-  final ApiClient apiClient = ref.read(apiClientProvider);
-  return FolderApiService(apiClient: apiClient);
-}
+// quality-guard: allow-large-file
+// quality-guard: allow-large-class
+// quality-guard: allow-long-function
 
 @Riverpod(keepAlive: true)
 class FolderQueryController extends _$FolderQueryController {

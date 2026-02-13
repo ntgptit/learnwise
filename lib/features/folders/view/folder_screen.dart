@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/route_names.dart';
@@ -74,11 +75,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final AsyncValue<DeckListingState>? deckState = currentFolderId == null
         ? null
         : ref.watch(deckControllerProvider(currentFolderId));
-    final FolderListingState? listingSnapshot = state.hasValue
-        ? state.requireValue
-        : null;
-    final DeckListingState? deckListingSnapshot =
-        deckState != null && deckState.hasValue ? deckState.requireValue : null;
+    final FolderListingState? listingSnapshot = _resolveFolderListingSnapshot(
+      state,
+    );
+    final DeckListingState? deckListingSnapshot = _resolveDeckListingFromAsync(
+      deckState,
+    );
     final bool canCreateFolderAtCurrentLevel = _canCreateFolderAtCurrentLevel(
       query: query,
       deckListing: deckListingSnapshot,
@@ -149,12 +151,13 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             final bool hasDeckData = deckListingSnapshot != null;
             final bool hasDeckItems =
                 hasDeckData && deckListingSnapshot.items.isNotEmpty;
+            final bool isDeckLoading = _isDeckLoading(deckState);
+            final bool isDeckError = _isDeckError(deckState);
+            final bool isFolderLoading = _isFolderLoading(state);
             final bool showDeckLoading =
-                isInsideFolder &&
-                (deckState?.isLoading ?? false) &&
-                !hasDeckData;
+                isInsideFolder && isDeckLoading && !hasDeckData;
             final bool showDeckError =
-                isInsideFolder && deckState?.hasError == true && !hasDeckData;
+                isInsideFolder && isDeckError && !hasDeckData;
             final bool showInlineLoading = uiState.isTransitionInProgress;
             final bool showEmptyState =
                 listing.items.isEmpty &&
@@ -162,7 +165,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                 !showDeckLoading &&
                 !showDeckError &&
                 !uiState.isTransitionInProgress &&
-                !state.isLoading;
+                !isFolderLoading;
             return Stack(
               children: <Widget>[
                 RefreshIndicator(
@@ -411,14 +414,14 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       });
       return;
     }
-    unawaited(Navigator.of(context).pushReplacementNamed(RouteNames.dashboard));
+    context.go(RouteNames.dashboard);
   }
 
   void _onBottomNavSelected(int index) {
     if (index == FolderConstants.foldersNavIndex) {
       return;
     }
-    unawaited(Navigator.of(context).pushReplacementNamed(RouteNames.dashboard));
+    context.go(RouteNames.dashboard);
   }
 
   void _toggleSearchVisibility() {
@@ -662,7 +665,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   void _openFlashcardsByDeck({
     required DeckItem deck,
     required int totalFlashcards,
-    required NavigatorState navigator,
   }) {
     final FlashcardManagementArgs args = FlashcardManagementArgs(
       deckId: deck.id,
@@ -673,9 +675,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       deckDescription: deck.description,
     );
     unawaited(
-      navigator.pushNamed(RouteNames.flashcards, arguments: args).then((
-        _,
-      ) async {
+      context.push(RouteNames.flashcards, extra: args).then((_) async {
         await ref.read(folderControllerProvider.notifier).refresh();
         await _refreshDecks();
       }),
@@ -710,9 +710,9 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     if (currentFolderId == null) {
       return;
     }
-    final FolderListingState? listing = ref
-        .read(folderControllerProvider)
-        .maybeWhen(data: (value) => value, orElse: () => null);
+    final FolderListingState? listing = _resolveFolderListingSnapshot(
+      ref.read(folderControllerProvider),
+    );
     final DeckListingState? deckListing = _resolveDeckListingSnapshot(
       currentFolderId,
     );
@@ -734,12 +734,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _onOpenDeckPressed(DeckItem deck) {
-    final NavigatorState navigator = Navigator.of(context);
-    _openFlashcardsByDeck(
-      deck: deck,
-      totalFlashcards: deck.flashcardCount,
-      navigator: navigator,
-    );
+    _openFlashcardsByDeck(deck: deck, totalFlashcards: deck.flashcardCount);
   }
 
   Future<void> _onEditDeckPressed(DeckItem deck) async {
@@ -777,8 +772,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           message: l10n.decksDeleteDialogMessage(deck.name),
           confirmLabel: l10n.decksDeleteConfirmLabel,
           cancelLabel: l10n.decksCancelLabel,
-          onConfirm: () => Navigator.of(dialogContext).pop(true),
-          onCancel: () => Navigator.of(dialogContext).pop(false),
+          onConfirm: () => dialogContext.pop(true),
+          onCancel: () => dialogContext.pop(false),
         );
       },
     );
@@ -794,10 +789,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final AsyncValue<DeckListingState> deckState = ref.read(
       deckControllerProvider(folderId),
     );
-    if (!deckState.hasValue) {
-      return null;
-    }
-    return deckState.requireValue;
+    return _resolveDeckListingFromAsync(deckState);
   }
 
   Future<void> _onEditPressed(FolderItem folder) async {
@@ -823,8 +815,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           message: l10n.foldersDeleteDialogMessage(folder.name),
           confirmLabel: l10n.foldersDeleteConfirmLabel,
           cancelLabel: l10n.foldersCancelLabel,
-          onConfirm: () => Navigator.of(dialogContext).pop(true),
-          onCancel: () => Navigator.of(dialogContext).pop(false),
+          onConfirm: () => dialogContext.pop(true),
+          onCancel: () => dialogContext.pop(false),
         );
       },
     );
@@ -832,6 +824,54 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       return;
     }
     await ref.read(folderControllerProvider.notifier).deleteFolder(folder.id);
+  }
+
+  FolderListingState? _resolveFolderListingSnapshot(
+    AsyncValue<FolderListingState> asyncState,
+  ) {
+    return switch (asyncState) {
+      AsyncData<FolderListingState>(value: final data) => data,
+      _ => null,
+    };
+  }
+
+  DeckListingState? _resolveDeckListingFromAsync(
+    AsyncValue<DeckListingState>? asyncState,
+  ) {
+    if (asyncState == null) {
+      return null;
+    }
+    return switch (asyncState) {
+      AsyncData<DeckListingState>(value: final data) => data,
+      _ => null,
+    };
+  }
+
+  bool _isDeckLoading(AsyncValue<DeckListingState>? value) {
+    if (value == null) {
+      return false;
+    }
+    return switch (value) {
+      AsyncLoading<DeckListingState>() => true,
+      _ => false,
+    };
+  }
+
+  bool _isDeckError(AsyncValue<DeckListingState>? value) {
+    if (value == null) {
+      return false;
+    }
+    return switch (value) {
+      AsyncError<DeckListingState>() => true,
+      _ => false,
+    };
+  }
+
+  bool _isFolderLoading(AsyncValue<FolderListingState> value) {
+    return switch (value) {
+      AsyncLoading<FolderListingState>() => true,
+      _ => false,
+    };
   }
 }
 

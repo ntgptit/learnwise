@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/route_names.dart';
@@ -80,9 +79,7 @@ class DashboardScreen extends ConsumerWidget {
           if (index == DashboardConstants.dashboardNavIndex) {
             return;
           }
-          unawaited(
-            Navigator.of(context).pushReplacementNamed(RouteNames.folders),
-          );
+          context.go(RouteNames.folders);
         },
       ),
     );
@@ -288,8 +285,7 @@ class _QuickActionSection extends StatelessWidget {
           children: snapshot.quickActions.map((action) {
             return FilledButton.tonalIcon(
               icon: Icon(_actionIcon(action.type)),
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(action.routeName),
+              onPressed: () => context.push(action.routeName),
               label: Text(_actionLabel(l10n, action.type)),
             );
           }).toList(),

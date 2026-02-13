@@ -44,6 +44,8 @@ jobs:
         run: dart run tool/verify_ui_design_guard.dart
 
       - name: Enforce Code Quality Contract
+        env:
+          STRICT_QUALITY_CONTRACT: '1'
         run: dart run tool/verify_code_quality_contract.dart
 
       - name: Run custom_lint gate

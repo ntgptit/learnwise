@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../common/styles/app_durations.dart';
@@ -26,8 +27,26 @@ class FlashcardFlipStudyScreen extends StatefulWidget {
       _FlashcardFlipStudyScreenState();
 }
 
+class FlashcardFlipStudyArgs {
+  const FlashcardFlipStudyArgs({
+    required this.items,
+    required this.initialIndex,
+    required this.title,
+  });
+
+  const FlashcardFlipStudyArgs.fallback()
+    : items = const <FlashcardItem>[],
+      initialIndex = FlashcardConstants.defaultPage,
+      title = '';
+
+  final List<FlashcardItem> items;
+  final int initialIndex;
+  final String title;
+}
+
 class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
   late final PageController _pageController;
+  late final ValueNotifier<int> _rebuildSignal;
   late int _currentIndex;
   bool _isStudyCardFlipped = false;
   final Set<int> _starredFlashcardIds = <int>{};
@@ -37,141 +56,155 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
     super.initState();
     final int safeInitialIndex = _resolveSafeIndex(widget.initialIndex);
     _currentIndex = safeInitialIndex;
+    _rebuildSignal = ValueNotifier<int>(0);
     _pageController = PageController(initialPage: safeInitialIndex);
   }
 
   @override
   void dispose() {
+    _rebuildSignal.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
+    return ValueListenableBuilder<int>(
+      valueListenable: _rebuildSignal,
+      builder: (context, _, child) {
+        final AppLocalizations l10n = AppLocalizations.of(context)!;
+        final ThemeData theme = Theme.of(context);
+        final ColorScheme colorScheme = theme.colorScheme;
 
-    if (widget.items.isEmpty) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: EmptyState(
-              title: l10n.flashcardsEmptyTitle,
-              subtitle: l10n.flashcardsEmptyDescription,
-              icon: Icons.style_outlined,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final int currentIndex = _resolveSafeIndex(_currentIndex);
-    if (currentIndex != _currentIndex) {
-      _currentIndex = currentIndex;
-    }
-    final double progressValue = (currentIndex + 1) / widget.items.length;
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(FlashcardFlipStudyTokens.screenPadding),
-          child: Column(
-            children: <Widget>[
-              _StudyTopBar(
-                progressText: '${currentIndex + 1} / ${widget.items.length}',
-                onClosePressed: () => Navigator.of(context).pop(true),
-                onSettingsPressed: () =>
-                    _showToast(l10n.flashcardsFlipStudySettingsToast),
-              ),
-              const SizedBox(
-                height: FlashcardFlipStudyTokens.progressBarTopGap,
-              ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  FlashcardFlipStudyTokens.progressBarRadius,
+        if (widget.items.isEmpty) {
+          return Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: EmptyState(
+                  title: l10n.flashcardsEmptyTitle,
+                  subtitle: l10n.flashcardsEmptyDescription,
+                  icon: Icons.style_outlined,
                 ),
-                child: LinearProgressIndicator(
-                  value: progressValue,
-                  minHeight: FlashcardFlipStudyTokens.progressBarHeight,
-                  backgroundColor: colorScheme.onSurface.withValues(
-                    alpha: FlashcardFlipStudyTokens.progressTrackOpacity,
+              ),
+            ),
+          );
+        }
+
+        final int currentIndex = _resolveSafeIndex(_currentIndex);
+        if (currentIndex != _currentIndex) {
+          _currentIndex = currentIndex;
+        }
+        final double progressValue = (currentIndex + 1) / widget.items.length;
+
+        return Scaffold(
+          backgroundColor: colorScheme.surface,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(
+                FlashcardFlipStudyTokens.screenPadding,
+              ),
+              child: Column(
+                children: <Widget>[
+                  _StudyTopBar(
+                    progressText:
+                        '${currentIndex + 1} / ${widget.items.length}',
+                    onClosePressed: () => context.pop(true),
+                    onSettingsPressed: () =>
+                        _showToast(l10n.flashcardsFlipStudySettingsToast),
                   ),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    colorScheme.onSurface.withValues(
-                      alpha: FlashcardFlipStudyTokens.progressValueOpacity,
+                  const SizedBox(
+                    height: FlashcardFlipStudyTokens.progressBarTopGap,
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      FlashcardFlipStudyTokens.progressBarRadius,
+                    ),
+                    child: LinearProgressIndicator(
+                      value: progressValue,
+                      minHeight: FlashcardFlipStudyTokens.progressBarHeight,
+                      backgroundColor: colorScheme.onSurface.withValues(
+                        alpha: FlashcardFlipStudyTokens.progressTrackOpacity,
+                      ),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        colorScheme.onSurface.withValues(
+                          alpha: FlashcardFlipStudyTokens.progressValueOpacity,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(
+                    height: FlashcardFlipStudyTokens.progressBarBottomGap,
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: widget.items.length,
+                      onPageChanged: _onPageChanged,
+                      itemBuilder: (context, index) {
+                        final FlashcardItem item = widget.items[index];
+                        final bool isItemStarred =
+                            item.isBookmarked ||
+                            _starredFlashcardIds.contains(item.id);
+                        return FlipAnimation(
+                          isFlipped:
+                              _isStudyCardFlipped && index == currentIndex,
+                          onTap: _toggleStudyCardFlipped,
+                          front: _StudyCardFace(
+                            content: item.frontText,
+                            isStarred: isItemStarred,
+                            onAudioPressed: () => _showToast(
+                              l10n.flashcardsAudioPlayToast(item.frontText),
+                            ),
+                            onStarPressed: () {
+                              _toggleStar(item.id);
+                              _showToast(
+                                isItemStarred
+                                    ? l10n.flashcardsUnbookmarkToast
+                                    : l10n.flashcardsBookmarkToast,
+                              );
+                            },
+                          ),
+                          back: _StudyCardFace(
+                            content: _buildBackContent(item),
+                            isStarred: isItemStarred,
+                            onAudioPressed: () => _showToast(
+                              l10n.flashcardsAudioPlayToast(item.frontText),
+                            ),
+                            onStarPressed: () {
+                              _toggleStar(item.id);
+                              _showToast(
+                                isItemStarred
+                                    ? l10n.flashcardsUnbookmarkToast
+                                    : l10n.flashcardsBookmarkToast,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    height: FlashcardFlipStudyTokens.bottomBarTopGap,
+                  ),
+                  _StudyBottomBar(
+                    onPreviousPressed:
+                        currentIndex == FlashcardConstants.defaultPage
+                        ? null
+                        : _goPrevious,
+                    onNextPressed: currentIndex == (widget.items.length - 1)
+                        ? () =>
+                              _showToast(l10n.flashcardsFlipStudyCompletedToast)
+                        : _goNext,
+                  ),
+                  const SizedBox(
+                    height: FlashcardFlipStudyTokens.bottomBarBottomGap,
+                  ),
+                ],
               ),
-              const SizedBox(
-                height: FlashcardFlipStudyTokens.progressBarBottomGap,
-              ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: widget.items.length,
-                  onPageChanged: _onPageChanged,
-                  itemBuilder: (context, index) {
-                    final FlashcardItem item = widget.items[index];
-                    final bool isItemStarred =
-                        item.isBookmarked ||
-                        _starredFlashcardIds.contains(item.id);
-                    return FlipAnimation(
-                      isFlipped: _isStudyCardFlipped && index == currentIndex,
-                      onTap: _toggleStudyCardFlipped,
-                      front: _StudyCardFace(
-                        content: item.frontText,
-                        isStarred: isItemStarred,
-                        onAudioPressed: () => _showToast(
-                          l10n.flashcardsAudioPlayToast(item.frontText),
-                        ),
-                        onStarPressed: () {
-                          _toggleStar(item.id);
-                          _showToast(
-                            isItemStarred
-                                ? l10n.flashcardsUnbookmarkToast
-                                : l10n.flashcardsBookmarkToast,
-                          );
-                        },
-                      ),
-                      back: _StudyCardFace(
-                        content: _buildBackContent(item),
-                        isStarred: isItemStarred,
-                        onAudioPressed: () => _showToast(
-                          l10n.flashcardsAudioPlayToast(item.frontText),
-                        ),
-                        onStarPressed: () {
-                          _toggleStar(item.id);
-                          _showToast(
-                            isItemStarred
-                                ? l10n.flashcardsUnbookmarkToast
-                                : l10n.flashcardsBookmarkToast,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: FlashcardFlipStudyTokens.bottomBarTopGap),
-              _StudyBottomBar(
-                onPreviousPressed:
-                    currentIndex == FlashcardConstants.defaultPage
-                    ? null
-                    : _goPrevious,
-                onNextPressed: currentIndex == (widget.items.length - 1)
-                    ? () => _showToast(l10n.flashcardsFlipStudyCompletedToast)
-                    : _goNext,
-              ),
-              const SizedBox(
-                height: FlashcardFlipStudyTokens.bottomBarBottomGap,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -179,10 +212,9 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
     if (_currentIndex == index) {
       return;
     }
-    setState(() {
-      _currentIndex = index;
-      _isStudyCardFlipped = false;
-    });
+    _currentIndex = index;
+    _isStudyCardFlipped = false;
+    _triggerRebuild();
   }
 
   int _resolveSafeIndex(int value) {
@@ -202,19 +234,18 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
   }
 
   void _toggleStudyCardFlipped() {
-    setState(() {
-      _isStudyCardFlipped = !_isStudyCardFlipped;
-    });
+    _isStudyCardFlipped = !_isStudyCardFlipped;
+    _triggerRebuild();
   }
 
   void _toggleStar(int flashcardId) {
-    setState(() {
-      if (_starredFlashcardIds.contains(flashcardId)) {
-        _starredFlashcardIds.remove(flashcardId);
-        return;
-      }
-      _starredFlashcardIds.add(flashcardId);
-    });
+    if (_starredFlashcardIds.contains(flashcardId)) {
+      _starredFlashcardIds.remove(flashcardId);
+      _triggerRebuild();
+      return;
+    }
+    _starredFlashcardIds.add(flashcardId);
+    _triggerRebuild();
   }
 
   void _goPrevious() {
@@ -240,6 +271,10 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _triggerRebuild() {
+    _rebuildSignal.value = _rebuildSignal.value + 1;
   }
 }
 

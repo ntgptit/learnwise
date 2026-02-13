@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/route_names.dart';
@@ -102,6 +103,7 @@ class _FlashcardManagementScreenState
         selection: TextSelection.collapsed(offset: query.search.length),
       );
     }
+    final bool isListingLoading = _isListingLoading(state);
 
     return Scaffold(
       appBar: AppBar(
@@ -282,7 +284,7 @@ class _FlashcardManagementScreenState
                   right: FlashcardScreenTokens.overlayEdgeInset,
                   child: IgnorePointer(
                     child: AnimatedOpacity(
-                      opacity: state.isLoading ? 1 : 0,
+                      opacity: isListingLoading ? 1 : 0,
                       duration: AppDurations.animationFast,
                       child: const LinearProgressIndicator(),
                     ),
@@ -351,13 +353,12 @@ class _FlashcardManagementScreenState
     final String title =
         '${l10n.flashcardsActionFlipcard} · ${_resolveTitle(l10n)}';
     unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => FlashcardFlipStudyScreen(
-            items: listing.items,
-            initialIndex: safeInitialIndex,
-            title: title,
-          ),
+      context.push(
+        RouteNames.flashcardFlipStudy,
+        extra: FlashcardFlipStudyArgs(
+          items: listing.items,
+          initialIndex: safeInitialIndex,
+          title: title,
         ),
       ),
     );
@@ -381,12 +382,11 @@ class _FlashcardManagementScreenState
   }
 
   void _onBackPressed() {
-    final NavigatorState navigator = Navigator.of(context);
-    if (navigator.canPop()) {
-      navigator.pop(true);
+    if (context.canPop()) {
+      context.pop(true);
       return;
     }
-    unawaited(navigator.pushReplacementNamed(RouteNames.folders));
+    context.go(RouteNames.folders);
   }
 
   void _onMenuActionSelected(_FlashcardMenuAction action) {
@@ -531,8 +531,8 @@ class _FlashcardManagementScreenState
           message: l10n.flashcardsDeleteDialogMessage(flashcard.frontText),
           confirmLabel: l10n.flashcardsDeleteConfirmLabel,
           cancelLabel: l10n.flashcardsCancelLabel,
-          onConfirm: () => Navigator.of(dialogContext).pop(true),
-          onCancel: () => Navigator.of(dialogContext).pop(false),
+          onConfirm: () => dialogContext.pop(true),
+          onCancel: () => dialogContext.pop(false),
         );
       },
     );
@@ -560,7 +560,7 @@ class _FlashcardManagementScreenState
         showDragHandle: true,
         builder: (sheetContext) {
           return StatefulBuilder(
-            builder: (sheetContext, setState) {
+            builder: (sheetContext, setSheetState) {
               return SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(
@@ -574,7 +574,7 @@ class _FlashcardManagementScreenState
                         label: l10n.flashcardsSortByCreatedAt,
                         isSelected: selectedSortBy == FlashcardSortBy.createdAt,
                         onTap: () {
-                          setState(() {
+                          setSheetState(() {
                             selectedSortDirection =
                                 _resolveSortDirectionForSortBySelection(
                                   currentSortBy: selectedSortBy,
@@ -589,7 +589,7 @@ class _FlashcardManagementScreenState
                         label: l10n.flashcardsSortByUpdatedAt,
                         isSelected: selectedSortBy == FlashcardSortBy.updatedAt,
                         onTap: () {
-                          setState(() {
+                          setSheetState(() {
                             selectedSortDirection =
                                 _resolveSortDirectionForSortBySelection(
                                   currentSortBy: selectedSortBy,
@@ -604,7 +604,7 @@ class _FlashcardManagementScreenState
                         label: l10n.flashcardsSortByFrontText,
                         isSelected: selectedSortBy == FlashcardSortBy.frontText,
                         onTap: () {
-                          setState(() {
+                          setSheetState(() {
                             selectedSortDirection =
                                 _resolveSortDirectionForSortBySelection(
                                   currentSortBy: selectedSortBy,
@@ -625,7 +625,7 @@ class _FlashcardManagementScreenState
                             selectedSortDirection ==
                             FlashcardSortDirection.desc,
                         onTap: () {
-                          setState(() {
+                          setSheetState(() {
                             selectedSortDirection = FlashcardSortDirection.desc;
                           });
                         },
@@ -638,7 +638,7 @@ class _FlashcardManagementScreenState
                         isSelected:
                             selectedSortDirection == FlashcardSortDirection.asc,
                         onTap: () {
-                          setState(() {
+                          setSheetState(() {
                             selectedSortDirection = FlashcardSortDirection.asc;
                           });
                         },
@@ -660,7 +660,7 @@ class _FlashcardManagementScreenState
                               selectedSortDirection,
                             );
                           }
-                          Navigator.of(sheetContext).pop();
+                          sheetContext.pop();
                           if (!isSortByChanged && !isSortDirectionChanged) {
                             return;
                           }
@@ -811,5 +811,12 @@ class _FlashcardManagementScreenState
         _previewPageController.jumpToPage(safeIndex);
       }
     });
+  }
+
+  bool _isListingLoading(AsyncValue<FlashcardListingState> value) {
+    return switch (value) {
+      AsyncLoading<FlashcardListingState>() => true,
+      _ => false,
+    };
   }
 }

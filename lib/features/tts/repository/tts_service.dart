@@ -51,9 +51,12 @@ class TtsService implements TtsRepository {
 
       if (voice != null) {
         await _flutterTts.setVoice(voice.params);
-      } else {
-        await _flutterTts.setLanguage(_resolveLanguage(message, mode));
+        await _applyVoiceSettings(settings);
+        await _flutterTts.stop();
+        await _flutterTts.speak(message);
+        return;
       }
+      await _flutterTts.setLanguage(_resolveLanguage(message, mode));
       await _applyVoiceSettings(settings);
       await _flutterTts.stop();
       await _flutterTts.speak(message);

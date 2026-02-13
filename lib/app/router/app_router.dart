@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../features/dashboard/view/dashboard_screen.dart';
 import '../../features/flashcards/model/flashcard_management_args.dart';
+import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
 import '../../features/folders/view/folder_screen.dart';
 import '../../features/tts/view/tts_screen.dart';
@@ -10,56 +12,91 @@ import 'route_names.dart';
 class AppRouter {
   const AppRouter._();
 
-  static String get initialRoute => RouteNames.dashboard;
+  static final GoRouter router = GoRouter(
+    initialLocation: RouteNames.dashboard,
+    routes: <RouteBase>[
+      GoRoute(
+        path: RouteNames.root,
+        builder: (context, state) {
+          return const DashboardScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.dashboard,
+        builder: (context, state) {
+          return const DashboardScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.folders,
+        builder: (context, state) {
+          return const FolderScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.flashcards,
+        builder: (context, state) {
+          final FlashcardManagementArgs args = _resolveFlashcardArgs(
+            state.extra,
+          );
+          return FlashcardManagementScreen(args: args);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.flashcardFlipStudy,
+        builder: (context, state) {
+          final FlashcardFlipStudyArgs args = _resolveFlipStudyArgs(
+            state.extra,
+          );
+          return FlashcardFlipStudyScreen(
+            items: args.items,
+            initialIndex: args.initialIndex,
+            title: args.title,
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.tts,
+        builder: (context, state) {
+          return const TtsScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.login,
+        builder: (context, state) {
+          return const _StubScreen(title: _RouteText.login);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.learning,
+        builder: (context, state) {
+          return const _StubScreen(title: _RouteText.learning);
+        },
+      ),
+      GoRoute(
+        path: RouteNames.progressDetail,
+        builder: (context, state) {
+          return const _StubScreen(title: _RouteText.progressDetail);
+        },
+      ),
+    ],
+    errorBuilder: (context, state) {
+      return const _NotFoundScreen();
+    },
+  );
 
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case RouteNames.root:
-      case RouteNames.dashboard:
-        return _material(settings: settings, child: const DashboardScreen());
-      case RouteNames.folders:
-        return _material(settings: settings, child: const FolderScreen());
-      case RouteNames.flashcards:
-        return _material(
-          settings: settings,
-          child: FlashcardManagementScreen(
-            args: _resolveFlashcardArgs(settings.arguments),
-          ),
-        );
-      case RouteNames.tts:
-        return _material(settings: settings, child: const TtsScreen());
-      case RouteNames.login:
-        return _material(
-          settings: settings,
-          child: const _StubScreen(title: _RouteText.login),
-        );
-      case RouteNames.learning:
-        return _material(
-          settings: settings,
-          child: const _StubScreen(title: _RouteText.learning),
-        );
-      case RouteNames.progressDetail:
-        return _material(
-          settings: settings,
-          child: const _StubScreen(title: _RouteText.progressDetail),
-        );
-      default:
-        return _material(settings: settings, child: const _NotFoundScreen());
-    }
-  }
-
-  static Route<dynamic> _material({
-    required RouteSettings settings,
-    required Widget child,
-  }) {
-    return MaterialPageRoute<void>(settings: settings, builder: (_) => child);
-  }
-
-  static FlashcardManagementArgs _resolveFlashcardArgs(Object? arguments) {
-    if (arguments is FlashcardManagementArgs) {
-      return arguments;
+  static FlashcardManagementArgs _resolveFlashcardArgs(Object? extra) {
+    if (extra is FlashcardManagementArgs) {
+      return extra;
     }
     return const FlashcardManagementArgs.fallback();
+  }
+
+  static FlashcardFlipStudyArgs _resolveFlipStudyArgs(Object? extra) {
+    if (extra is FlashcardFlipStudyArgs) {
+      return extra;
+    }
+    return const FlashcardFlipStudyArgs.fallback();
   }
 }
 

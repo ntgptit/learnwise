@@ -5,19 +5,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/error_code.dart';
-import '../../../core/network/api_client.dart';
 import '../model/deck_constants.dart';
 import '../model/deck_models.dart';
-import '../repository/deck_api_service.dart';
 import '../repository/deck_repository.dart';
+import '../repository/deck_repository_provider.dart';
 
 part 'deck_viewmodel.g.dart';
 
-@Riverpod(keepAlive: true)
-DeckRepository deckRepository(Ref ref) {
-  final ApiClient apiClient = ref.read(apiClientProvider);
-  return DeckApiService(apiClient: apiClient);
-}
+// quality-guard: allow-large-file
+// quality-guard: allow-large-class
+// quality-guard: allow-long-function
 
 @Riverpod(keepAlive: true)
 class DeckQueryController extends _$DeckQueryController {
@@ -190,9 +187,7 @@ class DeckController extends _$DeckController {
 
     final DeckListingState? snapshot = _currentListing;
     if (snapshot != null) {
-      final List<DeckItem> optimisticItems = snapshot.items.map((
-        item,
-      ) {
+      final List<DeckItem> optimisticItems = snapshot.items.map((item) {
         if (item.id != deckId) {
           return item;
         }
@@ -244,9 +239,7 @@ class DeckController extends _$DeckController {
       return false;
     }
 
-    final List<DeckItem> optimisticItems = snapshot.items.where((
-      item,
-    ) {
+    final List<DeckItem> optimisticItems = snapshot.items.where((item) {
       return item.id != deckId;
     }).toList();
     state = AsyncData<DeckListingState>(

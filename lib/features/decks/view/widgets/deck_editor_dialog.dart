@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
@@ -52,135 +53,130 @@ Future<bool> showDeckEditorDialog({
     barrierDismissible: false,
     builder: (dialogContext) {
       return StatefulBuilder(
-        builder:
-            (
-              context,
-              void Function(void Function()) setDialogState,
-            ) {
-              final double screenWidth = MediaQuery.sizeOf(context).width;
-              final double preferredDialogWidth =
-                  screenWidth * FolderScreenTokens.editorDialogWidthFactor;
-              final double dialogWidth = preferredDialogWidth.clamp(
-                FolderScreenTokens.editorDialogMinWidth,
-                FolderScreenTokens.editorDialogMaxWidth,
-              );
+        builder: (context, void Function(void Function()) setDialogState) {
+          final double screenWidth = MediaQuery.sizeOf(context).width;
+          final double preferredDialogWidth =
+              screenWidth * FolderScreenTokens.editorDialogWidthFactor;
+          final double dialogWidth = preferredDialogWidth.clamp(
+            FolderScreenTokens.editorDialogMinWidth,
+            FolderScreenTokens.editorDialogMaxWidth,
+          );
 
-              return PopScope(
-                canPop: !isSubmitting,
-                child: AlertDialog(
-                  title: Text(
-                    initialDeck == null
-                        ? l10n.decksCreateDialogTitle
-                        : l10n.decksEditDialogTitle,
-                  ),
-                  content: SizedBox(
-                    width: dialogWidth,
-                    child: SingleChildScrollView(
-                      child: ReactiveForm(
-                        formGroup: form,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            ReactiveTextField<String>(
-                              formControl: nameControl,
-                              maxLength: DeckConstants.nameMaxLength,
-                              onChanged: (_) {
-                                DeckFormSchema.clearBackendNameError(form);
-                              },
-                              validationMessages: nameValidationMessages,
-                              textInputAction: TextInputAction.next,
-                              decoration: InputDecoration(
-                                labelText: l10n.decksNameLabel,
-                                hintText: l10n.decksNameHint,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: FolderScreenTokens.sectionSpacing,
-                            ),
-                            ReactiveTextField<String>(
-                              formControl: descriptionControl,
-                              maxLength: DeckConstants.descriptionMaxLength,
-                              maxLines: FolderScreenTokens.descriptionMaxLines,
-                              validationMessages: descriptionValidationMessages,
-                              textInputAction: TextInputAction.newline,
-                              decoration: InputDecoration(
-                                labelText: l10n.decksDescriptionLabel,
-                                hintText: l10n.decksDescriptionHint,
-                              ),
-                            ),
-                          ],
+          return PopScope(
+            canPop: !isSubmitting,
+            child: AlertDialog(
+              title: Text(
+                initialDeck == null
+                    ? l10n.decksCreateDialogTitle
+                    : l10n.decksEditDialogTitle,
+              ),
+              content: SizedBox(
+                width: dialogWidth,
+                child: SingleChildScrollView(
+                  child: ReactiveForm(
+                    formGroup: form,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        ReactiveTextField<String>(
+                          formControl: nameControl,
+                          maxLength: DeckConstants.nameMaxLength,
+                          onChanged: (_) {
+                            DeckFormSchema.clearBackendNameError(form);
+                          },
+                          validationMessages: nameValidationMessages,
+                          textInputAction: TextInputAction.next,
+                          decoration: InputDecoration(
+                            labelText: l10n.decksNameLabel,
+                            hintText: l10n.decksNameHint,
+                          ),
                         ),
-                      ),
+                        const SizedBox(
+                          height: FolderScreenTokens.sectionSpacing,
+                        ),
+                        ReactiveTextField<String>(
+                          formControl: descriptionControl,
+                          maxLength: DeckConstants.descriptionMaxLength,
+                          maxLines: FolderScreenTokens.descriptionMaxLines,
+                          validationMessages: descriptionValidationMessages,
+                          textInputAction: TextInputAction.newline,
+                          decoration: InputDecoration(
+                            labelText: l10n.decksDescriptionLabel,
+                            hintText: l10n.decksDescriptionHint,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: isSubmitting
-                          ? null
-                          : () => Navigator.of(dialogContext).pop(false),
-                      child: Text(l10n.decksCancelLabel),
-                    ),
-                    FilledButton(
-                      onPressed: isSubmitting
-                          ? null
-                          : () async {
-                              final NavigatorState navigator = Navigator.of(
-                                dialogContext,
-                              );
-                              final bool isFormValid = form.valid;
-                              if (!isFormValid) {
-                                form.markAllAsTouched();
-                                return;
-                              }
-                              final DeckUpsertInput input =
-                                  DeckFormSchema.toUpsertInput(form: form);
-                              setDialogState(() {
-                                isSubmitting = true;
-                              });
-                              DeckFormSchema.clearBackendNameError(form);
-                              final DeckSubmitResult submitResult =
-                                  await onSubmit(input);
-                              if (submitResult.isSuccess) {
-                                navigator.pop(true);
-                                return;
-                              }
-                              setDialogState(() {
-                                isSubmitting = false;
-                              });
-                              final String? nameErrorMessage =
-                                  submitResult.nameErrorMessage;
-                              if (nameErrorMessage == null) {
-                                return;
-                              }
-                              setDialogState(() {
-                                DeckFormSchema.setBackendNameError(
-                                  form: form,
-                                  message: nameErrorMessage,
-                                );
-                              });
-                            },
-                      child: isSubmitting
-                          ? const SizedBox(
-                              width: FolderScreenTokens
-                                  .editorDialogSubmitIndicatorSize,
-                              height: FolderScreenTokens
-                                  .editorDialogSubmitIndicatorSize,
-                              child: CircularProgressIndicator(
-                                strokeWidth: FolderScreenTokens
-                                    .editorDialogSubmitIndicatorStrokeWidth,
-                              ),
-                            )
-                          : Text(
-                              initialDeck == null
-                                  ? l10n.decksSaveLabel
-                                  : l10n.decksUpdateLabel,
-                            ),
-                    ),
-                  ],
                 ),
-              );
-            },
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () => dialogContext.pop(false),
+                  child: Text(l10n.decksCancelLabel),
+                ),
+                FilledButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final GoRouter router = GoRouter.of(dialogContext);
+                          final bool isFormValid = form.valid;
+                          if (!isFormValid) {
+                            form.markAllAsTouched();
+                            return;
+                          }
+                          final DeckUpsertInput input =
+                              DeckFormSchema.toUpsertInput(form: form);
+                          setDialogState(() {
+                            isSubmitting = true;
+                          });
+                          DeckFormSchema.clearBackendNameError(form);
+                          final DeckSubmitResult submitResult = await onSubmit(
+                            input,
+                          );
+                          if (submitResult.isSuccess) {
+                            router.pop(true);
+                            return;
+                          }
+                          setDialogState(() {
+                            isSubmitting = false;
+                          });
+                          final String? nameErrorMessage =
+                              submitResult.nameErrorMessage;
+                          if (nameErrorMessage == null) {
+                            return;
+                          }
+                          setDialogState(() {
+                            DeckFormSchema.setBackendNameError(
+                              form: form,
+                              message: nameErrorMessage,
+                            );
+                          });
+                        },
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: FolderScreenTokens
+                              .editorDialogSubmitIndicatorSize,
+                          height: FolderScreenTokens
+                              .editorDialogSubmitIndicatorSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: FolderScreenTokens
+                                .editorDialogSubmitIndicatorStrokeWidth,
+                          ),
+                        )
+                      : Text(
+                          initialDeck == null
+                              ? l10n.decksSaveLabel
+                              : l10n.decksUpdateLabel,
+                        ),
+                ),
+              ],
+            ),
+          );
+        },
       );
     },
   );

@@ -7,6 +7,7 @@ class RouteNames {
   static const String login = '/auth/login';
   static const String learning = '/learning';
   static const String flashcards = '/flashcards';
+  static const String flashcardFlipStudy = '/flashcards/flip-study';
   static const String progressDetail = '/progress/detail';
   static const String tts = '/tts';
 }

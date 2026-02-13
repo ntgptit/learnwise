@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:learnwise/main.dart';
@@ -14,7 +15,7 @@ void main() {
   testWidgets('Dashboard renders with overview and quick actions', (
     tester,
   ) async {
-    await tester.pumpWidget(const LearnWiseApp());
+    await tester.pumpWidget(const ProviderScope(child: LearnWiseApp()));
     await tester.pumpAndSettle();
 
     expect(find.text('LearnWise Dashboard'), findsOneWidget);
@@ -29,10 +30,8 @@ void main() {
     expect(find.text('Open TTS lab'), findsOneWidget);
   });
 
-  testWidgets('Dashboard quick action buttons are visible', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const LearnWiseApp());
+  testWidgets('Dashboard quick action buttons are visible', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: LearnWiseApp()));
     await tester.pumpAndSettle();
 
     await tester.drag(find.byType(ListView), const Offset(0, -600));

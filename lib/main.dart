@@ -7,7 +7,7 @@ import 'app/theme/app_theme.dart';
 import 'core/error/global_error_handler.dart';
 
 void main() {
-  runApp(const LearnWiseApp());
+  runApp(const ProviderScope(child: LearnWiseApp()));
 }
 
 class LearnWiseApp extends StatelessWidget {
@@ -15,24 +15,20 @@ class LearnWiseApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      child: MaterialApp(
-        scaffoldMessengerKey: appScaffoldMessengerKey,
-        onGenerateTitle: (context) =>
-            AppLocalizations.of(context)!.appTitle,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        initialRoute: AppRouter.initialRoute,
-        onGenerateRoute: AppRouter.onGenerateRoute,
-        builder: (context, child) {
-          if (child == null) {
-            return const SizedBox.shrink();
-          }
-          return GlobalErrorHandler(child: child);
-        },
-      ),
+    return MaterialApp.router(
+      scaffoldMessengerKey: appScaffoldMessengerKey,
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: AppRouter.router,
+      builder: (context, child) {
+        if (child == null) {
+          return const SizedBox.shrink();
+        }
+        return GlobalErrorHandler(child: child);
+      },
     );
   }
 }

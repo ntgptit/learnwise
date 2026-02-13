@@ -64,6 +64,7 @@ flutter test
   - Enforce UI list scalability heuristics (`children:` vs builder).
   - Enforce basic cache policy heuristics.
   - Detect potentially unused Dart files via import graph reachability.
+  - Default non-blocking report; set `STRICT_QUALITY_CONTRACT=1` to make violations fail.
 
 ## SonarQube (BE + FE)
 

@@ -103,7 +103,7 @@ Future<void> main() async {
         );
       }
 
-      if (isStateFile && _generatedControllerClassRegExp.hasMatch(sourceLine)) {
+      if (_generatedControllerClassRegExp.hasMatch(sourceLine)) {
         final bool classHasAnnotation = _hasNearbyRiverpodAnnotation(
           lines: lines,
           classLineIndex: index,
@@ -203,7 +203,7 @@ List<File> _collectSourceFiles(Directory root) {
 }
 
 bool _isStateFile(String path) {
-  if (path.contains('/viewmodel/')) {
+  if (path.contains('/viewmodel/') && !path.endsWith('_state.dart')) {
     return true;
   }
   if (path.endsWith('/providers.dart')) {

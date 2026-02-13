@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
 import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
+import 'package:learnwise/features/flashcards/repository/flashcard_repository_provider.dart';
 import 'package:learnwise/features/flashcards/repository/flashcard_repository.dart';
 import 'package:learnwise/features/flashcards/viewmodel/flashcard_viewmodel.dart';
 
@@ -113,10 +114,9 @@ void main() {
       );
       expect(reloadingState.isLoading, true);
       expect(reloadingState.hasValue, true);
-      expect(
-        reloadingState.requireValue.items.map((item) => item.id),
-        <int>[1],
-      );
+      expect(reloadingState.requireValue.items.map((item) => item.id), <int>[
+        1,
+      ]);
 
       fakeRepository.dequeuePendingResponse().complete(
         _buildPageResult(items: const <FlashcardItem>[]),

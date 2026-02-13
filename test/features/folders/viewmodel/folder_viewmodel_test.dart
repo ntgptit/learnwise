@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
 import 'package:learnwise/features/folders/model/folder_models.dart';
+import 'package:learnwise/features/folders/repository/folder_repository_provider.dart';
 import 'package:learnwise/features/folders/repository/folder_repository.dart';
 import 'package:learnwise/features/folders/viewmodel/folder_viewmodel.dart';
 
@@ -154,10 +155,9 @@ void main() {
       );
       expect(reloadingState.isLoading, true);
       expect(reloadingState.hasValue, true);
-      expect(
-        reloadingState.requireValue.items.map((item) => item.id),
-        <int>[1],
-      );
+      expect(reloadingState.requireValue.items.map((item) => item.id), <int>[
+        1,
+      ]);
 
       final Completer<FolderPageResult> searchResponse = fakeRepository
           .dequeuePendingResponse();
@@ -205,10 +205,7 @@ void main() {
         folderControllerProvider,
       );
       expect(latestState.hasValue, true);
-      expect(
-        latestState.requireValue.items.map((item) => item.id),
-        <int>[9],
-      );
+      expect(latestState.requireValue.items.map((item) => item.id), <int>[9]);
     });
 
     test('does not reload when normalized query does not change', () async {

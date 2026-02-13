@@ -104,16 +104,34 @@ class FlashcardScreenTokens {
   static const double heroCardHeight = AppSizes.size240;
   static const double heroCardRadius = AppSizes.radiusLg;
   static const double heroCardPadding = AppSizes.spacingLg;
+  static const double heroCardItemSpacing = AppSizes.spacingXs;
   static const double heroViewportFraction = 0.94;
   static const double heroPagerGap = AppSizes.spacingSm;
-  static const double heroDotSize = AppSizes.spacing2Xs;
+  static const double heroDotSize = AppSizes.size6;
   static const double heroDotSpacing = AppSizes.spacing2Xs;
+  static const int heroMaxIndicatorDots = 7;
+  static const double heroCardDarkModeOpacity = AppOpacities.soft35;
+  static const double heroDotInactiveDarkModeOpacity = AppOpacities.muted55;
 
   static const double metadataAvatarSize = AppSizes.size22;
   static const double metadataGap = AppSizes.spacingSm;
-  static const double metadataDividerHeight = AppSizes.spacingMd;
-  static const double metadataDividerWidth = AppSizes.size1;
   static const double metadataHorizontalGap = AppSizes.spacingXs;
+  static const double metadataOwnerCardRadius = AppSizes.radiusMd;
+  static const double metadataOwnerCardHorizontalPadding = AppSizes.spacingSm;
+  static const double metadataOwnerCardVerticalPadding = AppSizes.spacingXs;
+  static const double metadataOwnerCardPrimaryOpacity = AppOpacities.soft35;
+  static const double metadataOwnerCardSecondaryOpacity = AppOpacities.soft20;
+  static const double metadataOwnerCardShadowOpacity = AppOpacities.soft15;
+  static const double metadataOwnerCardShadowBlur = 10;
+  static const double metadataOwnerCardShadowOffsetY = 4;
+  static const double metadataAvatarHaloPadding = AppSizes.spacing2Xs;
+  static const double metadataAvatarHaloOpacity = AppOpacities.soft35;
+  static const double metadataOwnerNameMaxWidth = 180;
+  static const double metadataCountChipRadius = AppSizes.radiusPill;
+  static const double metadataCountChipHorizontalPadding = AppSizes.spacingSm;
+  static const double metadataCountChipVerticalPadding = AppSizes.spacingXs;
+  static const double metadataCountChipIconSize = AppSizes.size14;
+  static const double metadataCountChipIconGap = AppSizes.spacing2Xs;
 
   static const double bannerHeight = AppSizes.size40;
   static const double bannerRadius = AppSizes.radiusSm;
@@ -145,6 +163,38 @@ class FlashcardScreenTokens {
   static const double editorDialogMaxWidth = 560;
   static const double editorDialogSubmitIndicatorSize = AppSizes.size18;
   static const double editorDialogSubmitIndicatorStrokeWidth = 2;
+}
+
+class FlashcardFlipStudyTokens {
+  const FlashcardFlipStudyTokens._();
+
+  static const double screenPadding = AppSizes.spacingMd;
+  static const double topRowGap = AppSizes.spacingMd;
+  static const double progressBarTopGap = AppSizes.spacingSm;
+  static const double progressBarBottomGap = AppSizes.spacingLg;
+  static const double progressBarHeight = AppSizes.spacing2Xs;
+  static const double progressBarRadius = AppSizes.radiusPill;
+  static const double scoreRowBottomGap = AppSizes.spacingLg;
+  static const double scoreChipHeight = AppSizes.size48;
+  static const double scoreChipMinWidth = AppSizes.size72;
+  static const double scoreChipHorizontalPadding = AppSizes.spacingLg;
+  static const double scoreChipBorderWidth = AppSizes.size2;
+  static const double scoreChipTextOpacity = AppOpacities.soft35;
+  static const double cardBorderWidth = AppSizes.size2;
+  static const double cardContentHorizontalPadding = AppSizes.spacingLg;
+  static const double cardContentTopPadding = AppSizes.spacingLg;
+  static const double cardContentBottomPadding = AppSizes.spacingLg;
+  static const double cardHeaderIconGap = AppSizes.spacingSm;
+  static const double cardBodyTopGap = AppSizes.spacingLg;
+  static const double cardBodyBottomGap = AppSizes.spacingLg;
+  static const double bottomBarTopGap = AppSizes.spacingLg;
+  static const double bottomBarBottomGap = AppSizes.spacingSm;
+  static const double bottomBarHorizontalPadding = AppSizes.spacingSm;
+  static const double centerTitleOpacity = AppOpacities.muted82;
+  static const double scoreWrongOpacity = AppOpacities.soft35;
+  static const double scoreCorrectOpacity = AppOpacities.soft35;
+  static const double progressTrackOpacity = AppOpacities.soft20;
+  static const double progressValueOpacity = AppOpacities.muted82;
 }
 
 class TtsScreenTokens {

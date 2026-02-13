@@ -14,7 +14,8 @@ import '../model/flashcard_models.dart';
 import '../viewmodel/flashcard_viewmodel.dart';
 import 'widgets/flashcard_card_section_header.dart';
 import 'widgets/flashcard_content_card.dart';
-import 'widgets/flashcard_mock_banner.dart';
+import 'widgets/flashcard_editor_dialog.dart';
+import 'flashcard_flip_study_screen.dart';
 import 'widgets/flashcard_preview_carousel.dart';
 import 'widgets/flashcard_set_metadata_section.dart';
 import 'widgets/flashcard_study_action_section.dart';
@@ -23,6 +24,7 @@ enum _FlashcardMenuAction {
   toggleSearch,
   refresh,
   sortByCreatedAt,
+  sortByUpdatedAt,
   sortByFrontText,
   sortDirectionDesc,
   sortDirectionAsc,
@@ -111,6 +113,11 @@ class _FlashcardManagementScreenState
         ),
         actions: <Widget>[
           IconButton(
+            onPressed: _onCreateFlashcardPressed,
+            icon: const Icon(Icons.add_rounded),
+            tooltip: l10n.flashcardsCreateButton,
+          ),
+          IconButton(
             onPressed: () => _showActionToast(l10n.flashcardsBookmarkSetToast),
             icon: const Icon(Icons.bookmark_border_rounded),
             tooltip: l10n.flashcardsBookmarkSetTooltip,
@@ -159,18 +166,14 @@ class _FlashcardManagementScreenState
                         pageController: _previewPageController,
                         previewIndex: safePreviewIndex,
                         onPageChanged: uiController.setPreviewIndex,
-                        onExpandPressed: () =>
-                            _showActionToast(l10n.flashcardsExpandPreviewToast),
+                        onExpandPressed: (index) => _onFlipCardsPressed(
+                          l10n: l10n,
+                          listing: listing,
+                          previewIndex: index,
+                        ),
                       ),
                       const SizedBox(
                         height: FlashcardScreenTokens.sectionSpacingLarge,
-                      ),
-                      FlashcardMockBanner(
-                        onInfoPressed: () =>
-                            _showActionToast(l10n.flashcardsBannerInfoToast),
-                      ),
-                      const SizedBox(
-                        height: FlashcardScreenTokens.sectionSpacing,
                       ),
                       FlashcardSetMetadataSection(
                         title: _resolveSetTitle(l10n),
@@ -202,7 +205,11 @@ class _FlashcardManagementScreenState
                         height: FlashcardScreenTokens.sectionSpacingLarge,
                       ),
                       FlashcardStudyActionSection(
-                        actions: _buildStudyActions(l10n: l10n),
+                        actions: _buildStudyActions(
+                          l10n: l10n,
+                          listing: listing,
+                          previewIndex: safePreviewIndex,
+                        ),
                       ),
                       const SizedBox(
                         height: FlashcardScreenTokens.sectionSpacingLarge,
@@ -214,7 +221,7 @@ class _FlashcardManagementScreenState
                           query: query,
                         ),
                         onSortPressed: () =>
-                            _showActionToast(l10n.flashcardsSortHintToast),
+                            _onSortPressed(l10n: l10n, query: query),
                       ),
                       const SizedBox(
                         height: FlashcardScreenTokens.sectionHeaderBottomGap,
@@ -225,9 +232,7 @@ class _FlashcardManagementScreenState
                           subtitle: l10n.flashcardsEmptyDescription,
                           icon: Icons.style_outlined,
                           action: FilledButton(
-                            onPressed: () => _showActionToast(
-                              l10n.flashcardsCreatePlaceholderToast,
-                            ),
+                            onPressed: _onCreateFlashcardPressed,
                             child: Text(l10n.flashcardsCreateButton),
                           ),
                         ),
@@ -254,6 +259,10 @@ class _FlashcardManagementScreenState
                                       : l10n.flashcardsBookmarkToast,
                                 );
                               },
+                              onEditPressed: () =>
+                                  _onEditFlashcardPressed(item),
+                              onDeletePressed: () =>
+                                  _onDeleteFlashcardPressed(item),
                             ),
                           );
                         }),
@@ -295,32 +304,23 @@ class _FlashcardManagementScreenState
           },
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(
-          FlashcardScreenTokens.screenPadding,
-          FlashcardScreenTokens.bottomCtaTopSpacing,
-          FlashcardScreenTokens.screenPadding,
-          FlashcardScreenTokens.screenPadding,
-        ),
-        child: SizedBox(
-          height: FlashcardScreenTokens.bottomCtaHeight,
-          child: FilledButton(
-            onPressed: () => _showActionToast(l10n.flashcardsStudySetToast),
-            child: Text(l10n.flashcardsStudySetButton),
-          ),
-        ),
-      ),
     );
   }
 
   List<FlashcardStudyAction> _buildStudyActions({
     required AppLocalizations l10n,
+    required FlashcardListingState listing,
+    required int previewIndex,
   }) {
     return <FlashcardStudyAction>[
       FlashcardStudyAction(
         label: l10n.flashcardsActionFlipcard,
         icon: Icons.style_outlined,
-        onPressed: () => _showActionToast(l10n.flashcardsActionFlipcardToast),
+        onPressed: () => _onFlipCardsPressed(
+          l10n: l10n,
+          listing: listing,
+          previewIndex: previewIndex,
+        ),
       ),
       FlashcardStudyAction(
         label: l10n.flashcardsActionLearn,
@@ -332,22 +332,35 @@ class _FlashcardManagementScreenState
         icon: Icons.description_outlined,
         onPressed: () => _showActionToast(l10n.flashcardsActionTestToast),
       ),
-      FlashcardStudyAction(
-        label: l10n.flashcardsActionMatch,
-        icon: Icons.view_stream_outlined,
-        onPressed: () => _showActionToast(l10n.flashcardsActionMatchToast),
-      ),
-      FlashcardStudyAction(
-        label: l10n.flashcardsActionBlast,
-        icon: Icons.rocket_launch_outlined,
-        onPressed: () => _showActionToast(l10n.flashcardsActionBlastToast),
-      ),
-      FlashcardStudyAction(
-        label: l10n.flashcardsActionBlocks,
-        icon: Icons.grid_view_outlined,
-        onPressed: () => _showActionToast(l10n.flashcardsActionBlocksToast),
-      ),
     ];
+  }
+
+  void _onFlipCardsPressed({
+    required AppLocalizations l10n,
+    required FlashcardListingState listing,
+    required int previewIndex,
+  }) {
+    if (listing.items.isEmpty) {
+      _showActionToast(l10n.flashcardsEmptyTitle);
+      return;
+    }
+    final int safeInitialIndex = previewIndex.clamp(
+      FlashcardConstants.defaultPage,
+      listing.items.length - 1,
+    );
+    final String title =
+        '${l10n.flashcardsActionFlipcard} · ${_resolveTitle(l10n)}';
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => FlashcardFlipStudyScreen(
+            items: listing.items,
+            initialIndex: safeInitialIndex,
+            title: title,
+          ),
+        ),
+      ),
+    );
   }
 
   void _onScroll() {
@@ -398,6 +411,11 @@ class _FlashcardManagementScreenState
       _showActionToast(l10n.flashcardsSortHintToast);
       return;
     }
+    if (action == _FlashcardMenuAction.sortByUpdatedAt) {
+      controller.applySortBy(FlashcardSortBy.updatedAt);
+      _showActionToast(l10n.flashcardsSortHintToast);
+      return;
+    }
     if (action == _FlashcardMenuAction.sortByFrontText) {
       controller.applySortBy(FlashcardSortBy.frontText);
       _showActionToast(l10n.flashcardsSortHintToast);
@@ -437,6 +455,11 @@ class _FlashcardManagementScreenState
         child: Text(l10n.flashcardsSortByCreatedAt),
       ),
       CheckedPopupMenuItem<_FlashcardMenuAction>(
+        value: _FlashcardMenuAction.sortByUpdatedAt,
+        checked: query.sortBy == FlashcardSortBy.updatedAt,
+        child: Text(l10n.flashcardsSortByUpdatedAt),
+      ),
+      CheckedPopupMenuItem<_FlashcardMenuAction>(
         value: _FlashcardMenuAction.sortByFrontText,
         checked: query.sortBy == FlashcardSortBy.frontText,
         child: Text(l10n.flashcardsSortByFrontText),
@@ -445,12 +468,16 @@ class _FlashcardManagementScreenState
       CheckedPopupMenuItem<_FlashcardMenuAction>(
         value: _FlashcardMenuAction.sortDirectionDesc,
         checked: query.sortDirection == FlashcardSortDirection.desc,
-        child: Text(l10n.flashcardsSortDirectionDesc),
+        child: Text(
+          _resolveSortDirectionDescLabel(l10n: l10n, sortBy: query.sortBy),
+        ),
       ),
       CheckedPopupMenuItem<_FlashcardMenuAction>(
         value: _FlashcardMenuAction.sortDirectionAsc,
         checked: query.sortDirection == FlashcardSortDirection.asc,
-        child: Text(l10n.flashcardsSortDirectionAsc),
+        child: Text(
+          _resolveSortDirectionAscLabel(l10n: l10n, sortBy: query.sortBy),
+        ),
       ),
     ];
   }
@@ -465,6 +492,248 @@ class _FlashcardManagementScreenState
     ref
         .read(flashcardControllerProvider(widget.args.deckId).notifier)
         .applySearch(_searchController.text);
+  }
+
+  Future<void> _onCreateFlashcardPressed() async {
+    final FlashcardController controller = ref.read(
+      flashcardControllerProvider(widget.args.deckId).notifier,
+    );
+    await showFlashcardEditorDialog(
+      context: context,
+      initialFlashcard: null,
+      onSubmit: controller.submitCreateFlashcard,
+    );
+  }
+
+  Future<void> _onEditFlashcardPressed(FlashcardItem flashcard) async {
+    final FlashcardController controller = ref.read(
+      flashcardControllerProvider(widget.args.deckId).notifier,
+    );
+    await showFlashcardEditorDialog(
+      context: context,
+      initialFlashcard: flashcard,
+      onSubmit: (input) {
+        return controller.submitUpdateFlashcard(
+          flashcardId: flashcard.id,
+          input: input,
+        );
+      },
+    );
+  }
+
+  Future<void> _onDeleteFlashcardPressed(FlashcardItem flashcard) async {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return ConfirmDialog(
+          title: l10n.flashcardsDeleteDialogTitle,
+          message: l10n.flashcardsDeleteDialogMessage(flashcard.frontText),
+          confirmLabel: l10n.flashcardsDeleteConfirmLabel,
+          cancelLabel: l10n.flashcardsCancelLabel,
+          onConfirm: () => Navigator.of(dialogContext).pop(true),
+          onCancel: () => Navigator.of(dialogContext).pop(false),
+        );
+      },
+    );
+    if (confirmed != true) {
+      return;
+    }
+    await ref
+        .read(flashcardControllerProvider(widget.args.deckId).notifier)
+        .deleteFlashcard(flashcard.id);
+  }
+
+  void _onSortPressed({
+    required AppLocalizations l10n,
+    required FlashcardListQuery query,
+  }) {
+    final FlashcardController controller = ref.read(
+      flashcardControllerProvider(widget.args.deckId).notifier,
+    );
+    FlashcardSortBy selectedSortBy = query.sortBy;
+    FlashcardSortDirection selectedSortDirection = query.sortDirection;
+
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheetContext) {
+          return StatefulBuilder(
+            builder: (sheetContext, setState) {
+              return SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(
+                    FlashcardScreenTokens.screenPadding,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      _buildSortOptionTile(
+                        label: l10n.flashcardsSortByCreatedAt,
+                        isSelected: selectedSortBy == FlashcardSortBy.createdAt,
+                        onTap: () {
+                          setState(() {
+                            selectedSortDirection =
+                                _resolveSortDirectionForSortBySelection(
+                                  currentSortBy: selectedSortBy,
+                                  currentSortDirection: selectedSortDirection,
+                                  nextSortBy: FlashcardSortBy.createdAt,
+                                );
+                            selectedSortBy = FlashcardSortBy.createdAt;
+                          });
+                        },
+                      ),
+                      _buildSortOptionTile(
+                        label: l10n.flashcardsSortByUpdatedAt,
+                        isSelected: selectedSortBy == FlashcardSortBy.updatedAt,
+                        onTap: () {
+                          setState(() {
+                            selectedSortDirection =
+                                _resolveSortDirectionForSortBySelection(
+                                  currentSortBy: selectedSortBy,
+                                  currentSortDirection: selectedSortDirection,
+                                  nextSortBy: FlashcardSortBy.updatedAt,
+                                );
+                            selectedSortBy = FlashcardSortBy.updatedAt;
+                          });
+                        },
+                      ),
+                      _buildSortOptionTile(
+                        label: l10n.flashcardsSortByFrontText,
+                        isSelected: selectedSortBy == FlashcardSortBy.frontText,
+                        onTap: () {
+                          setState(() {
+                            selectedSortDirection =
+                                _resolveSortDirectionForSortBySelection(
+                                  currentSortBy: selectedSortBy,
+                                  currentSortDirection: selectedSortDirection,
+                                  nextSortBy: FlashcardSortBy.frontText,
+                                );
+                            selectedSortBy = FlashcardSortBy.frontText;
+                          });
+                        },
+                      ),
+                      const Divider(),
+                      _buildSortOptionTile(
+                        label: _resolveSortDirectionDescLabel(
+                          l10n: l10n,
+                          sortBy: selectedSortBy,
+                        ),
+                        isSelected:
+                            selectedSortDirection ==
+                            FlashcardSortDirection.desc,
+                        onTap: () {
+                          setState(() {
+                            selectedSortDirection = FlashcardSortDirection.desc;
+                          });
+                        },
+                      ),
+                      _buildSortOptionTile(
+                        label: _resolveSortDirectionAscLabel(
+                          l10n: l10n,
+                          sortBy: selectedSortBy,
+                        ),
+                        isSelected:
+                            selectedSortDirection == FlashcardSortDirection.asc,
+                        onTap: () {
+                          setState(() {
+                            selectedSortDirection = FlashcardSortDirection.asc;
+                          });
+                        },
+                      ),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionSpacing,
+                      ),
+                      FilledButton(
+                        onPressed: () {
+                          final bool isSortByChanged =
+                              selectedSortBy != query.sortBy;
+                          final bool isSortDirectionChanged =
+                              selectedSortDirection != query.sortDirection;
+                          if (isSortByChanged) {
+                            controller.applySortBy(selectedSortBy);
+                          }
+                          if (isSortDirectionChanged) {
+                            controller.applySortDirection(
+                              selectedSortDirection,
+                            );
+                          }
+                          Navigator.of(sheetContext).pop();
+                          if (!isSortByChanged && !isSortDirectionChanged) {
+                            return;
+                          }
+                          _showActionToast(l10n.flashcardsSortHintToast);
+                        },
+                        child: Text(l10n.flashcardsSaveLabel),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSortOptionTile({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(label),
+      trailing: isSelected ? const Icon(Icons.check_rounded) : null,
+      onTap: onTap,
+    );
+  }
+
+  FlashcardSortDirection _resolveSortDirectionForSortBySelection({
+    required FlashcardSortBy currentSortBy,
+    required FlashcardSortDirection currentSortDirection,
+    required FlashcardSortBy nextSortBy,
+  }) {
+    if (nextSortBy == FlashcardSortBy.frontText) {
+      if (currentSortBy != FlashcardSortBy.frontText) {
+        return FlashcardSortDirection.asc;
+      }
+      return _toggleSortDirection(currentSortDirection);
+    }
+    if (nextSortBy == currentSortBy) {
+      return currentSortDirection;
+    }
+    return FlashcardSortDirection.desc;
+  }
+
+  FlashcardSortDirection _toggleSortDirection(FlashcardSortDirection value) {
+    if (value == FlashcardSortDirection.asc) {
+      return FlashcardSortDirection.desc;
+    }
+    return FlashcardSortDirection.asc;
+  }
+
+  String _resolveSortDirectionDescLabel({
+    required AppLocalizations l10n,
+    required FlashcardSortBy sortBy,
+  }) {
+    if (sortBy == FlashcardSortBy.frontText) {
+      return l10n.flashcardsSortDirectionZa;
+    }
+    return l10n.flashcardsSortDirectionDesc;
+  }
+
+  String _resolveSortDirectionAscLabel({
+    required AppLocalizations l10n,
+    required FlashcardSortBy sortBy,
+  }) {
+    if (sortBy == FlashcardSortBy.frontText) {
+      return l10n.flashcardsSortDirectionAz;
+    }
+    return l10n.flashcardsSortDirectionAsc;
   }
 
   String _resolveTitle(AppLocalizations l10n) {
@@ -487,11 +756,18 @@ class _FlashcardManagementScreenState
   }) {
     final String sortByLabel = switch (query.sortBy) {
       FlashcardSortBy.createdAt => l10n.flashcardsSortByCreatedAt,
+      FlashcardSortBy.updatedAt => l10n.flashcardsSortByUpdatedAt,
       FlashcardSortBy.frontText => l10n.flashcardsSortByFrontText,
     };
     final String sortDirectionLabel = switch (query.sortDirection) {
-      FlashcardSortDirection.desc => l10n.flashcardsSortDirectionDesc,
-      FlashcardSortDirection.asc => l10n.flashcardsSortDirectionAsc,
+      FlashcardSortDirection.desc => _resolveSortDirectionDescLabel(
+        l10n: l10n,
+        sortBy: query.sortBy,
+      ),
+      FlashcardSortDirection.asc => _resolveSortDirectionAscLabel(
+        l10n: l10n,
+        sortBy: query.sortBy,
+      ),
     };
     return '$sortByLabel \u00b7 $sortDirectionLabel';
   }
@@ -509,8 +785,6 @@ class _FlashcardManagementScreenState
   }) {
     final int dotCount = listingCount == FlashcardConstants.defaultPage
         ? 1
-        : listingCount > FlashcardConstants.previewItemLimit
-        ? FlashcardConstants.previewItemLimit
         : listingCount;
     final int maxIndex = dotCount - 1;
     if (previewIndex > maxIndex) {

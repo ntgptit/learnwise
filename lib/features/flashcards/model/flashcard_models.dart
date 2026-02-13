@@ -16,6 +16,8 @@ Object? _readFlashcardItemAuditValue(Map<dynamic, dynamic> json, String key) {
 enum FlashcardSortBy {
   @JsonValue(FlashcardConstants.sortByCreatedAt)
   createdAt,
+  @JsonValue(FlashcardConstants.sortByUpdatedAt)
+  updatedAt,
   @JsonValue(FlashcardConstants.sortByFrontText)
   frontText,
 }
@@ -110,6 +112,7 @@ sealed class FlashcardListQuery with _$FlashcardListQuery {
   String _sortByToApi(FlashcardSortBy value) {
     return switch (value) {
       FlashcardSortBy.createdAt => FlashcardConstants.sortByCreatedAt,
+      FlashcardSortBy.updatedAt => FlashcardConstants.sortByUpdatedAt,
       FlashcardSortBy.frontText => FlashcardConstants.sortByFrontText,
     };
   }

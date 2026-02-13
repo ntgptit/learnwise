@@ -23,9 +23,13 @@ flutter pub get
 flutter gen-l10n
 flutter pub run build_runner build --delete-conflicting-outputs
 dart run tool/verify_riverpod_annotation.dart
+dart run tool/verify_state_management_contract.dart
+dart run tool/verify_navigation_go_router_contract.dart
 dart run tool/verify_common_widget_boundaries.dart
 dart run tool/verify_ui_constants_centralization.dart
 dart run tool/verify_ui_design_guard.dart
+dart run tool/verify_code_quality_contract.dart
+dart run custom_lint
 flutter analyze
 flutter test
 ```
@@ -36,6 +40,14 @@ flutter test
   - Enforce Riverpod Annotation + DI usage.
   - Block manual provider declarations in non-generated files.
   - Block manual `mounted` checks (`mounted`, `context.mounted`), allow only `ref.mounted`.
+- `tool/verify_state_management_contract.dart`
+  - Enforce global no-`setState`.
+  - Enforce global no-`else`.
+  - Enforce state declarations to use Riverpod annotation in state/viewmodel/provider files.
+  - Enforce AsyncValue flow to use `.when()`/`.map()` in UI layers.
+- `tool/verify_navigation_go_router_contract.dart`
+  - Enforce `go_router` dependency/import presence.
+  - Block `Navigator.*`, `MaterialPageRoute`, and `onGenerateRoute` outside `lib/common/widgets`.
 - `tool/verify_common_widget_boundaries.dart`
   - Keep `lib/common/widgets` render-only.
   - Block navigation/throw/feature-bound widget leakage.
@@ -44,6 +56,14 @@ flutter test
   - Block feature-level style constants and magic UI literals.
 - `tool/verify_ui_design_guard.dart`
   - Enforce mobile-first UI rules (breakpoint, spacing grid, text/icon/button/appbar sizes, touch target, hardcoded colors/sizes, Material 3 usage).
+- `tool/verify_code_quality_contract.dart`
+  - Enforce `@immutable/@freezed` coverage for model classes.
+  - Enforce repository boundary from view/viewmodel.
+  - Enforce file/class/function length limits.
+  - Enforce Stateful resource disposal heuristics.
+  - Enforce UI list scalability heuristics (`children:` vs builder).
+  - Enforce basic cache policy heuristics.
+  - Detect potentially unused Dart files via import graph reachability.
 
 ## SonarQube (BE + FE)
 

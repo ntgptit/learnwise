@@ -18,7 +18,9 @@ public final class FlashcardConst {
     public static final String DEFAULT_PAGE_PARAM = "0";
     public static final String DEFAULT_SIZE_PARAM = "20";
     public static final String SORT_BY_CREATED_AT = "createdAt";
+    public static final String SORT_BY_UPDATED_AT = "updatedAt";
     public static final String SORT_BY_FRONT_TEXT = "frontText";
+    public static final String SORT_BY_TIE_BREAKER = "id";
     public static final String SORT_DIRECTION_ASC = "asc";
     public static final String SORT_DIRECTION_DESC = "desc";
     public static final String DEFAULT_ACTOR = "system";

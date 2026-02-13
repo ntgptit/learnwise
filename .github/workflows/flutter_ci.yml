@@ -28,6 +28,12 @@ jobs:
       - name: Enforce Riverpod Annotation DI
         run: dart run tool/verify_riverpod_annotation.dart
 
+      - name: Enforce State Management Contract
+        run: dart run tool/verify_state_management_contract.dart
+
+      - name: Enforce Navigation go_router Contract
+        run: dart run tool/verify_navigation_go_router_contract.dart
+
       - name: Enforce Common Widget Boundaries
         run: dart run tool/verify_common_widget_boundaries.dart
 
@@ -36,6 +42,12 @@ jobs:
 
       - name: Enforce UI Design Guard
         run: dart run tool/verify_ui_design_guard.dart
+
+      - name: Enforce Code Quality Contract
+        run: dart run tool/verify_code_quality_contract.dart
+
+      - name: Run custom_lint gate
+        run: dart run custom_lint
 
       - name: Analyze
         run: flutter analyze

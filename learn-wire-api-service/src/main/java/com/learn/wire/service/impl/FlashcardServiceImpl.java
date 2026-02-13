@@ -59,7 +59,7 @@ public class FlashcardServiceImpl implements FlashcardService {
                 query.sortField().value(),
                 query.sortDirection().value());
         getActiveDeckEntity(query.deckId());
-        final Sort sort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
+        final Sort sort = buildSort(query);
         final Pageable pageable = PageRequest.of(query.page(), query.size(), sort);
         final Page<FlashcardEntity> page = this.flashcardRepository.findPageByDeckAndSearch(
                 query.deckId(),
@@ -77,6 +77,12 @@ public class FlashcardServiceImpl implements FlashcardService {
                 query.search(),
                 query.sortField().value(),
                 query.sortDirection().value());
+    }
+
+    private Sort buildSort(FlashcardListQuery query) {
+        final Sort primarySort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
+        final Sort tieBreakerSort = Sort.by(query.sortDirection().toSpringDirection(), FlashcardConst.SORT_BY_TIE_BREAKER);
+        return primarySort.and(tieBreakerSort);
     }
 
     @Override

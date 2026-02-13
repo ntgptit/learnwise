@@ -645,6 +645,10 @@
   "@flashcardsSortByCreatedAt": {
     "description": "Sort option by created timestamp for flashcards."
   },
+  "flashcardsSortByUpdatedAt": "Updated time",
+  "@flashcardsSortByUpdatedAt": {
+    "description": "Sort option by updated timestamp for flashcards."
+  },
   "flashcardsSortByFrontText": "Front text",
   "@flashcardsSortByFrontText": {
     "description": "Sort option by flashcard front text."
@@ -656,6 +660,14 @@
   "flashcardsSortDirectionAsc": "Oldest first",
   "@flashcardsSortDirectionAsc": {
     "description": "Sort direction label ascending for flashcards."
+  },
+  "flashcardsSortDirectionZa": "Z to A",
+  "@flashcardsSortDirectionZa": {
+    "description": "Sort direction label descending for flashcards sorted by front text."
+  },
+  "flashcardsSortDirectionAz": "A to Z",
+  "@flashcardsSortDirectionAz": {
+    "description": "Sort direction label ascending for flashcards sorted by front text."
   },
   "flashcardsEmptyTitle": "No flashcards yet",
   "@flashcardsEmptyTitle": {
@@ -892,6 +904,30 @@
   "flashcardsUnbookmarkToast": "Card bookmark removed.",
   "@flashcardsUnbookmarkToast": {
     "description": "Toast shown when card bookmark is removed."
+  },
+  "flashcardsCloseTooltip": "Close",
+  "@flashcardsCloseTooltip": {
+    "description": "Tooltip for close action on flashcard screens."
+  },
+  "flashcardsPreviousTooltip": "Previous card",
+  "@flashcardsPreviousTooltip": {
+    "description": "Tooltip for previous card action in flip study screen."
+  },
+  "flashcardsNextTooltip": "Next card",
+  "@flashcardsNextTooltip": {
+    "description": "Tooltip for next card action in flip study screen."
+  },
+  "flashcardsFlipStudySettingsTooltip": "Study settings",
+  "@flashcardsFlipStudySettingsTooltip": {
+    "description": "Tooltip for settings action in flip study screen."
+  },
+  "flashcardsFlipStudySettingsToast": "Study settings are not available yet.",
+  "@flashcardsFlipStudySettingsToast": {
+    "description": "Toast shown when settings is tapped in flip study screen."
+  },
+  "flashcardsFlipStudyCompletedToast": "You have reached the last card.",
+  "@flashcardsFlipStudyCompletedToast": {
+    "description": "Toast shown when user tries to go next on the last card."
   },
   "homeTitle": "LearnWise - Text To Speech",
   "@homeTitle": {

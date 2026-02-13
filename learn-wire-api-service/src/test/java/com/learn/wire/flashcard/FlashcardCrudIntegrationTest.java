@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 
+import com.learn.wire.constant.FlashcardConst;
 import com.learn.wire.constant.FolderConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.deck.request.DeckCreateRequest;
@@ -144,6 +145,68 @@ class FlashcardCrudIntegrationTest {
         final PageResponse<FlashcardResponse> page = this.flashcardService.getFlashcards(query);
         final List<Long> ids = page.items().stream().map(FlashcardResponse::id).toList();
         assertThat(ids).doesNotContain(created.id());
+    }
+
+    @Test
+    void getFlashcards_shouldSupportSortByFrontTextAscending() {
+        final FolderResponse folder = this.folderService.createFolder(
+                new FolderCreateRequest(_unique("Sort Root"), DESCRIPTION, COLOR, null));
+        final DeckResponse deck = this.deckService.createDeck(
+                folder.id(),
+                new DeckCreateRequest(_unique("Sort Deck"), "Sort deck"));
+
+        final FlashcardResponse alpha = this.flashcardService.createFlashcard(
+                deck.id(),
+                new FlashcardCreateRequest("alpha", "A"));
+        final FlashcardResponse charlie = this.flashcardService.createFlashcard(
+                deck.id(),
+                new FlashcardCreateRequest("charlie", "C"));
+        final FlashcardResponse bravo = this.flashcardService.createFlashcard(
+                deck.id(),
+                new FlashcardCreateRequest("bravo", "B"));
+
+        final FlashcardListRequest request = new FlashcardListRequest();
+        request.setSortBy(FlashcardConst.SORT_BY_FRONT_TEXT);
+        request.setSortDirection(FlashcardConst.SORT_DIRECTION_ASC);
+        final FlashcardListQuery query = FlashcardListQuery.fromRequest(deck.id(), request);
+        final PageResponse<FlashcardResponse> page = this.flashcardService.getFlashcards(query);
+
+        final List<Long> orderedIds = page.items().stream().map(FlashcardResponse::id).toList();
+        assertThat(orderedIds).containsSubsequence(alpha.id(), bravo.id(), charlie.id());
+        assertThat(page.sortBy()).isEqualTo(FlashcardConst.SORT_BY_FRONT_TEXT);
+        assertThat(page.sortDirection()).isEqualTo(FlashcardConst.SORT_DIRECTION_ASC);
+    }
+
+    @Test
+    void getFlashcards_shouldSupportSortByUpdatedAtDescending() {
+        final FolderResponse folder = this.folderService.createFolder(
+                new FolderCreateRequest(_unique("Updated Root"), DESCRIPTION, COLOR, null));
+        final DeckResponse deck = this.deckService.createDeck(
+                folder.id(),
+                new DeckCreateRequest(_unique("Updated Deck"), "Updated deck"));
+
+        final FlashcardResponse first = this.flashcardService.createFlashcard(
+                deck.id(),
+                new FlashcardCreateRequest("first", "first back"));
+        this.flashcardService.createFlashcard(
+                deck.id(),
+                new FlashcardCreateRequest("second", "second back"));
+
+        final FlashcardResponse updatedFirst = this.flashcardService.updateFlashcard(
+                deck.id(),
+                first.id(),
+                new FlashcardUpdateRequest("first updated", "first back updated"));
+
+        final FlashcardListRequest request = new FlashcardListRequest();
+        request.setSortBy(FlashcardConst.SORT_BY_UPDATED_AT);
+        request.setSortDirection(FlashcardConst.SORT_DIRECTION_DESC);
+        final FlashcardListQuery query = FlashcardListQuery.fromRequest(deck.id(), request);
+        final PageResponse<FlashcardResponse> page = this.flashcardService.getFlashcards(query);
+
+        assertThat(page.items()).isNotEmpty();
+        assertThat(page.items().get(FlashcardConst.MIN_PAGE).id()).isEqualTo(updatedFirst.id());
+        assertThat(page.sortBy()).isEqualTo(FlashcardConst.SORT_BY_UPDATED_AT);
+        assertThat(page.sortDirection()).isEqualTo(FlashcardConst.SORT_DIRECTION_DESC);
     }
 
     private String _unique(String prefix) {

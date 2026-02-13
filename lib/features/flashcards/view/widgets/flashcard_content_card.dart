@@ -7,13 +7,21 @@ import '../../model/flashcard_models.dart';
 
 class FlashcardContentCard extends StatelessWidget {
   const FlashcardContentCard({
-    required this.item, required this.isStarred, required this.onAudioPressed, required this.onStarPressed, super.key,
+    required this.item,
+    required this.isStarred,
+    required this.onAudioPressed,
+    required this.onStarPressed,
+    required this.onEditPressed,
+    required this.onDeletePressed,
+    super.key,
   });
 
   final FlashcardItem item;
   final bool isStarred;
   final VoidCallback onAudioPressed;
   final VoidCallback onStarPressed;
+  final VoidCallback onEditPressed;
+  final VoidCallback onDeletePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +93,21 @@ class FlashcardContentCard extends StatelessWidget {
               ),
             ),
           ],
+          const SizedBox(height: FlashcardScreenTokens.cardTextGap),
+          AppActionIconRow(
+            items: <AppActionIconItem>[
+              AppActionIconItem(
+                icon: Icons.edit_outlined,
+                tooltip: l10n.flashcardsEditTooltip,
+                onPressed: onEditPressed,
+              ),
+              AppActionIconItem(
+                icon: Icons.delete_outline_rounded,
+                tooltip: l10n.flashcardsDeleteTooltip,
+                onPressed: onDeletePressed,
+              ),
+            ],
+          ),
         ],
       ),
     );

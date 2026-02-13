@@ -645,6 +645,10 @@
   "@flashcardsSortByCreatedAt": {
     "description": "Sort option by created timestamp for flashcards."
   },
+  "flashcardsSortByUpdatedAt": "Thời điểm cập nhật",
+  "@flashcardsSortByUpdatedAt": {
+    "description": "Sort option by updated timestamp for flashcards."
+  },
   "flashcardsSortByFrontText": "Mặt trước",
   "@flashcardsSortByFrontText": {
     "description": "Sort option by flashcard front text."
@@ -656,6 +660,14 @@
   "flashcardsSortDirectionAsc": "Cũ nhất trước",
   "@flashcardsSortDirectionAsc": {
     "description": "Sort direction label ascending for flashcards."
+  },
+  "flashcardsSortDirectionZa": "Z đến A",
+  "@flashcardsSortDirectionZa": {
+    "description": "Sort direction label descending for flashcards sorted by front text."
+  },
+  "flashcardsSortDirectionAz": "A đến Z",
+  "@flashcardsSortDirectionAz": {
+    "description": "Sort direction label ascending for flashcards sorted by front text."
   },
   "flashcardsEmptyTitle": "Chưa có flashcard",
   "@flashcardsEmptyTitle": {
@@ -892,6 +904,30 @@
   "flashcardsUnbookmarkToast": "Đã bỏ đánh dấu thẻ.",
   "@flashcardsUnbookmarkToast": {
     "description": "Toast shown when card bookmark is removed."
+  },
+  "flashcardsCloseTooltip": "Đóng",
+  "@flashcardsCloseTooltip": {
+    "description": "Tooltip for close action on flashcard screens."
+  },
+  "flashcardsPreviousTooltip": "Thẻ trước",
+  "@flashcardsPreviousTooltip": {
+    "description": "Tooltip for previous card action in flip study screen."
+  },
+  "flashcardsNextTooltip": "Thẻ tiếp theo",
+  "@flashcardsNextTooltip": {
+    "description": "Tooltip for next card action in flip study screen."
+  },
+  "flashcardsFlipStudySettingsTooltip": "Cài đặt học",
+  "@flashcardsFlipStudySettingsTooltip": {
+    "description": "Tooltip for settings action in flip study screen."
+  },
+  "flashcardsFlipStudySettingsToast": "Cài đặt học chưa sẵn sàng.",
+  "@flashcardsFlipStudySettingsToast": {
+    "description": "Toast shown when settings is tapped in flip study screen."
+  },
+  "flashcardsFlipStudyCompletedToast": "Bạn đã đến thẻ cuối cùng.",
+  "@flashcardsFlipStudyCompletedToast": {
+    "description": "Toast shown when user tries to go next on the last card."
   },
   "homeTitle": "LearnWise - Chuyển văn bản thành giọng nói",
   "@homeTitle": {

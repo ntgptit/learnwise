@@ -9,6 +9,7 @@ class FlashcardConstants {
   static const String querySortByKey = 'sortBy';
   static const String querySortDirectionKey = 'sortDirection';
   static const String sortByCreatedAt = 'createdAt';
+  static const String sortByUpdatedAt = 'updatedAt';
   static const String sortByFrontText = 'frontText';
   static const String sortDirectionAsc = 'asc';
   static const String sortDirectionDesc = 'desc';

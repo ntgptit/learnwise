@@ -9,6 +9,7 @@ import com.learn.wire.dto.common.query.SortableField;
 
 public enum FlashcardSortField implements SortableField {
     CREATED_AT(FlashcardConst.SORT_BY_CREATED_AT, "createdAt"),
+    UPDATED_AT(FlashcardConst.SORT_BY_UPDATED_AT, "updatedAt"),
     FRONT_TEXT(FlashcardConst.SORT_BY_FRONT_TEXT, "frontText");
 
     private static final SortFieldResolveSpec<FlashcardSortField> RESOLVE_SPEC = new SortFieldResolveSpec<>(

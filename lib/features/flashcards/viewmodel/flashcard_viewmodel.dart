@@ -35,10 +35,19 @@ class FlashcardQueryController extends _$FlashcardQueryController {
   }
 
   void setSortBy(FlashcardSortBy value) {
-    if (state.sortBy == value) {
+    if (state.sortBy != value) {
+      state = state.copyWith(
+        sortBy: value,
+        sortDirection: _resolveSortDirectionOnSortByChange(value),
+      );
       return;
     }
-    state = state.copyWith(sortBy: value);
+    if (value != FlashcardSortBy.frontText) {
+      return;
+    }
+    state = state.copyWith(
+      sortDirection: _toggleSortDirection(state.sortDirection),
+    );
   }
 
   void setSortDirection(FlashcardSortDirection value) {
@@ -47,6 +56,28 @@ class FlashcardQueryController extends _$FlashcardQueryController {
     }
     state = state.copyWith(sortDirection: value);
   }
+
+  FlashcardSortDirection _resolveSortDirectionOnSortByChange(
+    FlashcardSortBy value,
+  ) {
+    if (value == FlashcardSortBy.frontText) {
+      return FlashcardSortDirection.asc;
+    }
+    if (value == FlashcardSortBy.createdAt) {
+      return FlashcardSortDirection.desc;
+    }
+    if (value == FlashcardSortBy.updatedAt) {
+      return FlashcardSortDirection.desc;
+    }
+    return state.sortDirection;
+  }
+
+  FlashcardSortDirection _toggleSortDirection(FlashcardSortDirection value) {
+    if (value == FlashcardSortDirection.asc) {
+      return FlashcardSortDirection.desc;
+    }
+    return FlashcardSortDirection.asc;
+  }
 }
 
 class FlashcardUiState {
@@ -54,26 +85,31 @@ class FlashcardUiState {
     required this.isSearchVisible,
     required this.previewIndex,
     required this.starredFlashcardIds,
+    required this.isStudyCardFlipped,
   });
 
   const FlashcardUiState.initial()
     : isSearchVisible = false,
       previewIndex = FlashcardConstants.defaultPage,
-      starredFlashcardIds = const <int>{};
+      starredFlashcardIds = const <int>{},
+      isStudyCardFlipped = false;
 
   final bool isSearchVisible;
   final int previewIndex;
   final Set<int> starredFlashcardIds;
+  final bool isStudyCardFlipped;
 
   FlashcardUiState copyWith({
     bool? isSearchVisible,
     int? previewIndex,
     Set<int>? starredFlashcardIds,
+    bool? isStudyCardFlipped,
   }) {
     return FlashcardUiState(
       isSearchVisible: isSearchVisible ?? this.isSearchVisible,
       previewIndex: previewIndex ?? this.previewIndex,
       starredFlashcardIds: starredFlashcardIds ?? this.starredFlashcardIds,
+      isStudyCardFlipped: isStudyCardFlipped ?? this.isStudyCardFlipped,
     );
   }
 }
@@ -96,7 +132,7 @@ class FlashcardUiController extends _$FlashcardUiController {
     if (state.previewIndex == index) {
       return;
     }
-    state = state.copyWith(previewIndex: index);
+    state = state.copyWith(previewIndex: index, isStudyCardFlipped: false);
   }
 
   void toggleStar(int flashcardId) {
@@ -108,6 +144,17 @@ class FlashcardUiController extends _$FlashcardUiController {
     }
     nextStarredIds.add(flashcardId);
     state = state.copyWith(starredFlashcardIds: nextStarredIds);
+  }
+
+  void toggleStudyCardFlipped() {
+    state = state.copyWith(isStudyCardFlipped: !state.isStudyCardFlipped);
+  }
+
+  void resetStudyCardFlipped() {
+    if (!state.isStudyCardFlipped) {
+      return;
+    }
+    state = state.copyWith(isStudyCardFlipped: false);
   }
 }
 
@@ -256,9 +303,7 @@ class FlashcardController extends _$FlashcardController {
 
     final FlashcardListingState? snapshot = _currentListing;
     if (snapshot != null) {
-      final List<FlashcardItem> optimisticItems = snapshot.items.map((
-        item,
-      ) {
+      final List<FlashcardItem> optimisticItems = snapshot.items.map((item) {
         if (item.id != flashcardId) {
           return item;
         }
@@ -305,9 +350,7 @@ class FlashcardController extends _$FlashcardController {
       return false;
     }
 
-    final List<FlashcardItem> optimisticItems = snapshot.items.where((
-      item,
-    ) {
+    final List<FlashcardItem> optimisticItems = snapshot.items.where((item) {
       return item.id != flashcardId;
     }).toList();
     state = AsyncData<FlashcardListingState>(

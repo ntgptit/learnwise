@@ -22,7 +22,7 @@ class SkeletonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int safeItemCount = itemCount <= 0 ? 1 : itemCount;
-    final double safeItemHeight = itemHeight <= 0 ? 48 : itemHeight;
+    final double safeItemHeight = itemHeight <= 0 ? AppSizes.size48 : itemHeight;
     final double safeItemSpacing = itemSpacing < 0 ? 0 : itemSpacing;
 
     return ListView.separated(
@@ -32,7 +32,10 @@ class SkeletonList extends StatelessWidget {
         return SizedBox(height: safeItemSpacing);
       },
       itemBuilder: (context, index) {
-        return ShimmerBox(height: safeItemHeight, borderRadius: 12);
+        return ShimmerBox(
+          height: safeItemHeight,
+          borderRadius: AppSizes.radiusMd,
+        );
       },
     );
   }

@@ -2,6 +2,30 @@ import 'package:flutter/material.dart';
 
 import 'text_box.dart';
 
+/// A form-integrated password text field with visibility toggle.
+///
+/// This widget extends [TextBox] with password-specific functionality,
+/// including obscured text by default and a toggle button to show/hide
+/// the password. The toggle button includes appropriate tooltips and icons.
+///
+/// Example:
+/// ```dart
+/// PasswordTextBox(
+///   labelText: 'Password',
+///   hintText: 'Enter your password',
+///   validator: (value) {
+///     if (value == null || value.length < 8) {
+///       return 'Password must be at least 8 characters';
+///     }
+///     return null;
+///   },
+///   onChanged: (value) => handlePasswordChange(value),
+/// )
+/// ```
+///
+/// See also:
+///  * [TextBox], the base text field widget
+///  * [AppTextField], for simpler text input without form integration
 class PasswordTextBox extends StatefulWidget {
   const PasswordTextBox({
     super.key,
@@ -19,17 +43,42 @@ class PasswordTextBox extends StatefulWidget {
     this.maxLength,
   });
 
+  /// Controller for managing the text field's content.
   final TextEditingController? controller;
+
+  /// Initial value for uncontrolled text field.
   final String? initialValue;
+
+  /// Label displayed above the password field.
   final String? labelText;
+
+  /// Hint text displayed when the field is empty.
   final String? hintText;
+
+  /// Helper text displayed below the field to provide guidance.
   final String? helperText;
+
+  /// Error text displayed below the field when validation fails.
   final String? errorText;
+
+  /// Called when the password field value changes.
   final ValueChanged<String>? onChanged;
+
+  /// Called when the user submits the field (e.g., pressing Enter).
   final ValueChanged<String>? onSubmitted;
+
+  /// Validator function for form validation.
+  ///
+  /// Returns an error message string if validation fails, or null if valid.
   final FormFieldValidator<String>? validator;
+
+  /// Whether the password field is enabled for interaction. Defaults to true.
   final bool enabled;
+
+  /// The action button to show on the keyboard (e.g., done, next).
   final TextInputAction? textInputAction;
+
+  /// Maximum number of characters allowed.
   final int? maxLength;
 
   @override

@@ -23,9 +23,12 @@ class FlipAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Duration safeDuration = duration < Duration.zero
+    // Respect user's reduce-motion preference
+    final bool reduceMotion = MediaQuery.disableAnimationsOf(context);
+
+    final Duration safeDuration = reduceMotion
         ? Duration.zero
-        : duration;
+        : (duration < Duration.zero ? Duration.zero : duration);
 
     final Widget animated = TweenAnimationBuilder<double>(
       tween: Tween<double>(end: isFlipped ? 1 : 0),

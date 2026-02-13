@@ -19,6 +19,12 @@ class SlideIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Respect user's reduce-motion preference
+    final bool reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (reduceMotion) {
+      return FractionalTranslation(translation: endOffset, child: child);
+    }
+
     final Duration safeDuration = duration < Duration.zero
         ? Duration.zero
         : duration;

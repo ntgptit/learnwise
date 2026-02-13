@@ -6,12 +6,43 @@ import '../../styles/app_durations.dart';
 import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
+/// Represents a single breadcrumb item in the navigation trail.
+///
+/// Each item displays a [label] and can be tapped to navigate to that level.
 class AppBreadcrumbItem {
   const AppBreadcrumbItem({required this.label});
 
+  /// The display label for this breadcrumb item.
   final String label;
 }
 
+/// A horizontal navigation breadcrumb trail for hierarchical navigation.
+///
+/// Displays a root item followed by a trail of [AppBreadcrumbItem]s,
+/// separated by chevron icons. The active (current) item is visually
+/// highlighted. Automatically scrolls to show the latest item when the trail
+/// expands.
+///
+/// Common use cases include folder navigation, nested categories, or
+/// multi-level settings.
+///
+/// Example:
+/// ```dart
+/// AppBreadcrumbs(
+///   rootLabel: 'Home',
+///   items: [
+///     AppBreadcrumbItem(label: 'Documents'),
+///     AppBreadcrumbItem(label: 'Projects'),
+///     AppBreadcrumbItem(label: '2024'),
+///   ],
+///   onRootPressed: () => navigateToRoot(),
+///   onItemPressed: (index) => navigateToLevel(index),
+/// )
+/// ```
+///
+/// See also:
+///  * [AppBreadcrumbItem], the item data class
+///  * [AppBottomNavBar], for top-level app navigation
 class AppBreadcrumbs extends StatefulWidget {
   const AppBreadcrumbs({
     required this.rootLabel,
@@ -21,9 +52,18 @@ class AppBreadcrumbs extends StatefulWidget {
     super.key,
   });
 
+  /// The label for the root (home) breadcrumb.
   final String rootLabel;
+
+  /// The list of breadcrumb items to display after the root.
   final List<AppBreadcrumbItem> items;
+
+  /// Called when the user taps the root breadcrumb.
   final VoidCallback onRootPressed;
+
+  /// Called when the user taps a breadcrumb item.
+  ///
+  /// The [int] parameter is the index of the tapped item in [items].
   final ValueChanged<int> onItemPressed;
 
   @override

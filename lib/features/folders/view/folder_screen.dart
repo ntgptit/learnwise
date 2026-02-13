@@ -948,11 +948,6 @@ class _FolderToolbar extends StatelessWidget {
                       Icons.sort_rounded,
                       color: colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: AppSizes.spacing2Xs),
-                    Icon(
-                      Icons.expand_more_rounded,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
                   ],
                 ),
               ),

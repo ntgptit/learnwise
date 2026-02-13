@@ -132,7 +132,7 @@ class FolderUiState {
   });
 
   const FolderUiState.initial()
-    : isSearchVisible = false,
+    : isSearchVisible = true,
       isTransitionInProgress = false;
 
   final bool isSearchVisible;

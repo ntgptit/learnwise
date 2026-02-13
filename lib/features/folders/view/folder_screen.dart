@@ -41,6 +41,7 @@ class FolderScreen extends ConsumerStatefulWidget {
 
 class _FolderScreenState extends ConsumerState<FolderScreen> {
   late final TextEditingController _searchController;
+  late final FocusNode _searchFocusNode;
   late final ScrollController _scrollController;
   Timer? _searchDebounceTimer;
 
@@ -49,6 +50,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     super.initState();
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
     _searchController = TextEditingController(text: query.search);
+    _searchFocusNode = FocusNode();
     _scrollController = ScrollController()..addListener(_onScroll);
   }
 
@@ -56,6 +58,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   void dispose() {
     _searchDebounceTimer?.cancel();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
@@ -121,11 +124,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                 : null,
             icon: const Icon(Icons.collections_bookmark_outlined),
             tooltip: l10n.decksCreateButton,
-          ),
-          IconButton(
-            onPressed: _toggleSearchVisibility,
-            icon: const Icon(Icons.search_rounded),
-            tooltip: l10n.foldersSearchHint,
           ),
           PopupMenuButton<_FolderMenuAction>(
             onSelected: _onMenuActionSelected,
@@ -201,15 +199,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
                       _FolderToolbar(
                         searchController: _searchController,
+                        searchFocusNode: _searchFocusNode,
                         searchHint: l10n.foldersSearchHint,
-                        sortLabel: _buildSortSummaryLabel(
-                          l10n: l10n,
-                          query: query,
-                        ),
-                        isSearchVisible: uiState.isSearchVisible,
+                        sortTooltip: l10n.foldersSortByLabel,
                         onSearchChanged: _onSearchChanged,
                         onSearchSubmitted: _submitSearch,
-                        onToggleSearch: _toggleSearchVisibility,
+                        onClearSearch: _clearSearch,
                         onSortPressed: (context) {
                           return _buildMenuItems(
                             l10n: l10n,
@@ -391,26 +386,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     context.go(RouteNames.dashboard);
   }
 
-  void _toggleSearchVisibility() {
-    ref.read(folderUiControllerProvider.notifier).toggleSearchVisibility();
-  }
-
-  String _buildSortSummaryLabel({
-    required AppLocalizations l10n,
-    required FolderListQuery query,
-  }) {
-    final String sortByLabel = switch (query.sortBy) {
-      FolderSortBy.createdAt => l10n.foldersSortByCreatedAt,
-      FolderSortBy.name => l10n.foldersSortByName,
-      FolderSortBy.flashcardCount => l10n.foldersSortByFlashcardCount,
-    };
-    final String sortDirectionLabel = switch (query.sortDirection) {
-      FolderSortDirection.desc => l10n.foldersSortDirectionDesc,
-      FolderSortDirection.asc => l10n.foldersSortDirectionAsc,
-    };
-    return '$sortByLabel \u00b7 $sortDirectionLabel';
-  }
-
   List<PopupMenuEntry<_FolderMenuAction>> _buildMenuItems({
     required AppLocalizations l10n,
     required FolderListQuery query,
@@ -508,6 +483,16 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     ref
         .read(deckControllerProvider(currentFolderId).notifier)
         .applySearch(_searchController.text);
+  }
+
+  void _clearSearch() {
+    if (_searchController.text.isEmpty) {
+      return;
+    }
+    _searchDebounceTimer?.cancel();
+    _searchController.clear();
+    _submitSearch();
+    _searchFocusNode.requestFocus();
   }
 
   bool _canCreateFolderAtCurrentLevel({
@@ -900,23 +885,23 @@ class _FolderActionBar extends StatelessWidget {
 class _FolderToolbar extends StatelessWidget {
   const _FolderToolbar({
     required this.searchController,
+    required this.searchFocusNode,
     required this.searchHint,
-    required this.sortLabel,
-    required this.isSearchVisible,
+    required this.sortTooltip,
     required this.onSearchChanged,
     required this.onSearchSubmitted,
-    required this.onToggleSearch,
+    required this.onClearSearch,
     required this.onSortPressed,
     required this.onMenuActionSelected,
   });
 
   final TextEditingController searchController;
+  final FocusNode searchFocusNode;
   final String searchHint;
-  final String sortLabel;
-  final bool isSearchVisible;
+  final String sortTooltip;
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onSearchSubmitted;
-  final VoidCallback onToggleSearch;
+  final VoidCallback onClearSearch;
   final List<PopupMenuEntry<_FolderMenuAction>> Function(BuildContext)
   onSortPressed;
   final ValueChanged<_FolderMenuAction> onMenuActionSelected;
@@ -924,7 +909,6 @@ class _FolderToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -932,64 +916,20 @@ class _FolderToolbar extends StatelessWidget {
         Row(
           children: <Widget>[
             Expanded(
-              child: Container(
-                height: AppSizes.size48,
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(
-                    alpha: AppOpacities.soft20,
-                  ),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusPill),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    IconButton(
-                      onPressed: onToggleSearch,
-                      icon: Icon(
-                        isSearchVisible
-                            ? Icons.close_rounded
-                            : Icons.search_rounded,
-                      ),
-                      tooltip: searchHint,
-                    ),
-                    if (isSearchVisible)
-                      Expanded(
-                        child: TextField(
-                          controller: searchController,
-                          onChanged: onSearchChanged,
-                          onSubmitted: (_) => onSearchSubmitted(),
-                          decoration: InputDecoration(
-                            hintText: searchHint,
-                            border: InputBorder.none,
-                            isDense: true,
-                          ),
-                          style: textTheme.bodyMedium,
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSizes.spacingXs,
-                          ),
-                          child: Text(
-                            searchHint,
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant.withValues(
-                                alpha: AppOpacities.muted70,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+              child: SearchField(
+                controller: searchController,
+                focusNode: searchFocusNode,
+                hint: searchHint,
+                onChanged: onSearchChanged,
+                onSubmitted: (_) => onSearchSubmitted(),
+                onClear: onClearSearch,
               ),
             ),
             const SizedBox(width: AppSizes.spacingSm),
             PopupMenuButton<_FolderMenuAction>(
               onSelected: onMenuActionSelected,
               itemBuilder: onSortPressed,
-              tooltip: 'Sort',
+              tooltip: sortTooltip,
               child: Container(
                 height: AppSizes.size48,
                 padding: const EdgeInsets.symmetric(

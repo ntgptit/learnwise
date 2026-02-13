@@ -27,6 +27,7 @@ class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
     this.controller,
+    this.focusNode,
     this.label,
     this.hint,
     this.onChanged,
@@ -43,6 +44,9 @@ class AppTextField extends StatelessWidget {
 
   /// Controller for managing the text field's content.
   final TextEditingController? controller;
+
+  /// Focus node for requesting and tracking focus state.
+  final FocusNode? focusNode;
 
   /// Label displayed above the text field.
   final String? label;
@@ -90,6 +94,7 @@ class AppTextField extends StatelessWidget {
       obscured: obscureText,
       child: TextField(
         controller: controller,
+        focusNode: focusNode,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
         maxLines: maxLines,

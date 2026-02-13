@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../styles/app_durations.dart';
 import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
@@ -61,6 +62,9 @@ class _AppBreadcrumbsState extends State<AppBreadcrumbs> {
   }
 
   @override
+  // quality-guard: allow-long-function
+  // Justification: Declarative UI layout for breadcrumb trail with root + items.
+  // Breaking up would obscure the breadcrumb structure and make it harder to understand.
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -118,7 +122,7 @@ class _AppBreadcrumbsState extends State<AppBreadcrumbs> {
   }
 }
 
-const Duration _kScrollDuration = Duration(milliseconds: 300);
+const Duration _kScrollDuration = AppDurations.animationFast;
 const double _kSeparatorSize = 18;
 const double _kChipIconSize = 16;
 const double _kChipIconGap = 6;
@@ -141,15 +145,16 @@ class _BreadcrumbChip extends StatelessWidget {
   final TextTheme textTheme;
 
   @override
+  // quality-guard: allow-long-function
+  // Justification: Single Material breadcrumb chip with icon, label, and interactive states.
+  // This is a cohesive UI component that should not be fragmented.
   Widget build(BuildContext context) {
     final Color foreground = isActive
         ? colorScheme.onSecondaryContainer
         : colorScheme.onSurfaceVariant;
 
     return Material(
-      color: isActive
-          ? colorScheme.secondaryContainer
-          : Colors.transparent,
+      color: isActive ? colorScheme.secondaryContainer : Colors.transparent,
       borderRadius: BorderRadius.circular(AppSizes.radiusPill),
       child: InkWell(
         onTap: onPressed,

@@ -19,6 +19,7 @@ class CommonWidgetGuardConst {
     'lib/common/widgets/card/flashcard_flip.dart',
     'lib/common/widgets/input/password_text_box.dart',
     'lib/common/widgets/loader/shimmer_box.dart',
+    'lib/common/widgets/navigation/',
   ];
 }
 

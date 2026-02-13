@@ -59,6 +59,10 @@ final RegExp _buttonHeightFromRegExp = RegExp(
 final RegExp _iconSizeRegExp = RegExp(
   r'Icon\([^)]*size\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
 );
+final RegExp _iconStartRegExp = RegExp(r'\bIcon\s*\(');
+final RegExp _iconSizePropertyRegExp = RegExp(
+  r'^\s*size\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
+);
 final RegExp _appBarHeightRegExp = RegExp(
   r'\btoolbarHeight\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
 );
@@ -145,6 +149,8 @@ Future<void> main() async {
         rawLine: rawLine,
         sourceLine: sourceLine,
         lineNumber: index + 1,
+        allLines: lines,
+        currentIndex: index,
       );
       _checkAppBarHeight(
         violations: violations,
@@ -346,7 +352,10 @@ void _checkIconSize({
   required String rawLine,
   required String sourceLine,
   required int lineNumber,
+  required List<String> allLines,
+  required int currentIndex,
 }) {
+  // Check single-line Icon declarations
   final Iterable<double> values = _extractNumbers(_iconSizeRegExp, sourceLine);
   for (final double value in values) {
     if (value == UiDesignGuardConst.iconSize) {
@@ -360,6 +369,41 @@ void _checkIconSize({
         lineContent: rawLine.trim(),
       ),
     );
+  }
+
+  // Check multi-line Icon declarations
+  // Look back up to 10 lines to find Icon( declaration
+  bool insideIconDeclaration = false;
+  for (int i = currentIndex; i >= 0 && i > currentIndex - 10; i--) {
+    final String prevLine = _stripLineComment(allLines[i]).trim();
+    if (_iconStartRegExp.hasMatch(prevLine)) {
+      insideIconDeclaration = true;
+      break;
+    }
+    if (prevLine.contains(');') || prevLine.contains('}')) {
+      // Hit end of another statement, stop searching
+      break;
+    }
+  }
+
+  if (insideIconDeclaration) {
+    final Iterable<double> propertyValues = _extractNumbers(
+      _iconSizePropertyRegExp,
+      sourceLine,
+    );
+    for (final double value in propertyValues) {
+      if (value == UiDesignGuardConst.iconSize) {
+        continue;
+      }
+      violations.add(
+        UiDesignViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason: 'Icon size should be ${UiDesignGuardConst.iconSize.toInt()}dp.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
   }
 }
 

@@ -29,18 +29,10 @@ class FlashcardPreviewCarousel extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final bool isDarkMode = theme.brightness == Brightness.dark;
-    final Color cardBackgroundColor = _resolveCardBackgroundColor(
-      colorScheme: colorScheme,
-      isDarkMode: isDarkMode,
-    );
-    final Color activeDotColor = _resolveActiveDotColor(
-      colorScheme: colorScheme,
-      isDarkMode: isDarkMode,
-    );
-    final Color inactiveDotColor = _resolveInactiveDotColor(
-      colorScheme: colorScheme,
-      isDarkMode: isDarkMode,
+    final Color cardBackgroundColor = colorScheme.surfaceContainerHigh;
+    final Color activeDotColor = colorScheme.primary;
+    final Color inactiveDotColor = colorScheme.onSurfaceVariant.withValues(
+      alpha: FlashcardScreenTokens.heroDotInactiveDarkModeOpacity,
     );
     final List<FlashcardItem> previewItems = items;
     final int dotCount = previewItems.isEmpty ? 1 : previewItems.length;
@@ -85,27 +77,40 @@ class FlashcardPreviewCarousel extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onTap: handleExpandPressed,
                     child: AppCard(
+                      variant: AppCardVariant.elevated,
+                      elevation: FlashcardScreenTokens.cardElevation,
+                      borderRadius: BorderRadius.circular(
+                        FlashcardScreenTokens.cardRadius,
+                      ),
                       backgroundColor: cardBackgroundColor,
+                      padding: EdgeInsets.zero,
                       child: Stack(
                         children: <Widget>[
                           Center(
-                            child: Text(
-                              displayText,
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
+                            child: Padding(
+                              padding: const EdgeInsets.all(
+                                FlashcardScreenTokens.cardPadding,
                               ),
-                              textAlign: TextAlign.center,
-                              maxLines: FlashcardScreenTokens.previewMaxLines,
-                              overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                displayText,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontSize:
+                                      FlashcardScreenTokens.heroPreviewTextSize,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: FlashcardScreenTokens.previewMaxLines,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                           Positioned(
-                            right: FlashcardScreenTokens.overlayEdgeInset,
-                            bottom: FlashcardScreenTokens.overlayEdgeInset,
-                            child: IconButton(
+                            right: FlashcardScreenTokens.heroExpandButtonInset,
+                            bottom: FlashcardScreenTokens.heroExpandButtonInset,
+                            child: IconButton.filledTonal(
                               onPressed: handleExpandPressed,
                               tooltip: l10n.flashcardsExpandPreviewTooltip,
-                              icon: const Icon(Icons.fullscreen),
+                              icon: const Icon(Icons.fullscreen_rounded),
                             ),
                           ),
                         ],
@@ -170,44 +175,6 @@ class FlashcardPreviewCarousel extends StatelessWidget {
       return maxStart;
     }
     return centeredStart;
-  }
-
-  Color _resolveCardBackgroundColor({
-    required ColorScheme colorScheme,
-    required bool isDarkMode,
-  }) {
-    if (!isDarkMode) {
-      return colorScheme.surfaceContainerHighest.withValues(
-        alpha: FlashcardScreenTokens.surfaceSoftOpacity,
-      );
-    }
-    return colorScheme.primaryContainer.withValues(
-      alpha: FlashcardScreenTokens.heroCardDarkModeOpacity,
-    );
-  }
-
-  Color _resolveActiveDotColor({
-    required ColorScheme colorScheme,
-    required bool isDarkMode,
-  }) {
-    if (!isDarkMode) {
-      return colorScheme.onSurface;
-    }
-    return colorScheme.primaryContainer;
-  }
-
-  Color _resolveInactiveDotColor({
-    required ColorScheme colorScheme,
-    required bool isDarkMode,
-  }) {
-    if (!isDarkMode) {
-      return colorScheme.onSurface.withValues(
-        alpha: FlashcardScreenTokens.mutedTextOpacity,
-      );
-    }
-    return colorScheme.primaryContainer.withValues(
-      alpha: FlashcardScreenTokens.heroDotInactiveDarkModeOpacity,
-    );
   }
 }
 

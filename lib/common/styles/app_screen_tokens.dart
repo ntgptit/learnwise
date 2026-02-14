@@ -112,8 +112,10 @@ class FlashcardScreenTokens {
   static const double heroCardItemSpacing = AppSizes.spacingXs;
   static const double heroViewportFraction = 0.94;
   static const double heroPagerGap = AppSizes.spacingSm;
+  static const double heroPreviewTextSize = AppSizes.size24;
   static const double heroDotSize = AppSizes.size6;
   static const double heroDotSpacing = AppSizes.spacing2Xs;
+  static const double heroExpandButtonInset = AppSizes.spacingSm;
   static const int heroMaxIndicatorDots = 7;
   static const double heroCardDarkModeOpacity = AppOpacities.soft35;
   static const double heroDotInactiveDarkModeOpacity = AppOpacities.muted55;
@@ -203,32 +205,36 @@ class FlashcardFlipStudyTokens {
   const FlashcardFlipStudyTokens._();
 
   static const double screenPadding = AppSizes.spacingMd;
+  static const double topIconSize = AppSizes.size24;
+  static const double topIconTapTargetSize = AppSizes.size48;
   static const double topRowGap = AppSizes.spacingMd;
-  static const double progressBarTopGap = AppSizes.spacingSm;
+  static const double progressBarTopGap = AppSizes.spacingLg;
   static const double progressBarBottomGap = AppSizes.spacingLg;
   static const double progressBarHeight = AppSizes.spacing2Xs;
   static const double progressBarRadius = AppSizes.radiusPill;
-  static const double scoreRowBottomGap = AppSizes.spacingLg;
-  static const double scoreChipHeight = AppSizes.size48;
-  static const double scoreChipMinWidth = AppSizes.size72;
-  static const double scoreChipHorizontalPadding = AppSizes.spacingLg;
-  static const double scoreChipBorderWidth = AppSizes.size2;
-  static const double scoreChipTextOpacity = AppOpacities.soft35;
-  static const double cardBorderWidth = AppSizes.size2;
+  static const double progressTrackOpacity = AppOpacities.soft20;
+  static const double progressValueOpacity = AppOpacities.soft35;
+  static const double topIconOpacity = AppOpacities.muted82;
+
+  static const double cardOuterVerticalInset = AppSizes.size32;
+  static const double cardRadius = AppSizes.size28;
+  static const double cardElevation = AppSizes.size1;
+  static const double cardPressedElevation = AppSizes.size2;
   static const double cardContentHorizontalPadding = AppSizes.spacingLg;
   static const double cardContentTopPadding = AppSizes.spacingLg;
   static const double cardContentBottomPadding = AppSizes.spacingLg;
-  static const double cardHeaderIconGap = AppSizes.spacingSm;
+  static const double cardActionIconSize = AppSizes.size24;
+  static const double cardActionTapTargetSize = AppSizes.size48;
+  static const double cardActionSpacing = AppSizes.spacingSm;
   static const double cardBodyTopGap = AppSizes.spacingLg;
   static const double cardBodyBottomGap = AppSizes.spacingLg;
-  static const double bottomBarTopGap = AppSizes.spacingLg;
-  static const double bottomBarBottomGap = AppSizes.spacingSm;
-  static const double bottomBarHorizontalPadding = AppSizes.spacingSm;
-  static const double centerTitleOpacity = AppOpacities.muted82;
-  static const double scoreWrongOpacity = AppOpacities.soft35;
-  static const double scoreCorrectOpacity = AppOpacities.soft35;
-  static const double progressTrackOpacity = AppOpacities.soft20;
-  static const double progressValueOpacity = AppOpacities.muted82;
+  static const int backPrimaryMaxLines = 6;
+  static const int backDescriptionMaxLines = 4;
+  static const double bottomBarTopGap = AppSizes.size32;
+  static const double bottomBarBottomGap = AppSizes.spacingLg;
+  static const double bottomBarHorizontalPadding = AppSizes.spacingLg;
+  static const double bottomBarIconSize = AppSizes.size28;
+  static const double bottomBarTapTargetSize = AppSizes.size48;
 }
 
 class TtsScreenTokens {

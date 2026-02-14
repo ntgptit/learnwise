@@ -15,6 +15,9 @@ class AppDurations {
   /// Use for tap/press feedback (card press scale, icon toggles).
   static const Duration animationQuick = Duration(milliseconds: 140);
 
+  /// Use for standard component transitions following Material 3 guidance.
+  static const Duration animationStandard = Duration(milliseconds: 200);
+
   /// Use for quick transitions (buttons, short fades, small shifts).
   static const Duration animationFast = Duration(milliseconds: 300);
 
@@ -30,6 +33,9 @@ class AppDurations {
 
 class AppMotionCurves {
   const AppMotionCurves._();
+
+  /// Standard easing curve for component-level state transitions.
+  static const Curve standard = Curves.easeInOutCubic;
 
   /// Linear timing for progress interpolation.
   static const Curve linear = Curves.linear;

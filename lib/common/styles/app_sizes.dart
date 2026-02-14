@@ -10,9 +10,13 @@ class AppSizes {
   static const double size20 = 20;
   static const double size22 = 22;
   static const double size24 = 24;
+  static const double size26 = 26;
   static const double size28 = 28;
+  static const double size32 = 32;
   static const double size34 = 34;
+  static const double size36 = 36;
   static const double size40 = 40;
+  static const double size44 = 44;
   static const double size48 = 48;
   static const double size52 = 52;
   static const double size72 = 72;

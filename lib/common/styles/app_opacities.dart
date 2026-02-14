@@ -6,6 +6,7 @@ class AppOpacities {
   static const double soft15 = 0.15;
   static const double soft20 = 0.20;
   static const double soft35 = 0.35;
+  static const double disabled38 = 0.38;
   static const double muted70 = 0.70;
   static const double muted55 = 0.55;
   static const double muted82 = 0.82;

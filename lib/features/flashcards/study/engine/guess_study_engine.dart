@@ -105,6 +105,18 @@ class GuessStudyEngine implements StudyEngine {
     _currentIndex--;
   }
 
+  @override
+  void goTo(int index) {
+    if (_units.isEmpty) {
+      return;
+    }
+    final int clampedIndex = index.clamp(StudyConstants.defaultIndex, _units.length - 1);
+    if (_currentIndex == clampedIndex) {
+      return;
+    }
+    _currentIndex = clampedIndex;
+  }
+
   static List<GuessUnit> _buildUnits({
     required List<FlashcardItem> items,
     required Random random,

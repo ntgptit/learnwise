@@ -104,10 +104,23 @@ class _FlashcardStudySessionScreenState
             provider: provider,
             l10n: l10n,
             fillController: _fillController,
+            reviewUnits: _buildReviewUnits(),
           ),
         ),
       ),
     );
+  }
+
+  List<ReviewUnit> _buildReviewUnits() {
+    return widget.args.items.map((item) {
+      return ReviewUnit(
+        unitId: item.id.toString(),
+        flashcardId: item.id,
+        frontText: item.frontText,
+        backText: item.backText,
+        note: item.note,
+      );
+    }).toList(growable: false);
   }
 
   List<Widget> _buildAppBarActions({
@@ -194,11 +207,13 @@ class _StudySessionBody extends ConsumerWidget {
     required this.provider,
     required this.l10n,
     required this.fillController,
+    required this.reviewUnits,
   });
 
   final StudySessionControllerProvider provider;
   final AppLocalizations l10n;
   final TextEditingController fillController;
+  final List<ReviewUnit> reviewUnits;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -224,6 +239,7 @@ class _StudySessionBody extends ConsumerWidget {
             controller: controller,
             l10n: l10n,
             fillController: fillController,
+            reviewUnits: reviewUnits,
           ),
         ),
       ],
@@ -237,12 +253,14 @@ class _StudyUnitBody extends StatelessWidget {
     required this.controller,
     required this.l10n,
     required this.fillController,
+    required this.reviewUnits,
   });
 
   final StudySessionState state;
   final StudySessionController controller;
   final AppLocalizations l10n;
   final TextEditingController fillController;
+  final List<ReviewUnit> reviewUnits;
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +295,7 @@ class _StudyUnitBody extends StatelessWidget {
   Widget _buildUnitContent(StudyUnit currentUnit) {
     if (currentUnit is ReviewUnit) {
       return ReviewStudyModeView(
-        unit: currentUnit,
+        units: reviewUnits,
         state: state,
         controller: controller,
         l10n: l10n,

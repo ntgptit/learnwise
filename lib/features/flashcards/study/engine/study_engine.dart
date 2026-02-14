@@ -14,4 +14,5 @@ abstract class StudyEngine {
   void submitAnswer(StudyAnswer answer);
   void next();
   void previous();
+  void goTo(int index);
 }

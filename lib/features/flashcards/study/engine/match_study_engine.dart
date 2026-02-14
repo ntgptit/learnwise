@@ -71,6 +71,9 @@ class MatchStudyEngine implements StudyEngine {
   @override
   void previous() {}
 
+  @override
+  void goTo(int index) {}
+
   void _onLeftSelected(int leftId) {
     if (_unit.matchedIds.contains(leftId)) {
       return;

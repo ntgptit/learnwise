@@ -106,6 +106,18 @@ class FillStudyEngine implements StudyEngine {
     _currentIndex--;
   }
 
+  @override
+  void goTo(int index) {
+    if (_units.isEmpty) {
+      return;
+    }
+    final int clampedIndex = index.clamp(StudyConstants.defaultIndex, _units.length - 1);
+    if (_currentIndex == clampedIndex) {
+      return;
+    }
+    _currentIndex = clampedIndex;
+  }
+
   static List<FillUnit> _buildUnits(List<FlashcardItem> items) {
     return items.map((item) {
       return FillUnit(

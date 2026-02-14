@@ -195,6 +195,13 @@ class StudySessionController extends _$StudySessionController {
     _sync();
   }
 
+  void goTo(int index) {
+    _engine.goTo(index);
+    _isFrontVisible = true;
+    _clearAudioPlayingIndicator();
+    _sync();
+  }
+
   void submitFlip() {
     if (_engine.mode != StudyMode.review) {
       return;
@@ -212,6 +219,14 @@ class StudySessionController extends _$StudySessionController {
       return;
     }
     _startAudioPlayingIndicator(currentUnit.flashcardId);
+    _sync();
+  }
+
+  void playAudioFor(int flashcardId) {
+    if (_engine.mode != StudyMode.review) {
+      return;
+    }
+    _startAudioPlayingIndicator(flashcardId);
     _sync();
   }
 

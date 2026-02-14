@@ -892,6 +892,82 @@
   "@flashcardsActionBlocks": {
     "description": "Label for blocks action."
   },
+  "flashcardsStudyModePickerTitle": "Choose study mode",
+  "@flashcardsStudyModePickerTitle": {
+    "description": "Bottom sheet title for selecting a flashcard study mode."
+  },
+  "flashcardsStudyModeReview": "Review",
+  "@flashcardsStudyModeReview": {
+    "description": "Label for review study mode."
+  },
+  "flashcardsStudyModeMatch": "Match",
+  "@flashcardsStudyModeMatch": {
+    "description": "Label for match study mode."
+  },
+  "flashcardsStudyModeGuess": "Guess",
+  "@flashcardsStudyModeGuess": {
+    "description": "Label for guess study mode."
+  },
+  "flashcardsStudyModeRecall": "Recall",
+  "@flashcardsStudyModeRecall": {
+    "description": "Label for recall study mode."
+  },
+  "flashcardsStudyModeFill": "Fill in",
+  "@flashcardsStudyModeFill": {
+    "description": "Label for fill study mode."
+  },
+  "flashcardsStudyCompletedTitle": "Session completed",
+  "@flashcardsStudyCompletedTitle": {
+    "description": "Title displayed when study session is complete."
+  },
+  "flashcardsStudyCompletedSummary": "Correct: {correctCount} • Wrong: {wrongCount}",
+  "@flashcardsStudyCompletedSummary": {
+    "description": "Summary shown when study session is complete.",
+    "placeholders": {
+      "correctCount": {
+        "type": "int"
+      },
+      "wrongCount": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsStudyRestartLabel": "Restart",
+  "@flashcardsStudyRestartLabel": {
+    "description": "Action label to restart study session."
+  },
+  "flashcardsStudyRecallMissedLabel": "Not yet",
+  "@flashcardsStudyRecallMissedLabel": {
+    "description": "Button label for recall mode when learner misses the answer."
+  },
+  "flashcardsStudyRecallRememberedLabel": "Remembered",
+  "@flashcardsStudyRecallRememberedLabel": {
+    "description": "Button label for recall mode when learner remembers the answer."
+  },
+  "flashcardsStudyFillInputLabel": "Your answer",
+  "@flashcardsStudyFillInputLabel": {
+    "description": "Input label in fill mode."
+  },
+  "flashcardsStudyFillInputHint": "Type your answer",
+  "@flashcardsStudyFillInputHint": {
+    "description": "Input hint in fill mode."
+  },
+  "flashcardsStudySubmitLabel": "Submit",
+  "@flashcardsStudySubmitLabel": {
+    "description": "Submit button label in study modes."
+  },
+  "flashcardsStudyMatchPrompt": "Match the pairs",
+  "@flashcardsStudyMatchPrompt": {
+    "description": "Prompt shown in match mode."
+  },
+  "flashcardsStudyMatchLeftColumnLabel": "Prompt",
+  "@flashcardsStudyMatchLeftColumnLabel": {
+    "description": "Left column label in match mode."
+  },
+  "flashcardsStudyMatchRightColumnLabel": "Answer",
+  "@flashcardsStudyMatchRightColumnLabel": {
+    "description": "Right column label in match mode."
+  },
   "flashcardsActionFlipcardToast": "Flip-card mode is not available yet.",
   "@flashcardsActionFlipcardToast": {
     "description": "Toast shown when flip-card action is tapped."

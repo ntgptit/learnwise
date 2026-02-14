@@ -237,6 +237,22 @@ class FlashcardFlipStudyTokens {
   static const double bottomBarTapTargetSize = AppSizes.size48;
 }
 
+class FlashcardStudySessionTokens {
+  const FlashcardStudySessionTokens._();
+
+  static const double screenPadding = AppSizes.spacingMd;
+  static const double sectionSpacing = AppSizes.spacingMd;
+  static const double cardRadius = AppSizes.size24;
+  static const double cardElevation = AppSizes.size1;
+  static const double cardPadding = AppSizes.spacingLg;
+  static const double answerSpacing = AppSizes.spacingSm;
+  static const double progressHeight = AppSizes.spacing2Xs;
+  static const double progressRadius = AppSizes.radiusPill;
+  static const double bottomActionGap = AppSizes.spacingSm;
+  static const double iconSize = AppSizes.size22;
+  static const double modeTileGap = AppSizes.spacing2Xs;
+}
+
 class TtsScreenTokens {
   const TtsScreenTokens._();
 

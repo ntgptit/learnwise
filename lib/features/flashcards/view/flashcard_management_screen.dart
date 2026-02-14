@@ -13,6 +13,8 @@ import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_management_args.dart';
 import '../model/flashcard_models.dart';
+import '../study/model/study_mode.dart';
+import '../study/model/study_session_args.dart';
 import '../viewmodel/flashcard_viewmodel.dart';
 import 'widgets/flashcard_card_section_header.dart';
 import 'widgets/flashcard_content_card.dart';
@@ -30,6 +32,18 @@ enum _FlashcardMenuAction {
   sortByFrontText,
   sortDirectionDesc,
   sortDirectionAsc,
+}
+
+class _StudyModeOption {
+  const _StudyModeOption({
+    required this.mode,
+    required this.label,
+    required this.icon,
+  });
+
+  final StudyMode mode;
+  final String label;
+  final IconData icon;
 }
 
 class FlashcardManagementScreen extends ConsumerStatefulWidget {
@@ -410,15 +424,127 @@ class _FlashcardManagementScreenState
       ),
       FlashcardStudyAction(
         label: l10n.flashcardsActionLearn,
-        icon: Icons.autorenew_rounded,
-        onPressed: () => _showActionToast(l10n.flashcardsActionLearnToast),
-      ),
-      FlashcardStudyAction(
-        label: l10n.flashcardsActionTest,
-        icon: Icons.description_outlined,
-        onPressed: () => _showActionToast(l10n.flashcardsActionTestToast),
+        icon: Icons.school_outlined,
+        onPressed: () => _onStudyModePressed(
+          l10n: l10n,
+          listing: listing,
+          previewIndex: previewIndex,
+        ),
       ),
     ];
+  }
+
+  void _onStudyModePressed({
+    required AppLocalizations l10n,
+    required FlashcardListingState listing,
+    required int previewIndex,
+  }) {
+    if (listing.items.isEmpty) {
+      _showActionToast(l10n.flashcardsEmptyTitle);
+      return;
+    }
+    final List<_StudyModeOption> modeOptions = <_StudyModeOption>[
+      _StudyModeOption(
+        mode: StudyMode.review,
+        label: l10n.flashcardsStudyModeReview,
+        icon: Icons.visibility_outlined,
+      ),
+      _StudyModeOption(
+        mode: StudyMode.match,
+        label: l10n.flashcardsStudyModeMatch,
+        icon: Icons.join_inner_rounded,
+      ),
+      _StudyModeOption(
+        mode: StudyMode.guess,
+        label: l10n.flashcardsStudyModeGuess,
+        icon: Icons.help_outline_rounded,
+      ),
+      _StudyModeOption(
+        mode: StudyMode.recall,
+        label: l10n.flashcardsStudyModeRecall,
+        icon: Icons.psychology_alt_outlined,
+      ),
+      _StudyModeOption(
+        mode: StudyMode.fill,
+        label: l10n.flashcardsStudyModeFill,
+        icon: Icons.edit_note_rounded,
+      ),
+    ];
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        showDragHandle: true,
+        builder: (sheetContext) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(FlashcardScreenTokens.screenPadding),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    l10n.flashcardsStudyModePickerTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: FlashcardScreenTokens.sectionSpacing),
+                  ...modeOptions.map((modeOption) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(modeOption.icon),
+                      title: Text(modeOption.label),
+                      onTap: () {
+                        sheetContext.pop();
+                        _openStudySession(
+                          l10n: l10n,
+                          listing: listing,
+                          previewIndex: previewIndex,
+                          mode: modeOption.mode,
+                        );
+                      },
+                    );
+                  }),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _openStudySession({
+    required AppLocalizations l10n,
+    required FlashcardListingState listing,
+    required int previewIndex,
+    required StudyMode mode,
+  }) {
+    final int initialIndex = _resolveInitialStudyIndex(
+      mode: mode,
+      previewIndex: previewIndex,
+    );
+    final int seed = widget.args.deckId ^ listing.items.length ^ mode.index;
+    unawaited(
+      context.push(
+        RouteNames.flashcardStudySession,
+        extra: StudySessionArgs(
+          mode: mode,
+          items: listing.items,
+          title: _resolveTitle(l10n),
+          initialIndex: initialIndex,
+          seed: seed,
+        ),
+      ),
+    );
+  }
+
+  int _resolveInitialStudyIndex({
+    required StudyMode mode,
+    required int previewIndex,
+  }) {
+    if (mode == StudyMode.match) {
+      return FlashcardConstants.defaultPage;
+    }
+    return previewIndex;
   }
 
   void _onFlipCardsPressed({

@@ -892,6 +892,82 @@
   "@flashcardsActionBlocks": {
     "description": "Label for blocks action."
   },
+  "flashcardsStudyModePickerTitle": "Chọn chế độ học",
+  "@flashcardsStudyModePickerTitle": {
+    "description": "Bottom sheet title for selecting a flashcard study mode."
+  },
+  "flashcardsStudyModeReview": "Xem lại",
+  "@flashcardsStudyModeReview": {
+    "description": "Label for review study mode."
+  },
+  "flashcardsStudyModeMatch": "Ghép đôi",
+  "@flashcardsStudyModeMatch": {
+    "description": "Label for match study mode."
+  },
+  "flashcardsStudyModeGuess": "Đoán",
+  "@flashcardsStudyModeGuess": {
+    "description": "Label for guess study mode."
+  },
+  "flashcardsStudyModeRecall": "Nhớ lại",
+  "@flashcardsStudyModeRecall": {
+    "description": "Label for recall study mode."
+  },
+  "flashcardsStudyModeFill": "Điền (Tự luận)",
+  "@flashcardsStudyModeFill": {
+    "description": "Label for fill study mode."
+  },
+  "flashcardsStudyCompletedTitle": "Hoàn thành phiên học",
+  "@flashcardsStudyCompletedTitle": {
+    "description": "Title displayed when study session is complete."
+  },
+  "flashcardsStudyCompletedSummary": "Đúng: {correctCount} • Sai: {wrongCount}",
+  "@flashcardsStudyCompletedSummary": {
+    "description": "Summary shown when study session is complete.",
+    "placeholders": {
+      "correctCount": {
+        "type": "int"
+      },
+      "wrongCount": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsStudyRestartLabel": "Học lại",
+  "@flashcardsStudyRestartLabel": {
+    "description": "Action label to restart study session."
+  },
+  "flashcardsStudyRecallMissedLabel": "Chưa nhớ",
+  "@flashcardsStudyRecallMissedLabel": {
+    "description": "Button label for recall mode when learner misses the answer."
+  },
+  "flashcardsStudyRecallRememberedLabel": "Đã nhớ",
+  "@flashcardsStudyRecallRememberedLabel": {
+    "description": "Button label for recall mode when learner remembers the answer."
+  },
+  "flashcardsStudyFillInputLabel": "Câu trả lời",
+  "@flashcardsStudyFillInputLabel": {
+    "description": "Input label in fill mode."
+  },
+  "flashcardsStudyFillInputHint": "Nhập đáp án của bạn",
+  "@flashcardsStudyFillInputHint": {
+    "description": "Input hint in fill mode."
+  },
+  "flashcardsStudySubmitLabel": "Trả lời",
+  "@flashcardsStudySubmitLabel": {
+    "description": "Submit button label in study modes."
+  },
+  "flashcardsStudyMatchPrompt": "Ghép cặp đúng",
+  "@flashcardsStudyMatchPrompt": {
+    "description": "Prompt shown in match mode."
+  },
+  "flashcardsStudyMatchLeftColumnLabel": "Từ",
+  "@flashcardsStudyMatchLeftColumnLabel": {
+    "description": "Left column label in match mode."
+  },
+  "flashcardsStudyMatchRightColumnLabel": "Nghĩa",
+  "@flashcardsStudyMatchRightColumnLabel": {
+    "description": "Right column label in match mode."
+  },
   "flashcardsActionFlipcardToast": "Chế độ lật thẻ chưa sẵn sàng.",
   "@flashcardsActionFlipcardToast": {
     "description": "Toast shown when flip-card action is tapped."

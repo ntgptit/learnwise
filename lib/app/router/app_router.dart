@@ -5,6 +5,8 @@ import '../../features/dashboard/view/dashboard_screen.dart';
 import '../../features/flashcards/model/flashcard_management_args.dart';
 import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
+import '../../features/flashcards/study/model/study_session_args.dart';
+import '../../features/flashcards/study/view/study_session_screen.dart';
 import '../../features/folders/view/folder_screen.dart';
 import '../../features/tts/view/tts_screen.dart';
 import 'route_names.dart';
@@ -56,6 +58,13 @@ class AppRouter {
         },
       ),
       GoRoute(
+        path: RouteNames.flashcardStudySession,
+        builder: (context, state) {
+          final StudySessionArgs args = _resolveStudySessionArgs(state.extra);
+          return FlashcardStudySessionScreen(args: args);
+        },
+      ),
+      GoRoute(
         path: RouteNames.tts,
         builder: (context, state) {
           return const TtsScreen();
@@ -97,6 +106,13 @@ class AppRouter {
       return extra;
     }
     return const FlashcardFlipStudyArgs.fallback();
+  }
+
+  static StudySessionArgs _resolveStudySessionArgs(Object? extra) {
+    if (extra is StudySessionArgs) {
+      return extra;
+    }
+    return const StudySessionArgs.fallback();
   }
 }
 

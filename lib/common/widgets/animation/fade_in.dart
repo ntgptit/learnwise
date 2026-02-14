@@ -26,10 +26,11 @@ import '../../styles/app_durations.dart';
 ///  * [TweenAnimationBuilder], the underlying animation widget
 class FadeIn extends StatelessWidget {
   const FadeIn({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = AppDurations.animationFast,
     this.delay = Duration.zero,
-    this.curve = Curves.easeOut,
+    this.curve = AppMotionCurves.decelerate,
     this.beginOpacity = 0,
     this.endOpacity = 1,
   }) : assert(beginOpacity >= 0, 'beginOpacity must be >= 0.'),
@@ -78,7 +79,7 @@ class FadeIn extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: 1),
       duration: totalDuration,
-      curve: Curves.linear,
+      curve: AppMotionCurves.linear,
       child: child,
       builder: (context, rawProgress, child) {
         final double delayedProgress = _applyDelay(

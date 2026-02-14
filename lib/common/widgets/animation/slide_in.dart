@@ -4,11 +4,12 @@ import '../../styles/app_durations.dart';
 
 class SlideIn extends StatelessWidget {
   const SlideIn({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = AppDurations.animationNormal,
     this.beginOffset = const Offset(0, 0.08),
     this.endOffset = Offset.zero,
-    this.curve = Curves.easeOutCubic,
+    this.curve = AppMotionCurves.decelerateCubic,
   });
 
   final Widget child;

@@ -6,10 +6,13 @@ import '../../styles/app_durations.dart';
 
 class FlipAnimation extends StatelessWidget {
   const FlipAnimation({
-    required this.front, required this.back, required this.isFlipped, super.key,
+    required this.front,
+    required this.back,
+    required this.isFlipped,
+    super.key,
     this.onTap,
     this.duration = AppDurations.animationEmphasized,
-    this.curve = Curves.easeInOutCubic,
+    this.curve = AppMotionCurves.emphasized,
     this.perspective = 0.001,
   }) : assert(perspective > 0, 'perspective must be > 0.');
 

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../styles/app_sizes.dart';
 
@@ -33,11 +36,13 @@ class PrimaryButton extends StatelessWidget {
   /// The [onPressed] callback is called when the button is tapped.
   /// When [isLoading] is true, a loading indicator is shown and the button is disabled.
   const PrimaryButton({
-    required this.label, super.key,
+    required this.label,
+    super.key,
     this.onPressed,
     this.leading,
     this.isLoading = false,
     this.expanded = true,
+    this.enableHapticFeedback = false,
   });
 
   /// The text label shown on the button.
@@ -64,6 +69,11 @@ class PrimaryButton extends StatelessWidget {
   ///
   /// Defaults to true. When false, the button sizes to fit its content.
   final bool expanded;
+
+  /// Whether to trigger light haptic feedback when pressed.
+  ///
+  /// Defaults to false to preserve current behavior.
+  final bool enableHapticFeedback;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +102,7 @@ class PrimaryButton extends StatelessWidget {
       button: true,
       enabled: !disabled,
       child: FilledButton(
-        onPressed: disabled ? null : onPressed,
+        onPressed: disabled ? null : _handlePressed,
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(AppSizes.size48),
           backgroundColor: colorScheme.primary,
@@ -109,5 +119,16 @@ class PrimaryButton extends StatelessWidget {
       return SizedBox(width: double.infinity, child: button);
     }
     return button;
+  }
+
+  void _handlePressed() {
+    final VoidCallback? callback = onPressed;
+    if (callback == null) {
+      return;
+    }
+    if (enableHapticFeedback) {
+      unawaited(HapticFeedback.lightImpact());
+    }
+    callback();
   }
 }

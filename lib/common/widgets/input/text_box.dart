@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
+import 'input_field_variant.dart';
 
 /// A form-integrated text input field with validation support.
 ///
@@ -35,7 +36,9 @@ class TextBox extends StatelessWidget {
     this.labelText,
     this.hintText,
     this.helperText,
+    this.helperIcon,
     this.errorText,
+    this.errorIcon,
     this.onChanged,
     this.onSubmitted,
     this.validator,
@@ -48,6 +51,8 @@ class TextBox extends StatelessWidget {
     this.maxLength,
     this.prefixIcon,
     this.suffixIcon,
+    this.variant = InputFieldVariant.outlined,
+    this.fillColor,
     this.onTap,
     this.obscureText = false,
   }) : assert(
@@ -74,8 +79,16 @@ class TextBox extends StatelessWidget {
   /// Helper text displayed below the field to provide guidance.
   final String? helperText;
 
+  /// Optional helper icon shown before [helperText].
+  final Widget? helperIcon;
+
   /// Error text displayed below the field when validation fails.
   final String? errorText;
+
+  /// Optional error icon shown in the trailing area when [errorText] is set.
+  ///
+  /// Defaults to an error-outline icon with semantic error color.
+  final Widget? errorIcon;
 
   /// Called when the text field value changes.
   final ValueChanged<String>? onChanged;
@@ -115,6 +128,16 @@ class TextBox extends StatelessWidget {
   /// Widget to display after the input text (e.g., a clear button).
   final Widget? suffixIcon;
 
+  /// Visual variant of the text input.
+  ///
+  /// Defaults to [InputFieldVariant.outlined] for backward compatibility.
+  final InputFieldVariant variant;
+
+  /// Optional custom fill color for [InputFieldVariant.filled].
+  ///
+  /// If null, uses [ColorScheme.surfaceContainerLow].
+  final Color? fillColor;
+
   /// Called when the user taps on the field.
   final VoidCallback? onTap;
 
@@ -123,6 +146,8 @@ class TextBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final InputDecoration decoration = _buildDecoration(context);
+
     return Semantics(
       textField: true,
       label: labelText,
@@ -145,18 +170,200 @@ class TextBox extends StatelessWidget {
         maxLength: maxLength,
         onTap: onTap,
         obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: labelText,
-          hintText: hintText,
-          helperText: helperText,
-          errorText: errorText,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          ),
-        ),
+        decoration: decoration,
       ),
     );
+  }
+
+  InputDecoration _buildDecoration(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final bool hasErrorText = _hasText(errorText);
+    final Widget? trailing = _buildTrailing(
+      context,
+      hasErrorText: hasErrorText,
+    );
+    final Widget? helper = _buildHelper(context);
+    final OutlineInputBorder outlinedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+    );
+    const UnderlineInputBorder underlineBorder = UnderlineInputBorder();
+    final TextStyle? errorStyle = theme.textTheme.bodySmall?.copyWith(
+      color: colorScheme.error,
+      fontWeight: FontWeight.w600,
+    );
+
+    if (variant == InputFieldVariant.filled) {
+      return InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        helper: helper,
+        helperText: helper == null ? helperText : null,
+        errorText: errorText,
+        errorStyle: errorStyle,
+        prefixIcon: prefixIcon,
+        suffixIcon: trailing,
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: AppSizes.size48,
+          minHeight: AppSizes.size48,
+        ),
+        filled: true,
+        fillColor: fillColor ?? colorScheme.surfaceContainerLow,
+        border: outlinedBorder.copyWith(borderSide: BorderSide.none),
+        enabledBorder: outlinedBorder.copyWith(borderSide: BorderSide.none),
+        focusedBorder: outlinedBorder.copyWith(
+          borderSide: BorderSide(
+            color: colorScheme.primary,
+            width: AppSizes.size1,
+          ),
+        ),
+        errorBorder: outlinedBorder.copyWith(
+          borderSide: BorderSide(
+            color: colorScheme.error,
+            width: AppSizes.size1,
+          ),
+        ),
+        focusedErrorBorder: outlinedBorder.copyWith(
+          borderSide: BorderSide(
+            color: colorScheme.error,
+            width: AppSizes.size2,
+          ),
+        ),
+      );
+    }
+
+    if (variant == InputFieldVariant.underline) {
+      return InputDecoration(
+        labelText: labelText,
+        hintText: hintText,
+        helper: helper,
+        helperText: helper == null ? helperText : null,
+        errorText: errorText,
+        errorStyle: errorStyle,
+        prefixIcon: prefixIcon,
+        suffixIcon: trailing,
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: AppSizes.size48,
+          minHeight: AppSizes.size48,
+        ),
+        border: underlineBorder,
+        enabledBorder: underlineBorder,
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: colorScheme.primary,
+            width: AppSizes.size2,
+          ),
+        ),
+        errorBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: colorScheme.error,
+            width: AppSizes.size1,
+          ),
+        ),
+        focusedErrorBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: colorScheme.error,
+            width: AppSizes.size2,
+          ),
+        ),
+      );
+    }
+
+    return InputDecoration(
+      labelText: labelText,
+      hintText: hintText,
+      helper: helper,
+      helperText: helper == null ? helperText : null,
+      errorText: errorText,
+      errorStyle: errorStyle,
+      prefixIcon: prefixIcon,
+      suffixIcon: trailing,
+      suffixIconConstraints: const BoxConstraints(
+        minWidth: AppSizes.size48,
+        minHeight: AppSizes.size48,
+      ),
+      border: outlinedBorder,
+      enabledBorder: outlinedBorder,
+      focusedBorder: outlinedBorder.copyWith(
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: AppSizes.size2,
+        ),
+      ),
+      errorBorder: outlinedBorder.copyWith(
+        borderSide: BorderSide(color: colorScheme.error, width: AppSizes.size1),
+      ),
+      focusedErrorBorder: outlinedBorder.copyWith(
+        borderSide: BorderSide(color: colorScheme.error, width: AppSizes.size2),
+      ),
+    );
+  }
+
+  Widget? _buildHelper(BuildContext context) {
+    if (!_hasText(helperText)) {
+      return null;
+    }
+    if (helperIcon == null) {
+      return null;
+    }
+
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextStyle? textStyle = Theme.of(
+      context,
+    ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        IconTheme(
+          data: IconThemeData(
+            size: AppSizes.size18,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          child: helperIcon!,
+        ),
+        const SizedBox(width: AppSizes.spacing2Xs),
+        Text(helperText!, style: textStyle),
+      ],
+    );
+  }
+
+  Widget? _buildTrailing(BuildContext context, {required bool hasErrorText}) {
+    final Widget? resolvedErrorIcon = _resolveErrorIcon(context, hasErrorText);
+    if (suffixIcon == null) {
+      return resolvedErrorIcon;
+    }
+    if (resolvedErrorIcon == null) {
+      return suffixIcon;
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[suffixIcon!, resolvedErrorIcon],
+    );
+  }
+
+  Widget? _resolveErrorIcon(BuildContext context, bool hasErrorText) {
+    if (!hasErrorText) {
+      return null;
+    }
+    if (errorIcon != null) {
+      return errorIcon;
+    }
+    final Color errorColor = Theme.of(context).colorScheme.error;
+    return Icon(
+      Icons.error_outline_rounded,
+      color: errorColor,
+      size: AppSizes.size20,
+    );
+  }
+
+  bool _hasText(String? value) {
+    if (value == null) {
+      return false;
+    }
+    if (value.trim().isEmpty) {
+      return false;
+    }
+    return true;
   }
 }

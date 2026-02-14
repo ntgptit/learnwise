@@ -33,6 +33,11 @@ class SelectOption<T> {
 /// and validation support. It displays a list of [SelectOption]s and
 /// allows the user to select one.
 ///
+/// Migration note:
+/// - This widget currently uses [DropdownButtonFormField] for compatibility.
+/// - A future opt-in migration path to Material 3 [DropdownMenu] can provide
+///   richer UX such as built-in filtering/search patterns.
+///
 /// The generic type [T] represents the type of value stored in each option.
 ///
 /// Example:
@@ -55,7 +60,8 @@ class SelectOption<T> {
 ///  * [TextBox], for text input with validation
 class SelectBox<T> extends StatelessWidget {
   const SelectBox({
-    required this.options, super.key,
+    required this.options,
+    super.key,
     this.value,
     this.onChanged,
     this.labelText,

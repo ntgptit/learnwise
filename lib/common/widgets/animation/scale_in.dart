@@ -31,12 +31,13 @@ import '../../styles/app_durations.dart';
 ///  * [TweenAnimationBuilder], the underlying animation widget
 class ScaleIn extends StatelessWidget {
   const ScaleIn({
-    required this.child, super.key,
+    required this.child,
+    super.key,
     this.duration = AppDurations.animationNormal,
     this.beginScale = 0.94,
     this.endScale = 1,
     this.alignment = Alignment.center,
-    this.curve = Curves.easeOutBack,
+    this.curve = AppMotionCurves.overshoot,
   }) : assert(beginScale >= 0, 'beginScale must be >= 0.'),
        assert(endScale >= 0, 'endScale must be >= 0.');
 

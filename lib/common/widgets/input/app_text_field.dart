@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
+import 'input_field_variant.dart';
 
 /// A customizable text input field following Material Design 3.
 ///
@@ -38,6 +39,8 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.prefixIcon,
     this.suffixIcon,
+    this.variant = InputFieldVariant.outlined,
+    this.fillColor,
     this.enabled = true,
     this.obscureText = false,
   });
@@ -78,6 +81,16 @@ class AppTextField extends StatelessWidget {
   /// Widget to display after the input text (e.g., a clear button).
   final Widget? suffixIcon;
 
+  /// Visual variant of the text input.
+  ///
+  /// Defaults to [InputFieldVariant.outlined] for backward compatibility.
+  final InputFieldVariant variant;
+
+  /// Optional custom fill color for [InputFieldVariant.filled].
+  ///
+  /// If null, uses [ColorScheme.surfaceContainerLow].
+  final Color? fillColor;
+
   /// Whether the text field is enabled for interaction. Defaults to true.
   final bool enabled;
 
@@ -86,6 +99,8 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final InputDecoration decoration = _buildDecoration(context);
+
     return Semantics(
       textField: true,
       label: label,
@@ -103,16 +118,76 @@ class AppTextField extends StatelessWidget {
         textInputAction: textInputAction,
         enabled: enabled,
         obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          ),
+        decoration: decoration,
+      ),
+    );
+  }
+
+  InputDecoration _buildDecoration(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return switch (variant) {
+      InputFieldVariant.filled => _buildFilledDecoration(colorScheme),
+      InputFieldVariant.underline => _buildUnderlineDecoration(colorScheme),
+      InputFieldVariant.outlined => _buildOutlinedDecoration(colorScheme),
+    };
+  }
+
+  InputDecoration _buildBaseDecoration() {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+    );
+  }
+
+  InputDecoration _buildOutlinedDecoration(ColorScheme colorScheme) {
+    final OutlineInputBorder outlinedBorder = _buildOutlinedBorder();
+    return _buildBaseDecoration().copyWith(
+      border: outlinedBorder,
+      enabledBorder: outlinedBorder,
+      focusedBorder: outlinedBorder.copyWith(
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: AppSizes.size2,
         ),
       ),
+    );
+  }
+
+  InputDecoration _buildFilledDecoration(ColorScheme colorScheme) {
+    final OutlineInputBorder filledBorder = _buildOutlinedBorder();
+    return _buildBaseDecoration().copyWith(
+      filled: true,
+      fillColor: fillColor ?? colorScheme.surfaceContainerLow,
+      border: filledBorder.copyWith(borderSide: BorderSide.none),
+      enabledBorder: filledBorder.copyWith(borderSide: BorderSide.none),
+      focusedBorder: filledBorder.copyWith(
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: AppSizes.size1,
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildUnderlineDecoration(ColorScheme colorScheme) {
+    const UnderlineInputBorder underlineBorder = UnderlineInputBorder();
+    return _buildBaseDecoration().copyWith(
+      border: underlineBorder,
+      enabledBorder: underlineBorder,
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: AppSizes.size2,
+        ),
+      ),
+    );
+  }
+
+  OutlineInputBorder _buildOutlinedBorder() {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
     );
   }
 }

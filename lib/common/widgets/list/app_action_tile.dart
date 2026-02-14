@@ -5,7 +5,9 @@ import '../card/app_card.dart';
 
 class AppActionTile extends StatelessWidget {
   const AppActionTile({
-    required this.label, required this.icon, super.key,
+    required this.label,
+    required this.icon,
+    super.key,
     this.subtitle,
     this.onPressed,
   });
@@ -26,7 +28,7 @@ class AppActionTile extends StatelessWidget {
         horizontal: AppSizes.spacingMd,
         vertical: AppSizes.spacingSm,
       ),
-      backgroundColor: colorScheme.surfaceContainerHigh,
+      backgroundColor: colorScheme.surfaceContainer,
       child: Row(
         children: <Widget>[
           Icon(icon, color: colorScheme.primary),

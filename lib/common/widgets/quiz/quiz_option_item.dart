@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/semantic_colors.dart';
+import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
 class QuizOptionItem extends StatelessWidget {
   const QuizOptionItem({
-    required this.label, required this.text, required this.onTap, super.key,
+    required this.label,
+    required this.text,
+    required this.onTap,
+    super.key,
     this.selected = false,
     this.correct = false,
     this.disabled = false,
@@ -22,6 +26,12 @@ class QuizOptionItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
+    final Color contentColor = correct
+        ? colorScheme.onSuccessContainer
+        : selected
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
+
     final Color borderColor = correct
         ? colorScheme.onSuccessContainer
         : selected
@@ -33,6 +43,10 @@ class QuizOptionItem extends StatelessWidget {
         : selected
         ? colorScheme.primaryContainer
         : colorScheme.surface;
+
+    final Color avatarBackgroundColor = contentColor.withValues(
+      alpha: AppOpacities.soft20,
+    );
 
     return InkWell(
       borderRadius: BorderRadius.circular(AppSizes.radiusMd),
@@ -48,13 +62,19 @@ class QuizOptionItem extends StatelessWidget {
           children: <Widget>[
             CircleAvatar(
               radius: AppSizes.size14,
+              backgroundColor: avatarBackgroundColor,
               child: Text(
                 label,
-                style: const TextStyle(fontSize: AppSizes.spacingSm),
+                style: TextStyle(
+                  fontSize: AppSizes.spacingSm,
+                  color: contentColor,
+                ),
               ),
             ),
             const SizedBox(width: AppSizes.spacingSm),
-            Expanded(child: Text(text)),
+            Expanded(
+              child: Text(text, style: TextStyle(color: contentColor)),
+            ),
           ],
         ),
       ),

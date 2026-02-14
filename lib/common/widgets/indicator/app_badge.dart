@@ -31,14 +31,27 @@ class AppBadge extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.isLarge = false,
-  });
+  }) : count = null;
+
+  const AppBadge.count({
+    required this.count,
+    super.key,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.isLarge = false,
+  }) : label = null;
 
   /// The text to display in the badge.
   ///
   /// If this can be parsed as an integer, the badge will use [Badge.count]
   /// which provides special handling for large numbers (e.g., "99+").
   /// Otherwise, it will display as a text label.
-  final String label;
+  final String? label;
+
+  /// Numeric count to display in the badge.
+  ///
+  /// If provided, this takes precedence over [label].
+  final int? count;
 
   /// Background color of the badge.
   ///
@@ -57,25 +70,47 @@ class AppBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final count = int.tryParse(label);
-
-    if (count != null) {
-      // Numeric badge - use Badge.count for automatic "99+" overflow handling
+    final int? resolvedCount = _resolveCount();
+    if (resolvedCount != null) {
       return Badge.count(
-        count: count,
-        backgroundColor: backgroundColor,
-        textColor: foregroundColor,
-        largeSize: isLarge ? 20 : null,
-      );
-    } else {
-      // Label badge - display text as-is
-      return Badge(
-        label: Text(label),
+        count: resolvedCount,
         backgroundColor: backgroundColor,
         textColor: foregroundColor,
         largeSize: isLarge ? 20 : null,
       );
     }
+
+    final String? resolvedLabel = _resolveLabel();
+    if (resolvedLabel == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Badge(
+      label: Text(resolvedLabel),
+      backgroundColor: backgroundColor,
+      textColor: foregroundColor,
+      largeSize: isLarge ? 20 : null,
+    );
+  }
+
+  int? _resolveCount() {
+    if (count != null) {
+      return count;
+    }
+    if (label == null) {
+      return null;
+    }
+    return int.tryParse(label!);
+  }
+
+  String? _resolveLabel() {
+    if (label == null) {
+      return null;
+    }
+    if (label!.isEmpty) {
+      return null;
+    }
+    return label;
   }
 }
 

@@ -34,6 +34,7 @@ export 'input/date_picker_field.dart';
 export 'input/date_range_picker_field.dart';
 export 'input/date_time_picker_field.dart';
 export 'input/date_time_range_picker_field.dart';
+export 'input/input_field_variant.dart';
 export 'input/number_input.dart';
 export 'input/password_text_box.dart';
 export 'input/picker_field.dart';

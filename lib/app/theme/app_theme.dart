@@ -19,6 +19,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
+      cardTheme: _buildCardTheme(colorScheme),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(
@@ -55,6 +56,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
+      cardTheme: _buildCardTheme(colorScheme),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(
@@ -75,6 +77,19 @@ class AppTheme {
       iconTheme: IconThemeData(
         size: AppSizes.spacingLg,
         color: colorScheme.onSurface,
+      ),
+    );
+  }
+
+  static CardThemeData _buildCardTheme(ColorScheme colorScheme) {
+    return CardThemeData(
+      color: colorScheme.surfaceContainerLow,
+      elevation: 0,
+      shadowColor: colorScheme.shadow,
+      surfaceTintColor: colorScheme.surfaceTint,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
       ),
     );
   }

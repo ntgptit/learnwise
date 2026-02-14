@@ -25,6 +25,7 @@ class FlashcardConstants {
   static const int frontTextMaxLength = 300;
   static const int backTextMinLength = 1;
   static const int backTextMaxLength = 2000;
+  static const int audioPlayingIndicatorDurationMs = 1400;
   static const String optimisticActorLabel = 'system';
   static const int previewItemLimit = 5;
 }

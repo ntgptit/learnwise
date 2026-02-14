@@ -74,6 +74,16 @@ dart run tool/verify_ui_design_guard.dart
 This guard checks mobile-first breakpoint limits, spacing grid, button/icon/appbar sizes,
 touch target minimum size, large hardcoded size usage, hardcoded colors, and Material 3 component usage.
 
+## StringUtils Contract Guard
+
+String normalization is centralized through `StringUtils` to avoid duplicated trim/blank-check logic:
+
+```bash
+dart run tool/verify_string_utils_contract.dart
+```
+
+This guard fails when direct `.trim()` usage appears in `lib/**` (except `lib/core/utils/string_utils.dart`).
+
 ## SonarQube (BE + FE)
 
 SonarQube is configured for both backend and frontend:

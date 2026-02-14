@@ -12,6 +12,9 @@ class AppDurations {
   /// Use for tiny feedback animations (icon swaps, pressed states).
   static const Duration animationSnappy = Duration(milliseconds: 180);
 
+  /// Use for tap/press feedback (card press scale, icon toggles).
+  static const Duration animationQuick = Duration(milliseconds: 140);
+
   /// Use for quick transitions (buttons, short fades, small shifts).
   static const Duration animationFast = Duration(milliseconds: 300);
 

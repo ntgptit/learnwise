@@ -40,6 +40,9 @@ jobs:
       - name: Enforce UI Constants Centralization
         run: dart run tool/verify_ui_constants_centralization.dart
 
+      - name: Enforce StringUtils Contract
+        run: dart run tool/verify_string_utils_contract.dart
+
       - name: Enforce UI Design Guard
         run: dart run tool/verify_ui_design_guard.dart
 

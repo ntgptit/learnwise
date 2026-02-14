@@ -70,6 +70,9 @@ class SelectBox<T> extends StatelessWidget {
     this.errorText,
     this.enabled = true,
     this.validator,
+    this.useDropdownMenu = false,
+    this.enableFilter = false,
+    this.enableSearch = true,
   });
 
   /// The list of options to display in the dropdown.
@@ -101,8 +104,32 @@ class SelectBox<T> extends StatelessWidget {
   /// Returns an error message string if validation fails, or null if valid.
   final FormFieldValidator<T>? validator;
 
+  /// Whether to use Material 3 [DropdownMenuFormField] instead of
+  /// [DropdownButtonFormField].
+  ///
+  /// Defaults to false for backward compatibility.
+  final bool useDropdownMenu;
+
+  /// Whether [DropdownMenuFormField] should filter options while typing.
+  ///
+  /// Only applies when [useDropdownMenu] is true.
+  final bool enableFilter;
+
+  /// Whether [DropdownMenuFormField] should highlight search matches.
+  ///
+  /// Only applies when [useDropdownMenu] is true.
+  final bool enableSearch;
+
   @override
   Widget build(BuildContext context) {
+    if (useDropdownMenu) {
+      return _buildDropdownMenuFormField(context);
+    }
+
+    return _buildLegacyDropdownFormField(context);
+  }
+
+  Widget _buildLegacyDropdownFormField(BuildContext context) {
     return Semantics(
       label: labelText,
       hint: hintText,
@@ -137,5 +164,50 @@ class SelectBox<T> extends StatelessWidget {
         }).toList(),
       ),
     );
+  }
+
+  Widget _buildDropdownMenuFormField(BuildContext context) {
+    return Semantics(
+      label: labelText,
+      hint: hintText,
+      enabled: enabled,
+      child: DropdownMenuFormField<T>(
+        enabled: enabled,
+        initialSelection: value,
+        onSelected: onChanged,
+        validator: validator,
+        forceErrorText: errorText,
+        label: _buildLabelWidget(),
+        hintText: hintText,
+        helperText: helperText,
+        enableFilter: enableFilter,
+        enableSearch: enableSearch,
+        expandedInsets: EdgeInsets.zero,
+        inputDecorationTheme: InputDecorationThemeData(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          ),
+        ),
+        dropdownMenuEntries: _buildDropdownMenuEntries(),
+      ),
+    );
+  }
+
+  Widget? _buildLabelWidget() {
+    if (labelText == null) {
+      return null;
+    }
+    return Text(labelText!);
+  }
+
+  List<DropdownMenuEntry<T>> _buildDropdownMenuEntries() {
+    return options.map((option) {
+      return DropdownMenuEntry<T>(
+        value: option.value,
+        label: option.label,
+        leadingIcon: option.leading,
+        enabled: option.enabled,
+      );
+    }).toList();
   }
 }

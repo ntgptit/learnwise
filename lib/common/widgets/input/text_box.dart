@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
+import '../../../core/utils/string_utils.dart';
 import 'input_field_variant.dart';
 
 /// A form-integrated text input field with validation support.
@@ -358,12 +359,6 @@ class TextBox extends StatelessWidget {
   }
 
   bool _hasText(String? value) {
-    if (value == null) {
-      return false;
-    }
-    if (value.trim().isEmpty) {
-      return false;
-    }
-    return true;
+    return StringUtils.isNotBlank(value);
   }
 }

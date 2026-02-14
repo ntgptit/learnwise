@@ -127,19 +127,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           tooltip: l10n.foldersBackToParentTooltip,
         ),
         actions: <Widget>[
-          IconButton(
-            onPressed: canCreateFolderAtCurrentLevel ? _onCreatePressed : null,
-            icon: const Icon(Icons.add_rounded),
-            tooltip: l10n.foldersCreateButton,
-          ),
-          if (isDeckContext)
-            IconButton(
-              onPressed: canCreateDeckAtCurrentLevel
-                  ? _onCreateDeckPressed
-                  : null,
-              icon: const Icon(Icons.collections_bookmark_outlined),
-              tooltip: l10n.decksCreateButton,
-            ),
           PopupMenuButton<_FolderMenuAction>(
             onSelected: _onMenuActionSelected,
             tooltip: l10n.foldersRefreshTooltip,

@@ -3,13 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../styles/app_durations.dart';
+import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
 const double _defaultFabActionDistance = 72.0;
-const double _backdropOpacity = 0.3;
-const double _labelShadowOpacity = 0.2;
-const double _labelShadowBlurRadius = 4.0;
-const double _labelShadowOffsetY = 2.0;
+const double _backdropOpacity = AppOpacities.soft35;
+const double _labelShadowOpacity = AppOpacities.soft20;
+const double _labelShadowBlurRadius = AppSizes.spacing2Xs;
+const double _labelShadowOffsetY = AppSizes.size2;
+const double _fabActionRightInset = 0.0;
 const String _openFabMenuSemanticLabel = 'Open menu';
 const String _closeFabMenuSemanticLabel = 'Close menu';
 
@@ -116,7 +118,7 @@ class _AppExpandableFabState extends State<AppExpandableFab>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
-  bool _isExpanded = false;
+  late final ValueNotifier<bool> _isExpandedNotifier;
 
   @override
   void initState() {
@@ -129,19 +131,19 @@ class _AppExpandableFabState extends State<AppExpandableFab>
       parent: _controller,
       curve: Curves.easeInOutCubic,
     );
+    _isExpandedNotifier = ValueNotifier<bool>(false);
   }
 
   @override
   void dispose() {
+    _isExpandedNotifier.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   void _toggle() {
-    final bool nextExpanded = !_isExpanded;
-    setState(() {
-      _isExpanded = nextExpanded;
-    });
+    final bool nextExpanded = !_isExpandedNotifier.value;
+    _isExpandedNotifier.value = nextExpanded;
     if (nextExpanded) {
       unawaited(_controller.forward());
       return;
@@ -150,7 +152,7 @@ class _AppExpandableFabState extends State<AppExpandableFab>
   }
 
   void _close() {
-    if (!_isExpanded) {
+    if (!_isExpandedNotifier.value) {
       return;
     }
     _toggle();
@@ -158,40 +160,49 @@ class _AppExpandableFabState extends State<AppExpandableFab>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomRight,
-      clipBehavior: Clip.none,
-      children: [
-        // Backdrop - closes menu when tapped
-        if (_isExpanded)
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: _close,
-              child: Container(
-                color: Colors.black.withValues(alpha: _backdropOpacity),
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isExpandedNotifier,
+      builder: (context, isExpanded, child) {
+        return Stack(
+          alignment: Alignment.bottomRight,
+          clipBehavior: Clip.none,
+          children: [
+            // Backdrop - closes menu when tapped
+            if (isExpanded)
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: _close,
+                  child: Container(
+                    color: colorScheme.scrim.withValues(
+                      alpha: _backdropOpacity,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
 
-        // Action buttons
-        ..._buildExpandingActionButtons(),
+            // Action buttons
+            ..._buildExpandingActionButtons(),
 
-        // Main FAB
-        _buildMainFab(),
-      ],
+            // Main FAB
+            _buildMainFab(isExpanded: isExpanded),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildMainFab() {
-    final IconData displayIcon = _resolveDisplayIcon();
-    final String semanticLabel = _isExpanded
+  Widget _buildMainFab({required bool isExpanded}) {
+    final IconData displayIcon = _resolveDisplayIcon(isExpanded: isExpanded);
+    final String semanticLabel = isExpanded
         ? _closeFabMenuSemanticLabel
         : (widget.tooltip ?? _openFabMenuSemanticLabel);
 
     return Semantics(
       label: semanticLabel,
       button: true,
-      expanded: _isExpanded,
+      expanded: isExpanded,
       child: FloatingActionButton(
         heroTag: widget.heroTag,
         onPressed: _toggle,
@@ -233,8 +244,8 @@ class _AppExpandableFabState extends State<AppExpandableFab>
     return children;
   }
 
-  IconData _resolveDisplayIcon() {
-    if (_isExpanded) {
+  IconData _resolveDisplayIcon({required bool isExpanded}) {
+    if (isExpanded) {
       return _resolveExpandedIcon();
     }
     return _resolveCollapsedIcon();
@@ -325,7 +336,7 @@ class _ExpandingActionButton extends StatelessWidget {
 
         return Positioned(
           bottom: offset,
-          right: 0,
+          right: _fabActionRightInset,
           child: Opacity(
             opacity: animation.value,
             child: Row(
@@ -342,7 +353,7 @@ class _ExpandingActionButton extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                     boxShadow: <BoxShadow>[
                       BoxShadow(
-                        color: Colors.black.withValues(
+                        color: colorScheme.shadow.withValues(
                           alpha: _labelShadowOpacity,
                         ),
                         blurRadius: _labelShadowBlurRadius,

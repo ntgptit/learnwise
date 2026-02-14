@@ -50,8 +50,8 @@ class DeckFormSchema {
       form,
     );
     return DeckUpsertInput(
-      name: _normalize(nameControl.value),
-      description: _normalize(descriptionControl.value),
+      name: StringUtils.normalize(nameControl.value ?? ''),
+      description: StringUtils.normalize(descriptionControl.value ?? ''),
     );
   }
 
@@ -71,12 +71,5 @@ class DeckFormSchema {
       return;
     }
     nameControl.removeError(backendNameErrorKey);
-  }
-
-  static String _normalize(Object? value) {
-    if (value is! String) {
-      return '';
-    }
-    return StringUtils.normalize(value);
   }
 }

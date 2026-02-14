@@ -27,6 +27,7 @@ dart run tool/verify_state_management_contract.dart
 dart run tool/verify_navigation_go_router_contract.dart
 dart run tool/verify_common_widget_boundaries.dart
 dart run tool/verify_ui_constants_centralization.dart
+dart run tool/verify_string_utils_contract.dart
 dart run tool/verify_ui_design_guard.dart
 dart run tool/verify_code_quality_contract.dart
 dart run custom_lint
@@ -54,6 +55,9 @@ flutter test
 - `tool/verify_ui_constants_centralization.dart`
   - Enforce centralized UI constants usage.
   - Block feature-level style constants and magic UI literals.
+- `tool/verify_string_utils_contract.dart`
+  - Enforce centralized string normalization through `StringUtils`.
+  - Block direct `.trim()` usage in `lib/**` (except `lib/core/utils/string_utils.dart`).
 - `tool/verify_ui_design_guard.dart`
   - Enforce mobile-first UI rules (breakpoint, spacing grid, text/icon/button/appbar sizes, touch target, hardcoded colors/sizes, Material 3 usage).
 - `tool/verify_code_quality_contract.dart`

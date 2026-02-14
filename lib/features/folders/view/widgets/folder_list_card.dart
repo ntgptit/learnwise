@@ -6,11 +6,15 @@ import '../../../../common/widgets/widgets.dart';
 import '../../model/folder_models.dart';
 import 'folder_color_resolver.dart';
 
-enum _FolderCardAction { open, edit, delete }
+enum _FolderCardAction { edit, delete }
 
 class FolderListCard extends StatelessWidget {
   const FolderListCard({
-    required this.folder, required this.onOpenPressed, required this.onEditPressed, required this.onDeletePressed, super.key,
+    required this.folder,
+    required this.onOpenPressed,
+    required this.onEditPressed,
+    required this.onDeletePressed,
+    super.key,
   });
 
   final FolderItem folder;
@@ -97,10 +101,6 @@ class FolderListCard extends StatelessWidget {
           ),
           PopupMenuButton<_FolderCardAction>(
             onSelected: (action) {
-              if (action == _FolderCardAction.open) {
-                onOpenPressed();
-                return;
-              }
               if (action == _FolderCardAction.edit) {
                 onEditPressed();
                 return;
@@ -109,10 +109,6 @@ class FolderListCard extends StatelessWidget {
             },
             itemBuilder: (context) {
               return <PopupMenuEntry<_FolderCardAction>>[
-                PopupMenuItem<_FolderCardAction>(
-                  value: _FolderCardAction.open,
-                  child: Text(l10n.foldersOpenTooltip),
-                ),
                 PopupMenuItem<_FolderCardAction>(
                   value: _FolderCardAction.edit,
                   child: Text(l10n.foldersEditTooltip),

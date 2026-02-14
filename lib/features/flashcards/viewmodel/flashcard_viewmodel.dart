@@ -83,6 +83,7 @@ class FlashcardUiState {
     required this.isSearchVisible,
     required this.previewIndex,
     required this.starredFlashcardIds,
+    required this.playingFlashcardId,
     required this.isStudyCardFlipped,
   });
 
@@ -90,23 +91,31 @@ class FlashcardUiState {
     : isSearchVisible = false,
       previewIndex = FlashcardConstants.defaultPage,
       starredFlashcardIds = const <int>{},
+      playingFlashcardId = null,
       isStudyCardFlipped = false;
 
   final bool isSearchVisible;
   final int previewIndex;
   final Set<int> starredFlashcardIds;
+  final int? playingFlashcardId;
   final bool isStudyCardFlipped;
 
   FlashcardUiState copyWith({
     bool? isSearchVisible,
     int? previewIndex,
     Set<int>? starredFlashcardIds,
+    int? playingFlashcardId,
+    bool clearPlayingFlashcardId = false,
     bool? isStudyCardFlipped,
   }) {
+    final int? nextPlayingFlashcardId = clearPlayingFlashcardId
+        ? null
+        : (playingFlashcardId ?? this.playingFlashcardId);
     return FlashcardUiState(
       isSearchVisible: isSearchVisible ?? this.isSearchVisible,
       previewIndex: previewIndex ?? this.previewIndex,
       starredFlashcardIds: starredFlashcardIds ?? this.starredFlashcardIds,
+      playingFlashcardId: nextPlayingFlashcardId,
       isStudyCardFlipped: isStudyCardFlipped ?? this.isStudyCardFlipped,
     );
   }
@@ -114,8 +123,13 @@ class FlashcardUiState {
 
 @Riverpod(keepAlive: true)
 class FlashcardUiController extends _$FlashcardUiController {
+  Timer? _audioPlayingTimer;
+
   @override
   FlashcardUiState build(int deckId) {
+    ref.onDispose(() {
+      _audioPlayingTimer?.cancel();
+    });
     return const FlashcardUiState.initial();
   }
 
@@ -146,6 +160,27 @@ class FlashcardUiController extends _$FlashcardUiController {
 
   void toggleStudyCardFlipped() {
     state = state.copyWith(isStudyCardFlipped: !state.isStudyCardFlipped);
+  }
+
+  void startAudioPlayingIndicator(int flashcardId) {
+    if (flashcardId <= FlashcardConstants.defaultPage) {
+      return;
+    }
+    _audioPlayingTimer?.cancel();
+    state = state.copyWith(playingFlashcardId: flashcardId);
+    _audioPlayingTimer = Timer(
+      const Duration(
+        milliseconds: FlashcardConstants.audioPlayingIndicatorDurationMs,
+      ),
+      clearAudioPlayingIndicator,
+    );
+  }
+
+  void clearAudioPlayingIndicator() {
+    if (state.playingFlashcardId == null) {
+      return;
+    }
+    state = state.copyWith(clearPlayingFlashcardId: true);
   }
 
   void resetStudyCardFlipped() {

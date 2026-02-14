@@ -13,6 +13,7 @@ class AppCard extends StatelessWidget {
     this.margin,
     this.backgroundColor,
     this.border,
+    this.borderRadius,
     this.onTap,
     this.variant = AppCardVariant.outlined,
     this.elevation,
@@ -26,6 +27,7 @@ class AppCard extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final Color? backgroundColor;
   final BoxBorder? border;
+  final BorderRadius? borderRadius;
   final VoidCallback? onTap;
   final AppCardVariant variant;
   final double? elevation;
@@ -86,6 +88,9 @@ class AppCard extends StatelessWidget {
   }
 
   BorderRadius _resolveBorderRadius(CardThemeData cardTheme) {
+    if (borderRadius != null) {
+      return borderRadius!;
+    }
     final ShapeBorder? shape = cardTheme.shape;
     if (shape is RoundedRectangleBorder) {
       final BorderRadiusGeometry borderRadius = shape.borderRadius;
@@ -103,7 +108,7 @@ class AppCard extends StatelessWidget {
     if (variant == AppCardVariant.outlined) {
       return Border.all(color: colorScheme.outlineVariant);
     }
-    return Border.all(color: Colors.transparent, width: 0);
+    return const Border.fromBorderSide(BorderSide.none);
   }
 
   Color _resolveBackgroundColor(

@@ -48,15 +48,8 @@ class FlashcardFormSchema {
     final FormControl<String> frontTextControl = resolveFrontTextControl(form);
     final FormControl<String> backTextControl = resolveBackTextControl(form);
     return FlashcardUpsertInput(
-      frontText: _normalize(frontTextControl.value),
-      backText: _normalize(backTextControl.value),
+      frontText: StringUtils.normalize(frontTextControl.value ?? ''),
+      backText: StringUtils.normalize(backTextControl.value ?? ''),
     );
-  }
-
-  static String _normalize(Object? value) {
-    if (value is! String) {
-      return '';
-    }
-    return StringUtils.normalize(value);
   }
 }

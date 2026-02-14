@@ -82,11 +82,19 @@ class _FlashcardManagementScreenState
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final int deckId = widget.args.deckId;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final FlashcardListQuery query = ref.watch(
       flashcardQueryControllerProvider(deckId),
     );
-    final FlashcardUiState uiState = ref.watch(
-      flashcardUiControllerProvider(deckId),
+    final bool isSearchVisible = ref.watch(
+      flashcardUiControllerProvider(deckId).select((state) {
+        return state.isSearchVisible;
+      }),
+    );
+    final int previewIndex = ref.watch(
+      flashcardUiControllerProvider(deckId).select((state) {
+        return state.previewIndex;
+      }),
     );
     final AsyncValue<FlashcardListingState> state = ref.watch(
       flashcardControllerProvider(deckId),
@@ -107,6 +115,7 @@ class _FlashcardManagementScreenState
     final bool isListingLoading = _isListingLoading(state);
 
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         toolbarHeight: FlashcardScreenTokens.toolbarHeight,
         title: Text(_resolveTitle(l10n)),
@@ -131,7 +140,7 @@ class _FlashcardManagementScreenState
             itemBuilder: (context) => _buildMenuItems(
               l10n: l10n,
               query: query,
-              isSearchVisible: uiState.isSearchVisible,
+              isSearchVisible: isSearchVisible,
             ),
           ),
         ],
@@ -143,139 +152,195 @@ class _FlashcardManagementScreenState
           data: (listing) {
             _syncPreviewPage(
               listingCount: listing.items.length,
-              previewIndex: uiState.previewIndex,
+              previewIndex: previewIndex,
               uiController: uiController,
             );
             final int safePreviewIndex = _resolveSafePreviewIndex(
               listingCount: listing.items.length,
-              previewIndex: uiState.previewIndex,
+              previewIndex: previewIndex,
             );
+            final bool hasCards = listing.items.isNotEmpty;
 
             return Stack(
               children: <Widget>[
                 RefreshIndicator(
                   onRefresh: controller.refresh,
-                  child: ListView(
+                  child: CustomScrollView(
                     controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(
-                      FlashcardScreenTokens.screenPadding,
-                      FlashcardScreenTokens.screenPadding,
-                      FlashcardScreenTokens.screenPadding,
-                      FlashcardScreenTokens.bottomListPadding,
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
                     ),
-                    children: <Widget>[
-                      FlashcardPreviewCarousel(
-                        items: listing.items,
-                        pageController: _previewPageController,
-                        previewIndex: safePreviewIndex,
-                        onPageChanged: uiController.setPreviewIndex,
-                        onExpandPressed: (index) => _onFlipCardsPressed(
-                          l10n: l10n,
-                          listing: listing,
-                          previewIndex: index,
+                    slivers: <Widget>[
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(
+                          FlashcardScreenTokens.screenPadding,
+                          FlashcardScreenTokens.screenPadding,
+                          FlashcardScreenTokens.screenPadding,
+                          0,
                         ),
-                      ),
-                      const SizedBox(
-                        height: FlashcardScreenTokens.sectionSpacingLarge,
-                      ),
-                      FlashcardSetMetadataSection(
-                        title: _resolveSetTitle(l10n),
-                        ownerName: widget.args.ownerName,
-                        totalFlashcards: listing.totalElements,
-                      ),
-                      if (StringUtils.isNotBlank(widget.args.deckDescription))
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: FlashcardScreenTokens.metadataGap,
-                          ),
-                          child: Text(
-                            StringUtils.normalize(widget.args.deckDescription),
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      if (uiState.isSearchVisible)
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: FlashcardScreenTokens.sectionSpacing,
-                          ),
-                          child: SearchField(
-                            controller: _searchController,
-                            onChanged: _onSearchChanged,
-                            hint: l10n.flashcardsSearchHint,
-                          ),
-                        ),
-                      const SizedBox(
-                        height: FlashcardScreenTokens.sectionSpacingLarge,
-                      ),
-                      FlashcardStudyActionSection(
-                        actions: _buildStudyActions(
-                          l10n: l10n,
-                          listing: listing,
-                          previewIndex: safePreviewIndex,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: FlashcardScreenTokens.sectionSpacingLarge,
-                      ),
-                      FlashcardCardSectionHeader(
-                        title: l10n.flashcardsCardSectionTitle,
-                        sortLabel: _buildSortSummaryLabel(
-                          l10n: l10n,
-                          query: query,
-                        ),
-                        onSortPressed: () =>
-                            _onSortPressed(l10n: l10n, query: query),
-                      ),
-                      const SizedBox(
-                        height: FlashcardScreenTokens.sectionHeaderBottomGap,
-                      ),
-                      if (listing.items.isEmpty)
-                        EmptyState(
-                          title: l10n.flashcardsEmptyTitle,
-                          subtitle: l10n.flashcardsEmptyDescription,
-                          icon: Icons.style_outlined,
-                          action: FilledButton(
-                            onPressed: _onCreateFlashcardPressed,
-                            child: Text(l10n.flashcardsCreateButton),
-                          ),
-                        ),
-                      if (listing.items.isNotEmpty)
-                        ...listing.items.map((item) {
-                          final bool isStarred =
-                              item.isBookmarked ||
-                              uiState.starredFlashcardIds.contains(item.id);
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: FlashcardScreenTokens.cardSpacing,
-                            ),
-                            child: FlashcardContentCard(
-                              item: item,
-                              isStarred: isStarred,
-                              onAudioPressed: () => _showActionToast(
-                                l10n.flashcardsAudioPlayToast(item.frontText),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate(<Widget>[
+                            if (hasCards)
+                              FlashcardPreviewCarousel(
+                                items: listing.items,
+                                pageController: _previewPageController,
+                                previewIndex: safePreviewIndex,
+                                onPageChanged: uiController.setPreviewIndex,
+                                onExpandPressed: (index) => _onFlipCardsPressed(
+                                  l10n: l10n,
+                                  listing: listing,
+                                  previewIndex: index,
+                                ),
                               ),
-                              onStarPressed: () {
-                                uiController.toggleStar(item.id);
-                                _showActionToast(
-                                  isStarred
-                                      ? l10n.flashcardsUnbookmarkToast
-                                      : l10n.flashcardsBookmarkToast,
-                                );
-                              },
-                              onEditPressed: () =>
-                                  _onEditFlashcardPressed(item),
-                              onDeletePressed: () =>
-                                  _onDeleteFlashcardPressed(item),
+                            if (hasCards)
+                              const SizedBox(
+                                height:
+                                    FlashcardScreenTokens.sectionSpacingLarge,
+                              ),
+                            FlashcardSetMetadataSection(
+                              title: _resolveSetTitle(l10n),
+                              ownerName: widget.args.ownerName,
+                              totalFlashcards: listing.totalElements,
                             ),
-                          );
-                        }),
-                      if (listing.isLoadingMore)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: FlashcardScreenTokens.sectionSpacing,
-                          ),
-                          child: Center(child: CircularProgressIndicator()),
+                            if (StringUtils.isNotBlank(
+                              widget.args.deckDescription,
+                            ))
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: FlashcardScreenTokens.metadataGap,
+                                ),
+                                child: Text(
+                                  StringUtils.normalize(
+                                    widget.args.deckDescription,
+                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            if (isSearchVisible)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: FlashcardScreenTokens.sectionSpacing,
+                                ),
+                                child: SearchField(
+                                  controller: _searchController,
+                                  onChanged: _onSearchChanged,
+                                  hint: l10n.flashcardsSearchHint,
+                                ),
+                              ),
+                            if (hasCards)
+                              const SizedBox(
+                                height:
+                                    FlashcardScreenTokens.sectionSpacingLarge,
+                              ),
+                            if (hasCards)
+                              FlashcardStudyActionSection(
+                                actions: _buildStudyActions(
+                                  l10n: l10n,
+                                  listing: listing,
+                                  previewIndex: safePreviewIndex,
+                                ),
+                              ),
+                            if (hasCards)
+                              const SizedBox(
+                                height:
+                                    FlashcardScreenTokens.sectionSpacingLarge,
+                              ),
+                            FlashcardCardSectionHeader(
+                              title: l10n.flashcardsCardSectionTitle,
+                              subtitle: l10n.flashcardsTotalLabel(
+                                listing.totalElements,
+                              ),
+                              sortLabel: _buildSortChipLabel(
+                                l10n: l10n,
+                                query: query,
+                              ),
+                              onSortPressed: () =>
+                                  _onSortPressed(l10n: l10n, query: query),
+                            ),
+                            const SizedBox(
+                              height:
+                                  FlashcardScreenTokens.sectionHeaderBottomGap,
+                            ),
+                            if (!hasCards)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical:
+                                      FlashcardScreenTokens.sectionSpacing,
+                                ),
+                                child: EmptyState(
+                                  title: l10n.flashcardsEmptyTitle,
+                                  subtitle: l10n.flashcardsEmptyDescription,
+                                  icon: Icons.style_outlined,
+                                  action: FilledButton(
+                                    onPressed: _onCreateFlashcardPressed,
+                                    child: Text(l10n.flashcardsCreateButton),
+                                  ),
+                                ),
+                              ),
+                          ]),
                         ),
+                      ),
+                      if (hasCards)
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: FlashcardScreenTokens.screenPadding,
+                          ),
+                          sliver: SliverList.builder(
+                            itemCount: listing.items.length,
+                            itemBuilder: (context, index) {
+                              final FlashcardItem item = listing.items[index];
+                              return Padding(
+                                key: ValueKey<int>(item.id),
+                                padding: const EdgeInsets.only(
+                                  bottom: FlashcardScreenTokens.cardSpacing,
+                                ),
+                                child: _FlashcardListItemCard(
+                                  deckId: deckId,
+                                  item: item,
+                                  onAudioPressed: () => _showActionToast(
+                                    l10n.flashcardsAudioPlayToast(
+                                      item.frontText,
+                                    ),
+                                  ),
+                                  onStarToggled: (wasStarred) {
+                                    _showActionToast(
+                                      wasStarred
+                                          ? l10n.flashcardsUnbookmarkToast
+                                          : l10n.flashcardsBookmarkToast,
+                                    );
+                                  },
+                                  onEditPressed: () =>
+                                      _onEditFlashcardPressed(item),
+                                  onDeletePressed: () =>
+                                      _onDeleteFlashcardPressed(item),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      if (listing.isLoadingMore)
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: FlashcardScreenTokens.screenPadding,
+                          ),
+                          sliver: SliverList.builder(
+                            itemCount:
+                                FlashcardScreenTokens.loadingMoreSkeletonCount,
+                            itemBuilder: (context, index) {
+                              return const Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: FlashcardScreenTokens.cardSpacing,
+                                ),
+                                child: _FlashcardContentCardSkeleton(),
+                              );
+                            },
+                          ),
+                        ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: FlashcardScreenTokens.bottomListPadding,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -303,10 +368,28 @@ class _FlashcardManagementScreenState
             );
           },
           loading: () {
-            return LoadingState(message: l10n.flashcardsLoadingLabel);
+            return _buildLoadingSkeletonList();
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildLoadingSkeletonList() {
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(
+        FlashcardScreenTokens.screenPadding,
+        FlashcardScreenTokens.screenPadding,
+        FlashcardScreenTokens.screenPadding,
+        FlashcardScreenTokens.bottomListPadding,
+      ),
+      itemCount: FlashcardScreenTokens.loadingSkeletonCount,
+      itemBuilder: (context, index) {
+        return const Padding(
+          padding: EdgeInsets.only(bottom: FlashcardScreenTokens.cardSpacing),
+          child: _FlashcardContentCardSkeleton(),
+        );
+      },
     );
   }
 
@@ -616,7 +699,9 @@ class _FlashcardManagementScreenState
                           });
                         },
                       ),
-                      const Divider(),
+                      const SizedBox(
+                        height: FlashcardScreenTokens.sectionSpacing,
+                      ),
                       _buildSortOptionTile(
                         label: _resolveSortDirectionDescLabel(
                           l10n: l10n,
@@ -757,26 +842,14 @@ class _FlashcardManagementScreenState
     return folderName;
   }
 
-  String _buildSortSummaryLabel({
+  String _buildSortChipLabel({
     required AppLocalizations l10n,
     required FlashcardListQuery query,
   }) {
-    final String sortByLabel = switch (query.sortBy) {
-      FlashcardSortBy.createdAt => l10n.flashcardsSortByCreatedAt,
-      FlashcardSortBy.updatedAt => l10n.flashcardsSortByUpdatedAt,
-      FlashcardSortBy.frontText => l10n.flashcardsSortByFrontText,
-    };
-    final String sortDirectionLabel = switch (query.sortDirection) {
-      FlashcardSortDirection.desc => _resolveSortDirectionDescLabel(
-        l10n: l10n,
-        sortBy: query.sortBy,
-      ),
-      FlashcardSortDirection.asc => _resolveSortDirectionAscLabel(
-        l10n: l10n,
-        sortBy: query.sortBy,
-      ),
-    };
-    return '$sortByLabel \u00b7 $sortDirectionLabel';
+    if (query.sortDirection == FlashcardSortDirection.desc) {
+      return _resolveSortDirectionDescLabel(l10n: l10n, sortBy: query.sortBy);
+    }
+    return _resolveSortDirectionAscLabel(l10n: l10n, sortBy: query.sortBy);
   }
 
   void _showActionToast(String message) {
@@ -825,5 +898,135 @@ class _FlashcardManagementScreenState
       AsyncLoading<FlashcardListingState>() => true,
       _ => false,
     };
+  }
+}
+
+class _FlashcardListItemCard extends ConsumerWidget {
+  const _FlashcardListItemCard({
+    required this.deckId,
+    required this.item,
+    required this.onAudioPressed,
+    required this.onStarToggled,
+    required this.onEditPressed,
+    required this.onDeletePressed,
+  });
+
+  final int deckId;
+  final FlashcardItem item;
+  final VoidCallback onAudioPressed;
+  final ValueChanged<bool> onStarToggled;
+  final VoidCallback onEditPressed;
+  final VoidCallback onDeletePressed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool isStarredByUser = ref.watch(
+      flashcardUiControllerProvider(deckId).select((state) {
+        return state.starredFlashcardIds.contains(item.id);
+      }),
+    );
+    final bool isAudioPlaying = ref.watch(
+      flashcardUiControllerProvider(deckId).select((state) {
+        return state.playingFlashcardId == item.id;
+      }),
+    );
+    final bool isStarred = item.isBookmarked
+        ? !isStarredByUser
+        : isStarredByUser;
+    final FlashcardUiController uiController = ref.read(
+      flashcardUiControllerProvider(deckId).notifier,
+    );
+
+    return FlashcardContentCard(
+      item: item,
+      isStarred: isStarred,
+      isAudioPlaying: isAudioPlaying,
+      onAudioPressed: () {
+        uiController.startAudioPlayingIndicator(item.id);
+        onAudioPressed();
+      },
+      onStarPressed: () {
+        uiController.toggleStar(item.id);
+        onStarToggled(isStarred);
+      },
+      onEditPressed: onEditPressed,
+      onDeletePressed: onDeletePressed,
+    );
+  }
+}
+
+class _FlashcardContentCardSkeleton extends StatelessWidget {
+  const _FlashcardContentCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
+    return AppCard(
+      variant: AppCardVariant.elevated,
+      elevation: FlashcardScreenTokens.cardElevation,
+      borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
+      backgroundColor: colorScheme.surfaceContainerHigh,
+      padding: const EdgeInsets.all(FlashcardScreenTokens.cardPadding),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double maxWidth = constraints.maxWidth;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ShimmerBox(
+                width:
+                    maxWidth *
+                    FlashcardScreenTokens.skeletonLinePrimaryWidthFactor,
+                height: FlashcardScreenTokens.skeletonLinePrimaryHeight,
+                borderRadius: FlashcardScreenTokens.cardRadius,
+              ),
+              const SizedBox(
+                height: FlashcardScreenTokens.cardPrimarySecondaryGap,
+              ),
+              ShimmerBox(
+                width:
+                    maxWidth *
+                    FlashcardScreenTokens.skeletonLineSecondaryWidthFactor,
+                height: FlashcardScreenTokens.skeletonLineSecondaryHeight,
+                borderRadius: FlashcardScreenTokens.cardRadius,
+              ),
+              const SizedBox(height: FlashcardScreenTokens.cardTextGap),
+              ShimmerBox(
+                width:
+                    maxWidth *
+                    FlashcardScreenTokens.skeletonLineDescriptionWidthFactor,
+                height: FlashcardScreenTokens.skeletonLineDescriptionHeight,
+                borderRadius: FlashcardScreenTokens.cardRadius,
+              ),
+              const SizedBox(height: FlashcardScreenTokens.skeletonLineGap),
+              ShimmerBox(
+                width:
+                    maxWidth *
+                    FlashcardScreenTokens.skeletonLineDescriptionWidthFactor,
+                height: FlashcardScreenTokens.skeletonLineDescriptionHeight,
+                borderRadius: FlashcardScreenTokens.cardRadius,
+              ),
+              const SizedBox(height: FlashcardScreenTokens.cardTextGap),
+              Wrap(
+                spacing: FlashcardScreenTokens.cardActionIconSpacing,
+                children: List<Widget>.generate(
+                  FlashcardScreenTokens.skeletonActionCount,
+                  (index) {
+                    return const ShimmerBox(
+                      width: FlashcardScreenTokens.cardActionTapTargetSize,
+                      height: FlashcardScreenTokens.cardActionTapTargetSize,
+                      borderRadius:
+                          FlashcardScreenTokens.skeletonActionDotRadius,
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

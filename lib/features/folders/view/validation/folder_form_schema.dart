@@ -53,8 +53,10 @@ class FolderFormSchema {
     final FormControl<String> descriptionControl = resolveDescriptionControl(
       form,
     );
-    final String name = _normalize(nameControl.value);
-    final String description = _normalize(descriptionControl.value);
+    final String name = StringUtils.normalize(nameControl.value ?? '');
+    final String description = StringUtils.normalize(
+      descriptionControl.value ?? '',
+    );
     return FolderUpsertInput(
       name: name,
       description: description,
@@ -79,12 +81,5 @@ class FolderFormSchema {
       return;
     }
     nameControl.removeError(backendNameErrorKey);
-  }
-
-  static String _normalize(Object? value) {
-    if (value is! String) {
-      return '';
-    }
-    return StringUtils.normalize(value);
   }
 }

@@ -1,32 +1,79 @@
 import 'package:flutter/material.dart';
 
+import '../../../../common/styles/app_screen_tokens.dart';
+
 class FlashcardCardSectionHeader extends StatelessWidget {
   const FlashcardCardSectionHeader({
-    required this.title, required this.sortLabel, required this.onSortPressed, super.key,
+    required this.title,
+    required this.subtitle,
+    required this.sortLabel,
+    required this.onSortPressed,
+    super.key,
   });
 
   final String title;
+  final String subtitle;
   final String sortLabel;
   final VoidCallback onSortPressed;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextStyle? titleStyle = theme.textTheme.headlineSmall?.copyWith(
+      fontSize: FlashcardScreenTokens.sectionHeaderTitleSize,
+      fontWeight: FontWeight.w600,
+    );
+    final TextStyle? subtitleStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontSize: FlashcardScreenTokens.sectionHeaderSubtitleSize,
+      color: colorScheme.onSurface.withValues(
+        alpha: FlashcardScreenTokens.sectionHeaderSubtitleOpacity,
+      ),
+    );
+    final TextStyle? chipTextStyle = theme.textTheme.labelLarge?.copyWith(
+      fontWeight: FontWeight.w600,
+    );
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(
-          child: Text(
-            title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: titleStyle,
+              ),
+              const SizedBox(
+                height: FlashcardScreenTokens.sectionHeaderSubtitleGap,
+              ),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: subtitleStyle,
+              ),
+            ],
           ),
         ),
-        TextButton.icon(
+        const SizedBox(width: FlashcardScreenTokens.sectionHeaderActionGap),
+        ActionChip(
           onPressed: onSortPressed,
-          icon: const Icon(Icons.tune),
-          label: Text(sortLabel),
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(sortLabel, style: chipTextStyle),
+              const Icon(Icons.keyboard_arrow_down_rounded),
+            ],
+          ),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: const VisualDensity(
+            horizontal: VisualDensity.minimumDensity,
+            vertical: VisualDensity.minimumDensity,
+          ),
         ),
       ],
     );

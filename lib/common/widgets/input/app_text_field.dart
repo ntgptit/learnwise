@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 import 'input_field_variant.dart';
 
@@ -142,21 +143,30 @@ class AppTextField extends StatelessWidget {
   }
 
   InputDecoration _buildOutlinedDecoration(ColorScheme colorScheme) {
-    final OutlineInputBorder outlinedBorder = _buildOutlinedBorder();
+    final OutlineInputBorder outlinedBorder = _buildOutlinedBorder(
+      borderSide: BorderSide(color: colorScheme.outline, width: AppSizes.size1),
+    );
+    final OutlineInputBorder focusedBorder = _buildOutlinedBorder(
+      borderSide: BorderSide(color: colorScheme.primary, width: AppSizes.size2),
+    );
+    final OutlineInputBorder disabledBorder = _buildOutlinedBorder(
+      borderSide: BorderSide(
+        color: colorScheme.outline.withValues(alpha: AppOpacities.muted55),
+        width: AppSizes.size1,
+      ),
+    );
     return _buildBaseDecoration().copyWith(
       border: outlinedBorder,
       enabledBorder: outlinedBorder,
-      focusedBorder: outlinedBorder.copyWith(
-        borderSide: BorderSide(
-          color: colorScheme.primary,
-          width: AppSizes.size2,
-        ),
-      ),
+      focusedBorder: focusedBorder,
+      disabledBorder: disabledBorder,
     );
   }
 
   InputDecoration _buildFilledDecoration(ColorScheme colorScheme) {
-    final OutlineInputBorder filledBorder = _buildOutlinedBorder();
+    final OutlineInputBorder filledBorder = _buildOutlinedBorder(
+      borderSide: BorderSide.none,
+    );
     return _buildBaseDecoration().copyWith(
       filled: true,
       fillColor: fillColor ?? colorScheme.surfaceContainerLow,
@@ -172,22 +182,30 @@ class AppTextField extends StatelessWidget {
   }
 
   InputDecoration _buildUnderlineDecoration(ColorScheme colorScheme) {
-    const UnderlineInputBorder underlineBorder = UnderlineInputBorder();
+    final UnderlineInputBorder underlineBorder = UnderlineInputBorder(
+      borderSide: BorderSide(color: colorScheme.outline, width: AppSizes.size1),
+    );
+    final UnderlineInputBorder focusedBorder = UnderlineInputBorder(
+      borderSide: BorderSide(color: colorScheme.primary, width: AppSizes.size2),
+    );
+    final UnderlineInputBorder disabledBorder = UnderlineInputBorder(
+      borderSide: BorderSide(
+        color: colorScheme.outline.withValues(alpha: AppOpacities.muted55),
+        width: AppSizes.size1,
+      ),
+    );
     return _buildBaseDecoration().copyWith(
       border: underlineBorder,
       enabledBorder: underlineBorder,
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: colorScheme.primary,
-          width: AppSizes.size2,
-        ),
-      ),
+      focusedBorder: focusedBorder,
+      disabledBorder: disabledBorder,
     );
   }
 
-  OutlineInputBorder _buildOutlinedBorder() {
+  OutlineInputBorder _buildOutlinedBorder({required BorderSide borderSide}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+      borderSide: borderSide,
     );
   }
 }

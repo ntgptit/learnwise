@@ -99,7 +99,12 @@ class FlashcardScreenTokens {
   static const double toolbarHeight = AppSizes.size72;
   static const double sectionSpacing = AppSizes.spacingMd;
   static const double sectionSpacingLarge = AppSizes.spacingLg;
-  static const double sectionHeaderBottomGap = AppSizes.spacingSm;
+  static const double sectionHeaderBottomGap = AppSizes.spacingMd;
+  static const double sectionHeaderActionGap = AppSizes.spacingSm;
+  static const double sectionHeaderSubtitleGap = AppSizes.spacing2Xs;
+  static const double sectionHeaderTitleSize = AppSizes.size20;
+  static const double sectionHeaderSubtitleSize = AppSizes.size14;
+  static const double sectionHeaderSubtitleOpacity = AppOpacities.muted70;
 
   static const double heroCardHeight = AppSizes.size240;
   static const double heroCardRadius = AppSizes.radiusLg;
@@ -113,9 +118,14 @@ class FlashcardScreenTokens {
   static const double heroCardDarkModeOpacity = AppOpacities.soft35;
   static const double heroDotInactiveDarkModeOpacity = AppOpacities.muted55;
 
-  static const double metadataAvatarSize = AppSizes.size22;
+  static const double metadataAvatarSize = AppSizes.size34;
   static const double metadataGap = AppSizes.spacingSm;
   static const double metadataHorizontalGap = AppSizes.spacingXs;
+  static const double metadataTitleSize = AppSizes.size24;
+  static const double metadataTitleLineHeight = 1.25;
+  static const double metadataTitleBottomGap = AppSizes.spacingXs;
+  static const double metadataLineSize = AppSizes.size14;
+  static const double metadataLineOpacity = AppOpacities.muted70;
   static const double metadataOwnerCardRadius = AppSizes.radiusMd;
   static const double metadataOwnerCardHorizontalPadding = AppSizes.spacingSm;
   static const double metadataOwnerCardVerticalPadding = AppSizes.spacingXs;
@@ -138,12 +148,36 @@ class FlashcardScreenTokens {
   static const double bannerInnerGap = AppSizes.spacingXs;
 
   static const double actionTileSpacing = AppSizes.spacingSm;
-  static const double cardSpacing = AppSizes.spacingSm;
+  static const double cardSpacing = AppSizes.spacingMd;
   static const double cardPadding = AppSizes.spacingMd;
-  static const double cardRadius = AppSizes.radiusLg;
+  static const double cardRadius = AppSizes.size20;
+  static const double cardElevation = AppSizes.size1;
   static const double cardHeaderGap = AppSizes.spacingSm;
   static const double cardHeaderIconGap = AppSizes.spacingXs;
   static const double cardTextGap = AppSizes.spacingSm;
+  static const double cardPrimaryTextSize = AppSizes.size20;
+  static const double cardSecondaryTextSize = AppSizes.size14;
+  static const double cardPrimarySecondaryGap = AppSizes.spacing2Xs;
+  static const double cardDescriptionTextSize = AppSizes.size14;
+  static const double cardDescriptionOpacity = AppOpacities.muted82;
+  static const int cardDescriptionMaxLines = 2;
+  static const int cardSecondaryMaxLines = 3;
+  static const double cardActionIconSize = AppSizes.size20;
+  static const double cardActionTapTargetSize = AppSizes.size40;
+  static const double cardActionIconSpacing = AppSizes.spacingSm;
+  static const double cardPressedScale = 1.01;
+  static const int loadingSkeletonCount = 3;
+  static const int loadingMoreSkeletonCount = 2;
+  static const double skeletonLinePrimaryWidthFactor = 0.68;
+  static const double skeletonLineSecondaryWidthFactor = 0.52;
+  static const double skeletonLineDescriptionWidthFactor = 0.84;
+  static const double skeletonLinePrimaryHeight = AppSizes.size20;
+  static const double skeletonLineSecondaryHeight = AppSizes.size14;
+  static const double skeletonLineDescriptionHeight = AppSizes.size14;
+  static const double skeletonLineGap = AppSizes.spacing2Xs;
+  static const double skeletonActionDotSize = AppSizes.size20;
+  static const double skeletonActionDotRadius = AppSizes.radiusPill;
+  static const int skeletonActionCount = 4;
   static const double overlayEdgeInset = 0;
 
   static const double bottomCtaTopSpacing = AppSizes.spacingMd;

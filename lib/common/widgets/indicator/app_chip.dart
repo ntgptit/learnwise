@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../styles/app_sizes.dart';
+
 /// A choice chip for single or multiple selection.
 ///
 /// This chip uses [ChoiceChip] and is designed for selection scenarios
@@ -78,12 +80,7 @@ class AppChip extends StatelessWidget {
 ///  * [AppFilterChip], for filtering
 ///  * [AppInputChip], for tags with delete option
 class AppAssistChip extends StatelessWidget {
-  const AppAssistChip({
-    required this.label,
-    super.key,
-    this.icon,
-    this.onTap,
-  });
+  const AppAssistChip({required this.label, super.key, this.icon, this.onTap});
 
   /// The text label shown on the chip.
   final String label;
@@ -101,7 +98,7 @@ class AppAssistChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionChip(
-      avatar: icon != null ? Icon(icon, size: 18) : null,
+      avatar: icon != null ? Icon(icon, size: AppSizes.size24) : null,
       label: Text(label),
       onPressed: onTap,
     );
@@ -168,7 +165,9 @@ class AppFilterChip extends StatelessWidget {
       label: Text(label),
       selected: selected,
       onSelected: onSelected,
-      avatar: !selected && icon != null ? Icon(icon, size: 18) : null,
+      avatar: !selected && icon != null
+          ? Icon(icon, size: AppSizes.size24)
+          : null,
       showCheckmark: true,
     );
   }
@@ -231,7 +230,7 @@ class AppInputChip extends StatelessWidget {
       onDeleted: onDeleted,
       onPressed: onPressed,
       avatar: avatar,
-      deleteIcon: const Icon(Icons.close, size: 18),
+      deleteIcon: const Icon(Icons.close, size: AppSizes.size24),
     );
   }
 }

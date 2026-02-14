@@ -800,6 +800,10 @@
   "@flashcardsOwnerFallback": {
     "description": "Fallback owner name when deck owner is not available."
   },
+  "flashcardsUpdatedRecentlyLabel": "Cập nhật gần đây",
+  "@flashcardsUpdatedRecentlyLabel": {
+    "description": "Metadata label indicating the deck was updated recently."
+  },
   "flashcardsPreviewPlaceholder": "Chưa có thẻ để xem trước",
   "@flashcardsPreviewPlaceholder": {
     "description": "Placeholder text in hero preview when there is no flashcard item."

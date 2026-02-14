@@ -255,6 +255,8 @@ class FlashcardStudySessionTokens {
   static const double reviewAppBarIconTapTarget = AppSizes.size48;
   static const double reviewCardActionTopGap = AppSizes.spacingSm;
   static const double reviewBodyBottomGap = AppSizes.spacingLg;
+  static const double reviewPageViewportFraction = 0.94;
+  static const double reviewPageHorizontalGap = AppSizes.spacingXs;
 }
 
 class TtsScreenTokens {

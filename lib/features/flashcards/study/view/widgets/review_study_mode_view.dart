@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_durations.dart';
@@ -11,6 +13,7 @@ import '../../model/study_unit.dart';
 import '../../viewmodel/study_session_viewmodel.dart';
 
 const String _reviewMeaningNoteSeparator = ' / ';
+const double _reviewWebWheelDeltaThreshold = 8;
 
 class ReviewStudyModeView extends StatefulWidget {
   const ReviewStudyModeView({
@@ -32,11 +35,17 @@ class ReviewStudyModeView extends StatefulWidget {
 
 class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
   late final PageController _pageController;
+  late final FocusNode _focusNode;
+  bool _isPageAnimating = false;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: widget.state.currentIndex);
+    _pageController = PageController(
+      initialPage: widget.state.currentIndex,
+      viewportFraction: FlashcardStudySessionTokens.reviewPageViewportFraction,
+    );
+    _focusNode = FocusNode(debugLabel: 'review_mode_focus');
   }
 
   @override
@@ -50,18 +59,25 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
     if (currentPage == nextIndex) {
       return;
     }
+    if (_isPageAnimating) {
+      return;
+    }
+    _isPageAnimating = true;
     unawaited(
       _pageController.animateToPage(
         nextIndex,
         duration: AppDurations.animationStandard,
         curve: AppMotionCurves.standard,
-      ),
+      ).whenComplete(() {
+        _isPageAnimating = false;
+      }),
     );
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -74,52 +90,90 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(
-          child: PageView.builder(
-            controller: _pageController,
-            physics: const BouncingScrollPhysics(
-              parent: PageScrollPhysics(),
+          child: Focus(
+            autofocus: true,
+            focusNode: _focusNode,
+            onKeyEvent: _onKeyEvent,
+            child: Listener(
+              onPointerSignal: _onPointerSignal,
+              child: ScrollConfiguration(
+                behavior: const _ReviewWebScrollBehavior(),
+                child: PageView.builder(
+                  controller: _pageController,
+                  physics: const BouncingScrollPhysics(
+                    parent: PageScrollPhysics(),
+                  ),
+                  itemCount: widget.units.length,
+                  onPageChanged: widget.controller.goTo,
+                  itemBuilder: (context, index) {
+                    final ReviewUnit unit = widget.units[index];
+                    final bool isPlayingAudio =
+                        widget.state.playingFlashcardId == unit.flashcardId;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal:
+                            FlashcardStudySessionTokens.reviewPageHorizontalGap,
+                      ),
+                      child: _ReviewPage(
+                        unit: unit,
+                        l10n: widget.l10n,
+                        isPlayingAudio: isPlayingAudio,
+                        onAudioPressed: () {
+                          widget.controller.playAudioFor(unit.flashcardId);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-            itemCount: widget.units.length,
-            onPageChanged: widget.controller.goTo,
-            itemBuilder: (context, index) {
-              final ReviewUnit unit = widget.units[index];
-              final bool isPlayingAudio =
-                  widget.state.playingFlashcardId == unit.flashcardId;
-              return _ReviewPage(
-                unit: unit,
-                l10n: widget.l10n,
-                isPlayingAudio: isPlayingAudio,
-                onAudioPressed: () {
-                  widget.controller.playAudioFor(unit.flashcardId);
-                },
-              );
-            },
           ),
-        ),
-        const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed:
-                    widget.state.canGoPrevious ? widget.controller.previous : null,
-                icon: const Icon(Icons.arrow_back_rounded),
-                label: Text(widget.l10n.flashcardsPreviousTooltip),
-              ),
-            ),
-            const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: widget.state.canGoNext ? widget.controller.next : null,
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: Text(widget.l10n.flashcardsNextTooltip),
-              ),
-            ),
-          ],
         ),
         const SizedBox(height: FlashcardStudySessionTokens.reviewBodyBottomGap),
       ],
     );
+  }
+
+  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      widget.controller.next();
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      widget.controller.previous();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  void _onPointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent) {
+      return;
+    }
+    final double deltaX = event.scrollDelta.dx;
+    final double deltaY = event.scrollDelta.dy;
+    final double horizontalIntent = deltaX.abs();
+    final double verticalIntent = deltaY.abs();
+    if (horizontalIntent < _reviewWebWheelDeltaThreshold &&
+        verticalIntent < _reviewWebWheelDeltaThreshold) {
+      return;
+    }
+    if (horizontalIntent >= verticalIntent) {
+      _onScrollDirection(deltaX);
+      return;
+    }
+    _onScrollDirection(deltaY);
+  }
+
+  void _onScrollDirection(double delta) {
+    if (delta > 0) {
+      widget.controller.next();
+      return;
+    }
+    widget.controller.previous();
   }
 }
 
@@ -248,5 +302,20 @@ class _ReviewCardFace extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _ReviewWebScrollBehavior extends MaterialScrollBehavior {
+  const _ReviewWebScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices {
+    return <PointerDeviceKind>{
+      PointerDeviceKind.touch,
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.trackpad,
+      PointerDeviceKind.stylus,
+      PointerDeviceKind.unknown,
+    };
   }
 }

@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_screen_tokens.dart';
-import '../../model/study_answer.dart';
 import '../../model/study_unit.dart';
-import '../../viewmodel/study_session_viewmodel.dart';
 
 class GuessStudyModeView extends StatelessWidget {
   const GuessStudyModeView({
     required this.unit,
-    required this.controller,
-    required this.l10n,
+    required this.onOptionSelected,
     super.key,
   });
 
   final GuessUnit unit;
-  final StudySessionController controller;
-  final AppLocalizations l10n;
+  final ValueChanged<String> onOptionSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +31,7 @@ class GuessStudyModeView extends StatelessWidget {
             ),
             child: FilledButton.tonal(
               onPressed: () {
-                controller.submitAnswer(GuessStudyAnswer(optionId: option.id));
-                controller.next();
+                onOptionSelected(option.id);
               },
               child: Text(option.label),
             ),

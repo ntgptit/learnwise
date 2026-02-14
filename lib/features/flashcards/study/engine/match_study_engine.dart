@@ -12,6 +12,7 @@ class MatchStudyEngine implements StudyEngine {
   MatchStudyEngine({required List<FlashcardItem> items, required Random random})
     : _unit = _buildUnit(items: items, random: random) {
     _targetMatchCount = _unit.leftEntries.length;
+    assert(_unit.leftEntries.length == _unit.rightEntries.length);
     if (_targetMatchCount <= StudyConstants.defaultIndex) {
       _isCompleted = true;
     }
@@ -28,9 +29,6 @@ class MatchStudyEngine implements StudyEngine {
 
   @override
   StudyUnit? get currentUnit {
-    if (_isCompleted) {
-      return null;
-    }
     return _unit;
   }
 
@@ -81,7 +79,10 @@ class MatchStudyEngine implements StudyEngine {
     if (_unit.matchedIds.contains(leftId)) {
       return;
     }
-    _unit = _unit.copyWith(selectedLeftId: leftId);
+    _unit = _unit.copyWith(
+      selectedLeftId: leftId,
+      clearLastAttemptResult: true,
+    );
     _tryResolvePair();
   }
 
@@ -89,7 +90,10 @@ class MatchStudyEngine implements StudyEngine {
     if (_unit.matchedIds.contains(rightId)) {
       return;
     }
-    _unit = _unit.copyWith(selectedRightId: rightId);
+    _unit = _unit.copyWith(
+      selectedRightId: rightId,
+      clearLastAttemptResult: true,
+    );
     _tryResolvePair();
   }
 
@@ -110,6 +114,11 @@ class MatchStudyEngine implements StudyEngine {
         matchedIds: nextMatchedIds,
         clearSelectedLeftId: true,
         clearSelectedRightId: true,
+        lastAttemptResult: MatchAttemptResult(
+          leftId: leftId,
+          rightId: rightId,
+          type: MatchAttemptResultType.correct,
+        ),
       );
       _isCompleted = nextMatchedIds.length >= _targetMatchCount;
       return;
@@ -118,6 +127,11 @@ class MatchStudyEngine implements StudyEngine {
     _unit = _unit.copyWith(
       clearSelectedLeftId: true,
       clearSelectedRightId: true,
+      lastAttemptResult: MatchAttemptResult(
+        leftId: leftId,
+        rightId: rightId,
+        type: MatchAttemptResultType.wrong,
+      ),
     );
   }
 
@@ -133,6 +147,7 @@ class MatchStudyEngine implements StudyEngine {
         matchedIds: <int>{},
         selectedLeftId: null,
         selectedRightId: null,
+        lastAttemptResult: null,
       );
     }
     final List<MatchEntry> leftEntries = items
@@ -160,6 +175,7 @@ class MatchStudyEngine implements StudyEngine {
       matchedIds: const <int>{},
       selectedLeftId: null,
       selectedRightId: null,
+      lastAttemptResult: null,
     );
   }
 }

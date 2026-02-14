@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_screen_tokens.dart';
-import '../../model/study_answer.dart';
 import '../../model/study_unit.dart';
-import '../../viewmodel/study_session_viewmodel.dart';
 
 class RecallStudyModeView extends StatelessWidget {
   const RecallStudyModeView({
     required this.unit,
-    required this.controller,
+    required this.onMissedPressed,
+    required this.onRememberedPressed,
     required this.l10n,
     super.key,
   });
 
   final RecallUnit unit;
-  final StudySessionController controller;
+  final VoidCallback onMissedPressed;
+  final VoidCallback onRememberedPressed;
   final AppLocalizations l10n;
 
   @override
@@ -39,24 +39,14 @@ class RecallStudyModeView extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: OutlinedButton(
-                onPressed: () {
-                  controller.submitAnswer(
-                    const RecallStudyAnswer(isRemembered: false),
-                  );
-                  controller.next();
-                },
+                onPressed: onMissedPressed,
                 child: Text(l10n.flashcardsStudyRecallMissedLabel),
               ),
             ),
             const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
             Expanded(
               child: FilledButton(
-                onPressed: () {
-                  controller.submitAnswer(
-                    const RecallStudyAnswer(isRemembered: true),
-                  );
-                  controller.next();
-                },
+                onPressed: onRememberedPressed,
                 child: Text(l10n.flashcardsStudyRecallRememberedLabel),
               ),
             ),

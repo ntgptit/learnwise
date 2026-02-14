@@ -10,7 +10,6 @@ import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../../../../core/utils/string_utils.dart';
 import '../../model/study_unit.dart';
-import '../../viewmodel/study_session_viewmodel.dart';
 
 const String _reviewMeaningNoteSeparator = ' / ';
 const double _reviewWebWheelDeltaThreshold = 8;
@@ -18,15 +17,23 @@ const double _reviewWebWheelDeltaThreshold = 8;
 class ReviewStudyModeView extends StatefulWidget {
   const ReviewStudyModeView({
     required this.units,
-    required this.state,
-    required this.controller,
+    required this.currentIndex,
+    required this.playingFlashcardId,
+    required this.onPageChanged,
+    required this.onAudioPressedFor,
+    required this.onNext,
+    required this.onPrevious,
     required this.l10n,
     super.key,
   });
 
   final List<ReviewUnit> units;
-  final StudySessionState state;
-  final StudySessionController controller;
+  final int currentIndex;
+  final int? playingFlashcardId;
+  final ValueChanged<int> onPageChanged;
+  final ValueChanged<int> onAudioPressedFor;
+  final VoidCallback onNext;
+  final VoidCallback onPrevious;
   final AppLocalizations l10n;
 
   @override
@@ -42,7 +49,7 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
   void initState() {
     super.initState();
     _pageController = PageController(
-      initialPage: widget.state.currentIndex,
+      initialPage: widget.currentIndex,
       viewportFraction: FlashcardStudySessionTokens.reviewPageViewportFraction,
     );
     _focusNode = FocusNode(debugLabel: 'review_mode_focus');
@@ -54,7 +61,7 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
     if (!_pageController.hasClients) {
       return;
     }
-    final int nextIndex = widget.state.currentIndex;
+    final int nextIndex = widget.currentIndex;
     final int currentPage = _pageController.page?.round() ?? nextIndex;
     if (currentPage == nextIndex) {
       return;
@@ -104,11 +111,11 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
                     parent: PageScrollPhysics(),
                   ),
                   itemCount: widget.units.length,
-                  onPageChanged: widget.controller.goTo,
+                  onPageChanged: widget.onPageChanged,
                   itemBuilder: (context, index) {
                     final ReviewUnit unit = widget.units[index];
                     final bool isPlayingAudio =
-                        widget.state.playingFlashcardId == unit.flashcardId;
+                        widget.playingFlashcardId == unit.flashcardId;
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal:
@@ -119,7 +126,7 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
                         l10n: widget.l10n,
                         isPlayingAudio: isPlayingAudio,
                         onAudioPressed: () {
-                          widget.controller.playAudioFor(unit.flashcardId);
+                          widget.onAudioPressedFor(unit.flashcardId);
                         },
                       ),
                     );
@@ -139,11 +146,11 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
       return KeyEventResult.ignored;
     }
     if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-      widget.controller.next();
+      widget.onNext();
       return KeyEventResult.handled;
     }
     if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-      widget.controller.previous();
+      widget.onPrevious();
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
@@ -170,10 +177,10 @@ class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
 
   void _onScrollDirection(double delta) {
     if (delta > 0) {
-      widget.controller.next();
+      widget.onNext();
       return;
     }
-    widget.controller.previous();
+    widget.onPrevious();
   }
 }
 

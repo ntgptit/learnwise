@@ -110,6 +110,33 @@ void main() {
       expect(engine.isCompleted, isTrue);
       expect(engine.correctCount, matchUnit.leftEntries.length);
     });
+
+    test('MatchStudyEngine emits wrong attempt result with selected pair', () {
+      final MatchStudyEngine engine = MatchStudyEngine(
+        items: _buildItems(count: 3),
+        random: Random(11),
+      );
+
+      final MatchUnit firstUnit = engine.currentUnit! as MatchUnit;
+      final int leftId = firstUnit.leftEntries.first.id;
+      final int wrongRightId = firstUnit.rightEntries
+          .firstWhere((entry) => entry.id != leftId)
+          .id;
+
+      engine.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+      engine.submitAnswer(MatchSelectRightStudyAnswer(rightId: wrongRightId));
+
+      final MatchUnit unitAfterAttempt = engine.currentUnit! as MatchUnit;
+      final MatchAttemptResult? attemptResult = unitAfterAttempt.lastAttemptResult;
+
+      expect(attemptResult, isNotNull);
+      expect(attemptResult!.type, MatchAttemptResultType.wrong);
+      expect(attemptResult.leftId, leftId);
+      expect(attemptResult.rightId, wrongRightId);
+      expect(unitAfterAttempt.selectedLeftId, isNull);
+      expect(unitAfterAttempt.selectedRightId, isNull);
+      expect(engine.wrongCount, 1);
+    });
   });
 
   group('StudyEngineFactory', () {

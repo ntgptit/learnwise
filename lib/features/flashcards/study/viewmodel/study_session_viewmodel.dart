@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../common/styles/app_durations.dart';
 import '../engine/study_engine.dart';
 import '../engine/study_engine_factory.dart';
 import '../model/study_answer.dart';
@@ -27,6 +28,10 @@ class StudySessionState {
     required this.canGoPrevious,
     required this.canGoNext,
     required this.isCompleted,
+    required this.matchHiddenIds,
+    required this.matchSuccessFlashIds,
+    required this.matchErrorFlashIds,
+    required this.isMatchInteractionLocked,
   });
 
   final StudyMode mode;
@@ -41,12 +46,20 @@ class StudySessionState {
   final bool canGoPrevious;
   final bool canGoNext;
   final bool isCompleted;
+  final Set<int> matchHiddenIds;
+  final Set<int> matchSuccessFlashIds;
+  final Set<int> matchErrorFlashIds;
+  final bool isMatchInteractionLocked;
 
   factory StudySessionState.fromEngine({
     required StudyMode mode,
     required StudyEngine engine,
     required bool isFrontVisible,
     required int? playingFlashcardId,
+    Set<int> matchHiddenIds = const <int>{},
+    Set<int> matchSuccessFlashIds = const <int>{},
+    Set<int> matchErrorFlashIds = const <int>{},
+    bool isMatchInteractionLocked = false,
   }) {
     final int currentIndex = _resolveCurrentIndex(engine: engine);
     final int totalCount = engine.totalUnits;
@@ -75,6 +88,61 @@ class StudySessionState {
         isCompleted: isCompleted,
       ),
       isCompleted: isCompleted,
+      matchHiddenIds: Set<int>.unmodifiable(matchHiddenIds),
+      matchSuccessFlashIds: Set<int>.unmodifiable(matchSuccessFlashIds),
+      matchErrorFlashIds: Set<int>.unmodifiable(matchErrorFlashIds),
+      isMatchInteractionLocked: isMatchInteractionLocked,
+    );
+  }
+
+  StudySessionState copyWith({
+    StudyMode? mode,
+    StudyUnit? currentUnit,
+    bool clearCurrentUnit = false,
+    int? currentIndex,
+    int? totalCount,
+    double? progressPercent,
+    bool? isFrontVisible,
+    int? playingFlashcardId,
+    bool clearPlayingFlashcardId = false,
+    int? correctCount,
+    int? wrongCount,
+    bool? canGoPrevious,
+    bool? canGoNext,
+    bool? isCompleted,
+    Set<int>? matchHiddenIds,
+    Set<int>? matchSuccessFlashIds,
+    Set<int>? matchErrorFlashIds,
+    bool? isMatchInteractionLocked,
+  }) {
+    final StudyUnit? nextCurrentUnit = clearCurrentUnit
+        ? null
+        : (currentUnit ?? this.currentUnit);
+    final int? nextPlayingFlashcardId = clearPlayingFlashcardId
+        ? null
+        : (playingFlashcardId ?? this.playingFlashcardId);
+    return StudySessionState(
+      mode: mode ?? this.mode,
+      currentUnit: nextCurrentUnit,
+      currentIndex: currentIndex ?? this.currentIndex,
+      totalCount: totalCount ?? this.totalCount,
+      progressPercent: progressPercent ?? this.progressPercent,
+      isFrontVisible: isFrontVisible ?? this.isFrontVisible,
+      playingFlashcardId: nextPlayingFlashcardId,
+      correctCount: correctCount ?? this.correctCount,
+      wrongCount: wrongCount ?? this.wrongCount,
+      canGoPrevious: canGoPrevious ?? this.canGoPrevious,
+      canGoNext: canGoNext ?? this.canGoNext,
+      isCompleted: isCompleted ?? this.isCompleted,
+      matchHiddenIds: Set<int>.unmodifiable(matchHiddenIds ?? this.matchHiddenIds),
+      matchSuccessFlashIds: Set<int>.unmodifiable(
+        matchSuccessFlashIds ?? this.matchSuccessFlashIds,
+      ),
+      matchErrorFlashIds: Set<int>.unmodifiable(
+        matchErrorFlashIds ?? this.matchErrorFlashIds,
+      ),
+      isMatchInteractionLocked:
+          isMatchInteractionLocked ?? this.isMatchInteractionLocked,
     );
   }
 
@@ -151,11 +219,18 @@ class StudySessionController extends _$StudySessionController {
   bool _isFrontVisible = true;
   int? _playingFlashcardId;
   Timer? _audioPlayingIndicatorTimer;
+  Timer? _matchFeedbackTimer;
+  int _matchFeedbackToken = StudyConstants.defaultIndex;
+  Set<int> _matchHiddenIds = <int>{};
+  Set<int> _matchSuccessFlashIds = <int>{};
+  Set<int> _matchErrorFlashIds = <int>{};
+  bool _isMatchInteractionLocked = false;
 
   @override
   StudySessionState build(StudySessionArgs args) {
     ref.onDispose(() {
       _audioPlayingIndicatorTimer?.cancel();
+      _matchFeedbackTimer?.cancel();
     });
     final StudyEngineFactory factory = ref.read(studyEngineFactoryProvider);
     _engine = factory.create(
@@ -168,16 +243,25 @@ class StudySessionController extends _$StudySessionController {
     );
     _isFrontVisible = true;
     _playingFlashcardId = null;
+    _resetMatchPresentationState();
     return StudySessionState.fromEngine(
       mode: args.mode,
       engine: _engine,
       isFrontVisible: _isFrontVisible,
       playingFlashcardId: _playingFlashcardId,
+      matchHiddenIds: _matchHiddenIds,
+      matchSuccessFlashIds: _matchSuccessFlashIds,
+      matchErrorFlashIds: _matchErrorFlashIds,
+      isMatchInteractionLocked: _isMatchInteractionLocked,
     );
   }
 
   void submitAnswer(StudyAnswer answer) {
+    if (_isMatchInteractionLocked && _isMatchAnswer(answer)) {
+      return;
+    }
     _engine.submitAnswer(answer);
+    _handleMatchAttemptResult();
     _sync();
   }
 
@@ -203,7 +287,8 @@ class StudySessionController extends _$StudySessionController {
   }
 
   void submitFlip() {
-    if (_engine.mode != StudyMode.review) {
+    final StudyUnit? currentUnit = _engine.currentUnit;
+    if (currentUnit is! ReviewUnit) {
       return;
     }
     _isFrontVisible = !_isFrontVisible;
@@ -211,9 +296,6 @@ class StudySessionController extends _$StudySessionController {
   }
 
   void playCurrentAudio() {
-    if (_engine.mode != StudyMode.review) {
-      return;
-    }
     final StudyUnit? currentUnit = _engine.currentUnit;
     if (currentUnit is! ReviewUnit) {
       return;
@@ -223,7 +305,8 @@ class StudySessionController extends _$StudySessionController {
   }
 
   void playAudioFor(int flashcardId) {
-    if (_engine.mode != StudyMode.review) {
+    final StudyUnit? currentUnit = _engine.currentUnit;
+    if (currentUnit is! ReviewUnit) {
       return;
     }
     _startAudioPlayingIndicator(flashcardId);
@@ -245,7 +328,87 @@ class StudySessionController extends _$StudySessionController {
       engine: _engine,
       isFrontVisible: _isFrontVisible,
       playingFlashcardId: _playingFlashcardId,
+      matchHiddenIds: _matchHiddenIds,
+      matchSuccessFlashIds: _matchSuccessFlashIds,
+      matchErrorFlashIds: _matchErrorFlashIds,
+      isMatchInteractionLocked: _isMatchInteractionLocked,
     );
+  }
+
+  void _handleMatchAttemptResult() {
+    final StudyUnit? currentUnit = _engine.currentUnit;
+    if (currentUnit is! MatchUnit) {
+      return;
+    }
+    final MatchAttemptResult? lastAttemptResult = currentUnit.lastAttemptResult;
+    if (lastAttemptResult == null) {
+      return;
+    }
+    _isMatchInteractionLocked = true;
+    _matchErrorFlashIds = <int>{};
+    _matchSuccessFlashIds = <int>{};
+    final Set<int> attemptIds = <int>{
+      lastAttemptResult.leftId,
+      lastAttemptResult.rightId,
+    };
+    if (lastAttemptResult.isCorrect) {
+      _matchSuccessFlashIds = attemptIds;
+      _scheduleMatchFeedbackCompletion(
+        onCompleted: () {
+          final Set<int> nextHiddenIds = Set<int>.from(_matchHiddenIds);
+          nextHiddenIds.addAll(attemptIds);
+          _matchHiddenIds = nextHiddenIds;
+          _matchSuccessFlashIds = <int>{};
+          _isMatchInteractionLocked = false;
+          _sync();
+        },
+      );
+      return;
+    }
+    _matchErrorFlashIds = attemptIds;
+    _scheduleMatchFeedbackCompletion(
+      onCompleted: () {
+        _matchErrorFlashIds = <int>{};
+        _isMatchInteractionLocked = false;
+        _sync();
+      },
+    );
+  }
+
+  void _scheduleMatchFeedbackCompletion({
+    required void Function() onCompleted,
+  }) {
+    _matchFeedbackTimer?.cancel();
+    _matchFeedbackToken++;
+    final int callbackToken = _matchFeedbackToken;
+    _matchFeedbackTimer = Timer(AppDurations.animationHold, () {
+      if (!ref.mounted) {
+        return;
+      }
+      if (callbackToken != _matchFeedbackToken) {
+        return;
+      }
+      onCompleted();
+    });
+  }
+
+  void _resetMatchPresentationState() {
+    _matchFeedbackTimer?.cancel();
+    _matchFeedbackToken++;
+    _matchHiddenIds = <int>{};
+    _matchSuccessFlashIds = <int>{};
+    _matchErrorFlashIds = <int>{};
+    _isMatchInteractionLocked = false;
+  }
+
+  bool _isMatchAnswer(StudyAnswer answer) {
+    if (answer is MatchSelectLeftStudyAnswer) {
+      return true;
+    }
+    if (answer is MatchSelectRightStudyAnswer) {
+      return true;
+    }
+    return false;
   }
 
   void _startAudioPlayingIndicator(int flashcardId) {

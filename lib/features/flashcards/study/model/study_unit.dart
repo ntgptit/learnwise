@@ -77,6 +77,26 @@ class MatchEntry {
   final String label;
 }
 
+enum MatchAttemptResultType {
+  correct,
+  wrong,
+}
+
+@immutable
+class MatchAttemptResult {
+  const MatchAttemptResult({
+    required this.leftId,
+    required this.rightId,
+    required this.type,
+  });
+
+  final int leftId;
+  final int rightId;
+  final MatchAttemptResultType type;
+
+  bool get isCorrect => type == MatchAttemptResultType.correct;
+}
+
 @immutable
 class MatchUnit extends StudyUnit {
   const MatchUnit({
@@ -86,6 +106,7 @@ class MatchUnit extends StudyUnit {
     required this.matchedIds,
     required this.selectedLeftId,
     required this.selectedRightId,
+    required this.lastAttemptResult,
   });
 
   final List<MatchEntry> leftEntries;
@@ -93,6 +114,7 @@ class MatchUnit extends StudyUnit {
   final Set<int> matchedIds;
   final int? selectedLeftId;
   final int? selectedRightId;
+  final MatchAttemptResult? lastAttemptResult;
 
   MatchUnit copyWith({
     List<MatchEntry>? leftEntries,
@@ -102,6 +124,8 @@ class MatchUnit extends StudyUnit {
     bool clearSelectedLeftId = false,
     int? selectedRightId,
     bool clearSelectedRightId = false,
+    MatchAttemptResult? lastAttemptResult,
+    bool clearLastAttemptResult = false,
   }) {
     final int? nextSelectedLeftId = clearSelectedLeftId
         ? null
@@ -109,6 +133,9 @@ class MatchUnit extends StudyUnit {
     final int? nextSelectedRightId = clearSelectedRightId
         ? null
         : (selectedRightId ?? this.selectedRightId);
+    final MatchAttemptResult? nextLastAttemptResult = clearLastAttemptResult
+        ? null
+        : (lastAttemptResult ?? this.lastAttemptResult);
     return MatchUnit(
       unitId: unitId,
       leftEntries: leftEntries ?? this.leftEntries,
@@ -116,6 +143,7 @@ class MatchUnit extends StudyUnit {
       matchedIds: matchedIds ?? this.matchedIds,
       selectedLeftId: nextSelectedLeftId,
       selectedRightId: nextSelectedRightId,
+      lastAttemptResult: nextLastAttemptResult,
     );
   }
 }

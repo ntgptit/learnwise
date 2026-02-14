@@ -261,9 +261,11 @@ class FlashcardStudySessionTokens {
   static const double matchCardRadius = AppSizes.radiusMd;
   static const double matchCardPadding = AppSizes.spacingSm;
   static const double matchCardMinHeight = AppSizes.size72;
+  static const double matchRowHeight = 88;
   static const double matchSuccessBorderWidth = AppSizes.size2;
   static const int matchPromptMaxLines = 5;
   static const int matchAnswerMaxLines = 3;
+  static const int matchSemanticsMaxLength = 90;
 }
 
 class TtsScreenTokens {

@@ -2,8 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
 import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
+import 'package:learnwise/features/flashcards/study/model/study_answer.dart';
 import 'package:learnwise/features/flashcards/study/model/study_mode.dart';
 import 'package:learnwise/features/flashcards/study/model/study_session_args.dart';
+import 'package:learnwise/features/flashcards/study/model/study_unit.dart';
 import 'package:learnwise/features/flashcards/study/viewmodel/study_session_viewmodel.dart';
 
 void main() {
@@ -94,6 +96,46 @@ void main() {
 
       expect(firstRead.currentIndex, 1);
       expect(secondRead.currentIndex, 1);
+    });
+  });
+
+  group('StudySessionController match mode', () {
+    test('wrong attempt flashes only attempted pair and locks interaction', () async {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        mode: StudyMode.match,
+        items: _buildItems(count: 3),
+        title: 'Match',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(provider.notifier);
+      final MatchUnit initialUnit =
+          container.read(provider).currentUnit! as MatchUnit;
+      final int leftId = initialUnit.leftEntries.first.id;
+      final int wrongRightId = initialUnit.rightEntries
+          .firstWhere((entry) => entry.id != leftId)
+          .id;
+
+      controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+      controller.submitAnswer(
+        MatchSelectRightStudyAnswer(rightId: wrongRightId),
+      );
+
+      StudySessionState state = container.read(provider);
+      expect(state.wrongCount, 1);
+      expect(state.isMatchInteractionLocked, isTrue);
+      expect(state.matchErrorFlashIds, <int>{leftId, wrongRightId});
+
+      controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+      state = container.read(provider);
+      expect(state.wrongCount, 1);
+
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+
+      state = container.read(provider);
+      expect(state.isMatchInteractionLocked, isFalse);
+      expect(state.matchErrorFlashIds, isEmpty);
     });
   });
 }

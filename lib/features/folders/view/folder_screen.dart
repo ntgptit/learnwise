@@ -13,6 +13,7 @@ import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
 import '../../decks/model/deck_models.dart';
 import '../../decks/view/widgets/deck_editor_dialog.dart';
+import '../../decks/view/widgets/deck_empty_state.dart';
 import '../../decks/view/widgets/deck_list_card.dart';
 import '../../decks/viewmodel/deck_viewmodel.dart';
 import '../../flashcards/model/flashcard_management_args.dart';
@@ -86,6 +87,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final DeckListingState? deckListingSnapshot = _resolveDeckListingFromAsync(
       deckState,
     );
+    final bool isDeckContext = query.breadcrumbs.isNotEmpty;
+    final bool isSearching = query.search.isNotEmpty;
     final bool canCreateFolderAtCurrentLevel = _canCreateFolderAtCurrentLevel(
       query: query,
       deckListing: deckListingSnapshot,
@@ -95,6 +98,9 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       listing: listingSnapshot,
       deckListing: deckListingSnapshot,
     );
+    final String searchHint = isDeckContext
+        ? l10n.decksSearchHint
+        : l10n.foldersSearchHint;
 
     if (_searchController.text != query.search) {
       _searchController.value = TextEditingValue(
@@ -118,13 +124,14 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             icon: const Icon(Icons.add_rounded),
             tooltip: l10n.foldersCreateButton,
           ),
-          IconButton(
-            onPressed: canCreateDeckAtCurrentLevel
-                ? _onCreateDeckPressed
-                : null,
-            icon: const Icon(Icons.collections_bookmark_outlined),
-            tooltip: l10n.decksCreateButton,
-          ),
+          if (isDeckContext)
+            IconButton(
+              onPressed: canCreateDeckAtCurrentLevel
+                  ? _onCreateDeckPressed
+                  : null,
+              icon: const Icon(Icons.collections_bookmark_outlined),
+              tooltip: l10n.decksCreateButton,
+            ),
           PopupMenuButton<_FolderMenuAction>(
             onSelected: _onMenuActionSelected,
             tooltip: l10n.foldersRefreshTooltip,
@@ -143,10 +150,13 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
           data: (listing) {
-            final bool isInsideFolder = query.breadcrumbs.isNotEmpty;
+            final bool isInsideFolder = isDeckContext;
             final bool hasDeckData = deckListingSnapshot != null;
-            final bool hasDeckItems =
-                hasDeckData && deckListingSnapshot.items.isNotEmpty;
+            final bool deckListingIsEmpty =
+                hasDeckData && deckListingSnapshot.items.isEmpty;
+            final bool hasDeckItems = hasDeckData && !deckListingIsEmpty;
+            final bool hasSubfolders =
+                listing.totalElements > FolderConstants.minPage;
             final bool isDeckLoading = _isDeckLoading(deckState);
             final bool isDeckError = _isDeckError(deckState);
             final bool isFolderLoading = _isFolderLoading(state);
@@ -162,6 +172,29 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                 !showDeckError &&
                 !uiState.isTransitionInProgress &&
                 !isFolderLoading;
+            final bool showFolderSearchEmptyState =
+                isSearching &&
+                !isDeckContext &&
+                listing.items.isEmpty &&
+                !showDeckLoading &&
+                !showDeckError &&
+                !uiState.isTransitionInProgress &&
+                !isFolderLoading;
+            final bool showFolderEmptyState =
+                !isSearching && !isDeckContext && showEmptyState;
+            final bool showDeckSearchEmptyState =
+                isDeckContext &&
+                isSearching &&
+                deckListingIsEmpty &&
+                !showDeckLoading &&
+                !showDeckError;
+            final bool showDeckEmptyState =
+                isDeckContext &&
+                !isSearching &&
+                deckListingIsEmpty &&
+                !hasSubfolders &&
+                !showDeckLoading &&
+                !showDeckError;
             return Stack(
               children: <Widget>[
                 RefreshIndicator(
@@ -190,7 +223,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       _FolderActionBar(
                         canCreateFolder: canCreateFolderAtCurrentLevel,
                         canCreateDeck: canCreateDeckAtCurrentLevel,
-                        showDeckButton: query.breadcrumbs.isNotEmpty,
+                        showDeckButton: isDeckContext,
                         createFolderLabel: l10n.foldersCreateButton,
                         createDeckLabel: l10n.decksCreateButton,
                         onCreateFolder: _onCreatePressed,
@@ -200,7 +233,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       _FolderToolbar(
                         searchController: _searchController,
                         searchFocusNode: _searchFocusNode,
-                        searchHint: l10n.foldersSearchHint,
+                        searchHint: searchHint,
                         sortTooltip: l10n.foldersSortByLabel,
                         onSearchChanged: _onSearchChanged,
                         onSearchSubmitted: _submitSearch,
@@ -215,7 +248,13 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                         onMenuActionSelected: _onMenuActionSelected,
                       ),
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
-                      if (showEmptyState)
+                      if (showFolderSearchEmptyState)
+                        EmptyState(
+                          icon: Icons.search_rounded,
+                          title: l10n.foldersSearchEmptyTitle,
+                          subtitle: l10n.foldersSearchEmptyDescription,
+                        ),
+                      if (showFolderEmptyState)
                         FolderEmptyState(
                           onCreatePressed: canCreateFolderAtCurrentLevel
                               ? _onCreatePressed
@@ -223,9 +262,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           onCreateDeckPressed: canCreateDeckAtCurrentLevel
                               ? _onCreateDeckPressed
                               : null,
-                          description: !canCreateFolderAtCurrentLevel
-                              ? l10n.foldersCreateBlockedByDecks
-                              : l10n.foldersEmptyDescription,
+                          description: l10n.foldersEmptyDescription,
                         ),
                       if (listing.items.isNotEmpty)
                         ...listing.items.map((folder) {
@@ -248,19 +285,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           ),
                           child: Center(child: CircularProgressIndicator()),
                         ),
-                      if (query.breadcrumbs.isNotEmpty &&
-                          (hasDeckItems || showDeckLoading || showDeckError))
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: FolderScreenTokens.sectionSpacing,
-                            bottom: FolderScreenTokens.cardSpacing,
-                          ),
-                          child: Text(
-                            l10n.decksSectionTitle,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                        ),
                       if (showDeckLoading)
                         const Padding(
                           padding: EdgeInsets.symmetric(
@@ -274,6 +298,21 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           message: l10n.decksErrorDescription,
                           retryLabel: l10n.decksRetryLabel,
                           onRetry: _refreshDecks,
+                        ),
+                      if (showDeckSearchEmptyState)
+                        EmptyState(
+                          icon: Icons.search_rounded,
+                          title: l10n.decksSearchEmptyTitle,
+                          subtitle: l10n.decksSearchEmptyDescription,
+                        ),
+                      if (showDeckEmptyState)
+                        DeckEmptyState(
+                          subtitle: canCreateDeckAtCurrentLevel
+                              ? l10n.decksEmptyDescription
+                              : l10n.decksCreateBlockedBySubfolders,
+                          onCreateDeckPressed: canCreateDeckAtCurrentLevel
+                              ? _onCreateDeckPressed
+                              : null,
                         ),
                       if (hasDeckItems)
                         ...deckListingSnapshot.items.map((deck) {

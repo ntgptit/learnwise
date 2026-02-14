@@ -197,6 +197,14 @@
   "@foldersEmptyDescription": {
     "description": "Empty state description on folder screen."
   },
+  "foldersSearchEmptyTitle": "No folders match your search",
+  "@foldersSearchEmptyTitle": {
+    "description": "Title shown when folder search returns no results."
+  },
+  "foldersSearchEmptyDescription": "Try another keyword or clear the search filter.",
+  "@foldersSearchEmptyDescription": {
+    "description": "Subtitle for folder search empty state."
+  },
   "foldersCreateBlockedByDecks": "This folder already has decks. You cannot create subfolders here.",
   "@foldersCreateBlockedByDecks": {
     "description": "Message shown when creating subfolders is blocked because current folder contains decks."
@@ -267,6 +275,10 @@
   "foldersSearchHint": "Search folders by name or description",
   "@foldersSearchHint": {
     "description": "Hint for folder search input."
+  },
+  "decksSearchHint": "Search decks by name",
+  "@decksSearchHint": {
+    "description": "Hint for deck search input shown inside a folder."
   },
   "foldersSortByLabel": "Sort by",
   "@foldersSortByLabel": {
@@ -457,6 +469,26 @@
   "decksSectionTitle": "Decks",
   "@decksSectionTitle": {
     "description": "Section title for deck list inside folder screen."
+  },
+  "decksEmptyTitle": "No decks yet",
+  "@decksEmptyTitle": {
+    "description": "Title shown when a folder has no decks."
+  },
+  "decksEmptyDescription": "Create a deck to keep flashcards for this folder.",
+  "@decksEmptyDescription": {
+    "description": "Subtitle for the deck empty state inside a folder."
+  },
+  "decksCreateBlockedBySubfolders": "This folder has subfolders. Remove subfolders before creating decks here.",
+  "@decksCreateBlockedBySubfolders": {
+    "description": "Message shown when creating decks is blocked because the current folder contains subfolders."
+  },
+  "decksSearchEmptyTitle": "No decks match your search",
+  "@decksSearchEmptyTitle": {
+    "description": "Title shown when deck search returns no results."
+  },
+  "decksSearchEmptyDescription": "Try a different term or clear the search filter.",
+  "@decksSearchEmptyDescription": {
+    "description": "Subtitle for deck search empty state."
   },
   "decksCreateButton": "New deck",
   "@decksCreateButton": {

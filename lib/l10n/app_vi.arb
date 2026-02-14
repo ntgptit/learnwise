@@ -197,6 +197,14 @@
   "@foldersEmptyDescription": {
     "description": "Empty state description on folder screen."
   },
+  "foldersSearchEmptyTitle": "Không có thư mục trùng khớp với tìm kiếm",
+  "@foldersSearchEmptyTitle": {
+    "description": "Title shown when folder search returns no results."
+  },
+  "foldersSearchEmptyDescription": "Thử từ khóa khác hoặc xóa bộ lọc tìm kiếm.",
+  "@foldersSearchEmptyDescription": {
+    "description": "Subtitle for folder search empty state."
+  },
   "foldersCreateBlockedByDecks": "Thư mục này đã có bộ thẻ. Bạn không thể tạo thư mục con tại đây.",
   "@foldersCreateBlockedByDecks": {
     "description": "Message shown when creating subfolders is blocked because current folder contains decks."
@@ -267,6 +275,10 @@
   "foldersSearchHint": "Tìm thư mục theo tên hoặc mô tả",
   "@foldersSearchHint": {
     "description": "Hint for folder search input."
+  },
+  "decksSearchHint": "Tìm deck theo tên",
+  "@decksSearchHint": {
+    "description": "Hint for deck search input shown inside a folder."
   },
   "foldersSortByLabel": "Sắp xếp theo",
   "@foldersSortByLabel": {
@@ -457,6 +469,26 @@
   "decksSectionTitle": "Bộ thẻ",
   "@decksSectionTitle": {
     "description": "Section title for deck list inside folder screen."
+  },
+  "decksEmptyTitle": "Chưa có bộ thẻ nào",
+  "@decksEmptyTitle": {
+    "description": "Title shown when a folder has no decks."
+  },
+  "decksEmptyDescription": "Tạo bộ thẻ để lưu flashcard cho thư mục này.",
+  "@decksEmptyDescription": {
+    "description": "Subtitle for the deck empty state inside a folder."
+  },
+  "decksCreateBlockedBySubfolders": "Thư mục này đang có thư mục con. Hãy xóa thư mục con trước khi tạo bộ thẻ tại đây.",
+  "@decksCreateBlockedBySubfolders": {
+    "description": "Message shown when creating decks is blocked because the current folder contains subfolders."
+  },
+  "decksSearchEmptyTitle": "Không có bộ thẻ trùng khớp với tìm kiếm",
+  "@decksSearchEmptyTitle": {
+    "description": "Title shown when deck search returns no results."
+  },
+  "decksSearchEmptyDescription": "Thử tên khác hoặc xóa bộ lọc tìm kiếm.",
+  "@decksSearchEmptyDescription": {
+    "description": "Subtitle for deck search empty state."
   },
   "decksCreateButton": "Tạo bộ thẻ",
   "@decksCreateButton": {

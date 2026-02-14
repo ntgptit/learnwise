@@ -29,8 +29,8 @@ class StudySessionState {
     required this.canGoNext,
     required this.isCompleted,
     required this.matchHiddenIds,
-    required this.matchSuccessFlashIds,
-    required this.matchErrorFlashIds,
+    required this.matchSuccessFlashKeys,
+    required this.matchErrorFlashKeys,
     required this.isMatchInteractionLocked,
   });
 
@@ -47,8 +47,8 @@ class StudySessionState {
   final bool canGoNext;
   final bool isCompleted;
   final Set<int> matchHiddenIds;
-  final Set<int> matchSuccessFlashIds;
-  final Set<int> matchErrorFlashIds;
+  final Set<String> matchSuccessFlashKeys;
+  final Set<String> matchErrorFlashKeys;
   final bool isMatchInteractionLocked;
 
   factory StudySessionState.fromEngine({
@@ -57,8 +57,8 @@ class StudySessionState {
     required bool isFrontVisible,
     required int? playingFlashcardId,
     Set<int> matchHiddenIds = const <int>{},
-    Set<int> matchSuccessFlashIds = const <int>{},
-    Set<int> matchErrorFlashIds = const <int>{},
+    Set<String> matchSuccessFlashKeys = const <String>{},
+    Set<String> matchErrorFlashKeys = const <String>{},
     bool isMatchInteractionLocked = false,
   }) {
     final int currentIndex = _resolveCurrentIndex(engine: engine);
@@ -89,8 +89,8 @@ class StudySessionState {
       ),
       isCompleted: isCompleted,
       matchHiddenIds: Set<int>.unmodifiable(matchHiddenIds),
-      matchSuccessFlashIds: Set<int>.unmodifiable(matchSuccessFlashIds),
-      matchErrorFlashIds: Set<int>.unmodifiable(matchErrorFlashIds),
+      matchSuccessFlashKeys: Set<String>.unmodifiable(matchSuccessFlashKeys),
+      matchErrorFlashKeys: Set<String>.unmodifiable(matchErrorFlashKeys),
       isMatchInteractionLocked: isMatchInteractionLocked,
     );
   }
@@ -111,8 +111,8 @@ class StudySessionState {
     bool? canGoNext,
     bool? isCompleted,
     Set<int>? matchHiddenIds,
-    Set<int>? matchSuccessFlashIds,
-    Set<int>? matchErrorFlashIds,
+    Set<String>? matchSuccessFlashKeys,
+    Set<String>? matchErrorFlashKeys,
     bool? isMatchInteractionLocked,
   }) {
     final StudyUnit? nextCurrentUnit = clearCurrentUnit
@@ -135,11 +135,11 @@ class StudySessionState {
       canGoNext: canGoNext ?? this.canGoNext,
       isCompleted: isCompleted ?? this.isCompleted,
       matchHiddenIds: Set<int>.unmodifiable(matchHiddenIds ?? this.matchHiddenIds),
-      matchSuccessFlashIds: Set<int>.unmodifiable(
-        matchSuccessFlashIds ?? this.matchSuccessFlashIds,
+      matchSuccessFlashKeys: Set<String>.unmodifiable(
+        matchSuccessFlashKeys ?? this.matchSuccessFlashKeys,
       ),
-      matchErrorFlashIds: Set<int>.unmodifiable(
-        matchErrorFlashIds ?? this.matchErrorFlashIds,
+      matchErrorFlashKeys: Set<String>.unmodifiable(
+        matchErrorFlashKeys ?? this.matchErrorFlashKeys,
       ),
       isMatchInteractionLocked:
           isMatchInteractionLocked ?? this.isMatchInteractionLocked,
@@ -222,8 +222,8 @@ class StudySessionController extends _$StudySessionController {
   Timer? _matchFeedbackTimer;
   int _matchFeedbackToken = StudyConstants.defaultIndex;
   Set<int> _matchHiddenIds = <int>{};
-  Set<int> _matchSuccessFlashIds = <int>{};
-  Set<int> _matchErrorFlashIds = <int>{};
+  Set<String> _matchSuccessFlashKeys = <String>{};
+  Set<String> _matchErrorFlashKeys = <String>{};
   bool _isMatchInteractionLocked = false;
 
   @override
@@ -250,8 +250,8 @@ class StudySessionController extends _$StudySessionController {
       isFrontVisible: _isFrontVisible,
       playingFlashcardId: _playingFlashcardId,
       matchHiddenIds: _matchHiddenIds,
-      matchSuccessFlashIds: _matchSuccessFlashIds,
-      matchErrorFlashIds: _matchErrorFlashIds,
+      matchSuccessFlashKeys: _matchSuccessFlashKeys,
+      matchErrorFlashKeys: _matchErrorFlashKeys,
       isMatchInteractionLocked: _isMatchInteractionLocked,
     );
   }
@@ -329,8 +329,8 @@ class StudySessionController extends _$StudySessionController {
       isFrontVisible: _isFrontVisible,
       playingFlashcardId: _playingFlashcardId,
       matchHiddenIds: _matchHiddenIds,
-      matchSuccessFlashIds: _matchSuccessFlashIds,
-      matchErrorFlashIds: _matchErrorFlashIds,
+      matchSuccessFlashKeys: _matchSuccessFlashKeys,
+      matchErrorFlashKeys: _matchErrorFlashKeys,
       isMatchInteractionLocked: _isMatchInteractionLocked,
     );
   }
@@ -345,30 +345,33 @@ class StudySessionController extends _$StudySessionController {
       return;
     }
     _isMatchInteractionLocked = true;
-    _matchErrorFlashIds = <int>{};
-    _matchSuccessFlashIds = <int>{};
-    final Set<int> attemptIds = <int>{
+    _matchErrorFlashKeys = <String>{};
+    _matchSuccessFlashKeys = <String>{};
+    final Set<String> attemptFlashKeys = _buildAttemptFlashKeys(
+      attemptResult: lastAttemptResult,
+    );
+    final Set<int> attemptPairIds = <int>{
       lastAttemptResult.leftId,
       lastAttemptResult.rightId,
     };
     if (lastAttemptResult.isCorrect) {
-      _matchSuccessFlashIds = attemptIds;
+      _matchSuccessFlashKeys = attemptFlashKeys;
       _scheduleMatchFeedbackCompletion(
         onCompleted: () {
           final Set<int> nextHiddenIds = Set<int>.from(_matchHiddenIds);
-          nextHiddenIds.addAll(attemptIds);
+          nextHiddenIds.addAll(attemptPairIds);
           _matchHiddenIds = nextHiddenIds;
-          _matchSuccessFlashIds = <int>{};
+          _matchSuccessFlashKeys = <String>{};
           _isMatchInteractionLocked = false;
           _sync();
         },
       );
       return;
     }
-    _matchErrorFlashIds = attemptIds;
+    _matchErrorFlashKeys = attemptFlashKeys;
     _scheduleMatchFeedbackCompletion(
       onCompleted: () {
-        _matchErrorFlashIds = <int>{};
+        _matchErrorFlashKeys = <String>{};
         _isMatchInteractionLocked = false;
         _sync();
       },
@@ -396,8 +399,8 @@ class StudySessionController extends _$StudySessionController {
     _matchFeedbackTimer?.cancel();
     _matchFeedbackToken++;
     _matchHiddenIds = <int>{};
-    _matchSuccessFlashIds = <int>{};
-    _matchErrorFlashIds = <int>{};
+    _matchSuccessFlashKeys = <String>{};
+    _matchErrorFlashKeys = <String>{};
     _isMatchInteractionLocked = false;
   }
 
@@ -409,6 +412,29 @@ class StudySessionController extends _$StudySessionController {
       return true;
     }
     return false;
+  }
+
+  Set<String> _buildAttemptFlashKeys({
+    required MatchAttemptResult attemptResult,
+  }) {
+    return <String>{
+      _buildMatchTileFlashKey(
+        side: _MatchTileSide.left,
+        pairId: attemptResult.leftId,
+      ),
+      _buildMatchTileFlashKey(
+        side: _MatchTileSide.right,
+        pairId: attemptResult.rightId,
+      ),
+    };
+  }
+
+  String _buildMatchTileFlashKey({
+    required _MatchTileSide side,
+    required int pairId,
+  }) {
+    final String sideLabel = side.name;
+    return '$sideLabel:$pairId';
   }
 
   void _startAudioPlayingIndicator(int flashcardId) {
@@ -431,4 +457,9 @@ class StudySessionController extends _$StudySessionController {
     _clearAudioPlayingIndicator();
     _sync();
   }
+}
+
+enum _MatchTileSide {
+  left,
+  right,
 }

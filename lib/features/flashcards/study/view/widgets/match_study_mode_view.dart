@@ -11,6 +11,8 @@ import '../../viewmodel/study_session_viewmodel.dart';
 
 const String _matchSemanticsSeparator = ': ';
 const String _truncatedSemanticsSuffix = '...';
+const String _matchLeftTileFlashKeyPrefix = 'left:';
+const String _matchRightTileFlashKeyPrefix = 'right:';
 
 class MatchStudyModeView extends StatelessWidget {
   const MatchStudyModeView({
@@ -67,14 +69,30 @@ class MatchStudyModeView extends StatelessWidget {
         final bool isRightSelected = unit.selectedRightId == rightEntry.id;
         final bool isLeftMatched = unit.matchedIds.contains(leftEntry.id);
         final bool isRightMatched = unit.matchedIds.contains(rightEntry.id);
-        final bool isLeftAnimatingSuccess = state.matchSuccessFlashIds.contains(
-          leftEntry.id,
+        final bool isLeftAnimatingSuccess = state.matchSuccessFlashKeys.contains(
+          _buildMatchTileFlashKey(
+            isLeftTile: true,
+            pairId: leftEntry.id,
+          ),
         );
-        final bool isRightAnimatingSuccess = state.matchSuccessFlashIds.contains(
-          rightEntry.id,
+        final bool isRightAnimatingSuccess = state.matchSuccessFlashKeys.contains(
+          _buildMatchTileFlashKey(
+            isLeftTile: false,
+            pairId: rightEntry.id,
+          ),
         );
-        final bool isLeftErrorFlash = state.matchErrorFlashIds.contains(leftEntry.id);
-        final bool isRightErrorFlash = state.matchErrorFlashIds.contains(rightEntry.id);
+        final bool isLeftErrorFlash = state.matchErrorFlashKeys.contains(
+          _buildMatchTileFlashKey(
+            isLeftTile: true,
+            pairId: leftEntry.id,
+          ),
+        );
+        final bool isRightErrorFlash = state.matchErrorFlashKeys.contains(
+          _buildMatchTileFlashKey(
+            isLeftTile: false,
+            pairId: rightEntry.id,
+          ),
+        );
         return SizedBox(
           height: FlashcardStudySessionTokens.matchRowHeight,
           child: Row(
@@ -133,6 +151,16 @@ class MatchStudyModeView extends StatelessWidget {
     }
     return onPressed;
   }
+}
+
+String _buildMatchTileFlashKey({
+  required bool isLeftTile,
+  required int pairId,
+}) {
+  final String prefix = isLeftTile
+      ? _matchLeftTileFlashKeyPrefix
+      : _matchRightTileFlashKeyPrefix;
+  return '$prefix$pairId';
 }
 
 List<MatchEntry> _resolveVisibleEntries({

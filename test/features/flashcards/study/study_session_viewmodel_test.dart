@@ -125,7 +125,10 @@ void main() {
       StudySessionState state = container.read(provider);
       expect(state.wrongCount, 1);
       expect(state.isMatchInteractionLocked, isTrue);
-      expect(state.matchErrorFlashIds, <int>{leftId, wrongRightId});
+      expect(
+        state.matchErrorFlashKeys,
+        <String>{'left:$leftId', 'right:$wrongRightId'},
+      );
 
       controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
       state = container.read(provider);
@@ -135,7 +138,7 @@ void main() {
 
       state = container.read(provider);
       expect(state.isMatchInteractionLocked, isFalse);
-      expect(state.matchErrorFlashIds, isEmpty);
+      expect(state.matchErrorFlashKeys, isEmpty);
     });
   });
 }

@@ -15,6 +15,18 @@ class AppColors {
   static const Color error = Color(0xFFBA1A1A);
   static const Color onError = Colors.white;
 
+  @Deprecated(
+    'Use Theme.of(context).colorScheme.successContainer or onSuccessContainer instead.',
+  )
   static const Color success = Color(0xFF1B8F4B);
+
+  @Deprecated(
+    'Use Theme.of(context).colorScheme.warningContainer or onWarningContainer instead.',
+  )
   static const Color warning = Color(0xFFECA300);
+
+  @Deprecated(
+    'Use Theme.of(context).colorScheme.infoContainer or onInfoContainer instead.',
+  )
+  static const Color info = Color(0xFF1976D2);
 }

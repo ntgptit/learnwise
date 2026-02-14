@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
-import '../../styles/app_opacities.dart';
 
 class AppCard extends StatelessWidget {
   const AppCard({
@@ -28,15 +27,9 @@ class AppCard extends StatelessWidget {
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.surface,
+        color: backgroundColor ?? colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-        border:
-            border ??
-            Border.all(
-              color: colorScheme.onSurface.withValues(
-                alpha: AppOpacities.soft10,
-              ),
-            ),
+        border: border ?? Border.all(color: colorScheme.outlineVariant),
       ),
       child: child,
     );

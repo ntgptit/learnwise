@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/tts/model/tts_exceptions.dart';
 import '../network/api_constants.dart';
+import '../utils/string_utils.dart';
 import 'app_exception.dart';
 import 'app_error_bus.dart';
 import 'error_code.dart';
@@ -394,10 +395,6 @@ class AppErrorAdvisor {
     if (rawMessage is! String) {
       return null;
     }
-    final String normalized = rawMessage.trim();
-    if (normalized.isEmpty) {
-      return null;
-    }
-    return normalized;
+    return StringUtils.normalizeNullable(rawMessage);
   }
 }

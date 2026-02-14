@@ -3,6 +3,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/widgets/widgets.dart';
+import '../../../../core/utils/string_utils.dart';
 import '../../model/flashcard_models.dart';
 
 class FlashcardContentCard extends StatelessWidget {
@@ -28,7 +29,8 @@ class FlashcardContentCard extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final String noteText = item.note.trim();
+    final String noteText = StringUtils.normalize(item.note);
+    final String pronunciationText = StringUtils.normalize(item.pronunciation);
     final bool hasNote = noteText.isNotEmpty;
 
     return AppCard(
@@ -64,10 +66,10 @@ class FlashcardContentCard extends StatelessWidget {
               ),
             ],
           ),
-          if (item.pronunciation.trim().isNotEmpty) ...<Widget>[
+          if (pronunciationText.isNotEmpty) ...<Widget>[
             const SizedBox(height: FlashcardScreenTokens.listMetadataGap),
             Text(
-              item.pronunciation.trim(),
+              pronunciationText,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurface.withValues(
                   alpha: FlashcardScreenTokens.mutedTextOpacity,

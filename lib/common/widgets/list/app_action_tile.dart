@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 import '../card/app_card.dart';
 
@@ -27,9 +26,7 @@ class AppActionTile extends StatelessWidget {
         horizontal: AppSizes.spacingMd,
         vertical: AppSizes.spacingSm,
       ),
-      backgroundColor: colorScheme.surfaceContainerHighest.withValues(
-        alpha: AppOpacities.soft20,
-      ),
+      backgroundColor: colorScheme.surfaceContainerHigh,
       child: Row(
         children: <Widget>[
           Icon(icon, color: colorScheme.primary),

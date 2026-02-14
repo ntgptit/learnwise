@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/error_code.dart';
+import '../../../core/utils/string_utils.dart';
 import '../model/tts_constants.dart';
 import '../model/tts_models.dart';
 import '../model/tts_sample_text.dart';
@@ -82,7 +83,7 @@ class TtsController extends _$TtsController {
         state.status.isLoadingVoices) {
       return;
     }
-    final String message = state.inputText.trim();
+    final String message = StringUtils.normalize(state.inputText);
     if (message.isEmpty) {
       return;
     }

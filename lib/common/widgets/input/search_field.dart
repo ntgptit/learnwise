@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/string_utils.dart';
 import 'app_text_field.dart';
 
 class SearchField extends StatelessWidget {
@@ -32,7 +33,7 @@ class SearchField extends StatelessWidget {
       suffixIcon: ValueListenableBuilder<TextEditingValue>(
         valueListenable: controller,
         builder: (context, value, child) {
-          final bool hasInput = value.text.trim().isNotEmpty;
+          final bool hasInput = StringUtils.isNotBlank(value.text);
           if (hasInput) {
             return IconButton(
               onPressed: () => _handleClear(context),

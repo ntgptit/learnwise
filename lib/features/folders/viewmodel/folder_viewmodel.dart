@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/error_code.dart';
+import '../../../core/utils/string_utils.dart';
 import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
 import '../repository/folder_repository.dart';
@@ -24,7 +25,7 @@ class FolderQueryController extends _$FolderQueryController {
   }
 
   void setSearch(String value) {
-    final String normalized = value.trim();
+    final String normalized = StringUtils.normalize(value);
     if (state.search == normalized) {
       return;
     }
@@ -531,9 +532,9 @@ class FolderController extends _$FolderController {
   }
 
   FolderUpsertInput _normalizeInput(FolderUpsertInput input) {
-    final String name = input.name.trim();
-    final String description = input.description.trim();
-    final String colorHex = input.colorHex.trim().toUpperCase();
+    final String name = StringUtils.normalize(input.name);
+    final String description = StringUtils.normalize(input.description);
+    final String colorHex = StringUtils.normalize(input.colorHex).toUpperCase();
     return FolderUpsertInput(
       name: name,
       description: description,

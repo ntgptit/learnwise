@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/string_utils.dart';
+
 part 'prefs_storage.g.dart';
 
 class PrefsStorageKey {
@@ -39,7 +41,7 @@ class SharedPrefsStorage implements PrefsStorage {
 
   @override
   Future<void> saveLocaleCode(String localeCode) async {
-    final String value = localeCode.trim();
+    final String value = StringUtils.normalize(localeCode);
     if (value.isEmpty) {
       throw ArgumentError.value(
         localeCode,

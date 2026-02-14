@@ -1,6 +1,8 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../utils/string_utils.dart';
+
 part 'secure_storage.g.dart';
 
 class SecureStorageKey {
@@ -46,8 +48,8 @@ class SecureStorageImpl implements SecureStorage {
 
   @override
   Future<void> writeAccessToken(String token) async {
-    final String value = token.trim();
-    if (value.isEmpty) {
+    final String? value = StringUtils.normalizeNullable(token);
+    if (value == null) {
       throw ArgumentError.value(
         token,
         'token',
@@ -60,8 +62,8 @@ class SecureStorageImpl implements SecureStorage {
 
   @override
   Future<void> writeRefreshToken(String token) async {
-    final String value = token.trim();
-    if (value.isEmpty) {
+    final String? value = StringUtils.normalizeNullable(token);
+    if (value == null) {
       throw ArgumentError.value(
         token,
         'token',
@@ -98,15 +100,15 @@ class SecureStorageImpl implements SecureStorage {
       return null;
     }
 
-    final String trimmedToken = token.trim();
-    if (trimmedToken.isEmpty) {
+    final String? normalizedToken = StringUtils.normalizeNullable(token);
+    if (normalizedToken == null) {
       _accessTokenCache = null;
       await _storage.delete(key: SecureStorageKey.accessToken);
       return null;
     }
 
-    _accessTokenCache = trimmedToken;
-    return trimmedToken;
+    _accessTokenCache = normalizedToken;
+    return normalizedToken;
   }
 
   @override
@@ -123,15 +125,15 @@ class SecureStorageImpl implements SecureStorage {
       return null;
     }
 
-    final String trimmedToken = token.trim();
-    if (trimmedToken.isEmpty) {
+    final String? normalizedToken = StringUtils.normalizeNullable(token);
+    if (normalizedToken == null) {
       _refreshTokenCache = null;
       await _storage.delete(key: SecureStorageKey.refreshToken);
       return null;
     }
 
-    _refreshTokenCache = trimmedToken;
-    return trimmedToken;
+    _refreshTokenCache = normalizedToken;
+    return normalizedToken;
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../core/utils/string_utils.dart';
 
 class FlashcardSetMetadataSection extends StatelessWidget {
   const FlashcardSetMetadataSection({
@@ -19,9 +20,11 @@ class FlashcardSetMetadataSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
-    final String resolvedOwner = ownerName.trim().isEmpty
-        ? l10n.flashcardsOwnerFallback
-        : ownerName.trim();
+    final String? normalizedOwnerName = StringUtils.normalizeNullable(
+      ownerName,
+    );
+    final String resolvedOwner =
+        normalizedOwnerName ?? l10n.flashcardsOwnerFallback;
     final String initial = resolvedOwner.characters.first.toUpperCase();
 
     return Column(

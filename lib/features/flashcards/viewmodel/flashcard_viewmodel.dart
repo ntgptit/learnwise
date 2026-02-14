@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/error_code.dart';
+import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_models.dart';
 import '../repository/flashcard_repository.dart';
@@ -24,7 +25,7 @@ class FlashcardQueryController extends _$FlashcardQueryController {
   }
 
   void setSearch(String value) {
-    final String normalized = value.trim();
+    final String normalized = StringUtils.normalize(value);
     if (state.search == normalized) {
       return;
     }
@@ -474,8 +475,8 @@ class FlashcardController extends _$FlashcardController {
 
   FlashcardUpsertInput _normalizeInput(FlashcardUpsertInput input) {
     return FlashcardUpsertInput(
-      frontText: input.frontText.trim(),
-      backText: input.backText.trim(),
+      frontText: StringUtils.normalize(input.frontText),
+      backText: StringUtils.normalize(input.backText),
     );
   }
 

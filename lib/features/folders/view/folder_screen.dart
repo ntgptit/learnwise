@@ -44,6 +44,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   late final TextEditingController _searchController;
   late final FocusNode _searchFocusNode;
   late final ScrollController _scrollController;
+  final Map<int, bool> _hasSubfoldersByFolderId = <int, bool>{};
   Timer? _searchDebounceTimer;
 
   @override
@@ -87,8 +88,15 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final DeckListingState? deckListingSnapshot = _resolveDeckListingFromAsync(
       deckState,
     );
-    final bool isDeckContext = query.breadcrumbs.isNotEmpty;
+    final bool isInsideFolder = query.breadcrumbs.isNotEmpty;
     final bool isSearching = query.search.isNotEmpty;
+    final bool hasSubfolderContext = _resolveHasSubfolderContext(
+      isInsideFolder: isInsideFolder,
+      currentFolderId: currentFolderId,
+      listing: listingSnapshot,
+      isSearching: isSearching,
+    );
+    final bool isDeckContext = isInsideFolder && !hasSubfolderContext;
     final bool canCreateFolderAtCurrentLevel = _canCreateFolderAtCurrentLevel(
       query: query,
       deckListing: deckListingSnapshot,
@@ -150,20 +158,26 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           skipLoadingOnReload: true,
           skipLoadingOnRefresh: true,
           data: (listing) {
-            final bool isInsideFolder = isDeckContext;
+            final bool isInsideFolder = query.breadcrumbs.isNotEmpty;
+            final bool hasSubfolderContext = _resolveHasSubfolderContext(
+              isInsideFolder: isInsideFolder,
+              currentFolderId: currentFolderId,
+              listing: listing,
+              isSearching: isSearching,
+            );
+            final bool isDeckListingContext =
+                isInsideFolder && !hasSubfolderContext;
             final bool hasDeckData = deckListingSnapshot != null;
             final bool deckListingIsEmpty =
                 hasDeckData && deckListingSnapshot.items.isEmpty;
             final bool hasDeckItems = hasDeckData && !deckListingIsEmpty;
-            final bool hasSubfolders =
-                listing.totalElements > FolderConstants.minPage;
             final bool isDeckLoading = _isDeckLoading(deckState);
             final bool isDeckError = _isDeckError(deckState);
             final bool isFolderLoading = _isFolderLoading(state);
             final bool showDeckLoading =
-                isInsideFolder && isDeckLoading && !hasDeckData;
+                isDeckListingContext && isDeckLoading && !hasDeckData;
             final bool showDeckError =
-                isInsideFolder && isDeckError && !hasDeckData;
+                isDeckListingContext && isDeckError && !hasDeckData;
             final bool showInlineLoading = uiState.isTransitionInProgress;
             final bool showEmptyState =
                 listing.items.isEmpty &&
@@ -174,25 +188,24 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                 !isFolderLoading;
             final bool showFolderSearchEmptyState =
                 isSearching &&
-                !isDeckContext &&
+                !isDeckListingContext &&
                 listing.items.isEmpty &&
                 !showDeckLoading &&
                 !showDeckError &&
                 !uiState.isTransitionInProgress &&
                 !isFolderLoading;
             final bool showFolderEmptyState =
-                !isSearching && !isDeckContext && showEmptyState;
+                !isSearching && !isDeckListingContext && showEmptyState;
             final bool showDeckSearchEmptyState =
-                isDeckContext &&
+                isDeckListingContext &&
                 isSearching &&
                 deckListingIsEmpty &&
                 !showDeckLoading &&
                 !showDeckError;
             final bool showDeckEmptyState =
-                isDeckContext &&
+                isDeckListingContext &&
                 !isSearching &&
                 deckListingIsEmpty &&
-                !hasSubfolders &&
                 !showDeckLoading &&
                 !showDeckError;
             return Stack(
@@ -513,10 +526,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     ref
         .read(folderControllerProvider.notifier)
         .applySearch(_searchController.text);
-    final int? currentFolderId = ref
-        .read(folderQueryControllerProvider)
-        .parentFolderId;
+    final FolderListQuery query = ref.read(folderQueryControllerProvider);
+    final int? currentFolderId = query.parentFolderId;
     if (currentFolderId == null) {
+      return;
+    }
+    if (!_shouldQueryDecksAtCurrentLevel(query: query)) {
       return;
     }
     ref
@@ -863,6 +878,51 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       AsyncLoading<FolderListingState>() => true,
       _ => false,
     };
+  }
+
+  bool _resolveHasSubfolderContext({
+    required bool isInsideFolder,
+    required int? currentFolderId,
+    required FolderListingState? listing,
+    required bool isSearching,
+  }) {
+    if (!isInsideFolder) {
+      return false;
+    }
+    if (currentFolderId == null) {
+      return false;
+    }
+    final bool? cachedHasSubfolders = _hasSubfoldersByFolderId[currentFolderId];
+    if (listing == null) {
+      if (cachedHasSubfolders != null) {
+        return cachedHasSubfolders;
+      }
+      return true;
+    }
+    final bool hasSubfolders = listing.totalElements > FolderConstants.minPage;
+    if (isSearching) {
+      if (cachedHasSubfolders != null) {
+        return cachedHasSubfolders;
+      }
+      return hasSubfolders;
+    }
+    _hasSubfoldersByFolderId[currentFolderId] = hasSubfolders;
+    return hasSubfolders;
+  }
+
+  bool _shouldQueryDecksAtCurrentLevel({required FolderListQuery query}) {
+    final int? currentFolderId = query.parentFolderId;
+    if (currentFolderId == null) {
+      return false;
+    }
+    if (query.breadcrumbs.isEmpty) {
+      return false;
+    }
+    final bool? hasSubfolders = _hasSubfoldersByFolderId[currentFolderId];
+    if (hasSubfolders == true) {
+      return false;
+    }
+    return true;
   }
 }
 

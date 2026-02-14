@@ -1,5 +1,6 @@
 import 'package:reactive_forms/reactive_forms.dart';
 
+import '../../../../core/utils/string_utils.dart';
 import '../../model/deck_constants.dart';
 import '../../model/deck_models.dart';
 
@@ -76,6 +77,6 @@ class DeckFormSchema {
     if (value is! String) {
       return '';
     }
-    return value.trim();
+    return StringUtils.normalize(value);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:reactive_forms/reactive_forms.dart';
 
+import '../../../../core/utils/string_utils.dart';
 import '../../model/flashcard_constants.dart';
 import '../../model/flashcard_models.dart';
 
@@ -56,6 +57,6 @@ class FlashcardFormSchema {
     if (value is! String) {
       return '';
     }
-    return value.trim();
+    return StringUtils.normalize(value);
   }
 }

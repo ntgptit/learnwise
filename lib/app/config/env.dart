@@ -1,4 +1,5 @@
 import 'app_constants.dart';
+import '../../core/utils/string_utils.dart';
 
 enum AppEnv {
   dev,
@@ -14,7 +15,7 @@ enum AppEnv {
   }
 
   static AppEnv fromValue(String value) {
-    switch (value.trim().toUpperCase()) {
+    switch (StringUtils.normalize(value).toUpperCase()) {
       case 'PROD':
       case 'PRODUCTION':
         return AppEnv.prod;

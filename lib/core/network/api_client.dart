@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../error/api_error_mapper.dart';
 import '../error/app_exception.dart';
 import '../error/error_code.dart';
+import '../utils/string_utils.dart';
 import 'api_constants.dart';
 import 'dio_provider.dart';
 
@@ -306,7 +307,7 @@ class ApiClient {
   }
 
   void _validatePath(String path) {
-    if (path.trim().isNotEmpty) {
+    if (StringUtils.isNotBlank(path)) {
       return;
     }
     throw ArgumentError.value(path, 'path', 'Path must not be empty.');

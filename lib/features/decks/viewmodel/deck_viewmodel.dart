@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/error/error_code.dart';
+import '../../../core/utils/string_utils.dart';
 import '../model/deck_constants.dart';
 import '../model/deck_models.dart';
 import '../repository/deck_repository.dart';
@@ -24,7 +25,7 @@ class DeckQueryController extends _$DeckQueryController {
   }
 
   void setSearch(String value) {
-    final String normalized = value.trim();
+    final String normalized = StringUtils.normalize(value);
     if (state.search == normalized) {
       return;
     }
@@ -359,8 +360,8 @@ class DeckController extends _$DeckController {
 
   DeckUpsertInput _normalizeInput(DeckUpsertInput input) {
     return DeckUpsertInput(
-      name: input.name.trim(),
-      description: input.description.trim(),
+      name: StringUtils.normalize(input.name),
+      description: StringUtils.normalize(input.description),
     );
   }
 

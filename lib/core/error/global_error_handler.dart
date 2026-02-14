@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../utils/string_utils.dart';
 import 'app_error_bus.dart';
 import 'error_code.dart';
 
@@ -17,10 +18,7 @@ class GlobalErrorHandler extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    ref.listen<AppErrorEvent?>(appErrorBusProvider, (
-      previous,
-      next,
-    ) {
+    ref.listen<AppErrorEvent?>(appErrorBusProvider, (previous, next) {
       if (next == null || previous?.id == next.id) {
         return;
       }
@@ -75,11 +73,8 @@ class GlobalErrorHandler extends ConsumerWidget {
     required String? customMessage,
     required String defaultMessage,
   }) {
-    if (customMessage == null) {
-      return defaultMessage;
-    }
-    final String normalized = customMessage.trim();
-    if (normalized.isEmpty) {
+    final String? normalized = StringUtils.normalizeNullable(customMessage);
+    if (normalized == null) {
       return defaultMessage;
     }
     return normalized;

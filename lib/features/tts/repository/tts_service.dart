@@ -1,5 +1,6 @@
 import 'package:flutter_tts/flutter_tts.dart';
 
+import '../../../core/utils/string_utils.dart';
 import '../model/tts_constants.dart';
 import '../model/tts_exceptions.dart';
 import '../model/tts_models.dart';
@@ -39,7 +40,7 @@ class TtsService implements TtsRepository {
     TtsVoiceSettings settings = const TtsVoiceSettings(),
     TtsVoiceOption? voice,
   }) async {
-    final String message = text.trim();
+    final String message = StringUtils.normalize(text);
     if (message.isEmpty) {
       return;
     }

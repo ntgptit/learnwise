@@ -1,5 +1,6 @@
 import 'package:reactive_forms/reactive_forms.dart';
 
+import '../../../../core/utils/string_utils.dart';
 import '../../model/folder_constants.dart';
 import '../../model/folder_models.dart';
 
@@ -84,6 +85,6 @@ class FolderFormSchema {
     if (value is! String) {
       return '';
     }
-    return value.trim();
+    return StringUtils.normalize(value);
   }
 }

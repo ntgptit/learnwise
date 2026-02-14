@@ -7,6 +7,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
+import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_models.dart';
 
@@ -226,7 +227,7 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
   }
 
   String _buildBackContent(FlashcardItem item) {
-    final String note = item.note.trim();
+    final String note = StringUtils.normalize(item.note);
     if (note.isEmpty) {
       return item.backText;
     }

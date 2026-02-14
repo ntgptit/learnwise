@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../api_constants.dart';
 import '../auth_session.dart';
+import '../../utils/string_utils.dart';
 
 typedef ExecuteRequest =
     Future<Response<dynamic>> Function(RequestOptions options);
@@ -30,13 +31,14 @@ class AuthInterceptor extends Interceptor {
     }
 
     final String? token = await _authSessionManager.readAccessToken();
-    if (!_hasToken(token)) {
+    final String? normalizedToken = StringUtils.normalizeNullable(token);
+    if (normalizedToken == null) {
       handler.next(options);
       return;
     }
 
     options.headers[ApiConstants.authorizationHeader] =
-        '${ApiConstants.bearerTokenPrefix}${token!.trim()}';
+        '${ApiConstants.bearerTokenPrefix}$normalizedToken';
     handler.next(options);
   }
 
@@ -63,7 +65,10 @@ class AuthInterceptor extends Interceptor {
     }
 
     final String? refreshedToken = await _refreshAccessToken();
-    if (!_hasToken(refreshedToken)) {
+    final String? normalizedToken = StringUtils.normalizeNullable(
+      refreshedToken,
+    );
+    if (normalizedToken == null) {
       await _authSessionManager.clearSession();
       handler.next(err);
       return;
@@ -71,7 +76,7 @@ class AuthInterceptor extends Interceptor {
 
     final RequestOptions retriedRequest = _cloneAsRetried(
       request: request,
-      refreshedToken: refreshedToken!.trim(),
+      refreshedToken: normalizedToken,
     );
 
     try {
@@ -82,13 +87,6 @@ class AuthInterceptor extends Interceptor {
       handler.next(retryError);
       return;
     }
-  }
-
-  bool _hasToken(String? token) {
-    if (token == null) {
-      return false;
-    }
-    return token.trim().isNotEmpty;
   }
 
   bool _shouldSkipAuth(RequestOptions request) {

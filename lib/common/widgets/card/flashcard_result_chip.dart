@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/colors.dart';
-import '../../styles/app_opacities.dart';
+import '../../../app/theme/semantic_colors.dart';
 
 enum FlashcardResultType { correct, wrong, hard }
 
@@ -13,9 +12,11 @@ class FlashcardResultChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ActionChip(
       label: Text(_label(type)),
-      backgroundColor: _background(type),
+      backgroundColor: _background(type, colorScheme),
       onPressed: onTap,
     );
   }
@@ -30,13 +31,13 @@ class FlashcardResultChip extends StatelessWidget {
     return 'Hard';
   }
 
-  Color _background(FlashcardResultType value) {
+  Color _background(FlashcardResultType value, ColorScheme colorScheme) {
     if (value == FlashcardResultType.correct) {
-      return AppColors.success.withValues(alpha: AppOpacities.soft15);
+      return colorScheme.successContainer;
     }
     if (value == FlashcardResultType.wrong) {
-      return AppColors.error.withValues(alpha: AppOpacities.soft15);
+      return colorScheme.errorContainer;
     }
-    return AppColors.warning.withValues(alpha: AppOpacities.soft20);
+    return colorScheme.warningContainer;
   }
 }

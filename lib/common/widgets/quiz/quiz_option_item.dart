@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/theme/semantic_colors.dart';
 import '../../styles/app_sizes.dart';
-import '../../styles/app_opacities.dart';
-import '../../../app/theme/colors.dart';
 
 class QuizOptionItem extends StatelessWidget {
   const QuizOptionItem({
@@ -24,15 +23,15 @@ class QuizOptionItem extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     final Color borderColor = correct
-        ? AppColors.success
+        ? colorScheme.onSuccessContainer
         : selected
         ? colorScheme.primary
         : colorScheme.outlineVariant;
 
     final Color backgroundColor = correct
-        ? AppColors.success.withValues(alpha: AppOpacities.soft10)
+        ? colorScheme.successContainer
         : selected
-        ? colorScheme.primary.withValues(alpha: AppOpacities.soft08)
+        ? colorScheme.primaryContainer
         : colorScheme.surface;
 
     return InkWell(

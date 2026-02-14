@@ -9,6 +9,7 @@ import '../../../app/router/route_names.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
+import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_management_args.dart';
 import '../model/flashcard_models.dart';
@@ -182,13 +183,13 @@ class _FlashcardManagementScreenState
                         ownerName: widget.args.ownerName,
                         totalFlashcards: listing.totalElements,
                       ),
-                      if (widget.args.deckDescription.trim().isNotEmpty)
+                      if (StringUtils.isNotBlank(widget.args.deckDescription))
                         Padding(
                           padding: const EdgeInsets.only(
                             top: FlashcardScreenTokens.metadataGap,
                           ),
                           child: Text(
-                            widget.args.deckDescription.trim(),
+                            StringUtils.normalize(widget.args.deckDescription),
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
@@ -737,17 +738,23 @@ class _FlashcardManagementScreenState
   }
 
   String _resolveTitle(AppLocalizations l10n) {
-    if (widget.args.deckName.trim().isEmpty) {
+    final String? deckName = StringUtils.normalizeNullable(
+      widget.args.deckName,
+    );
+    if (deckName == null) {
       return l10n.flashcardsTitle;
     }
-    return widget.args.deckName.trim();
+    return deckName;
   }
 
   String _resolveSetTitle(AppLocalizations l10n) {
-    if (widget.args.folderName.trim().isEmpty) {
+    final String? folderName = StringUtils.normalizeNullable(
+      widget.args.folderName,
+    );
+    if (folderName == null) {
       return _resolveTitle(l10n);
     }
-    return widget.args.folderName.trim();
+    return folderName;
   }
 
   String _buildSortSummaryLabel({

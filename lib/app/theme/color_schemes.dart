@@ -12,6 +12,13 @@ const ColorScheme lightColorScheme = ColorScheme(
   onError: AppColors.onError,
   surface: AppColors.surface,
   onSurface: AppColors.onSurface,
+  // Surface container variants for Material 3
+  // Used to create elevation hierarchy without using shadows
+  surfaceContainerLowest: Color(0xFFFFFFFF), // Pure white - highest contrast
+  surfaceContainerLow: Color(0xFFF2F5F6), // Very light gray - for cards on surface
+  surfaceContainer: Color(0xFFECEFF0), // Light gray - for standard cards
+  surfaceContainerHigh: Color(0xFFE6EAEB), // Medium gray - for dialogs, elevated cards
+  surfaceContainerHighest: Color(0xFFE1E4E6), // Darker gray - for bottom sheets, top-level containers
 );
 
 final ColorScheme darkColorScheme =

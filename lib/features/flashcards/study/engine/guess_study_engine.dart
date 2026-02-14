@@ -83,7 +83,26 @@ class GuessStudyEngine implements StudyEngine {
     if (isCompleted) {
       return;
     }
+    if (_currentIndex >= _units.length - 1) {
+      _currentIndex = _units.length;
+      return;
+    }
     _currentIndex++;
+  }
+
+  @override
+  void previous() {
+    if (_units.isEmpty) {
+      return;
+    }
+    if (_currentIndex > _units.length - 1) {
+      _currentIndex = _units.length - 1;
+      return;
+    }
+    if (_currentIndex <= StudyConstants.defaultIndex) {
+      return;
+    }
+    _currentIndex--;
   }
 
   static List<GuessUnit> _buildUnits({

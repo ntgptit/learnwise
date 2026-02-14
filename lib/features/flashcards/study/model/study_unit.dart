@@ -11,11 +11,13 @@ abstract class StudyUnit {
 class ReviewUnit extends StudyUnit {
   const ReviewUnit({
     required super.unitId,
+    required this.flashcardId,
     required this.frontText,
     required this.backText,
     required this.note,
   });
 
+  final int flashcardId;
   final String frontText;
   final String backText;
   final String note;

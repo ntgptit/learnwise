@@ -1021,6 +1021,18 @@
   "@flashcardsCloseTooltip": {
     "description": "Tooltip for close action on flashcard screens."
   },
+  "flashcardsBackTooltip": "Quay lại",
+  "@flashcardsBackTooltip": {
+    "description": "Tooltip for back action on flashcard study screens."
+  },
+  "flashcardsStudyTextScaleTooltip": "Cỡ chữ",
+  "@flashcardsStudyTextScaleTooltip": {
+    "description": "Tooltip for text size action in study app bar."
+  },
+  "flashcardsStudyTextScaleToast": "Tuỳ chỉnh cỡ chữ chưa sẵn sàng.",
+  "@flashcardsStudyTextScaleToast": {
+    "description": "Toast shown when text size action is tapped."
+  },
   "flashcardsPreviousTooltip": "Thẻ trước",
   "@flashcardsPreviousTooltip": {
     "description": "Tooltip for previous card action in flip study screen."

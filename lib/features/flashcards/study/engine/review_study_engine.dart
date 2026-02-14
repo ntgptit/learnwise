@@ -59,13 +59,33 @@ class ReviewStudyEngine implements StudyEngine {
     if (isCompleted) {
       return;
     }
+    if (_currentIndex >= _units.length - 1) {
+      _currentIndex = _units.length;
+      return;
+    }
     _currentIndex++;
+  }
+
+  @override
+  void previous() {
+    if (_units.isEmpty) {
+      return;
+    }
+    if (_currentIndex > _units.length - 1) {
+      _currentIndex = _units.length - 1;
+      return;
+    }
+    if (_currentIndex <= StudyConstants.defaultIndex) {
+      return;
+    }
+    _currentIndex--;
   }
 
   static List<ReviewUnit> _buildUnits(List<FlashcardItem> items) {
     return items.map((item) {
       return ReviewUnit(
         unitId: item.id.toString(),
+        flashcardId: item.id,
         frontText: item.frontText,
         backText: item.backText,
         note: item.note,

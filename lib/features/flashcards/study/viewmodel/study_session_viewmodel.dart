@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,46 +17,126 @@ class StudySessionState {
   const StudySessionState({
     required this.mode,
     required this.currentUnit,
-    required this.currentStep,
-    required this.totalSteps,
+    required this.currentIndex,
+    required this.totalCount,
+    required this.progressPercent,
+    required this.isFrontVisible,
+    required this.playingFlashcardId,
     required this.correctCount,
     required this.wrongCount,
+    required this.canGoPrevious,
+    required this.canGoNext,
     required this.isCompleted,
   });
 
   final StudyMode mode;
   final StudyUnit? currentUnit;
-  final int currentStep;
-  final int totalSteps;
+  final int currentIndex;
+  final int totalCount;
+  final double progressPercent;
+  final bool isFrontVisible;
+  final int? playingFlashcardId;
   final int correctCount;
   final int wrongCount;
+  final bool canGoPrevious;
+  final bool canGoNext;
   final bool isCompleted;
 
   factory StudySessionState.fromEngine({
     required StudyMode mode,
     required StudyEngine engine,
+    required bool isFrontVisible,
+    required int? playingFlashcardId,
   }) {
+    final int currentIndex = _resolveCurrentIndex(engine: engine);
+    final int totalCount = engine.totalUnits;
+    final bool isCompleted = engine.isCompleted;
     return StudySessionState(
       mode: mode,
       currentUnit: engine.currentUnit,
-      currentStep: _resolveCurrentStep(engine: engine),
-      totalSteps: engine.totalUnits,
+      currentIndex: currentIndex,
+      totalCount: totalCount,
+      progressPercent: _resolveProgressPercent(
+        currentIndex: currentIndex,
+        totalCount: totalCount,
+        isCompleted: isCompleted,
+      ),
+      isFrontVisible: isFrontVisible,
+      playingFlashcardId: playingFlashcardId,
       correctCount: engine.correctCount,
       wrongCount: engine.wrongCount,
-      isCompleted: engine.isCompleted,
+      canGoPrevious: _resolveCanGoPrevious(
+        currentIndex: currentIndex,
+        totalCount: totalCount,
+        isCompleted: isCompleted,
+      ),
+      canGoNext: _resolveCanGoNext(
+        totalCount: totalCount,
+        isCompleted: isCompleted,
+      ),
+      isCompleted: isCompleted,
     );
   }
 
-  static int _resolveCurrentStep({required StudyEngine engine}) {
-    final int totalSteps = engine.totalUnits;
-    if (totalSteps <= StudyConstants.defaultIndex) {
+  int get currentStep {
+    if (totalCount <= StudyConstants.defaultIndex) {
+      return StudyConstants.defaultIndex;
+    }
+    if (isCompleted) {
+      return totalCount;
+    }
+    return (currentIndex + 1).clamp(1, totalCount);
+  }
+
+  int get totalSteps => totalCount;
+
+  static int _resolveCurrentIndex({required StudyEngine engine}) {
+    final int totalCount = engine.totalUnits;
+    if (totalCount <= StudyConstants.defaultIndex) {
       return StudyConstants.defaultIndex;
     }
     if (engine.isCompleted) {
-      return totalSteps;
+      return totalCount - 1;
     }
-    final int step = engine.currentIndex + 1;
-    return step.clamp(1, totalSteps);
+    return engine.currentIndex.clamp(StudyConstants.defaultIndex, totalCount - 1);
+  }
+
+  static double _resolveProgressPercent({
+    required int currentIndex,
+    required int totalCount,
+    required bool isCompleted,
+  }) {
+    if (totalCount <= StudyConstants.defaultIndex) {
+      return 0;
+    }
+    if (isCompleted) {
+      return 1;
+    }
+    return currentIndex / totalCount;
+  }
+
+  static bool _resolveCanGoPrevious({
+    required int currentIndex,
+    required int totalCount,
+    required bool isCompleted,
+  }) {
+    if (totalCount <= StudyConstants.defaultIndex) {
+      return false;
+    }
+    if (isCompleted) {
+      return true;
+    }
+    return currentIndex > StudyConstants.defaultIndex;
+  }
+
+  static bool _resolveCanGoNext({
+    required int totalCount,
+    required bool isCompleted,
+  }) {
+    if (totalCount <= StudyConstants.defaultIndex) {
+      return false;
+    }
+    return !isCompleted;
   }
 }
 
@@ -67,9 +148,15 @@ StudyEngineFactory studyEngineFactory(Ref ref) {
 @Riverpod(keepAlive: true)
 class StudySessionController extends _$StudySessionController {
   late StudyEngine _engine;
+  bool _isFrontVisible = true;
+  int? _playingFlashcardId;
+  Timer? _audioPlayingIndicatorTimer;
 
   @override
   StudySessionState build(StudySessionArgs args) {
+    ref.onDispose(() {
+      _audioPlayingIndicatorTimer?.cancel();
+    });
     final StudyEngineFactory factory = ref.read(studyEngineFactoryProvider);
     _engine = factory.create(
       StudyEngineRequest(
@@ -79,7 +166,14 @@ class StudySessionController extends _$StudySessionController {
         random: Random(args.seed),
       ),
     );
-    return StudySessionState.fromEngine(mode: args.mode, engine: _engine);
+    _isFrontVisible = true;
+    _playingFlashcardId = null;
+    return StudySessionState.fromEngine(
+      mode: args.mode,
+      engine: _engine,
+      isFrontVisible: _isFrontVisible,
+      playingFlashcardId: _playingFlashcardId,
+    );
   }
 
   void submitAnswer(StudyAnswer answer) {
@@ -89,6 +183,40 @@ class StudySessionController extends _$StudySessionController {
 
   void next() {
     _engine.next();
+    _isFrontVisible = true;
+    _clearAudioPlayingIndicator();
+    _sync();
+  }
+
+  void previous() {
+    _engine.previous();
+    _isFrontVisible = true;
+    _clearAudioPlayingIndicator();
+    _sync();
+  }
+
+  void submitFlip() {
+    if (_engine.mode != StudyMode.review) {
+      return;
+    }
+    _isFrontVisible = !_isFrontVisible;
+    _sync();
+  }
+
+  void playCurrentAudio() {
+    if (_engine.mode != StudyMode.review) {
+      return;
+    }
+    final StudyUnit? currentUnit = _engine.currentUnit;
+    if (currentUnit is! ReviewUnit) {
+      return;
+    }
+    _startAudioPlayingIndicator(currentUnit.flashcardId);
+    _sync();
+  }
+
+  void clearAudioPlaying() {
+    _clearAudioPlayingIndicator();
     _sync();
   }
 
@@ -97,6 +225,32 @@ class StudySessionController extends _$StudySessionController {
   }
 
   void _sync() {
-    state = StudySessionState.fromEngine(mode: _engine.mode, engine: _engine);
+    state = StudySessionState.fromEngine(
+      mode: _engine.mode,
+      engine: _engine,
+      isFrontVisible: _isFrontVisible,
+      playingFlashcardId: _playingFlashcardId,
+    );
+  }
+
+  void _startAudioPlayingIndicator(int flashcardId) {
+    _audioPlayingIndicatorTimer?.cancel();
+    _playingFlashcardId = flashcardId;
+    _audioPlayingIndicatorTimer = Timer(
+      const Duration(milliseconds: StudyConstants.audioPlayingIndicatorDurationMs),
+      _onAudioPlayingIndicatorExpired,
+    );
+  }
+
+  void _clearAudioPlayingIndicator() {
+    if (_playingFlashcardId == null) {
+      return;
+    }
+    _playingFlashcardId = null;
+  }
+
+  void _onAudioPlayingIndicatorExpired() {
+    _clearAudioPlayingIndicator();
+    _sync();
   }
 }

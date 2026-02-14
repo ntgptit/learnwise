@@ -5,25 +5,18 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/widgets/widgets.dart';
-import '../../../../core/utils/string_utils.dart';
-import '../model/study_answer.dart';
 import '../model/study_mode.dart';
 import '../model/study_session_args.dart';
 import '../model/study_unit.dart';
 import '../viewmodel/study_session_viewmodel.dart';
+import 'widgets/fill_study_mode_view.dart';
+import 'widgets/guess_study_mode_view.dart';
+import 'widgets/match_study_mode_view.dart';
+import 'widgets/recall_study_mode_view.dart';
+import 'widgets/review_study_mode_view.dart';
 
-// quality-guard: allow-large-file
 // quality-guard: allow-long-function
 typedef _ModeLabelResolver = String Function(AppLocalizations l10n);
-
-typedef _StudyUnitRenderer =
-    Widget Function({
-      required BuildContext context,
-      required StudyUnit unit,
-      required StudySessionController controller,
-      required AppLocalizations l10n,
-      required TextEditingController fillController,
-    });
 
 final Map<StudyMode, _ModeLabelResolver> _modeLabelRegistry =
     <StudyMode, _ModeLabelResolver>{
@@ -32,15 +25,6 @@ final Map<StudyMode, _ModeLabelResolver> _modeLabelRegistry =
       StudyMode.guess: (l10n) => l10n.flashcardsStudyModeGuess,
       StudyMode.recall: (l10n) => l10n.flashcardsStudyModeRecall,
       StudyMode.fill: (l10n) => l10n.flashcardsStudyModeFill,
-    };
-
-final Map<Type, _StudyUnitRenderer> _unitRendererRegistry =
-    <Type, _StudyUnitRenderer>{
-      ReviewUnit: _renderReviewUnit,
-      GuessUnit: _renderGuessUnit,
-      RecallUnit: _renderRecallUnit,
-      FillUnit: _renderFillUnit,
-      MatchUnit: _renderMatchUnit,
     };
 
 class FlashcardStudySessionScreen extends ConsumerStatefulWidget {
@@ -57,15 +41,30 @@ class FlashcardStudySessionScreen extends ConsumerStatefulWidget {
 class _FlashcardStudySessionScreenState
     extends ConsumerState<FlashcardStudySessionScreen> {
   late final TextEditingController _fillController;
+  late final ProviderSubscription<int> _indexSubscription;
 
   @override
   void initState() {
     super.initState();
     _fillController = TextEditingController();
+    _indexSubscription = ref.listenManual<int>(
+      studySessionControllerProvider(
+        widget.args,
+      ).select((value) => value.currentIndex),
+      (previous, next) {
+        if (previous == next) {
+          return;
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _fillController.clear();
+        });
+      },
+    );
   }
 
   @override
   void dispose() {
+    _indexSubscription.close();
     _fillController.dispose();
     super.dispose();
   }
@@ -75,59 +74,178 @@ class _FlashcardStudySessionScreenState
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final provider = studySessionControllerProvider(widget.args);
-    ref.listen<StudySessionState>(provider, (previous, next) {
-      if (previous?.currentStep == next.currentStep) {
-        return;
-      }
-      _fillController.clear();
-    });
-    final StudySessionState state = ref.watch(provider);
-    final StudySessionController controller = ref.read(provider.notifier);
-    final String modeLabel = _resolveModeLabel(
-      mode: state.mode,
-      l10n: l10n,
-    );
+    final StudyMode mode = ref.watch(provider.select((value) => value.mode));
+    final String modeLabel = _resolveModeLabel(mode: mode, l10n: l10n);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        centerTitle: true,
-        title: Text('$modeLabel · ${widget.args.title}'),
+        centerTitle: mode != StudyMode.review,
+        title: Text(modeLabel, style: Theme.of(context).textTheme.titleLarge),
         leading: IconButton(
           onPressed: () => context.pop(true),
-          tooltip: l10n.flashcardsCloseTooltip,
-          icon: const Icon(Icons.close),
+          tooltip: l10n.flashcardsBackTooltip,
+          iconSize: FlashcardStudySessionTokens.iconSize,
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        actions: _buildAppBarActions(
+          context: context,
+          l10n: l10n,
+          provider: provider,
+          mode: mode,
         ),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(FlashcardStudySessionTokens.screenPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              _StudyProgressHeader(state: state),
-              const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-              Expanded(
-                child: _buildBody(
-                  context: context,
-                  l10n: l10n,
-                  state: state,
-                  controller: controller,
-                ),
-              ),
-            ],
+          padding: const EdgeInsets.all(
+            FlashcardStudySessionTokens.screenPadding,
+          ),
+          child: _StudySessionBody(
+            provider: provider,
+            l10n: l10n,
+            fillController: _fillController,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBody({
+  List<Widget> _buildAppBarActions({
     required BuildContext context,
     required AppLocalizations l10n,
-    required StudySessionState state,
-    required StudySessionController controller,
+    required StudySessionControllerProvider provider,
+    required StudyMode mode,
   }) {
+    if (mode != StudyMode.review) {
+      return const <Widget>[];
+    }
+    return <Widget>[
+      IconButton(
+        onPressed: () => _showToast(l10n.flashcardsStudyTextScaleToast),
+        tooltip: l10n.flashcardsStudyTextScaleTooltip,
+        iconSize: FlashcardStudySessionTokens.iconSize,
+        icon: const Icon(Icons.text_fields_rounded),
+      ),
+      Consumer(
+        builder: (context, ref, child) {
+          final bool isPlayingAudio = ref.watch(
+            provider.select((value) => value.playingFlashcardId != null),
+          );
+          final StudySessionController controller = ref.read(provider.notifier);
+          final String frontText = _resolveCurrentReviewFrontText(
+            ref,
+            provider,
+          );
+          return IconButton(
+            isSelected: isPlayingAudio,
+            onPressed: () {
+              controller.playCurrentAudio();
+              if (frontText.isEmpty) {
+                return;
+              }
+              _showToast(l10n.flashcardsAudioPlayToast(frontText));
+            },
+            tooltip: l10n.flashcardsPlayAudioTooltip,
+            iconSize: FlashcardStudySessionTokens.iconSize,
+            icon: const Icon(Icons.volume_up_outlined),
+            selectedIcon: const Icon(Icons.graphic_eq_rounded),
+          );
+        },
+      ),
+      PopupMenuButton<String>(
+        tooltip: l10n.flashcardsMoreActionsTooltip,
+        itemBuilder: (context) => <PopupMenuEntry<String>>[
+          PopupMenuItem<String>(
+            value: 'settings',
+            child: Text(l10n.flashcardsFlipStudySettingsTooltip),
+          ),
+        ],
+        onSelected: (value) {
+          if (value != 'settings') {
+            return;
+          }
+          _showToast(l10n.flashcardsFlipStudySettingsToast);
+        },
+      ),
+    ];
+  }
+
+  String _resolveCurrentReviewFrontText(
+    WidgetRef ref,
+    StudySessionControllerProvider provider,
+  ) {
+    final StudyUnit? currentUnit = ref.read(provider).currentUnit;
+    if (currentUnit is! ReviewUnit) {
+      return '';
+    }
+    return currentUnit.frontText;
+  }
+
+  void _showToast(String message) {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+}
+
+class _StudySessionBody extends ConsumerWidget {
+  const _StudySessionBody({
+    required this.provider,
+    required this.l10n,
+    required this.fillController,
+  });
+
+  final StudySessionControllerProvider provider;
+  final AppLocalizations l10n;
+  final TextEditingController fillController;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final StudySessionState state = ref.watch(provider);
+    final StudySessionController controller = ref.read(provider.notifier);
+
+    if (state.totalCount <= 0) {
+      return EmptyState(
+        title: l10n.flashcardsEmptyTitle,
+        subtitle: l10n.flashcardsEmptyDescription,
+        icon: Icons.style_outlined,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        _StudyProgressHeader(state: state),
+        const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
+        Expanded(
+          child: _StudyUnitBody(
+            state: state,
+            controller: controller,
+            l10n: l10n,
+            fillController: fillController,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StudyUnitBody extends StatelessWidget {
+  const _StudyUnitBody({
+    required this.state,
+    required this.controller,
+    required this.l10n,
+    required this.fillController,
+  });
+
+  final StudySessionState state;
+  final StudySessionController controller;
+  final AppLocalizations l10n;
+  final TextEditingController fillController;
+
+  @override
+  Widget build(BuildContext context) {
     if (state.isCompleted) {
       return _StudyCompletedCard(
         state: state,
@@ -139,27 +257,62 @@ class _FlashcardStudySessionScreenState
     if (currentUnit == null) {
       return const SizedBox.shrink();
     }
-    final _StudyUnitRenderer? renderer = _unitRendererRegistry[
-      currentUnit.runtimeType
-    ];
-    if (renderer == null) {
-      return const SizedBox.shrink();
-    }
-    return SingleChildScrollView(
-      child: AppCard(
-        variant: AppCardVariant.elevated,
-        elevation: FlashcardStudySessionTokens.cardElevation,
-        borderRadius: BorderRadius.circular(FlashcardStudySessionTokens.cardRadius),
-        padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
-        child: renderer(
-          context: context,
-          unit: currentUnit,
-          controller: controller,
-          l10n: l10n,
-          fillController: _fillController,
-        ),
+    final Widget unitContent = _buildUnitContent(currentUnit);
+    final Widget content = AppCard(
+      variant: AppCardVariant.elevated,
+      elevation: FlashcardStudySessionTokens.cardElevation,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(
+        FlashcardStudySessionTokens.cardRadius,
       ),
+      padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
+      child: unitContent,
     );
+    if (state.mode == StudyMode.review) {
+      return content;
+    }
+    return SingleChildScrollView(child: content);
+  }
+
+  Widget _buildUnitContent(StudyUnit currentUnit) {
+    if (currentUnit is ReviewUnit) {
+      return ReviewStudyModeView(
+        unit: currentUnit,
+        state: state,
+        controller: controller,
+        l10n: l10n,
+      );
+    }
+    if (currentUnit is GuessUnit) {
+      return GuessStudyModeView(
+        unit: currentUnit,
+        controller: controller,
+        l10n: l10n,
+      );
+    }
+    if (currentUnit is RecallUnit) {
+      return RecallStudyModeView(
+        unit: currentUnit,
+        controller: controller,
+        l10n: l10n,
+      );
+    }
+    if (currentUnit is FillUnit) {
+      return FillStudyModeView(
+        unit: currentUnit,
+        controller: controller,
+        l10n: l10n,
+        fillController: fillController,
+      );
+    }
+    if (currentUnit is MatchUnit) {
+      return MatchStudyModeView(
+        unit: currentUnit,
+        controller: controller,
+        l10n: l10n,
+      );
+    }
+    return const SizedBox.shrink();
   }
 }
 
@@ -171,20 +324,21 @@ class _StudyProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final double progressValue = _resolveProgressValue(state);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Text(
-          '${state.currentStep} / ${state.totalSteps}',
+          '${state.currentStep} / ${state.totalCount}',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
         ClipRRect(
-          borderRadius: BorderRadius.circular(FlashcardStudySessionTokens.progressRadius),
+          borderRadius: BorderRadius.circular(
+            FlashcardStudySessionTokens.progressRadius,
+          ),
           child: LinearProgressIndicator(
-            value: progressValue,
+            value: state.progressPercent,
             minHeight: FlashcardStudySessionTokens.progressHeight,
             backgroundColor: colorScheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
@@ -192,13 +346,6 @@ class _StudyProgressHeader extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  double _resolveProgressValue(StudySessionState state) {
-    if (state.totalSteps <= 0) {
-      return 0;
-    }
-    return state.currentStep / state.totalSteps;
   }
 }
 
@@ -218,7 +365,9 @@ class _StudyCompletedCard extends StatelessWidget {
     return Center(
       child: AppCard(
         variant: AppCardVariant.filled,
-        borderRadius: BorderRadius.circular(FlashcardStudySessionTokens.cardRadius),
+        borderRadius: BorderRadius.circular(
+          FlashcardStudySessionTokens.cardRadius,
+        ),
         padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -252,296 +401,6 @@ class _StudyCompletedCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-Widget _renderReviewUnit({
-  required BuildContext context,
-  required StudyUnit unit,
-  required StudySessionController controller,
-  required AppLocalizations l10n,
-  required TextEditingController fillController,
-}) {
-  final ReviewUnit reviewUnit = unit as ReviewUnit;
-  final String? normalizedNote = StringUtils.normalizeNullable(reviewUnit.note);
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: <Widget>[
-      Text(
-        reviewUnit.frontText,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      Text(
-        reviewUnit.backText,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      if (normalizedNote != null) ...<Widget>[
-        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-        Text(
-          normalizedNote,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      FilledButton.icon(
-        onPressed: controller.next,
-        icon: const Icon(Icons.arrow_forward_rounded),
-        label: Text(l10n.flashcardsNextTooltip),
-      ),
-    ],
-  );
-}
-
-Widget _renderGuessUnit({
-  required BuildContext context,
-  required StudyUnit unit,
-  required StudySessionController controller,
-  required AppLocalizations l10n,
-  required TextEditingController fillController,
-}) {
-  final GuessUnit guessUnit = unit as GuessUnit;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: <Widget>[
-      Text(
-        guessUnit.prompt,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      ...guessUnit.options.map((option) {
-        return Padding(
-          padding: const EdgeInsets.only(
-            bottom: FlashcardStudySessionTokens.answerSpacing,
-          ),
-          child: FilledButton.tonal(
-            onPressed: () {
-              controller.submitAnswer(GuessStudyAnswer(optionId: option.id));
-              controller.next();
-            },
-            child: Text(option.label),
-          ),
-        );
-      }),
-    ],
-  );
-}
-
-Widget _renderRecallUnit({
-  required BuildContext context,
-  required StudyUnit unit,
-  required StudySessionController controller,
-  required AppLocalizations l10n,
-  required TextEditingController fillController,
-}) {
-  final RecallUnit recallUnit = unit as RecallUnit;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: <Widget>[
-      Text(
-        recallUnit.prompt,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      Text(
-        recallUnit.answer,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleMedium,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      Row(
-        children: <Widget>[
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () {
-                controller.submitAnswer(
-                  const RecallStudyAnswer(isRemembered: false),
-                );
-                controller.next();
-              },
-              child: Text(l10n.flashcardsStudyRecallMissedLabel),
-            ),
-          ),
-          const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
-          Expanded(
-            child: FilledButton(
-              onPressed: () {
-                controller.submitAnswer(
-                  const RecallStudyAnswer(isRemembered: true),
-                );
-                controller.next();
-              },
-              child: Text(l10n.flashcardsStudyRecallRememberedLabel),
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-Widget _renderFillUnit({
-  required BuildContext context,
-  required StudyUnit unit,
-  required StudySessionController controller,
-  required AppLocalizations l10n,
-  required TextEditingController fillController,
-}) {
-  final FillUnit fillUnit = unit as FillUnit;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: <Widget>[
-      Text(
-        fillUnit.prompt,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      AppTextField(
-        controller: fillController,
-        label: l10n.flashcardsStudyFillInputLabel,
-        hint: l10n.flashcardsStudyFillInputHint,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      FilledButton(
-        onPressed: () {
-          final String normalizedAnswer = StringUtils.normalize(
-            fillController.text,
-          );
-          if (normalizedAnswer.isEmpty) {
-            return;
-          }
-          controller.submitAnswer(FillStudyAnswer(text: normalizedAnswer));
-          controller.next();
-          fillController.clear();
-        },
-        child: Text(l10n.flashcardsStudySubmitLabel),
-      ),
-    ],
-  );
-}
-
-Widget _renderMatchUnit({
-  required BuildContext context,
-  required StudyUnit unit,
-  required StudySessionController controller,
-  required AppLocalizations l10n,
-  required TextEditingController fillController,
-}) {
-  final MatchUnit matchUnit = unit as MatchUnit;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: <Widget>[
-      Text(
-        l10n.flashcardsStudyMatchPrompt,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
-      const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: _MatchColumn(
-              title: l10n.flashcardsStudyMatchLeftColumnLabel,
-              entries: matchUnit.leftEntries,
-              selectedId: matchUnit.selectedLeftId,
-              matchedIds: matchUnit.matchedIds,
-              onPressed: (entryId) {
-                controller.submitAnswer(
-                  MatchSelectLeftStudyAnswer(leftId: entryId),
-                );
-              },
-            ),
-          ),
-          const SizedBox(width: FlashcardStudySessionTokens.sectionSpacing),
-          Expanded(
-            child: _MatchColumn(
-              title: l10n.flashcardsStudyMatchRightColumnLabel,
-              entries: matchUnit.rightEntries,
-              selectedId: matchUnit.selectedRightId,
-              matchedIds: matchUnit.matchedIds,
-              onPressed: (entryId) {
-                controller.submitAnswer(
-                  MatchSelectRightStudyAnswer(rightId: entryId),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-class _MatchColumn extends StatelessWidget {
-  const _MatchColumn({
-    required this.title,
-    required this.entries,
-    required this.selectedId,
-    required this.matchedIds,
-    required this.onPressed,
-  });
-
-  final String title;
-  final List<MatchEntry> entries;
-  final int? selectedId;
-  final Set<int> matchedIds;
-  final ValueChanged<int> onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Text(title, style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-        ...entries.map((entry) {
-          final bool isMatched = matchedIds.contains(entry.id);
-          final bool isSelected = selectedId == entry.id;
-          return Padding(
-            padding: const EdgeInsets.only(
-              bottom: FlashcardStudySessionTokens.modeTileGap,
-            ),
-            child: FilledButton.tonal(
-              style: FilledButton.styleFrom(
-                backgroundColor: _resolveMatchButtonBackground(
-                  colorScheme: colorScheme,
-                  isMatched: isMatched,
-                  isSelected: isSelected,
-                ),
-              ),
-              onPressed: isMatched ? null : () => onPressed(entry.id),
-              child: Text(
-                entry.label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Color? _resolveMatchButtonBackground({
-    required ColorScheme colorScheme,
-    required bool isMatched,
-    required bool isSelected,
-  }) {
-    if (isMatched) {
-      return colorScheme.primaryContainer;
-    }
-    if (isSelected) {
-      return colorScheme.secondaryContainer;
-    }
-    return null;
   }
 }
 

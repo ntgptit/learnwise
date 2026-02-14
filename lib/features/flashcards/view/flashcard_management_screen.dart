@@ -428,7 +428,6 @@ class _FlashcardManagementScreenState
         onPressed: () => _onStudyModePressed(
           l10n: l10n,
           listing: listing,
-          previewIndex: previewIndex,
         ),
       ),
     ];
@@ -437,7 +436,6 @@ class _FlashcardManagementScreenState
   void _onStudyModePressed({
     required AppLocalizations l10n,
     required FlashcardListingState listing,
-    required int previewIndex,
   }) {
     if (listing.items.isEmpty) {
       _showActionToast(l10n.flashcardsEmptyTitle);
@@ -497,7 +495,6 @@ class _FlashcardManagementScreenState
                         _openStudySession(
                           l10n: l10n,
                           listing: listing,
-                          previewIndex: previewIndex,
                           mode: modeOption.mode,
                         );
                       },
@@ -515,13 +512,8 @@ class _FlashcardManagementScreenState
   void _openStudySession({
     required AppLocalizations l10n,
     required FlashcardListingState listing,
-    required int previewIndex,
     required StudyMode mode,
   }) {
-    final int initialIndex = _resolveInitialStudyIndex(
-      mode: mode,
-      previewIndex: previewIndex,
-    );
     final int seed = widget.args.deckId ^ listing.items.length ^ mode.index;
     unawaited(
       context.push(
@@ -530,21 +522,10 @@ class _FlashcardManagementScreenState
           mode: mode,
           items: listing.items,
           title: _resolveTitle(l10n),
-          initialIndex: initialIndex,
           seed: seed,
         ),
       ),
     );
-  }
-
-  int _resolveInitialStudyIndex({
-    required StudyMode mode,
-    required int previewIndex,
-  }) {
-    if (mode == StudyMode.match) {
-      return FlashcardConstants.defaultPage;
-    }
-    return previewIndex;
   }
 
   void _onFlipCardsPressed({

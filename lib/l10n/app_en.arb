@@ -1021,6 +1021,18 @@
   "@flashcardsCloseTooltip": {
     "description": "Tooltip for close action on flashcard screens."
   },
+  "flashcardsBackTooltip": "Back",
+  "@flashcardsBackTooltip": {
+    "description": "Tooltip for back action on flashcard study screens."
+  },
+  "flashcardsStudyTextScaleTooltip": "Text size",
+  "@flashcardsStudyTextScaleTooltip": {
+    "description": "Tooltip for text size action in study app bar."
+  },
+  "flashcardsStudyTextScaleToast": "Text size settings are not available yet.",
+  "@flashcardsStudyTextScaleToast": {
+    "description": "Toast shown when text size action is tapped."
+  },
   "flashcardsPreviousTooltip": "Previous card",
   "@flashcardsPreviousTooltip": {
     "description": "Tooltip for previous card action in flip study screen."

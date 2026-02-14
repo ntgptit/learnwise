@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/widgets/widgets.dart';
 import '../../model/study_answer.dart';
 import '../../model/study_unit.dart';
 import '../../viewmodel/study_session_viewmodel.dart';
+
+const String _matchSemanticsSeparator = ': ';
 
 class MatchStudyModeView extends StatelessWidget {
   const MatchStudyModeView({
@@ -20,114 +24,180 @@ class MatchStudyModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Text(
+    final int rowCount = _resolveRowCount(
+      leftCount: unit.leftEntries.length,
+      rightCount: unit.rightEntries.length,
+    );
+    if (rowCount <= 0) {
+      return Center(
+        child: Text(
           l10n.flashcardsStudyMatchPrompt,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-        Row(
+      );
+    }
+    return ListView.separated(
+      itemCount: rowCount,
+      padding: const EdgeInsets.only(
+        bottom: FlashcardStudySessionTokens.reviewBodyBottomGap,
+      ),
+      separatorBuilder: (context, index) {
+        return const SizedBox(
+          height: FlashcardStudySessionTokens.matchRowSpacing,
+        );
+      },
+      itemBuilder: (context, index) {
+        final MatchEntry leftEntry = unit.leftEntries[index];
+        final MatchEntry rightEntry = unit.rightEntries[index];
+        final bool isLeftSelected = unit.selectedLeftId == leftEntry.id;
+        final bool isRightSelected = unit.selectedRightId == rightEntry.id;
+        final bool isLeftMatched = unit.matchedIds.contains(leftEntry.id);
+        final bool isRightMatched = unit.matchedIds.contains(rightEntry.id);
+        return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Expanded(
-              child: _MatchColumn(
-                title: l10n.flashcardsStudyMatchLeftColumnLabel,
-                entries: unit.leftEntries,
-                selectedId: unit.selectedLeftId,
-                matchedIds: unit.matchedIds,
-                onPressed: (entryId) {
-                  controller.submitAnswer(
-                    MatchSelectLeftStudyAnswer(leftId: entryId),
-                  );
-                },
+              child: _MatchBoardTile(
+                label: leftEntry.label,
+                semanticPrefix: l10n.flashcardsStudyMatchLeftColumnLabel,
+                isPromptTile: true,
+                isSelected: isLeftSelected,
+                isMatched: isLeftMatched,
+                onPressed: () => controller.submitAnswer(
+                  MatchSelectLeftStudyAnswer(leftId: leftEntry.id),
+                ),
               ),
             ),
             const SizedBox(width: FlashcardStudySessionTokens.sectionSpacing),
             Expanded(
-              child: _MatchColumn(
-                title: l10n.flashcardsStudyMatchRightColumnLabel,
-                entries: unit.rightEntries,
-                selectedId: unit.selectedRightId,
-                matchedIds: unit.matchedIds,
-                onPressed: (entryId) {
-                  controller.submitAnswer(
-                    MatchSelectRightStudyAnswer(rightId: entryId),
-                  );
-                },
+              child: _MatchBoardTile(
+                label: rightEntry.label,
+                semanticPrefix: l10n.flashcardsStudyMatchRightColumnLabel,
+                isPromptTile: false,
+                isSelected: isRightSelected,
+                isMatched: isRightMatched,
+                onPressed: () => controller.submitAnswer(
+                  MatchSelectRightStudyAnswer(rightId: rightEntry.id),
+                ),
               ),
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
 
-class _MatchColumn extends StatelessWidget {
-  const _MatchColumn({
-    required this.title,
-    required this.entries,
-    required this.selectedId,
-    required this.matchedIds,
+int _resolveRowCount({required int leftCount, required int rightCount}) {
+  if (leftCount <= rightCount) {
+    return leftCount;
+  }
+  return rightCount;
+}
+
+class _MatchBoardTile extends StatelessWidget {
+  const _MatchBoardTile({
+    required this.label,
+    required this.semanticPrefix,
+    required this.isPromptTile,
+    required this.isSelected,
+    required this.isMatched,
     required this.onPressed,
   });
 
-  final String title;
-  final List<MatchEntry> entries;
-  final int? selectedId;
-  final Set<int> matchedIds;
-  final ValueChanged<int> onPressed;
+  final String label;
+  final String semanticPrefix;
+  final bool isPromptTile;
+  final bool isSelected;
+  final bool isMatched;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Text(title, style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-        ...entries.map((entry) {
-          final bool isMatched = matchedIds.contains(entry.id);
-          final bool isSelected = selectedId == entry.id;
-          return Padding(
-            padding: const EdgeInsets.only(
-              bottom: FlashcardStudySessionTokens.modeTileGap,
+    final Color backgroundColor = _resolveBackgroundColor(colorScheme);
+    final TextStyle? labelStyle = _resolveLabelStyle(
+      theme: theme,
+      colorScheme: colorScheme,
+    );
+    final String semanticsLabel =
+        '$semanticPrefix$_matchSemanticsSeparator$label';
+    return Semantics(
+      button: !isMatched,
+      enabled: !isMatched,
+      label: semanticsLabel,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: FlashcardStudySessionTokens.matchCardMinHeight,
+        ),
+        child: AppCard(
+          variant: AppCardVariant.elevated,
+          elevation: FlashcardStudySessionTokens.cardElevation,
+          borderRadius: BorderRadius.circular(
+            FlashcardStudySessionTokens.matchCardRadius,
+          ),
+          backgroundColor: backgroundColor,
+          padding: const EdgeInsets.all(
+            FlashcardStudySessionTokens.matchCardPadding,
+          ),
+          onTap: isMatched ? null : onPressed,
+          child: Center(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: _resolveMaxLines(),
+              overflow: TextOverflow.ellipsis,
+              style: labelStyle,
             ),
-            child: FilledButton.tonal(
-              style: FilledButton.styleFrom(
-                backgroundColor: _resolveMatchButtonBackground(
-                  colorScheme: colorScheme,
-                  isMatched: isMatched,
-                  isSelected: isSelected,
-                ),
-              ),
-              onPressed: isMatched ? null : () => onPressed(entry.id),
-              child: Text(
-                entry.label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          );
-        }),
-      ],
+          ),
+        ),
+      ),
     );
   }
 
-  Color? _resolveMatchButtonBackground({
-    required ColorScheme colorScheme,
-    required bool isMatched,
-    required bool isSelected,
-  }) {
+  Color _resolveBackgroundColor(ColorScheme colorScheme) {
     if (isMatched) {
-      return colorScheme.primaryContainer;
+      return colorScheme.primaryContainer.withValues(
+        alpha: AppOpacities.soft35,
+      );
     }
     if (isSelected) {
-      return colorScheme.secondaryContainer;
+      return colorScheme.primary.withValues(alpha: AppOpacities.soft20);
     }
-    return null;
+    return colorScheme.surfaceContainerHigh;
+  }
+
+  TextStyle? _resolveLabelStyle({
+    required ThemeData theme,
+    required ColorScheme colorScheme,
+  }) {
+    final Color emphasizedColor = colorScheme.onSurface;
+    if (isPromptTile) {
+      final Color promptColor = colorScheme.onSurfaceVariant.withValues(
+        alpha: AppOpacities.muted82,
+      );
+      if (isSelected || isMatched) {
+        return theme.textTheme.bodyMedium?.copyWith(color: emphasizedColor);
+      }
+      return theme.textTheme.bodyMedium?.copyWith(color: promptColor);
+    }
+    if (isMatched) {
+      return theme.textTheme.headlineSmall?.copyWith(color: emphasizedColor);
+    }
+    if (isSelected) {
+      return theme.textTheme.headlineSmall?.copyWith(color: emphasizedColor);
+    }
+    return theme.textTheme.headlineSmall?.copyWith(
+      color: colorScheme.onSurfaceVariant,
+    );
+  }
+
+  int _resolveMaxLines() {
+    if (isPromptTile) {
+      return FlashcardStudySessionTokens.matchPromptMaxLines;
+    }
+    return FlashcardStudySessionTokens.matchAnswerMaxLines;
   }
 }

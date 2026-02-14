@@ -257,6 +257,12 @@ class FlashcardStudySessionTokens {
   static const double reviewBodyBottomGap = AppSizes.spacingLg;
   static const double reviewPageViewportFraction = 0.94;
   static const double reviewPageHorizontalGap = AppSizes.spacingXs;
+  static const double matchRowSpacing = AppSizes.spacingXs;
+  static const double matchCardRadius = AppSizes.radiusMd;
+  static const double matchCardPadding = AppSizes.spacingSm;
+  static const double matchCardMinHeight = AppSizes.size72;
+  static const int matchPromptMaxLines = 5;
+  static const int matchAnswerMaxLines = 3;
 }
 
 class TtsScreenTokens {

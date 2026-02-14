@@ -112,15 +112,17 @@ class _FlashcardStudySessionScreenState
   }
 
   List<ReviewUnit> _buildReviewUnits() {
-    return widget.args.items.map((item) {
-      return ReviewUnit(
-        unitId: item.id.toString(),
-        flashcardId: item.id,
-        frontText: item.frontText,
-        backText: item.backText,
-        note: item.note,
-      );
-    }).toList(growable: false);
+    return widget.args.items
+        .map((item) {
+          return ReviewUnit(
+            unitId: item.id.toString(),
+            flashcardId: item.id,
+            frontText: item.frontText,
+            backText: item.backText,
+            note: item.note,
+          );
+        })
+        .toList(growable: false);
   }
 
   List<Widget> _buildAppBarActions({
@@ -279,6 +281,9 @@ class _StudyUnitBody extends StatelessWidget {
     if (state.mode == StudyMode.review) {
       return unitContent;
     }
+    if (state.mode == StudyMode.match) {
+      return unitContent;
+    }
     final Widget content = AppCard(
       variant: AppCardVariant.elevated,
       elevation: FlashcardStudySessionTokens.cardElevation,
@@ -343,6 +348,33 @@ class _StudyProgressHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     if (state.mode == StudyMode.review) {
+      final String progressLabel = '${(state.progressPercent * 100).round()}%';
+      return Row(
+        children: <Widget>[
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                FlashcardStudySessionTokens.progressRadius,
+              ),
+              child: LinearProgressIndicator(
+                value: state.progressPercent,
+                minHeight: FlashcardStudySessionTokens.progressHeight,
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+              ),
+            ),
+          ),
+          const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
+          Text(
+            progressLabel,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(color: colorScheme.primary),
+          ),
+        ],
+      );
+    }
+    if (state.mode == StudyMode.match) {
       final String progressLabel = '${(state.progressPercent * 100).round()}%';
       return Row(
         children: <Widget>[

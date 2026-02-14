@@ -9,10 +9,8 @@ import 'study_engine.dart';
 import 'study_engine_utils.dart';
 
 class MatchStudyEngine implements StudyEngine {
-  MatchStudyEngine({
-    required List<FlashcardItem> items,
-    required Random random,
-  }) : _unit = _buildUnit(items: items, random: random) {
+  MatchStudyEngine({required List<FlashcardItem> items, required Random random})
+    : _unit = _buildUnit(items: items, random: random) {
     _targetMatchCount = _unit.leftEntries.length;
     if (_targetMatchCount <= StudyConstants.defaultIndex) {
       _isCompleted = true;
@@ -37,10 +35,15 @@ class MatchStudyEngine implements StudyEngine {
   }
 
   @override
-  int get currentIndex => StudyConstants.defaultIndex;
+  int get currentIndex => _correctCount;
 
   @override
-  int get totalUnits => _targetMatchCount <= 0 ? 0 : 1;
+  int get totalUnits {
+    if (_targetMatchCount <= 0) {
+      return 0;
+    }
+    return _targetMatchCount;
+  }
 
   @override
   int get correctCount => _correctCount;
@@ -132,12 +135,16 @@ class MatchStudyEngine implements StudyEngine {
         selectedRightId: null,
       );
     }
-    final List<MatchEntry> leftEntries = items.map((item) {
-      return MatchEntry(id: item.id, label: item.frontText);
-    }).toList(growable: false);
-    final List<MatchEntry> rightEntries = items.map((item) {
-      return MatchEntry(id: item.id, label: item.backText);
-    }).toList(growable: false);
+    final List<MatchEntry> leftEntries = items
+        .map((item) {
+          return MatchEntry(id: item.id, label: item.frontText);
+        })
+        .toList(growable: false);
+    final List<MatchEntry> rightEntries = items
+        .map((item) {
+          return MatchEntry(id: item.id, label: item.backText);
+        })
+        .toList(growable: false);
     final List<MatchEntry> shuffledLeftEntries = StudyEngineUtils.shuffledCopy(
       values: leftEntries,
       random: random,

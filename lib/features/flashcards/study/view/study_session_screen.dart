@@ -331,6 +331,7 @@ class _StudyUnitBody extends StatelessWidget {
     if (currentUnit is MatchUnit) {
       return MatchStudyModeView(
         unit: currentUnit,
+        state: state,
         controller: controller,
         l10n: l10n,
       );

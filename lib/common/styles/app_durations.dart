@@ -27,6 +27,9 @@ class AppDurations {
   /// Use for emphasized transitions with stronger visual attention.
   static const Duration animationEmphasized = Duration(milliseconds: 420);
 
+  /// Use when a success state needs to stay visible a bit longer.
+  static const Duration animationHold = Duration(milliseconds: 650);
+
   /// Use for continuous shimmer/skeleton effects.
   static const Duration shimmerLoop = Duration(milliseconds: 1300);
 }

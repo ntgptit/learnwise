@@ -7,6 +7,8 @@ import '../../../../../core/utils/string_utils.dart';
 import '../../model/study_unit.dart';
 import '../../viewmodel/study_session_viewmodel.dart';
 
+const String _reviewMeaningNoteSeparator = ' / ';
+
 class ReviewStudyModeView extends StatelessWidget {
   const ReviewStudyModeView({
     required this.unit,
@@ -24,62 +26,118 @@ class ReviewStudyModeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? normalizedNote = StringUtils.normalizeNullable(unit.note);
+    final String meaningDisplayText = _resolveMeaningDisplayText(
+      meaningText: unit.backText,
+      note: normalizedNote,
+    );
+    final String topCardText = _resolveTopCardText(
+      isFrontVisible: state.isFrontVisible,
+      termText: unit.frontText,
+      meaningDisplayText: meaningDisplayText,
+    );
+    final String bottomCardText = _resolveBottomCardText(
+      isFrontVisible: state.isFrontVisible,
+      termText: unit.frontText,
+      meaningDisplayText: meaningDisplayText,
+    );
     final bool isPlayingAudio = state.playingFlashcardId == unit.flashcardId;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        ConstrainedBox(
-          constraints: const BoxConstraints(
-            minHeight: FlashcardStudySessionTokens.reviewCardMinHeight,
-          ),
-          child: _ReviewCardFace(
-            termText: unit.frontText,
-            meaningText: unit.backText,
-            note: normalizedNote,
-            isPlayingAudio: isPlayingAudio,
-            onAudioPressed: controller.playCurrentAudio,
-          ),
-        ),
-        const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: state.canGoPrevious ? controller.previous : null,
-                icon: const Icon(Icons.arrow_back_rounded),
-                label: Text(l10n.flashcardsPreviousTooltip),
-              ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onHorizontalDragEnd: (details) {
+        final double? primaryVelocity = details.primaryVelocity;
+        if (primaryVelocity == null) {
+          return;
+        }
+        if (primaryVelocity > 0) {
+          controller.previous();
+          return;
+        }
+        controller.next();
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: _ReviewCardFace(
+              text: topCardText,
+              textStyle: Theme.of(context).textTheme.titleLarge,
+              actionIcon: Icons.edit_outlined,
+              selectedActionIcon: Icons.edit_outlined,
+              tooltip: l10n.flashcardsEditTooltip,
+              onActionPressed: controller.submitFlip,
             ),
-            const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: state.canGoNext ? controller.next : null,
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: Text(l10n.flashcardsNextTooltip),
-              ),
+          ),
+          const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
+          Expanded(
+            child: _ReviewCardFace(
+              text: bottomCardText,
+              textStyle: Theme.of(context).textTheme.headlineMedium,
+              actionIcon: Icons.volume_up_outlined,
+              selectedActionIcon: Icons.graphic_eq_rounded,
+              tooltip: l10n.flashcardsPlayAudioTooltip,
+              isActionSelected: isPlayingAudio,
+              onActionPressed: controller.playCurrentAudio,
             ),
-          ],
-        ),
-        const SizedBox(height: FlashcardStudySessionTokens.reviewBodyBottomGap),
-      ],
+          ),
+          const SizedBox(
+            height: FlashcardStudySessionTokens.reviewBodyBottomGap,
+          ),
+        ],
+      ),
     );
   }
 }
 
+String _resolveMeaningDisplayText({
+  required String meaningText,
+  required String? note,
+}) {
+  if (note == null) {
+    return meaningText;
+  }
+  return '$meaningText$_reviewMeaningNoteSeparator$note';
+}
+
+String _resolveTopCardText({
+  required bool isFrontVisible,
+  required String termText,
+  required String meaningDisplayText,
+}) {
+  if (isFrontVisible) {
+    return meaningDisplayText;
+  }
+  return termText;
+}
+
+String _resolveBottomCardText({
+  required bool isFrontVisible,
+  required String termText,
+  required String meaningDisplayText,
+}) {
+  if (isFrontVisible) {
+    return termText;
+  }
+  return meaningDisplayText;
+}
+
 class _ReviewCardFace extends StatelessWidget {
   const _ReviewCardFace({
-    required this.termText,
-    required this.meaningText,
-    required this.note,
-    required this.isPlayingAudio,
-    required this.onAudioPressed,
+    required this.text,
+    required this.textStyle,
+    required this.actionIcon,
+    required this.selectedActionIcon,
+    required this.tooltip,
+    required this.onActionPressed,
+    this.isActionSelected = false,
   });
 
-  final String termText;
-  final String meaningText;
-  final String? note;
-  final bool isPlayingAudio;
-  final VoidCallback onAudioPressed;
+  final String text;
+  final TextStyle? textStyle;
+  final IconData actionIcon;
+  final IconData selectedActionIcon;
+  final String tooltip;
+  final bool isActionSelected;
+  final VoidCallback onActionPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -92,18 +150,16 @@ class _ReviewCardFace extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Row(
             children: <Widget>[
               const Spacer(),
               IconButton(
-                isSelected: isPlayingAudio,
-                onPressed: onAudioPressed,
-                tooltip: AppLocalizations.of(
-                  context,
-                )!.flashcardsPlayAudioTooltip,
+                isSelected: isActionSelected,
+                onPressed: onActionPressed,
+                tooltip: tooltip,
                 iconSize: FlashcardStudySessionTokens.iconSize,
                 constraints: const BoxConstraints(
                   minWidth:
@@ -111,8 +167,8 @@ class _ReviewCardFace extends StatelessWidget {
                   minHeight:
                       FlashcardStudySessionTokens.reviewAppBarIconTapTarget,
                 ),
-                icon: const Icon(Icons.volume_up_outlined),
-                selectedIcon: const Icon(Icons.graphic_eq_rounded),
+                icon: Icon(actionIcon),
+                selectedIcon: Icon(selectedActionIcon),
               ),
             ],
           ),
@@ -125,31 +181,11 @@ class _ReviewCardFace extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    termText,
+                    text,
                     textAlign: TextAlign.center,
                     softWrap: true,
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    style: textStyle,
                   ),
-                  const SizedBox(
-                    height: FlashcardStudySessionTokens.sectionSpacing,
-                  ),
-                  Text(
-                    meaningText,
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (note != null) ...<Widget>[
-                    const SizedBox(
-                      height: FlashcardStudySessionTokens.answerSpacing,
-                    ),
-                    Text(
-                      note!,
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
                 ],
               ),
             ),

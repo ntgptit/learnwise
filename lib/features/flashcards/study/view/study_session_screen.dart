@@ -258,6 +258,9 @@ class _StudyUnitBody extends StatelessWidget {
       return const SizedBox.shrink();
     }
     final Widget unitContent = _buildUnitContent(currentUnit);
+    if (state.mode == StudyMode.review) {
+      return unitContent;
+    }
     final Widget content = AppCard(
       variant: AppCardVariant.elevated,
       elevation: FlashcardStudySessionTokens.cardElevation,
@@ -268,9 +271,6 @@ class _StudyUnitBody extends StatelessWidget {
       padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
       child: unitContent,
     );
-    if (state.mode == StudyMode.review) {
-      return content;
-    }
     return SingleChildScrollView(child: content);
   }
 
@@ -324,6 +324,33 @@ class _StudyProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    if (state.mode == StudyMode.review) {
+      final String progressLabel = '${(state.progressPercent * 100).round()}%';
+      return Row(
+        children: <Widget>[
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                FlashcardStudySessionTokens.progressRadius,
+              ),
+              child: LinearProgressIndicator(
+                value: state.progressPercent,
+                minHeight: FlashcardStudySessionTokens.progressHeight,
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+              ),
+            ),
+          ),
+          const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
+          Text(
+            progressLabel,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(color: colorScheme.primary),
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[

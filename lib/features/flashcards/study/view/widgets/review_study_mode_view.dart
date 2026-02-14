@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../../../common/styles/app_durations.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../../../../core/utils/string_utils.dart';
@@ -8,8 +9,13 @@ import '../../model/study_unit.dart';
 import '../../viewmodel/study_session_viewmodel.dart';
 
 const String _reviewMeaningNoteSeparator = ' / ';
+const double _reviewSwipeVelocityThreshold = 120;
+const double _reviewSwipeEnterOffsetX = 0.12;
+const double _reviewTextEnterOffsetY = 0.06;
 
-class ReviewStudyModeView extends StatelessWidget {
+enum _ReviewSwipeDirection { idle, toPrevious, toNext }
+
+class ReviewStudyModeView extends StatefulWidget {
   const ReviewStudyModeView({
     required this.unit,
     required this.state,
@@ -24,14 +30,41 @@ class ReviewStudyModeView extends StatelessWidget {
   final AppLocalizations l10n;
 
   @override
+  State<ReviewStudyModeView> createState() => _ReviewStudyModeViewState();
+}
+
+class _ReviewStudyModeViewState extends State<ReviewStudyModeView> {
+  _ReviewSwipeDirection _swipeDirection = _ReviewSwipeDirection.idle;
+
+  @override
+  void didUpdateWidget(covariant ReviewStudyModeView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final int previousIndex = oldWidget.state.currentIndex;
+    final int currentIndex = widget.state.currentIndex;
+    if (currentIndex > previousIndex) {
+      _swipeDirection = _ReviewSwipeDirection.toNext;
+      return;
+    }
+    if (currentIndex < previousIndex) {
+      _swipeDirection = _ReviewSwipeDirection.toPrevious;
+      return;
+    }
+    _swipeDirection = _ReviewSwipeDirection.idle;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ReviewUnit unit = widget.unit;
+    final StudySessionState state = widget.state;
+    final StudySessionController controller = widget.controller;
+    final AppLocalizations l10n = widget.l10n;
     final String? normalizedNote = StringUtils.normalizeNullable(unit.note);
     final String meaningDisplayText = _resolveMeaningDisplayText(
       meaningText: unit.backText,
       note: normalizedNote,
     );
     final String topCardText = _resolveTopCardText(
-      isFrontVisible: state.isFrontVisible,
+      isFrontVisible: widget.state.isFrontVisible,
       termText: unit.frontText,
       meaningDisplayText: meaningDisplayText,
     );
@@ -41,49 +74,108 @@ class ReviewStudyModeView extends StatelessWidget {
       meaningDisplayText: meaningDisplayText,
     );
     final bool isPlayingAudio = state.playingFlashcardId == unit.flashcardId;
+    final Widget reviewBody = _buildReviewBody(
+      context: context,
+      topCardText: topCardText,
+      bottomCardText: bottomCardText,
+      isPlayingAudio: isPlayingAudio,
+      l10n: l10n,
+      controller: controller,
+    );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onHorizontalDragEnd: (details) {
-        final double? primaryVelocity = details.primaryVelocity;
-        if (primaryVelocity == null) {
-          return;
-        }
-        if (primaryVelocity > 0) {
-          controller.previous();
-          return;
-        }
-        controller.next();
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: _ReviewCardFace(
-              text: topCardText,
-              textStyle: Theme.of(context).textTheme.titleLarge,
-              actionIcon: Icons.edit_outlined,
-              selectedActionIcon: Icons.edit_outlined,
-              tooltip: l10n.flashcardsEditTooltip,
-              onActionPressed: controller.submitFlip,
-            ),
-          ),
-          const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
-          Expanded(
-            child: _ReviewCardFace(
-              text: bottomCardText,
-              textStyle: Theme.of(context).textTheme.headlineMedium,
-              actionIcon: Icons.volume_up_outlined,
-              selectedActionIcon: Icons.graphic_eq_rounded,
-              tooltip: l10n.flashcardsPlayAudioTooltip,
-              isActionSelected: isPlayingAudio,
-              onActionPressed: controller.playCurrentAudio,
-            ),
-          ),
-          const SizedBox(
-            height: FlashcardStudySessionTokens.reviewBodyBottomGap,
-          ),
-        ],
+      onHorizontalDragEnd: (details) =>
+          _onHorizontalDragEnd(details: details, controller: controller),
+      child: AnimatedSwitcher(
+        duration: AppDurations.animationStandard,
+        switchInCurve: AppMotionCurves.standard,
+        switchOutCurve: AppMotionCurves.standard,
+        transitionBuilder: _buildSwipeTransition,
+        child: KeyedSubtree(
+          key: ValueKey<int>(state.currentIndex),
+          child: reviewBody,
+        ),
       ),
+    );
+  }
+
+  void _onHorizontalDragEnd({
+    required DragEndDetails details,
+    required StudySessionController controller,
+  }) {
+    final double? primaryVelocity = details.primaryVelocity;
+    if (primaryVelocity == null) {
+      return;
+    }
+    if (primaryVelocity.abs() < _reviewSwipeVelocityThreshold) {
+      return;
+    }
+    if (primaryVelocity > 0) {
+      controller.previous();
+      return;
+    }
+    controller.next();
+  }
+
+  Widget _buildSwipeTransition(Widget child, Animation<double> animation) {
+    final Offset beginOffset = _resolveTransitionBeginOffset();
+    final Animation<Offset> position =
+        Tween<Offset>(begin: beginOffset, end: Offset.zero).animate(
+          CurvedAnimation(parent: animation, curve: AppMotionCurves.standard),
+        );
+    return ClipRect(
+      child: SlideTransition(
+        position: position,
+        child: FadeTransition(opacity: animation, child: child),
+      ),
+    );
+  }
+
+  Offset _resolveTransitionBeginOffset() {
+    if (_swipeDirection == _ReviewSwipeDirection.toPrevious) {
+      return const Offset(-_reviewSwipeEnterOffsetX, 0);
+    }
+    if (_swipeDirection == _ReviewSwipeDirection.toNext) {
+      return const Offset(_reviewSwipeEnterOffsetX, 0);
+    }
+    return Offset.zero;
+  }
+
+  Widget _buildReviewBody({
+    required BuildContext context,
+    required String topCardText,
+    required String bottomCardText,
+    required bool isPlayingAudio,
+    required AppLocalizations l10n,
+    required StudySessionController controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Expanded(
+          child: _ReviewCardFace(
+            text: topCardText,
+            textStyle: Theme.of(context).textTheme.titleLarge,
+            actionIcon: Icons.edit_outlined,
+            selectedActionIcon: Icons.edit_outlined,
+            tooltip: l10n.flashcardsEditTooltip,
+            onActionPressed: controller.submitFlip,
+          ),
+        ),
+        const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
+        Expanded(
+          child: _ReviewCardFace(
+            text: bottomCardText,
+            textStyle: Theme.of(context).textTheme.headlineMedium,
+            actionIcon: Icons.volume_up_outlined,
+            selectedActionIcon: Icons.graphic_eq_rounded,
+            tooltip: l10n.flashcardsPlayAudioTooltip,
+            isActionSelected: isPlayingAudio,
+            onActionPressed: controller.playCurrentAudio,
+          ),
+        ),
+        const SizedBox(height: FlashcardStudySessionTokens.reviewBodyBottomGap),
+      ],
     );
   }
 }
@@ -177,16 +269,33 @@ class _ReviewCardFace extends StatelessWidget {
           ),
           Center(
             child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    text,
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                    style: textStyle,
-                  ),
-                ],
+              child: AnimatedSwitcher(
+                duration: AppDurations.animationStandard,
+                switchInCurve: AppMotionCurves.standard,
+                switchOutCurve: AppMotionCurves.standard,
+                transitionBuilder: (child, animation) {
+                  final Animation<Offset> slideAnimation =
+                      Tween<Offset>(
+                        begin: const Offset(0, _reviewTextEnterOffsetY),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: animation,
+                          curve: AppMotionCurves.standard,
+                        ),
+                      );
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(position: slideAnimation, child: child),
+                  );
+                },
+                child: Text(
+                  text,
+                  key: ValueKey<String>(text),
+                  textAlign: TextAlign.center,
+                  softWrap: true,
+                  style: textStyle,
+                ),
               ),
             ),
           ),

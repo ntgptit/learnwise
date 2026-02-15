@@ -185,7 +185,7 @@ class StudySessionController extends _$StudySessionController {
   Timer? _localMatchFeedbackTimer;
   Timer? _remoteMatchFeedbackReleaseTimer;
   int? _remoteMatchFeedbackUntilEpochMs;
-  bool _isCompletingMode = false;
+  Future<void>? _modeCompletionFuture;
   bool _isMatchModeCompletionSynced = false;
   int _clientSequence = StudyConstants.defaultClientSequence;
   Set<int> _submittedAnswerIndexes = <int>{};
@@ -373,14 +373,25 @@ class StudySessionController extends _$StudySessionController {
   }
 
   Future<void> completeCurrentMode() async {
-    if (_isCompletingMode) {
+    final Future<void>? pendingCompletion = _modeCompletionFuture;
+    if (pendingCompletion != null) {
+      await pendingCompletion;
       return;
     }
+    final Future<void> completionTask = _completeCurrentModeInternal();
+    _modeCompletionFuture = completionTask;
+    try {
+      await completionTask;
+    } finally {
+      _modeCompletionFuture = null;
+    }
+  }
+
+  Future<void> _completeCurrentModeInternal() async {
     final int? sessionId = _sessionId;
     if (sessionId == null) {
       return;
     }
-    _isCompletingMode = true;
     try {
       final StudySessionResponseModel response = await _repository
           .completeSession(sessionId: sessionId);
@@ -390,8 +401,6 @@ class StudySessionController extends _$StudySessionController {
       _lastResponse = response;
       _syncFromSnapshot();
     } catch (_) {
-    } finally {
-      _isCompletingMode = false;
     }
   }
 
@@ -1499,7 +1508,7 @@ class StudySessionController extends _$StudySessionController {
     _audioPlayingIndicatorTimer?.cancel();
     _localMatchFeedbackTimer?.cancel();
     _clearRemoteMatchFeedbackReleaseTimer();
-    _isCompletingMode = false;
+    _modeCompletionFuture = null;
     _isMatchModeCompletionSynced = false;
     _clientSequence = StudyConstants.defaultClientSequence;
     _submittedAnswerIndexes = <int>{};

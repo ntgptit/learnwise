@@ -120,10 +120,10 @@ class _FlashcardStudySessionScreenState
             fillController: _fillController,
             studyArgs: widget.args,
             onNextModePressed: (mode) {
-              _onNextModePressed(provider: provider, mode: mode);
+              unawaited(_onNextModePressed(provider: provider, mode: mode));
             },
             onClosePressed: () {
-              _onClosePressed(provider: provider);
+              unawaited(_onClosePressed(provider: provider));
             },
           ),
         ),
@@ -131,34 +131,38 @@ class _FlashcardStudySessionScreenState
     );
   }
 
-  void _onNextModePressed({
+  Future<void> _onNextModePressed({
     required StudySessionControllerProvider provider,
     required StudyMode mode,
-  }) {
+  }) async {
     final StudySessionController controller = ref.read(provider.notifier);
-    unawaited(controller.completeCurrentMode());
+    await controller.completeCurrentMode();
+    if (!mounted) {
+      return;
+    }
     final StudySessionArgs nextArgs = _buildNextCycleArgs(mode: mode);
     context.pushReplacement(RouteNames.flashcardStudySession, extra: nextArgs);
   }
 
-  void _onClosePressed({
+  Future<void> _onClosePressed({
     required StudySessionControllerProvider provider,
-  }) {
+  }) async {
     final StudySessionController controller = ref.read(provider.notifier);
-    unawaited(controller.completeCurrentMode());
+    await controller.completeCurrentMode();
+    if (!mounted) {
+      return;
+    }
     context.pop(true);
   }
 
   StudySessionArgs _buildNextCycleArgs({required StudyMode mode}) {
     final List<StudyMode> cycleModes = _resolveCycleModes(args: widget.args);
-    final int currentIndex = _resolveCycleModeIndex(
-      args: widget.args,
-      cycleModes: cycleModes,
-    );
+    final int modeIndex = cycleModes.indexOf(mode);
+    final int nextCycleIndex = modeIndex < 0 ? 0 : modeIndex;
     return widget.args.copyWith(
       mode: mode,
       cycleModes: cycleModes,
-      cycleModeIndex: currentIndex + 1,
+      cycleModeIndex: nextCycleIndex,
       forceReset: false,
     );
   }
@@ -517,6 +521,7 @@ class _StudyProgressHeader extends ConsumerWidget {
     final int cycleModeIndex = _resolveCycleModeIndex(
       args: studyArgs,
       cycleModes: cycleModes,
+      currentMode: mode,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -736,26 +741,48 @@ class _StudyCompletedCard extends StatelessWidget {
             ),
             const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
             if (onNextModePressed != null && nextModeLabel != null)
-              FilledButton(
-                onPressed: onNextModePressed,
-                child: Text(nextModeLabel!),
+              _buildCompletedActionButtonContainer(
+                child: FilledButton(
+                  onPressed: onNextModePressed,
+                  child: Text(nextModeLabel!),
+                ),
               ),
             if (onNextModePressed != null && nextModeLabel != null)
               const SizedBox(
                 height: FlashcardStudySessionTokens.answerSpacing,
               ),
-            FilledButton(
-              onPressed: onRestartPressed,
-              child: Text(l10n.flashcardsStudyRestartLabel),
+            _buildCompletedActionButtonContainer(
+              child: FilledButton(
+                onPressed: onRestartPressed,
+                child: Text(l10n.flashcardsStudyRestartLabel),
+              ),
             ),
             const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-            OutlinedButton(
-              onPressed: onClosePressed,
-              child: Text(l10n.flashcardsCloseTooltip),
+            _buildCompletedActionButtonContainer(
+              child: OutlinedButton(
+                onPressed: onClosePressed,
+                child: Text(l10n.flashcardsCloseTooltip),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCompletedActionButtonContainer({required Widget child}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double resolvedWidth =
+            FlashcardStudySessionTokens.completedActionButtonWidth;
+        if (constraints.maxWidth < resolvedWidth) {
+          resolvedWidth = constraints.maxWidth;
+        }
+        return Align(
+          alignment: Alignment.center,
+          child: SizedBox(width: resolvedWidth, child: child),
+        );
+      },
     );
   }
 }
@@ -781,14 +808,19 @@ List<StudyMode> _resolveCycleModes({required StudySessionArgs args}) {
 int _resolveCycleModeIndex({
   required StudySessionArgs args,
   required List<StudyMode> cycleModes,
+  required StudyMode currentMode,
 }) {
+  final int modeIndex = cycleModes.indexOf(currentMode);
+  if (modeIndex >= 0) {
+    return modeIndex;
+  }
   final int rawIndex = args.cycleModeIndex;
   if (rawIndex >= 0 && rawIndex < cycleModes.length) {
     return rawIndex;
   }
-  final int modeIndex = cycleModes.indexOf(args.mode);
-  if (modeIndex >= 0) {
-    return modeIndex;
+  final int argsModeIndex = cycleModes.indexOf(args.mode);
+  if (argsModeIndex >= 0) {
+    return argsModeIndex;
   }
   return 0;
 }
@@ -801,9 +833,16 @@ StudyMode? _resolveNextCycleMode({
     return null;
   }
   final List<StudyMode> cycleModes = _resolveCycleModes(args: args);
+  final int nextByCompletedCount = state.completedModeCount;
+  final bool hasProgressBasedNextMode =
+      nextByCompletedCount >= 0 && nextByCompletedCount < cycleModes.length;
+  if (hasProgressBasedNextMode) {
+    return cycleModes[nextByCompletedCount];
+  }
   final int currentIndex = _resolveCycleModeIndex(
     args: args,
     cycleModes: cycleModes,
+    currentMode: state.mode,
   );
   final int nextIndex = currentIndex + 1;
   if (nextIndex >= cycleModes.length) {

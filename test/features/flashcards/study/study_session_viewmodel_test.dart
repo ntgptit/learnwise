@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
 import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
 import 'package:learnwise/features/flashcards/study/model/study_answer.dart';
+import 'package:learnwise/features/flashcards/study/model/study_constants.dart';
 import 'package:learnwise/features/flashcards/study/model/study_mode.dart';
 import 'package:learnwise/features/flashcards/study/model/study_session_args.dart';
 import 'package:learnwise/features/flashcards/study/model/study_unit.dart';
@@ -151,7 +152,11 @@ void main() {
         state = container.read(provider);
         expect(state.wrongCount, 1);
 
-        await Future<void>.delayed(const Duration(milliseconds: 700));
+        await Future<void>.delayed(
+          const Duration(
+            milliseconds: StudyConstants.localMatchFeedbackDurationMs + 120,
+          ),
+        );
 
         state = container.read(provider);
         expect(state.isMatchInteractionLocked, isFalse);

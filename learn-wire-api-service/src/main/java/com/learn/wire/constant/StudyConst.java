@@ -24,7 +24,7 @@ public final class StudyConst {
     public static final int DEFAULT_INDEX = 0;
     public static final int DEFAULT_CLIENT_SEQUENCE = 0;
     public static final int MINIMUM_MATCH_PAIR_COUNT = 2;
-    public static final long MATCH_FEEDBACK_HOLD_MILLIS = 2250L;
+    public static final long MATCH_FEEDBACK_HOLD_MILLIS = 800L;
     public static final int ZERO_SCORE = 0;
     public static final String ENGINE_NOT_REGISTERED_ERROR = "Study mode engine is not registered: ";
     public static final String ENGINE_DUPLICATED_ERROR = "Duplicate study mode engine registration: ";

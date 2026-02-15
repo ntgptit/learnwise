@@ -35,7 +35,7 @@ class StudyConstants {
   static const int minimumMatchPairCount = 2;
   static const int fillToleranceDistance = 1;
   static const int audioPlayingIndicatorDurationMs = 1400;
-  static const int localMatchFeedbackDurationMs = 650;
+  static const int localMatchFeedbackDurationMs = 800;
   static const int matchFeedbackUnlockFallbackMs = 120;
   static const int matchFeedbackUnlockSkewMs = 24;
   static const String matchBoardUnitId = 'match_board';

@@ -246,6 +246,7 @@ class FlashcardStudySessionTokens {
   static const double cardElevation = AppSizes.size1;
   static const double cardPadding = AppSizes.spacingLg;
   static const double answerSpacing = AppSizes.spacingSm;
+  static const double completedActionButtonWidth = AppSizes.size240;
   static const double progressHeight = AppSizes.spacing2Xs;
   static const double progressRadius = AppSizes.radiusPill;
   static const double bottomActionGap = AppSizes.spacingSm;

@@ -279,8 +279,8 @@ class FlashcardStudySessionTokens {
   static const int matchPromptMaxLines = 5;
   static const int matchAnswerMaxLines = 3;
   static const int matchSemanticsMaxLength = 90;
-  static const int recallPromptFlex = 44;
-  static const int recallAnswerFlex = 38;
+  static const int recallPromptFlex = 1;
+  static const int recallAnswerFlex = 1;
   static const int recallPromptMaxLines = 7;
   static const int recallAnswerMaxLines = 6;
   static const double recallCardGap = AppSizes.spacingSm;

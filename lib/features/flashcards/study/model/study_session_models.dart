@@ -181,8 +181,16 @@ class StudySessionResponseModel {
       status: _readRequiredString(json: json, key: _jsonKeyStatus),
       currentIndex: _readRequiredInt(json: json, key: _jsonKeyCurrentIndex),
       totalUnits: _readRequiredInt(json: json, key: _jsonKeyTotalUnits),
-      correctCount: _readRequiredInt(json: json, key: _jsonKeyCorrectCount),
-      wrongCount: _readRequiredInt(json: json, key: _jsonKeyWrongCount),
+      correctCount: _readIntWithFallback(
+        json: json,
+        key: _jsonKeyCorrectCount,
+        fallbackValue: 0,
+      ),
+      wrongCount: _readIntWithFallback(
+        json: json,
+        key: _jsonKeyWrongCount,
+        fallbackValue: 0,
+      ),
       completed: _readRequiredBool(json: json, key: _jsonKeyCompleted),
       startedAt: _readRequiredDateTime(json: json, key: _jsonKeyStartedAt),
       completedAt: _readNullableDateTime(json: json, key: _jsonKeyCompletedAt),

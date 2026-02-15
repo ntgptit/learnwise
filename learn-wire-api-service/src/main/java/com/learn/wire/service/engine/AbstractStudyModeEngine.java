@@ -150,8 +150,6 @@ public abstract class AbstractStudyModeEngine implements StudyModeEngine {
                 session.getStatus(),
                 modeState.getCurrentIndex(),
                 modeState.getTotalUnits(),
-                modeState.getCorrectCount(),
-                modeState.getWrongCount(),
                 isModeCompleted(modeState),
                 session.getStartedAt(),
                 modeState.getCompletedAt(),

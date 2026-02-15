@@ -723,15 +723,6 @@ class _StudyCompletedCard extends StatelessWidget {
             ),
             const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
             Text(
-              l10n.flashcardsStudyCompletedSummary(
-                state.correctCount,
-                state.wrongCount,
-              ),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-            Text(
               l10n.flashcardsStudyCycleProgressLabel(
                 state.completedModeCount,
                 state.requiredModeCount,

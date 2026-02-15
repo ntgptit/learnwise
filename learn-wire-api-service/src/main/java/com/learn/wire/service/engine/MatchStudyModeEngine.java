@@ -76,8 +76,6 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             this.matchSessionStateRepository.save(state);
             modeState.setCurrentIndex(StudyConst.DEFAULT_INDEX);
             modeState.setTotalUnits(shuffled.size());
-            modeState.setCorrectCount(StudyConst.ZERO_SCORE);
-            modeState.setWrongCount(StudyConst.ZERO_SCORE);
             this.studySessionModeStateRepository.save(modeState);
             return;
         }
@@ -218,11 +216,11 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
         leftTile.setMatched(true);
         rightTile.setMatched(true);
         this.matchSessionTileRepository.saveAll(List.of(leftTile, rightTile));
-        modeState.setCorrectCount(modeState.getCorrectCount() + 1);
-        modeState.setCurrentIndex(modeState.getCorrectCount());
+        final int nextMatchedCount = modeState.getCurrentIndex() + 1;
+        modeState.setCurrentIndex(nextMatchedCount);
         attempt.setIsCorrect(true);
         applyFeedbackState(state, StudyConst.FEEDBACK_SUCCESS, leftTile.getId(), rightTile.getId());
-        if (modeState.getCorrectCount() < modeState.getTotalUnits()) {
+        if (nextMatchedCount < modeState.getTotalUnits()) {
             return;
         }
         modeState.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
@@ -235,7 +233,6 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             MatchSessionTileEntity leftTile,
             MatchSessionTileEntity rightTile,
             StudyAttemptEntity attempt) {
-        modeState.setWrongCount(modeState.getWrongCount() + 1);
         attempt.setIsCorrect(false);
         applyFeedbackState(state, StudyConst.FEEDBACK_ERROR, leftTile.getId(), rightTile.getId());
     }

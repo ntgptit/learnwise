@@ -46,12 +46,6 @@ public class StudySessionModeStateEntity {
     @Column(name = "total_units", nullable = false)
     private int totalUnits;
 
-    @Column(name = "correct_count", nullable = false)
-    private int correctCount;
-
-    @Column(name = "wrong_count", nullable = false)
-    private int wrongCount;
-
     @Column(name = "started_at", nullable = false)
     private Instant startedAt;
 

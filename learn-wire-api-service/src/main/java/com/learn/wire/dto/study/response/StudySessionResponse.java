@@ -10,8 +10,6 @@ public record StudySessionResponse(
         String status,
         int currentIndex,
         int totalUnits,
-        int correctCount,
-        int wrongCount,
         boolean completed,
         Instant startedAt,
         Instant completedAt,

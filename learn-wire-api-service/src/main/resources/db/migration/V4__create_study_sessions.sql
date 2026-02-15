@@ -47,8 +47,6 @@ CREATE TABLE study_session_mode_states (
     status VARCHAR(20) NOT NULL,
     current_index INT NOT NULL DEFAULT 0,
     total_units INT NOT NULL DEFAULT 0,
-    correct_count INT NOT NULL DEFAULT 0,
-    wrong_count INT NOT NULL DEFAULT 0,
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -73,7 +71,7 @@ CHECK (status IN ('ACTIVE', 'COMPLETED'));
 
 ALTER TABLE study_session_mode_states
 ADD CONSTRAINT chk_study_session_mode_states_counts
-CHECK (current_index >= 0 AND total_units >= 0 AND correct_count >= 0 AND wrong_count >= 0);
+CHECK (current_index >= 0 AND total_units >= 0);
 
 ALTER TABLE study_session_mode_states
 ADD CONSTRAINT chk_study_session_mode_states_completed_at_after_started_at

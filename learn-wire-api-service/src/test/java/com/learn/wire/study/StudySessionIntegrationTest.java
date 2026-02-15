@@ -127,7 +127,6 @@ class StudySessionIntegrationTest {
                         wrongRightTile.tileId(),
                         null));
 
-        assertThat(wrongAttempt.wrongCount()).isEqualTo(1);
         assertThat(wrongAttempt.lastAttemptResult()).isNotNull();
         assertThat(wrongAttempt.lastAttemptResult().feedbackStatus()).isEqualTo(StudyConst.FEEDBACK_ERROR);
         assertThat(wrongAttempt.lastAttemptResult().interactionLocked()).isTrue();

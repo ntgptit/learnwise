@@ -52,8 +52,6 @@ public abstract class AbstractLinearStudyModeEngine extends AbstractStudyModeEng
         this.studySessionItemRepository.saveAll(sessionItems);
         modeState.setCurrentIndex(StudyConst.DEFAULT_INDEX);
         modeState.setTotalUnits(sessionItems.size());
-        modeState.setCorrectCount(StudyConst.ZERO_SCORE);
-        modeState.setWrongCount(StudyConst.ZERO_SCORE);
         this.studySessionModeStateRepository.save(modeState);
     }
 

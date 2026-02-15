@@ -172,8 +172,6 @@ public class StudySessionServiceImpl implements StudySessionService {
         modeState.setStatus(StudyConst.SESSION_STATUS_ACTIVE);
         modeState.setCurrentIndex(StudyConst.DEFAULT_INDEX);
         modeState.setTotalUnits(StudyConst.DEFAULT_INDEX);
-        modeState.setCorrectCount(StudyConst.ZERO_SCORE);
-        modeState.setWrongCount(StudyConst.ZERO_SCORE);
         modeState.setStartedAt(Instant.now());
         return this.studySessionModeStateRepository.save(modeState);
     }

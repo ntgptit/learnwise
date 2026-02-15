@@ -32,10 +32,11 @@ class StudyConstants {
   static const int defaultClientSequence = 0;
   static const int defaultSeed = 37;
   static const int requiredStudyModeCount = 5;
-  static const int defaultGuessOptionCount = 4;
+  static const int defaultGuessOptionCount = 5;
   static const int minimumMatchPairCount = 2;
   static const int fillToleranceDistance = 1;
   static const int audioPlayingIndicatorDurationMs = 1400;
+  static const int localGuessFeedbackDurationMs = 800;
   static const int localMatchFeedbackDurationMs = 800;
   static const int matchFeedbackUnlockFallbackMs = 120;
   static const int matchFeedbackUnlockSkewMs = 24;

@@ -10,6 +10,7 @@ import 'package:learnwise/features/flashcards/study/engine/recall_study_engine.d
 import 'package:learnwise/features/flashcards/study/engine/review_study_engine.dart';
 import 'package:learnwise/features/flashcards/study/engine/study_engine_factory.dart';
 import 'package:learnwise/features/flashcards/study/model/study_answer.dart';
+import 'package:learnwise/features/flashcards/study/model/study_constants.dart';
 import 'package:learnwise/features/flashcards/study/model/study_mode.dart';
 import 'package:learnwise/features/flashcards/study/model/study_unit.dart';
 
@@ -41,7 +42,7 @@ void main() {
       );
 
       final GuessUnit firstUnit = engine.currentUnit! as GuessUnit;
-      expect(firstUnit.options.length, 4);
+      expect(firstUnit.options.length, StudyConstants.defaultGuessOptionCount);
 
       engine.submitAnswer(
         GuessStudyAnswer(optionId: firstUnit.correctOptionId),
@@ -68,11 +69,7 @@ void main() {
 
     test('FillStudyEngine normalizes and allows typo tolerance', () {
       final List<FlashcardItem> items = <FlashcardItem>[
-        _buildItem(
-          id: 1,
-          frontText: 'xin chao',
-          backText: 'Hello',
-        ),
+        _buildItem(id: 1, frontText: 'xin chao', backText: 'Hello'),
       ];
       final FillStudyEngine engine = FillStudyEngine(
         items: items,
@@ -99,12 +96,8 @@ void main() {
 
       final MatchUnit matchUnit = engine.currentUnit! as MatchUnit;
       for (final MatchEntry leftEntry in matchUnit.leftEntries) {
-        engine.submitAnswer(
-          MatchSelectLeftStudyAnswer(leftId: leftEntry.id),
-        );
-        engine.submitAnswer(
-          MatchSelectRightStudyAnswer(rightId: leftEntry.id),
-        );
+        engine.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftEntry.id));
+        engine.submitAnswer(MatchSelectRightStudyAnswer(rightId: leftEntry.id));
       }
 
       expect(engine.isCompleted, isTrue);
@@ -127,7 +120,8 @@ void main() {
       engine.submitAnswer(MatchSelectRightStudyAnswer(rightId: wrongRightId));
 
       final MatchUnit unitAfterAttempt = engine.currentUnit! as MatchUnit;
-      final MatchAttemptResult? attemptResult = unitAfterAttempt.lastAttemptResult;
+      final MatchAttemptResult? attemptResult =
+          unitAfterAttempt.lastAttemptResult;
 
       expect(attemptResult, isNotNull);
       expect(attemptResult!.type, MatchAttemptResultType.wrong);
@@ -159,11 +153,7 @@ void main() {
 List<FlashcardItem> _buildItems({required int count}) {
   return List<FlashcardItem>.generate(count, (index) {
     final int id = index + 1;
-    return _buildItem(
-      id: id,
-      frontText: 'front $id',
-      backText: 'back $id',
-    );
+    return _buildItem(id: id, frontText: 'front $id', backText: 'back $id');
   });
 }
 

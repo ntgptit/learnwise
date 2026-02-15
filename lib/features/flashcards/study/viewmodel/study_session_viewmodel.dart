@@ -7,6 +7,7 @@ import '../../../../core/utils/string_utils.dart';
 import '../model/study_answer.dart';
 import '../model/study_constants.dart';
 import '../model/study_mode.dart';
+import '../model/study_interaction_feedback_state.dart';
 import '../model/study_session_args.dart';
 import '../model/study_session_models.dart';
 import '../model/study_unit.dart';
@@ -37,6 +38,9 @@ class StudySessionState {
     required this.matchSuccessFlashKeys,
     required this.matchErrorFlashKeys,
     required this.isMatchInteractionLocked,
+    required this.guessSuccessOptionIds,
+    required this.guessErrorOptionIds,
+    required this.isGuessInteractionLocked,
   });
 
   final StudyMode mode;
@@ -59,6 +63,25 @@ class StudySessionState {
   final Set<String> matchSuccessFlashKeys;
   final Set<String> matchErrorFlashKeys;
   final bool isMatchInteractionLocked;
+  final Set<String> guessSuccessOptionIds;
+  final Set<String> guessErrorOptionIds;
+  final bool isGuessInteractionLocked;
+
+  StudyInteractionFeedbackState<String> get matchInteractionFeedback {
+    return StudyInteractionFeedbackState<String>(
+      successIds: matchSuccessFlashKeys,
+      errorIds: matchErrorFlashKeys,
+      isLocked: isMatchInteractionLocked,
+    );
+  }
+
+  StudyInteractionFeedbackState<String> get guessInteractionFeedback {
+    return StudyInteractionFeedbackState<String>(
+      successIds: guessSuccessOptionIds,
+      errorIds: guessErrorOptionIds,
+      isLocked: isGuessInteractionLocked,
+    );
+  }
 
   factory StudySessionState.initial({
     required StudyMode mode,
@@ -92,6 +115,9 @@ class StudySessionState {
       matchSuccessFlashKeys: const <String>{},
       matchErrorFlashKeys: const <String>{},
       isMatchInteractionLocked: false,
+      guessSuccessOptionIds: const <String>{},
+      guessErrorOptionIds: const <String>{},
+      isGuessInteractionLocked: false,
     );
   }
 
@@ -118,6 +144,9 @@ class StudySessionState {
     Set<String>? matchSuccessFlashKeys,
     Set<String>? matchErrorFlashKeys,
     bool? isMatchInteractionLocked,
+    Set<String>? guessSuccessOptionIds,
+    Set<String>? guessErrorOptionIds,
+    bool? isGuessInteractionLocked,
   }) {
     final StudyUnit? nextCurrentUnit = clearCurrentUnit
         ? null
@@ -155,6 +184,14 @@ class StudySessionState {
       ),
       isMatchInteractionLocked:
           isMatchInteractionLocked ?? this.isMatchInteractionLocked,
+      guessSuccessOptionIds: Set<String>.unmodifiable(
+        guessSuccessOptionIds ?? this.guessSuccessOptionIds,
+      ),
+      guessErrorOptionIds: Set<String>.unmodifiable(
+        guessErrorOptionIds ?? this.guessErrorOptionIds,
+      ),
+      isGuessInteractionLocked:
+          isGuessInteractionLocked ?? this.isGuessInteractionLocked,
     );
   }
 
@@ -182,6 +219,7 @@ class StudySessionController extends _$StudySessionController {
   bool _isFrontVisible = true;
   int? _playingFlashcardId;
   Timer? _audioPlayingIndicatorTimer;
+  Timer? _localGuessFeedbackTimer;
   Timer? _localMatchFeedbackTimer;
   Timer? _remoteMatchFeedbackReleaseTimer;
   int? _remoteMatchFeedbackUntilEpochMs;
@@ -191,6 +229,9 @@ class StudySessionController extends _$StudySessionController {
   Set<int> _submittedAnswerIndexes = <int>{};
   int _localCorrectCount = StudyConstants.defaultIndex;
   int _localWrongCount = StudyConstants.defaultIndex;
+  Set<String> _guessSuccessOptionIds = <String>{};
+  Set<String> _guessErrorOptionIds = <String>{};
+  bool _isGuessInteractionLocked = false;
 
   @override
   StudySessionState build(StudySessionArgs args) {
@@ -199,6 +240,7 @@ class StudySessionController extends _$StudySessionController {
     _resetControllerState();
     ref.onDispose(() {
       _audioPlayingIndicatorTimer?.cancel();
+      _localGuessFeedbackTimer?.cancel();
       _localMatchFeedbackTimer?.cancel();
       _remoteMatchFeedbackReleaseTimer?.cancel();
     });
@@ -213,6 +255,102 @@ class StudySessionController extends _$StudySessionController {
       return;
     }
     _submitLinearAnswer(answer);
+  }
+
+  void submitGuessOption(String optionId) {
+    final StudyUnit? currentUnit = state.currentUnit;
+    if (currentUnit is! GuessUnit) {
+      return;
+    }
+    if (state.isCompleted) {
+      return;
+    }
+    if (_isGuessInteractionLocked) {
+      return;
+    }
+    final bool isCorrect = optionId == currentUnit.correctOptionId;
+    submitAnswer(GuessStudyAnswer(optionId: optionId));
+    _startLocalGuessFeedback(
+      selectedOptionId: optionId,
+      correctOptionId: currentUnit.correctOptionId,
+      isCorrect: isCorrect,
+    );
+  }
+
+  void _startLocalGuessFeedback({
+    required String selectedOptionId,
+    required String correctOptionId,
+    required bool isCorrect,
+  }) {
+    _localGuessFeedbackTimer?.cancel();
+    _isGuessInteractionLocked = true;
+    final Set<String> successOptionIds = _resolveGuessFeedbackSuccessOptionIds(
+      selectedOptionId: selectedOptionId,
+      isCorrect: isCorrect,
+    );
+    final Set<String> errorOptionIds = _resolveGuessFeedbackErrorOptionIds(
+      selectedOptionId: selectedOptionId,
+      isCorrect: isCorrect,
+    );
+    _guessSuccessOptionIds = successOptionIds;
+    _guessErrorOptionIds = errorOptionIds;
+    state = state.copyWith(
+      guessSuccessOptionIds: successOptionIds,
+      guessErrorOptionIds: errorOptionIds,
+      isGuessInteractionLocked: true,
+    );
+    _localGuessFeedbackTimer = Timer(
+      const Duration(milliseconds: StudyConstants.localGuessFeedbackDurationMs),
+      () => _releaseGuessFeedback(isCorrect: isCorrect),
+    );
+  }
+
+  Set<String> _resolveGuessFeedbackSuccessOptionIds({
+    required String selectedOptionId,
+    required bool isCorrect,
+  }) {
+    if (isCorrect) {
+      return <String>{selectedOptionId};
+    }
+    return <String>{};
+  }
+
+  Set<String> _resolveGuessFeedbackErrorOptionIds({
+    required String selectedOptionId,
+    required bool isCorrect,
+  }) {
+    if (isCorrect) {
+      return <String>{};
+    }
+    return <String>{selectedOptionId};
+  }
+
+  void _releaseGuessFeedback({required bool isCorrect}) {
+    if (!ref.mounted) {
+      return;
+    }
+    _clearGuessFeedbackState();
+    if (!isCorrect) {
+      return;
+    }
+    next();
+  }
+
+  void _clearGuessFeedbackState() {
+    _resetGuessFeedbackLocalState();
+    state = state.copyWith(
+      guessSuccessOptionIds: const <String>{},
+      guessErrorOptionIds: const <String>{},
+      isGuessInteractionLocked: false,
+    );
+  }
+
+  void _resetGuessFeedbackLocalState() {
+    _localGuessFeedbackTimer?.cancel();
+    _localGuessFeedbackTimer = null;
+    _isGuessInteractionLocked = false;
+    _guessSuccessOptionIds = <String>{};
+    _guessErrorOptionIds = <String>{};
   }
 
   void next() {
@@ -930,6 +1068,11 @@ class StudySessionController extends _$StudySessionController {
         canGoPrevious: false,
         canGoNext: false,
         isCompleted: true,
+        guessSuccessOptionIds: _resolveGuessSuccessOptionIds(mode: state.mode),
+        guessErrorOptionIds: _resolveGuessErrorOptionIds(mode: state.mode),
+        isGuessInteractionLocked: _resolveGuessInteractionLocked(
+          mode: state.mode,
+        ),
       );
       return;
     }
@@ -967,10 +1110,18 @@ class StudySessionController extends _$StudySessionController {
         isCompleted: isCompleted,
       ),
       isCompleted: isCompleted,
+      guessSuccessOptionIds: _resolveGuessSuccessOptionIds(mode: state.mode),
+      guessErrorOptionIds: _resolveGuessErrorOptionIds(mode: state.mode),
+      isGuessInteractionLocked: _resolveGuessInteractionLocked(
+        mode: state.mode,
+      ),
     );
   }
 
   StudySessionState _mapResponseToState(StudySessionResponseModel response) {
+    if (response.mode != StudyMode.guess) {
+      _resetGuessFeedbackLocalState();
+    }
     if (_isLinearMode(response.mode)) {
       return _buildLinearState(response);
     }
@@ -999,6 +1150,15 @@ class StudySessionController extends _$StudySessionController {
     );
     final int correctCount = _resolveLinearCorrectCount(response);
     final int wrongCount = _resolveLinearWrongCount(response);
+    final Set<String> guessSuccessOptionIds = _resolveGuessSuccessOptionIds(
+      mode: response.mode,
+    );
+    final Set<String> guessErrorOptionIds = _resolveGuessErrorOptionIds(
+      mode: response.mode,
+    );
+    final bool isGuessInteractionLocked = _resolveGuessInteractionLocked(
+      mode: response.mode,
+    );
     return StudySessionState(
       mode: response.mode,
       reviewUnits: List<ReviewUnit>.unmodifiable(reviewUnits),
@@ -1031,6 +1191,9 @@ class StudySessionController extends _$StudySessionController {
       matchSuccessFlashKeys: const <String>{},
       matchErrorFlashKeys: const <String>{},
       isMatchInteractionLocked: false,
+      guessSuccessOptionIds: guessSuccessOptionIds,
+      guessErrorOptionIds: guessErrorOptionIds,
+      isGuessInteractionLocked: isGuessInteractionLocked,
     );
   }
 
@@ -1107,7 +1270,31 @@ class StudySessionController extends _$StudySessionController {
       matchSuccessFlashKeys: successFlashKeys,
       matchErrorFlashKeys: errorFlashKeys,
       isMatchInteractionLocked: isInteractionLocked,
+      guessSuccessOptionIds: const <String>{},
+      guessErrorOptionIds: const <String>{},
+      isGuessInteractionLocked: false,
     );
+  }
+
+  Set<String> _resolveGuessSuccessOptionIds({required StudyMode mode}) {
+    if (mode != StudyMode.guess) {
+      return const <String>{};
+    }
+    return Set<String>.unmodifiable(_guessSuccessOptionIds);
+  }
+
+  Set<String> _resolveGuessErrorOptionIds({required StudyMode mode}) {
+    if (mode != StudyMode.guess) {
+      return const <String>{};
+    }
+    return Set<String>.unmodifiable(_guessErrorOptionIds);
+  }
+
+  bool _resolveGuessInteractionLocked({required StudyMode mode}) {
+    if (mode != StudyMode.guess) {
+      return false;
+    }
+    return _isGuessInteractionLocked;
   }
 
   bool _resolveMatchInteractionLocked(StudySessionResponseModel response) {
@@ -1524,6 +1711,7 @@ class StudySessionController extends _$StudySessionController {
     _isFrontVisible = true;
     _playingFlashcardId = null;
     _audioPlayingIndicatorTimer?.cancel();
+    _resetGuessFeedbackLocalState();
     _localMatchFeedbackTimer?.cancel();
     _clearRemoteMatchFeedbackReleaseTimer();
     _modeCompletionFuture = null;

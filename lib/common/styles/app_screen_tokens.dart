@@ -247,7 +247,7 @@ class FlashcardStudySessionTokens {
   static const double cardPadding = AppSizes.spacingLg;
   static const double answerSpacing = AppSizes.spacingSm;
   static const double completedActionButtonWidth = AppSizes.size240;
-  static const double progressHeight = AppSizes.spacing2Xs;
+  static const double progressHeight = AppSizes.size2;
   static const double progressRadius = AppSizes.radiusPill;
   static const double bottomActionGap = AppSizes.spacingSm;
   static const double iconSize = AppSizes.size24;
@@ -264,9 +264,30 @@ class FlashcardStudySessionTokens {
   static const double matchCardMinHeight = AppSizes.size72;
   static const double matchRowHeight = 88;
   static const double matchSuccessBorderWidth = AppSizes.size2;
+  static const int guessOptionCount = 5;
+  static const int guessPromptMaxLines = 5;
+  static const int guessOptionMaxLines = 2;
+  static const int guessPromptFlex = 32;
+  static const int guessOptionsFlex = 68;
+  static const double guessPromptHorizontalPadding = AppSizes.spacingSm;
+  static const double guessOptionVerticalPadding = AppSizes.spacingXs;
+  static const double cycleProgressItemHeight = AppSizes.size32;
+  static const double cycleProgressItemGap = AppSizes.spacingXs;
+  static const double cycleProgressItemRadius = AppSizes.radiusPill;
+  static const double cycleProgressIconSize = AppSizes.size18;
+  static const double cycleProgressStatusIconSize = AppSizes.size10;
   static const int matchPromptMaxLines = 5;
   static const int matchAnswerMaxLines = 3;
   static const int matchSemanticsMaxLength = 90;
+  static const int recallPromptFlex = 44;
+  static const int recallAnswerFlex = 38;
+  static const int recallPromptMaxLines = 7;
+  static const int recallAnswerMaxLines = 6;
+  static const double recallCardGap = AppSizes.spacingSm;
+  static const double recallAnswerOpacity = AppOpacities.muted55;
+  static const double recallButtonHeight = AppSizes.size52;
+  static const double recallButtonWidthFactor = 0.68;
+  static const double recallButtonBottomGap = AppSizes.spacingXs;
 }
 
 class TtsScreenTokens {

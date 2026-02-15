@@ -164,6 +164,100 @@ void main() {
       },
     );
   });
+
+  group('StudySessionController guess mode', () {
+    test('correct answer shows success feedback then advances', () async {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.guess,
+        items: _buildItems(count: 3),
+        title: 'Guess',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+      final StudySessionState initialState = container.read(provider);
+      final GuessUnit currentUnit = initialState.currentUnit! as GuessUnit;
+
+      controller.submitGuessOption(currentUnit.correctOptionId);
+
+      StudySessionState state = container.read(provider);
+      expect(state.currentIndex, 0);
+      expect(state.isGuessInteractionLocked, isTrue);
+      expect(state.guessSuccessOptionIds, <String>{
+        currentUnit.correctOptionId,
+      });
+      expect(state.guessErrorOptionIds, isEmpty);
+
+      await Future<void>.delayed(
+        const Duration(
+          milliseconds: StudyConstants.localGuessFeedbackDurationMs + 120,
+        ),
+      );
+
+      state = container.read(provider);
+      expect(state.currentIndex, 1);
+      expect(state.isGuessInteractionLocked, isFalse);
+      expect(state.guessSuccessOptionIds, isEmpty);
+      expect(state.guessErrorOptionIds, isEmpty);
+    });
+
+    test('wrong answer shows only error and stays on current card', () async {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.guess,
+        items: _buildItems(count: 3),
+        title: 'Guess',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+      final StudySessionState initialState = container.read(provider);
+      final GuessUnit currentUnit = initialState.currentUnit! as GuessUnit;
+      final String wrongOptionId = currentUnit.options
+          .firstWhere((option) => option.id != currentUnit.correctOptionId)
+          .id;
+
+      controller.submitGuessOption(wrongOptionId);
+      controller.submitGuessOption(currentUnit.correctOptionId);
+
+      StudySessionState state = container.read(provider);
+      expect(state.currentIndex, 0);
+      expect(state.isGuessInteractionLocked, isTrue);
+      expect(state.guessSuccessOptionIds, isEmpty);
+      expect(state.guessErrorOptionIds, <String>{wrongOptionId});
+      expect(state.wrongCount, 1);
+
+      await Future<void>.delayed(
+        const Duration(
+          milliseconds: StudyConstants.localGuessFeedbackDurationMs + 120,
+        ),
+      );
+
+      state = container.read(provider);
+      expect(state.currentIndex, 0);
+      expect(state.isGuessInteractionLocked, isFalse);
+      expect(state.guessSuccessOptionIds, isEmpty);
+      expect(state.guessErrorOptionIds, isEmpty);
+
+      controller.submitGuessOption(currentUnit.correctOptionId);
+
+      await Future<void>.delayed(
+        const Duration(
+          milliseconds: StudyConstants.localGuessFeedbackDurationMs + 120,
+        ),
+      );
+
+      state = container.read(provider);
+      expect(state.currentIndex, 1);
+    });
+  });
 }
 
 List<FlashcardItem> _buildItems({required int count}) {

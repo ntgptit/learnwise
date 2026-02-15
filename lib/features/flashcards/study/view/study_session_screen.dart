@@ -6,9 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/semantic_colors.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../model/study_answer.dart';
+import '../model/study_constants.dart';
 import '../model/study_cycle_progress.dart';
 import '../model/study_mode.dart';
 import '../model/study_session_args.dart';
@@ -351,6 +353,9 @@ class _StudyUnitBody extends ConsumerWidget {
       currentMode: state.mode,
     );
     if (state.isCompleted) {
+      final List<StudyMode> cycleModes = resolveStudyCycleModes(
+        args: studyArgs,
+      );
       final StudyMode? nextMode = resolveNextCycleMode(
         args: studyArgs,
         currentMode: state.mode,
@@ -366,6 +371,7 @@ class _StudyUnitBody extends ConsumerWidget {
       return _StudyCompletedCard(
         state: state,
         displayedCompletedModeCount: displayedCompletedModeCount,
+        cycleModes: cycleModes,
         l10n: l10n,
         onNextModePressed: nextMode == null
             ? null
@@ -409,9 +415,9 @@ class _StudyUnitBody extends ConsumerWidget {
     if (currentUnit is GuessUnit) {
       return GuessStudyModeView(
         unit: currentUnit,
+        feedbackState: state.guessInteractionFeedback,
         onOptionSelected: (optionId) {
-          controller.submitAnswer(GuessStudyAnswer(optionId: optionId));
-          controller.next();
+          controller.submitGuessOption(optionId);
         },
       );
     }
@@ -463,6 +469,8 @@ class _StudyUnitBody extends ConsumerWidget {
         <StudyMode, _UnitContentLayoutBuilder>{
           StudyMode.review: _buildDirectContentLayout,
           StudyMode.match: _buildDirectContentLayout,
+          StudyMode.guess: _buildDirectContentLayout,
+          StudyMode.recall: _buildDirectContentLayout,
         };
     final _UnitContentLayoutBuilder? builder = registry[mode];
     if (builder == null) {
@@ -518,12 +526,6 @@ class _StudyProgressHeader extends ConsumerWidget {
     final double progressPercent = ref.watch(
       provider.select((value) => value.progressPercent),
     );
-    final int currentStep = ref.watch(
-      provider.select((value) => value.currentStep),
-    );
-    final int totalCount = ref.watch(
-      provider.select((value) => value.totalCount),
-    );
     final int completedModeCount = ref.watch(
       provider.select((value) => value.completedModeCount),
     );
@@ -547,38 +549,17 @@ class _StudyProgressHeader extends ConsumerWidget {
     final Widget Function(BuildContext context) builder = _resolveBuilder(
       mode: mode,
       progressPercent: progressPercent,
-      currentStep: currentStep,
-      totalCount: totalCount,
     );
     final List<StudyMode> cycleModes = resolveStudyCycleModes(args: studyArgs);
-    final int cycleModeIndex = resolveStudyCycleModeIndex(
-      args: studyArgs,
-      cycleModes: cycleModes,
-      currentMode: mode,
-    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         builder(context),
         const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-        Text(
-          l10n.flashcardsStudyCycleProgressLabel(
-            displayedCompletedModeCount,
-            requiredModeCount,
-          ),
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-        Text(
-          _buildCycleDisplayText(
-            cycleModes: cycleModes,
-            cycleModeIndex: cycleModeIndex,
-            completedModeCount: displayedCompletedModeCount,
-            l10n: l10n,
-          ),
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall,
+        _StudyCycleModeProgress(
+          cycleModes: cycleModes,
+          completedModeCount: displayedCompletedModeCount,
+          l10n: l10n,
         ),
       ],
     );
@@ -587,8 +568,6 @@ class _StudyProgressHeader extends ConsumerWidget {
   Widget Function(BuildContext context) _resolveBuilder({
     required StudyMode mode,
     required double progressPercent,
-    required int currentStep,
-    required int totalCount,
   }) {
     final Map<StudyMode, Widget Function(BuildContext context)> registry =
         <StudyMode, Widget Function(BuildContext context)>{
@@ -608,11 +587,9 @@ class _StudyProgressHeader extends ConsumerWidget {
     final Widget Function(BuildContext context)? builder = registry[mode];
     if (builder == null) {
       return (context) {
-        return _buildStandardProgressHeader(
+        return _buildCompactProgressHeader(
           context: context,
           progressPercent: progressPercent,
-          currentStep: currentStep,
-          totalCount: totalCount,
         );
       };
     }
@@ -650,79 +627,203 @@ class _StudyProgressHeader extends ConsumerWidget {
       ],
     );
   }
+}
 
-  Widget _buildStandardProgressHeader({
-    required BuildContext context,
-    required double progressPercent,
-    required int currentStep,
-    required int totalCount,
+class _StudyCycleModeProgress extends StatelessWidget {
+  const _StudyCycleModeProgress({
+    required this.cycleModes,
+    required this.completedModeCount,
+    required this.l10n,
+  });
+
+  final List<StudyMode> cycleModes;
+  final int completedModeCount;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    if (cycleModes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final int normalizedCompletedCount = completedModeCount.clamp(
+      0,
+      cycleModes.length,
+    );
+    final int focusIndex = _resolveFocusIndex(
+      completedModeCount: normalizedCompletedCount,
+      totalModeCount: cycleModes.length,
+    );
+    final List<Widget> children = <Widget>[];
+    int index = 0;
+    while (index < cycleModes.length) {
+      if (index > StudyConstants.defaultIndex) {
+        children.add(
+          const SizedBox(
+            width: FlashcardStudySessionTokens.cycleProgressItemGap,
+          ),
+        );
+      }
+      final StudyMode mode = cycleModes[index];
+      children.add(
+        Expanded(
+          child: _buildModeTile(
+            context: context,
+            mode: mode,
+            index: index,
+            completedModeCount: normalizedCompletedCount,
+            focusIndex: focusIndex,
+          ),
+        ),
+      );
+      index++;
+    }
+    return Row(children: children);
+  }
+
+  int _resolveFocusIndex({
+    required int completedModeCount,
+    required int totalModeCount,
   }) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Text(
-          '$currentStep / $totalCount',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(
-            FlashcardStudySessionTokens.progressRadius,
+    if (completedModeCount >= totalModeCount) {
+      return totalModeCount - 1;
+    }
+    return completedModeCount;
+  }
+
+  Widget _buildModeTile({
+    required BuildContext context,
+    required StudyMode mode,
+    required int index,
+    required int completedModeCount,
+    required int focusIndex,
+  }) {
+    final bool isCompleted = index < completedModeCount;
+    final bool isCurrent = !isCompleted && index == focusIndex;
+    final _CycleModeTileStyle style = _resolveTileStyle(
+      context: context,
+      isCompleted: isCompleted,
+      isCurrent: isCurrent,
+    );
+    final IconData modeIcon = _resolveModeIcon(mode);
+    final IconData statusIcon = _resolveStatusIcon(
+      isCompleted: isCompleted,
+      isCurrent: isCurrent,
+    );
+    final String modeLabel = _resolveModeLabel(mode: mode, l10n: l10n);
+    return Semantics(
+      label: modeLabel,
+      child: Tooltip(
+        message: modeLabel,
+        child: Container(
+          height: FlashcardStudySessionTokens.cycleProgressItemHeight,
+          decoration: BoxDecoration(
+            color: style.backgroundColor,
+            borderRadius: BorderRadius.circular(
+              FlashcardStudySessionTokens.cycleProgressItemRadius,
+            ),
+            border: Border.all(color: style.borderColor),
           ),
-          child: LinearProgressIndicator(
-            value: progressPercent,
-            minHeight: FlashcardStudySessionTokens.progressHeight,
-            backgroundColor: colorScheme.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(
+                modeIcon,
+                size: FlashcardStudySessionTokens.cycleProgressIconSize,
+                color: style.foregroundColor,
+              ),
+              const SizedBox(width: FlashcardStudySessionTokens.modeTileGap),
+              Icon(
+                statusIcon,
+                size: FlashcardStudySessionTokens.cycleProgressStatusIconSize,
+                color: style.statusColor,
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
-  String _buildCycleDisplayText({
-    required List<StudyMode> cycleModes,
-    required int cycleModeIndex,
-    required int completedModeCount,
-    required AppLocalizations l10n,
+  _CycleModeTileStyle _resolveTileStyle({
+    required BuildContext context,
+    required bool isCompleted,
+    required bool isCurrent,
   }) {
-    final List<String> parts = <String>[];
-    int index = 0;
-    while (index < cycleModes.length) {
-      final StudyMode mode = cycleModes[index];
-      final String label = _resolveModeLabel(mode: mode, l10n: l10n);
-      final String marker = _resolveCycleMarker(
-        index: index,
-        cycleModeIndex: cycleModeIndex,
-        completedModeCount: completedModeCount,
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    if (isCompleted) {
+      return _CycleModeTileStyle(
+        backgroundColor: colorScheme.successContainer,
+        borderColor: colorScheme.successContainer,
+        foregroundColor: colorScheme.onSuccessContainer,
+        statusColor: colorScheme.onSuccessContainer,
       );
-      parts.add('$marker $label');
-      index++;
     }
-    return parts.join(' -> ');
+    if (isCurrent) {
+      return _CycleModeTileStyle(
+        backgroundColor: colorScheme.secondaryContainer,
+        borderColor: colorScheme.secondary,
+        foregroundColor: colorScheme.onSecondaryContainer,
+        statusColor: colorScheme.secondary,
+      );
+    }
+    return _CycleModeTileStyle(
+      backgroundColor: colorScheme.surfaceContainerHighest,
+      borderColor: colorScheme.outlineVariant,
+      foregroundColor: colorScheme.onSurfaceVariant,
+      statusColor: colorScheme.onSurfaceVariant,
+    );
   }
 
-  String _resolveCycleMarker({
-    required int index,
-    required int cycleModeIndex,
-    required int completedModeCount,
-  }) {
-    if (index < completedModeCount) {
-      return '[x]';
+  IconData _resolveModeIcon(StudyMode mode) {
+    if (mode == StudyMode.review) {
+      return Icons.visibility_outlined;
     }
-    if (index == cycleModeIndex) {
-      return '[>]';
+    if (mode == StudyMode.match) {
+      return Icons.join_inner_rounded;
     }
-    return '[ ]';
+    if (mode == StudyMode.guess) {
+      return Icons.help_outline_rounded;
+    }
+    if (mode == StudyMode.recall) {
+      return Icons.psychology_alt_outlined;
+    }
+    return Icons.edit_note_rounded;
   }
+
+  IconData _resolveStatusIcon({
+    required bool isCompleted,
+    required bool isCurrent,
+  }) {
+    if (isCompleted) {
+      return Icons.check_rounded;
+    }
+    if (isCurrent) {
+      return Icons.circle_rounded;
+    }
+    return Icons.circle_outlined;
+  }
+}
+
+class _CycleModeTileStyle {
+  const _CycleModeTileStyle({
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.foregroundColor,
+    required this.statusColor,
+  });
+
+  final Color backgroundColor;
+  final Color borderColor;
+  final Color foregroundColor;
+  final Color statusColor;
 }
 
 class _StudyCompletedCard extends StatelessWidget {
   const _StudyCompletedCard({
     required this.state,
     required this.displayedCompletedModeCount,
+    required this.cycleModes,
     required this.l10n,
     required this.onClosePressed,
     this.onNextModePressed,
@@ -731,6 +832,7 @@ class _StudyCompletedCard extends StatelessWidget {
 
   final StudySessionState state;
   final int displayedCompletedModeCount;
+  final List<StudyMode> cycleModes;
   final AppLocalizations l10n;
   final VoidCallback onClosePressed;
   final VoidCallback? onNextModePressed;
@@ -755,13 +857,10 @@ class _StudyCompletedCard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-            Text(
-              l10n.flashcardsStudyCycleProgressLabel(
-                displayedCompletedModeCount,
-                state.requiredModeCount,
-              ),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
+            _StudyCycleModeProgress(
+              cycleModes: cycleModes,
+              completedModeCount: displayedCompletedModeCount,
+              l10n: l10n,
             ),
             const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
             if (onNextModePressed != null && nextModeLabel != null)

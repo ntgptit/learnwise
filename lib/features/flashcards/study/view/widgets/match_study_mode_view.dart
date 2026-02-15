@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../../app/theme/semantic_colors.dart';
 import '../../../../../common/styles/app_durations.dart';
 import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../model/study_unit.dart';
 import '../../viewmodel/study_session_viewmodel.dart';
+import 'study_feedback_tile_style.dart';
 
 const String _matchSemanticsSeparator = ': ';
 const String _truncatedSemanticsSuffix = '...';
@@ -32,6 +32,7 @@ class MatchStudyModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final matchFeedback = state.matchInteractionFeedback;
     final Set<int> hiddenMatchedIds = state.matchHiddenIds;
     final List<MatchEntry> visibleLeftEntries = _resolveVisibleEntries(
       entries: unit.leftEntries,
@@ -71,18 +72,16 @@ class MatchStudyModeView extends StatelessWidget {
         final bool isRightSelected = unit.selectedRightId == rightEntry.id;
         final bool isLeftMatched = unit.matchedIds.contains(leftEntry.id);
         final bool isRightMatched = unit.matchedIds.contains(rightEntry.id);
-        final bool isLeftAnimatingSuccess = state.matchSuccessFlashKeys
-            .contains(
-              _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
-            );
-        final bool isRightAnimatingSuccess = state.matchSuccessFlashKeys
-            .contains(
-              _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
-            );
-        final bool isLeftErrorFlash = state.matchErrorFlashKeys.contains(
+        final bool isLeftAnimatingSuccess = matchFeedback.successIds.contains(
           _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
         );
-        final bool isRightErrorFlash = state.matchErrorFlashKeys.contains(
+        final bool isRightAnimatingSuccess = matchFeedback.successIds.contains(
+          _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
+        );
+        final bool isLeftErrorFlash = matchFeedback.errorIds.contains(
+          _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
+        );
+        final bool isRightErrorFlash = matchFeedback.errorIds.contains(
           _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
         );
         return SizedBox(
@@ -100,7 +99,7 @@ class MatchStudyModeView extends StatelessWidget {
                   showSuccessState: isLeftAnimatingSuccess,
                   showErrorState: isLeftErrorFlash,
                   onPressed: _resolveTapCallback(
-                    isLocked: state.isMatchInteractionLocked,
+                    isLocked: matchFeedback.isLocked,
                     isMatched: isLeftMatched,
                     onPressed: () => onLeftPressed(leftEntry.id),
                   ),
@@ -117,7 +116,7 @@ class MatchStudyModeView extends StatelessWidget {
                   showSuccessState: isRightAnimatingSuccess,
                   showErrorState: isRightErrorFlash,
                   onPressed: _resolveTapCallback(
-                    isLocked: state.isMatchInteractionLocked,
+                    isLocked: matchFeedback.isLocked,
                     isMatched: isRightMatched,
                     onPressed: () => onRightPressed(rightEntry.id),
                   ),
@@ -258,28 +257,24 @@ class _MatchBoardTile extends StatelessWidget {
   }
 
   BoxBorder? _resolveBorder(ColorScheme colorScheme) {
-    if (showSuccessState) {
-      return Border.all(
-        color: colorScheme.onSuccessContainer,
-        width: FlashcardStudySessionTokens.matchSuccessBorderWidth,
-      );
-    }
-    if (showErrorState) {
-      return Border.all(
-        color: colorScheme.onErrorContainer,
-        width: FlashcardStudySessionTokens.matchSuccessBorderWidth,
-      );
-    }
-    return null;
+    return resolveStudyFeedbackBorder(
+      colorScheme: colorScheme,
+      showSuccessState: showSuccessState,
+      showErrorState: showErrorState,
+    );
   }
 
   Color _resolveBackgroundColor(ColorScheme colorScheme) {
-    if (showSuccessState) {
-      return colorScheme.successContainer;
-    }
-    if (showErrorState) {
-      return colorScheme.errorContainer;
-    }
+    final Color fallbackColor = _resolveFallbackBackgroundColor(colorScheme);
+    return resolveStudyFeedbackBackgroundColor(
+      colorScheme: colorScheme,
+      showSuccessState: showSuccessState,
+      showErrorState: showErrorState,
+      fallbackColor: fallbackColor,
+    );
+  }
+
+  Color _resolveFallbackBackgroundColor(ColorScheme colorScheme) {
     if (isSelected) {
       return colorScheme.primary.withValues(alpha: AppOpacities.soft35);
     }
@@ -295,16 +290,22 @@ class _MatchBoardTile extends StatelessWidget {
     required ThemeData theme,
     required ColorScheme colorScheme,
   }) {
-    if (showSuccessState) {
-      return theme.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onSuccessContainer,
-      );
-    }
-    if (showErrorState) {
-      return theme.textTheme.bodyMedium?.copyWith(
-        color: colorScheme.onErrorContainer,
-      );
-    }
+    final TextStyle? fallbackStyle = _resolveFallbackLabelStyle(
+      theme: theme,
+      colorScheme: colorScheme,
+    );
+    return resolveStudyFeedbackTextStyle(
+      colorScheme: colorScheme,
+      showSuccessState: showSuccessState,
+      showErrorState: showErrorState,
+      fallbackStyle: fallbackStyle,
+    );
+  }
+
+  TextStyle? _resolveFallbackLabelStyle({
+    required ThemeData theme,
+    required ColorScheme colorScheme,
+  }) {
     if (isPromptTile) {
       final Color promptColor = colorScheme.onSurfaceVariant.withValues(
         alpha: AppOpacities.muted82,

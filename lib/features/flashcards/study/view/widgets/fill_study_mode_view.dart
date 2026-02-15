@@ -6,7 +6,7 @@ import '../../../../../common/widgets/widgets.dart';
 import '../../../../../core/utils/string_utils.dart';
 import '../../model/study_unit.dart';
 
-class FillStudyModeView extends StatelessWidget {
+class FillStudyModeView extends StatefulWidget {
   const FillStudyModeView({
     required this.unit,
     required this.onSubmitAnswer,
@@ -21,24 +21,51 @@ class FillStudyModeView extends StatelessWidget {
   final TextEditingController fillController;
 
   @override
+  State<FillStudyModeView> createState() => _FillStudyModeViewState();
+}
+
+class _FillStudyModeViewState extends State<FillStudyModeView> {
+  late final ValueNotifier<String?> _helpAnswerNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _helpAnswerNotifier = ValueNotifier<String?>(null);
+  }
+
+  @override
+  void didUpdateWidget(covariant FillStudyModeView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.unit.unitId == widget.unit.unitId) {
+      return;
+    }
+    _helpAnswerNotifier.value = null;
+  }
+
+  @override
+  void dispose() {
+    _helpAnswerNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final bool isKeyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     final double promptOpacity = _resolvePromptOpacity(isKeyboardVisible);
-    final int promptFlex = _resolvePromptFlex(isKeyboardVisible);
-    final int answerFlex = _resolveAnswerFlex(isKeyboardVisible);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Expanded(
-          flex: promptFlex,
-          child: _FillPromptCard(unit: unit, opacity: promptOpacity),
+          flex: 1,
+          child: _FillPromptCard(unit: widget.unit, opacity: promptOpacity),
         ),
         const SizedBox(height: FlashcardStudySessionTokens.fillCardGap),
         Expanded(
-          flex: answerFlex,
+          flex: 1,
           child: _FillInputCard(
-            fillController: fillController,
+            fillController: widget.fillController,
             onSubmitPressed: _submitCurrentAnswer,
+            helpAnswerListenable: _helpAnswerNotifier,
           ),
         ),
         const SizedBox(height: FlashcardStudySessionTokens.fillActionTopGap),
@@ -48,7 +75,7 @@ class FillStudyModeView extends StatelessWidget {
             bottom: FlashcardStudySessionTokens.fillActionBottomPadding,
           ),
           child: ValueListenableBuilder<TextEditingValue>(
-            valueListenable: fillController,
+            valueListenable: widget.fillController,
             builder: (context, value, child) {
               final bool canSubmit = StringUtils.normalize(
                 value.text,
@@ -62,7 +89,7 @@ class FillStudyModeView extends StatelessWidget {
                       child: FilledButton(
                         onPressed: _onHelpPressed,
                         style: _resolveActionButtonStyle(context),
-                        child: Text(l10n.flashcardsStudyFillHelpLabel),
+                        child: Text(widget.l10n.flashcardsStudyFillHelpLabel),
                       ),
                     ),
                   ),
@@ -76,7 +103,7 @@ class FillStudyModeView extends StatelessWidget {
                       child: FilledButton(
                         onPressed: canSubmit ? _submitCurrentAnswer : null,
                         style: _resolveCheckButtonStyle(context),
-                        child: Text(l10n.flashcardsStudyFillCheckLabel),
+                        child: Text(widget.l10n.flashcardsStudyFillCheckLabel),
                       ),
                     ),
                   ),
@@ -89,20 +116,6 @@ class FillStudyModeView extends StatelessWidget {
     );
   }
 
-  int _resolvePromptFlex(bool isKeyboardVisible) {
-    if (isKeyboardVisible) {
-      return FlashcardStudySessionTokens.fillPromptFlexWhenKeyboardVisible;
-    }
-    return FlashcardStudySessionTokens.fillPromptFlex;
-  }
-
-  int _resolveAnswerFlex(bool isKeyboardVisible) {
-    if (isKeyboardVisible) {
-      return FlashcardStudySessionTokens.fillAnswerFlexWhenKeyboardVisible;
-    }
-    return FlashcardStudySessionTokens.fillAnswerFlex;
-  }
-
   double _resolvePromptOpacity(bool isKeyboardVisible) {
     if (isKeyboardVisible) {
       return FlashcardStudySessionTokens.fillPromptCardFocusedOpacity;
@@ -111,19 +124,21 @@ class FillStudyModeView extends StatelessWidget {
   }
 
   void _onHelpPressed() {
-    fillController.text = unit.expectedAnswer;
-    fillController.selection = TextSelection.collapsed(
-      offset: unit.expectedAnswer.length,
+    _helpAnswerNotifier.value = widget.unit.expectedAnswer;
+    widget.fillController.text = widget.unit.expectedAnswer;
+    widget.fillController.selection = TextSelection.collapsed(
+      offset: widget.unit.expectedAnswer.length,
     );
   }
 
   void _submitCurrentAnswer() {
-    final String normalizedAnswer = fillController.text.normalized;
+    final String normalizedAnswer = widget.fillController.text.normalized;
     if (normalizedAnswer.isEmpty) {
       return;
     }
-    onSubmitAnswer(normalizedAnswer);
-    fillController.clear();
+    widget.onSubmitAnswer(normalizedAnswer);
+    widget.fillController.clear();
+    _helpAnswerNotifier.value = null;
   }
 
   ButtonStyle _resolveActionButtonStyle(BuildContext context) {
@@ -219,10 +234,12 @@ class _FillInputCard extends StatelessWidget {
   const _FillInputCard({
     required this.fillController,
     required this.onSubmitPressed,
+    required this.helpAnswerListenable,
   });
 
   final TextEditingController fillController;
   final VoidCallback onSubmitPressed;
+  final ValueNotifier<String?> helpAnswerListenable;
 
   @override
   Widget build(BuildContext context) {
@@ -235,22 +252,40 @@ class _FillInputCard extends StatelessWidget {
         FlashcardStudySessionTokens.cardRadius,
       ),
       padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
-      child: Center(
-        child: AppTextField(
-          controller: fillController,
-          onSubmitted: (_) => onSubmitPressed(),
-          maxLines: FlashcardStudySessionTokens.fillInputMaxLines,
-          minLines: FlashcardStudySessionTokens.fillInputMaxLines,
-          textAlign: TextAlign.center,
-          textInputAction: TextInputAction.done,
-          variant: InputFieldVariant.filled,
-          fillColor: colorScheme.surfaceContainerHigh,
-          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: colorScheme.onSurfaceVariant.withValues(
-              alpha: FlashcardStudySessionTokens.fillInputHintOpacity,
+      child: ValueListenableBuilder<String?>(
+        valueListenable: helpAnswerListenable,
+        builder: (context, helpAnswer, child) {
+          if (helpAnswer != null) {
+            return Center(
+              child: Text(
+                helpAnswer,
+                textAlign: TextAlign.center,
+                maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            );
+          }
+          return Center(
+            child: AppTextField(
+              controller: fillController,
+              onSubmitted: (_) => onSubmitPressed(),
+              maxLines: FlashcardStudySessionTokens.fillInputMaxLines,
+              minLines: FlashcardStudySessionTokens.fillInputMaxLines,
+              textAlign: TextAlign.center,
+              textInputAction: TextInputAction.done,
+              variant: InputFieldVariant.filled,
+              fillColor: colorScheme.surfaceContainerHigh,
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurfaceVariant.withValues(
+                  alpha: FlashcardStudySessionTokens.fillInputHintOpacity,
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

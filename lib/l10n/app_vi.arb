@@ -896,6 +896,26 @@
   "@flashcardsStudyModePickerTitle": {
     "description": "Bottom sheet title for selecting a flashcard study mode."
   },
+  "flashcardsStudyLearnMenuTitle": "Tùy chọn học",
+  "@flashcardsStudyLearnMenuTitle": {
+    "description": "Bottom sheet title for learn entry actions."
+  },
+  "flashcardsStudyLearnStartCycleLabel": "Bắt đầu quá trình học",
+  "@flashcardsStudyLearnStartCycleLabel": {
+    "description": "Action label for starting the 5-mode study cycle from review."
+  },
+  "flashcardsStudyLearnChooseModeLabel": "Chọn một mode học",
+  "@flashcardsStudyLearnChooseModeLabel": {
+    "description": "Action label for choosing a specific study mode."
+  },
+  "flashcardsStudyLearnResetSessionLabel": "Reset lại session học",
+  "@flashcardsStudyLearnResetSessionLabel": {
+    "description": "Action label for resetting current study cycle session."
+  },
+  "flashcardsStudyLearnResetToast": "Đã reset session học.",
+  "@flashcardsStudyLearnResetToast": {
+    "description": "Toast message shown after triggering study session reset."
+  },
   "flashcardsStudyModeReview": "Xem lại",
   "@flashcardsStudyModeReview": {
     "description": "Label for review study mode."

@@ -127,6 +127,13 @@ public class StudySessionServiceImpl implements StudySessionService {
     }
 
     private StudySessionEntity upsertActiveSession(StudySessionStartCommand command) {
+        if (command.forceReset()) {
+            completeActiveSession(command.deckId());
+            final StudySessionEntity resetSession = createSession(command);
+            resetSession.setActiveMode(command.mode().value());
+            resetSession.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
+            return this.studySessionRepository.save(resetSession);
+        }
         final StudySessionEntity session = this.studySessionRepository
                 .findFirstByDeckIdAndStatusAndDeletedAtIsNullOrderByStartedAtDesc(
                         command.deckId(),
@@ -135,6 +142,21 @@ public class StudySessionServiceImpl implements StudySessionService {
         session.setActiveMode(command.mode().value());
         session.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
         return this.studySessionRepository.save(session);
+    }
+
+    private void completeActiveSession(Long deckId) {
+        final StudySessionEntity activeSession = this.studySessionRepository
+                .findFirstByDeckIdAndStatusAndDeletedAtIsNullOrderByStartedAtDesc(
+                        deckId,
+                        StudyConst.SESSION_STATUS_ACTIVE)
+                .orElse(null);
+        if (activeSession == null) {
+            return;
+        }
+        activeSession.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
+        activeSession.setCompletedAt(Instant.now());
+        activeSession.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
+        this.studySessionRepository.save(activeSession);
     }
 
     private StudySessionModeStateEntity upsertModeState(StudySessionEntity session, StudyMode mode) {

@@ -83,7 +83,7 @@ class StudySessionIntegrationTest {
 
         final StudySessionResponse response = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_REVIEW, 11));
+                new StudySessionStartRequest(StudyConst.MODE_REVIEW, 11, null));
 
         assertThat(response.mode()).isEqualTo(StudyConst.MODE_REVIEW);
         assertThat(response.currentIndex()).isEqualTo(StudyConst.DEFAULT_INDEX);
@@ -105,7 +105,7 @@ class StudySessionIntegrationTest {
 
         final StudySessionResponse started = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_MATCH, 13));
+                new StudySessionStartRequest(StudyConst.MODE_MATCH, 13, null));
         final StudyMatchTileResponse leftTile = started.leftTiles().get(0);
         final StudyMatchTileResponse wrongRightTile = findWrongRightTile(started.rightTiles(), leftTile.pairKey());
 
@@ -158,35 +158,35 @@ class StudySessionIntegrationTest {
 
         final StudySessionResponse reviewSession = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_REVIEW, 17));
+                new StudySessionStartRequest(StudyConst.MODE_REVIEW, 17, null));
         final StudySessionResponse completedReview = this.studySessionService.completeSession(reviewSession.sessionId());
         assertThat(completedReview.completed()).isTrue();
         assertThat(completedReview.sessionCompleted()).isFalse();
 
         final StudySessionResponse guessSession = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_GUESS, 19));
+                new StudySessionStartRequest(StudyConst.MODE_GUESS, 19, null));
         assertThat(guessSession.sessionId()).isEqualTo(reviewSession.sessionId());
         final StudySessionResponse completedGuess = this.studySessionService.completeSession(guessSession.sessionId());
         assertThat(completedGuess.sessionCompleted()).isFalse();
 
         final StudySessionResponse recallSession = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_RECALL, 23));
+                new StudySessionStartRequest(StudyConst.MODE_RECALL, 23, null));
         assertThat(recallSession.sessionId()).isEqualTo(reviewSession.sessionId());
         final StudySessionResponse completedRecall = this.studySessionService.completeSession(recallSession.sessionId());
         assertThat(completedRecall.sessionCompleted()).isFalse();
 
         final StudySessionResponse fillSession = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_FILL, 29));
+                new StudySessionStartRequest(StudyConst.MODE_FILL, 29, null));
         assertThat(fillSession.sessionId()).isEqualTo(reviewSession.sessionId());
         final StudySessionResponse completedFill = this.studySessionService.completeSession(fillSession.sessionId());
         assertThat(completedFill.sessionCompleted()).isFalse();
 
         final StudySessionResponse matchSession = this.studySessionService.startSession(
                 deckId,
-                new StudySessionStartRequest(StudyConst.MODE_MATCH, 31));
+                new StudySessionStartRequest(StudyConst.MODE_MATCH, 31, null));
         assertThat(matchSession.sessionId()).isEqualTo(reviewSession.sessionId());
         final StudySessionResponse completedMatch = this.studySessionService.completeSession(matchSession.sessionId());
 

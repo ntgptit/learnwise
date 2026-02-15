@@ -12,6 +12,7 @@ class StudySessionArgs {
     this.seed = StudyConstants.defaultSeed,
     List<StudyMode>? cycleModes,
     this.cycleModeIndex = StudyConstants.defaultIndex,
+    this.forceReset = false,
   }) : cycleModes = cycleModes ?? const <StudyMode>[];
 
   const StudySessionArgs.fallback()
@@ -22,7 +23,8 @@ class StudySessionArgs {
       initialIndex = StudyConstants.defaultIndex,
       seed = StudyConstants.defaultSeed,
       cycleModes = const <StudyMode>[],
-      cycleModeIndex = StudyConstants.defaultIndex;
+      cycleModeIndex = StudyConstants.defaultIndex,
+      forceReset = false;
 
   final int deckId;
   final StudyMode mode;
@@ -32,11 +34,13 @@ class StudySessionArgs {
   final int seed;
   final List<StudyMode> cycleModes;
   final int cycleModeIndex;
+  final bool forceReset;
 
   StudySessionArgs copyWith({
     StudyMode? mode,
     List<StudyMode>? cycleModes,
     int? cycleModeIndex,
+    bool? forceReset,
   }) {
     return StudySessionArgs(
       deckId: deckId,
@@ -47,6 +51,7 @@ class StudySessionArgs {
       seed: seed,
       cycleModes: cycleModes ?? this.cycleModes,
       cycleModeIndex: cycleModeIndex ?? this.cycleModeIndex,
+      forceReset: forceReset ?? this.forceReset,
     );
   }
 }

@@ -45,6 +45,7 @@ const String _jsonKeyInteractionLocked = 'interactionLocked';
 const String _jsonKeyFeedbackUntil = 'feedbackUntil';
 
 const String _jsonKeySeed = 'seed';
+const String _jsonKeyForceReset = 'forceReset';
 const String _jsonKeyClientEventId = 'clientEventId';
 const String _jsonKeyClientSequence = 'clientSequence';
 const String _jsonKeyEventType = 'eventType';
@@ -76,13 +77,25 @@ extension StudySessionEventTypeApiX on StudySessionEventType {
 }
 
 class StudySessionStartRequest {
-  const StudySessionStartRequest({required this.mode, required this.seed});
+  const StudySessionStartRequest({
+    required this.mode,
+    required this.seed,
+    this.forceReset = false,
+  });
 
   final StudyMode mode;
   final int seed;
+  final bool forceReset;
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{_jsonKeyMode: mode.apiValue, _jsonKeySeed: seed};
+    final Map<String, dynamic> payload = <String, dynamic>{
+      _jsonKeyMode: mode.apiValue,
+      _jsonKeySeed: seed,
+    };
+    if (forceReset) {
+      payload[_jsonKeyForceReset] = true;
+    }
+    return payload;
   }
 }
 

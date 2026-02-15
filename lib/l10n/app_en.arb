@@ -896,6 +896,26 @@
   "@flashcardsStudyModePickerTitle": {
     "description": "Bottom sheet title for selecting a flashcard study mode."
   },
+  "flashcardsStudyLearnMenuTitle": "Learn options",
+  "@flashcardsStudyLearnMenuTitle": {
+    "description": "Bottom sheet title for learn entry actions."
+  },
+  "flashcardsStudyLearnStartCycleLabel": "Start learning cycle",
+  "@flashcardsStudyLearnStartCycleLabel": {
+    "description": "Action label for starting the 5-mode study cycle from review."
+  },
+  "flashcardsStudyLearnChooseModeLabel": "Choose a study mode",
+  "@flashcardsStudyLearnChooseModeLabel": {
+    "description": "Action label for choosing a specific study mode."
+  },
+  "flashcardsStudyLearnResetSessionLabel": "Reset study session",
+  "@flashcardsStudyLearnResetSessionLabel": {
+    "description": "Action label for resetting current study cycle session."
+  },
+  "flashcardsStudyLearnResetToast": "Study session reset.",
+  "@flashcardsStudyLearnResetToast": {
+    "description": "Toast message shown after triggering study session reset."
+  },
   "flashcardsStudyModeReview": "Review",
   "@flashcardsStudyModeReview": {
     "description": "Label for review study mode."

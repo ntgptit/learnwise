@@ -8,7 +8,8 @@ import com.learn.wire.exception.BadRequestException;
 public record StudySessionStartCommand(
         Long deckId,
         StudyMode mode,
-        int seed) {
+        int seed,
+        boolean forceReset) {
 
     public static StudySessionStartCommand fromRequest(Long deckId, StudySessionStartRequest request) {
         if (request == null) {
@@ -19,7 +20,8 @@ public record StudySessionStartCommand(
         }
         final StudyMode mode = StudyMode.fromValue(request.mode());
         final int seed = resolveSeed(request.seed());
-        return new StudySessionStartCommand(deckId, mode, seed);
+        final boolean forceReset = resolveForceReset(request.forceReset());
+        return new StudySessionStartCommand(deckId, mode, seed, forceReset);
     }
 
     private static int resolveSeed(Integer seed) {
@@ -30,5 +32,12 @@ public record StudySessionStartCommand(
             return seed;
         }
         throw new BadRequestException(StudyConst.SEED_INVALID_KEY);
+    }
+
+    private static boolean resolveForceReset(Boolean forceReset) {
+        if (forceReset == null) {
+            return false;
+        }
+        return forceReset;
     }
 }

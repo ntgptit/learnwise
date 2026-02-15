@@ -399,7 +399,11 @@ class StudySessionController extends _$StudySessionController {
     try {
       final StudySessionResponseModel response = await _repository.startSession(
         deckId: _args.deckId,
-        request: StudySessionStartRequest(mode: _args.mode, seed: _args.seed),
+        request: StudySessionStartRequest(
+          mode: _args.mode,
+          seed: _args.seed,
+          forceReset: _args.forceReset,
+        ),
       );
       if (!ref.mounted) {
         return;

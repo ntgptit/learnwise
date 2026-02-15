@@ -35,6 +35,12 @@ enum _FlashcardMenuAction {
   sortDirectionAsc,
 }
 
+enum _StudyLearnAction {
+  startCycle,
+  chooseMode,
+  resetSession,
+}
+
 class _StudyModeOption {
   const _StudyModeOption({
     required this.mode,
@@ -439,6 +445,82 @@ class _FlashcardManagementScreenState
       _showActionToast(l10n.flashcardsEmptyTitle);
       return;
     }
+    unawaited(_showStudyLearnActionSheet(l10n: l10n, listing: listing));
+  }
+
+  Future<void> _showStudyLearnActionSheet({
+    required AppLocalizations l10n,
+    required FlashcardListingState listing,
+  }) async {
+    final _StudyLearnAction? action = await showModalBottomSheet<_StudyLearnAction>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(FlashcardScreenTokens.screenPadding),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  l10n.flashcardsStudyLearnMenuTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: FlashcardScreenTokens.sectionSpacing),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.play_circle_outline_rounded),
+                  title: Text(l10n.flashcardsStudyLearnStartCycleLabel),
+                  onTap: () => sheetContext.pop(_StudyLearnAction.startCycle),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.tune_rounded),
+                  title: Text(l10n.flashcardsStudyLearnChooseModeLabel),
+                  onTap: () => sheetContext.pop(_StudyLearnAction.chooseMode),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.restart_alt_rounded),
+                  title: Text(l10n.flashcardsStudyLearnResetSessionLabel),
+                  onTap: () => sheetContext.pop(_StudyLearnAction.resetSession),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (action == null) {
+      return;
+    }
+    if (action == _StudyLearnAction.startCycle) {
+      _openStudySession(
+        l10n: l10n,
+        listing: listing,
+        mode: StudyMode.review,
+        forceReset: false,
+      );
+      return;
+    }
+    if (action == _StudyLearnAction.chooseMode) {
+      _showStudyModePicker(l10n: l10n, listing: listing);
+      return;
+    }
+    _openStudySession(
+      l10n: l10n,
+      listing: listing,
+      mode: StudyMode.review,
+      forceReset: true,
+    );
+    _showActionToast(l10n.flashcardsStudyLearnResetToast);
+  }
+
+  void _showStudyModePicker({
+    required AppLocalizations l10n,
+    required FlashcardListingState listing,
+  }) {
     final List<_StudyModeOption> modeOptions = <_StudyModeOption>[
       _StudyModeOption(
         mode: StudyMode.review,
@@ -496,6 +578,7 @@ class _FlashcardManagementScreenState
                           l10n: l10n,
                           listing: listing,
                           mode: modeOption.mode,
+                          forceReset: false,
                         );
                       },
                     );
@@ -513,6 +596,7 @@ class _FlashcardManagementScreenState
     required AppLocalizations l10n,
     required FlashcardListingState listing,
     required StudyMode mode,
+    required bool forceReset,
   }) {
     final int seed = widget.args.deckId ^ listing.items.length ^ mode.index;
     final List<StudyMode> cycleModes = buildStudyModeCycle(startMode: mode);
@@ -527,6 +611,7 @@ class _FlashcardManagementScreenState
           seed: seed,
           cycleModes: cycleModes,
           cycleModeIndex: StudyConstants.defaultIndex,
+          forceReset: forceReset,
         ),
       ),
     );

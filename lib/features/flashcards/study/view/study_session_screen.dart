@@ -159,6 +159,7 @@ class _FlashcardStudySessionScreenState
       mode: mode,
       cycleModes: cycleModes,
       cycleModeIndex: currentIndex + 1,
+      forceReset: false,
     );
   }
 

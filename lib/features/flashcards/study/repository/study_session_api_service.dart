@@ -52,6 +52,16 @@ class StudySessionApiService implements StudySessionRepository {
     return _decodeStudySessionResponse(response.data);
   }
 
+  @override
+  Future<StudySessionResponseModel> restartMode({
+    required int sessionId,
+  }) async {
+    final dynamic response = await _apiClient.post<dynamic>(
+      _buildStudySessionRestartModePath(sessionId),
+    );
+    return _decodeStudySessionResponse(response.data);
+  }
+
   String _buildDeckStudySessionsPath(int deckId) {
     return '${StudyConstants.decksResourcePath}/$deckId/${StudyConstants.studySessionsPathSegment}';
   }
@@ -66,6 +76,10 @@ class StudySessionApiService implements StudySessionRepository {
 
   String _buildStudySessionCompletePath(int sessionId) {
     return '${_buildStudySessionPath(sessionId)}/${StudyConstants.studySessionCompletePathSegment}';
+  }
+
+  String _buildStudySessionRestartModePath(int sessionId) {
+    return '${_buildStudySessionPath(sessionId)}/${StudyConstants.studySessionRestartModePathSegment}';
   }
 
   StudySessionResponseModel _decodeStudySessionResponse(dynamic data) {

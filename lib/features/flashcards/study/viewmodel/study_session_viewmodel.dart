@@ -368,8 +368,27 @@ class StudySessionController extends _$StudySessionController {
     state = state.copyWith(clearPlayingFlashcardId: true);
   }
 
-  void restart() {
-    ref.invalidateSelf();
+  Future<void> restart() async {
+    final int? sessionId = _sessionId;
+    if (sessionId == null) {
+      ref.invalidateSelf();
+      return;
+    }
+    try {
+      final StudySessionResponseModel response = await _repository.restartMode(
+        sessionId: sessionId,
+      );
+      if (!ref.mounted) {
+        return;
+      }
+      _lastResponse = response;
+      _syncFromSnapshot();
+    } catch (_) {
+      if (!ref.mounted) {
+        return;
+      }
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> completeCurrentMode() async {
@@ -400,8 +419,7 @@ class StudySessionController extends _$StudySessionController {
       }
       _lastResponse = response;
       _syncFromSnapshot();
-    } catch (_) {
-    }
+    } catch (_) {}
   }
 
   Future<void> _startSessionFromBackend() async {

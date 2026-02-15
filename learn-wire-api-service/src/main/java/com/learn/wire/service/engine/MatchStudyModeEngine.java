@@ -29,8 +29,8 @@ import com.learn.wire.exception.StudyEventNotSupportedException;
 import com.learn.wire.repository.MatchSessionStateRepository;
 import com.learn.wire.repository.MatchSessionTileRepository;
 import com.learn.wire.repository.StudyAttemptRepository;
-import com.learn.wire.repository.StudySessionModeStateRepository;
 import com.learn.wire.repository.StudySessionItemRepository;
+import com.learn.wire.repository.StudySessionModeStateRepository;
 import com.learn.wire.repository.StudySessionRepository;
 
 @Component
@@ -65,11 +65,11 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             StudySessionEntity session,
             StudySessionModeStateEntity modeState,
             List<FlashcardEntity> flashcards) {
-        final List<FlashcardEntity> shuffled = shuffleFlashcards(flashcards, session.getSeed());
+        final var shuffled = shuffleFlashcards(flashcards, session.getSeed());
         if (shuffled.size() >= StudyConst.MINIMUM_MATCH_PAIR_COUNT) {
-            final List<MatchSessionTileEntity> tiles = createTiles(modeState.getId(), shuffled, session.getSeed());
+            final var tiles = createTiles(modeState.getId(), shuffled, session.getSeed());
             this.matchSessionTileRepository.saveAll(tiles);
-            final MatchSessionStateEntity state = new MatchSessionStateEntity();
+            final var state = new MatchSessionStateEntity();
             state.setModeStateId(modeState.getId());
             state.setInteractionLocked(false);
             state.setVersion(StudyConst.DEFAULT_INDEX);
@@ -96,14 +96,14 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             StudySessionModeStateEntity modeState,
             StudySessionEventCommand command,
             StudyAttemptEntity attempt) {
-        final MatchSessionStateEntity state = getRequiredState(modeState.getId());
+        final var state = getRequiredState(modeState.getId());
         releaseExpiredFeedback(state);
         if (state.isInteractionLocked()) {
             return;
         }
-        final StudyEventType eventType = command.eventType();
-        final String expectedSide = resolveExpectedSide(eventType);
-        final MatchSessionTileEntity tile = resolveTargetTile(modeState.getId(), command.targetTileId(), expectedSide);
+        final var eventType = command.eventType();
+        final var expectedSide = resolveExpectedSide(eventType);
+        final var tile = resolveTargetTile(modeState.getId(), command.targetTileId(), expectedSide);
         if (tile.isMatched()) {
             return;
         }
@@ -120,15 +120,15 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     protected StudySessionResponse buildResponseInternal(
             StudySessionEntity session,
             StudySessionModeStateEntity modeState) {
-        final MatchSessionStateEntity state = getRequiredState(modeState.getId());
+        final var state = getRequiredState(modeState.getId());
         releaseExpiredFeedback(state);
-        final List<MatchSessionTileEntity> leftTiles = this.matchSessionTileRepository
+        final var leftTiles = this.matchSessionTileRepository
                 .findByModeStateIdAndSideOrderByTileOrderAsc(modeState.getId(), StudyConst.TILE_SIDE_LEFT);
-        final List<MatchSessionTileEntity> rightTiles = this.matchSessionTileRepository
+        final var rightTiles = this.matchSessionTileRepository
                 .findByModeStateIdAndSideOrderByTileOrderAsc(modeState.getId(), StudyConst.TILE_SIDE_RIGHT);
-        final List<StudyMatchTileResponse> leftResponses = toMatchTileResponses(leftTiles, state);
-        final List<StudyMatchTileResponse> rightResponses = toMatchTileResponses(rightTiles, state);
-        final StudyAttemptResultResponse lastAttemptResult = toAttemptResult(state);
+        final var leftResponses = toMatchTileResponses(leftTiles, state);
+        final var rightResponses = toMatchTileResponses(rightTiles, state);
+        final var lastAttemptResult = toAttemptResult(state);
         return buildSessionResponse(
                 session,
                 modeState,
@@ -141,7 +141,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     private List<MatchSessionTileEntity> createTiles(Long modeStateId, List<FlashcardEntity> flashcards, int seed) {
         final List<MatchSessionTileEntity> leftTiles = new ArrayList<>();
         final List<MatchSessionTileEntity> rightTiles = new ArrayList<>();
-        int pairKey = StudyConst.DEFAULT_INDEX;
+        var pairKey = StudyConst.DEFAULT_INDEX;
         for (final FlashcardEntity flashcard : flashcards) {
             leftTiles.add(buildTile(modeStateId, pairKey, StudyConst.TILE_SIDE_LEFT, flashcard.getFrontText()));
             rightTiles.add(buildTile(modeStateId, pairKey, StudyConst.TILE_SIDE_RIGHT, flashcard.getBackText()));
@@ -158,7 +158,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     }
 
     private MatchSessionTileEntity buildTile(Long modeStateId, int pairKey, String side, String label) {
-        final MatchSessionTileEntity tile = new MatchSessionTileEntity();
+        final var tile = new MatchSessionTileEntity();
         tile.setModeStateId(modeStateId);
         tile.setPairKey(pairKey);
         tile.setSide(side);
@@ -168,7 +168,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     }
 
     private void assignTileOrder(List<MatchSessionTileEntity> tiles) {
-        int index = StudyConst.DEFAULT_INDEX;
+        var index = StudyConst.DEFAULT_INDEX;
         for (final MatchSessionTileEntity tile : tiles) {
             tile.setTileOrder(index);
             index++;
@@ -194,8 +194,8 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             StudySessionModeStateEntity modeState,
             MatchSessionStateEntity state,
             StudyAttemptEntity attempt) {
-        final MatchSessionTileEntity leftTile = resolveTileById(modeState.getId(), state.getSelectedLeftTileId());
-        final MatchSessionTileEntity rightTile = resolveTileById(modeState.getId(), state.getSelectedRightTileId());
+        final var leftTile = resolveTileById(modeState.getId(), state.getSelectedLeftTileId());
+        final var rightTile = resolveTileById(modeState.getId(), state.getSelectedRightTileId());
         validateTileSide(leftTile, StudyConst.TILE_SIDE_LEFT);
         validateTileSide(rightTile, StudyConst.TILE_SIDE_RIGHT);
         attempt.setLeftTileId(leftTile.getId());
@@ -216,7 +216,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
         leftTile.setMatched(true);
         rightTile.setMatched(true);
         this.matchSessionTileRepository.saveAll(List.of(leftTile, rightTile));
-        final int nextMatchedCount = modeState.getCurrentIndex() + 1;
+        final var nextMatchedCount = modeState.getCurrentIndex() + 1;
         modeState.setCurrentIndex(nextMatchedCount);
         attempt.setIsCorrect(true);
         applyFeedbackState(state, StudyConst.FEEDBACK_SUCCESS, leftTile.getId(), rightTile.getId());
@@ -254,7 +254,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
 
     private MatchSessionTileEntity resolveTargetTile(Long modeStateId, Long targetTileId, String expectedSide) {
         if (targetTileId != null) {
-            final MatchSessionTileEntity tile = resolveTileById(modeStateId, targetTileId);
+            final var tile = resolveTileById(modeStateId, targetTileId);
             validateTileSide(tile, expectedSide);
             return tile;
         }
@@ -291,7 +291,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
         if (!state.isInteractionLocked()) {
             return;
         }
-        final Instant feedbackUntil = state.getFeedbackUntil();
+        final var feedbackUntil = state.getFeedbackUntil();
         if (feedbackUntil == null) {
             clearFeedbackState(state);
             this.matchSessionStateRepository.save(state);
@@ -318,10 +318,10 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             MatchSessionStateEntity state) {
         final List<StudyMatchTileResponse> responses = new ArrayList<>();
         for (final MatchSessionTileEntity tile : tiles) {
-            final boolean successFlash = isSuccessFeedbackTile(state, tile.getId());
-            final boolean errorFlash = isErrorFeedbackTile(state, tile.getId());
-            final boolean hidden = tile.isMatched() && !successFlash;
-            final boolean selected = isSelectedTile(state, tile.getId(), tile.getSide());
+            final var successFlash = isSuccessFeedbackTile(state, tile.getId());
+            final var errorFlash = isErrorFeedbackTile(state, tile.getId());
+            final var hidden = tile.isMatched() && !successFlash;
+            final var selected = isSelectedTile(state, tile.getId(), tile.getSide());
             responses.add(new StudyMatchTileResponse(
                     tile.getId(),
                     tile.getPairKey(),
@@ -351,33 +351,22 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     }
 
     private boolean isSuccessFeedbackTile(MatchSessionStateEntity state, Long tileId) {
-        if (!StudyConst.FEEDBACK_SUCCESS.equalsIgnoreCase(state.getFeedbackStatus())) {
-            return false;
-        }
-        if (!state.isInteractionLocked()) {
+        if (!StudyConst.FEEDBACK_SUCCESS.equalsIgnoreCase(state.getFeedbackStatus()) || !state.isInteractionLocked()) {
             return false;
         }
         return isFeedbackPairTile(state, tileId);
     }
 
     private boolean isErrorFeedbackTile(MatchSessionStateEntity state, Long tileId) {
-        if (!StudyConst.FEEDBACK_ERROR.equalsIgnoreCase(state.getFeedbackStatus())) {
-            return false;
-        }
-        if (!state.isInteractionLocked()) {
+        if (!StudyConst.FEEDBACK_ERROR.equalsIgnoreCase(state.getFeedbackStatus()) || !state.isInteractionLocked()) {
             return false;
         }
         return isFeedbackPairTile(state, tileId);
     }
 
     private boolean isFeedbackPairTile(MatchSessionStateEntity state, Long tileId) {
-        if (state.getFeedbackLeftTileId() != null && state.getFeedbackLeftTileId().equals(tileId)) {
-            return true;
-        }
-        if (state.getFeedbackRightTileId() != null && state.getFeedbackRightTileId().equals(tileId)) {
-            return true;
-        }
-        return false;
+        return ((state.getFeedbackLeftTileId() != null) && state.getFeedbackLeftTileId().equals(tileId))
+                || ((state.getFeedbackRightTileId() != null) && state.getFeedbackRightTileId().equals(tileId));
     }
 
     private StudyAttemptResultResponse toAttemptResult(MatchSessionStateEntity state) {

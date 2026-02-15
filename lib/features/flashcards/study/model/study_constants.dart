@@ -6,6 +6,7 @@ class StudyConstants {
   static const String studySessionsResourcePath = '/study-sessions';
   static const String studySessionEventsPathSegment = 'events';
   static const String studySessionCompletePathSegment = 'complete';
+  static const String studySessionRestartModePathSegment = 'restart-mode';
 
   static const String modeReview = 'review';
   static const String modeMatch = 'match';

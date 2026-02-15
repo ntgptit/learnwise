@@ -14,4 +14,6 @@ abstract class StudySessionRepository {
   });
 
   Future<StudySessionResponseModel> completeSession({required int sessionId});
+
+  Future<StudySessionResponseModel> restartMode({required int sessionId});
 }

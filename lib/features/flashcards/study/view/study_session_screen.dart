@@ -9,6 +9,7 @@ import '../../../../app/router/route_names.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../model/study_answer.dart';
+import '../model/study_cycle_progress.dart';
 import '../model/study_mode.dart';
 import '../model/study_session_args.dart';
 import '../model/study_unit.dart';
@@ -114,7 +115,7 @@ class _FlashcardStudySessionScreenState
           padding: const EdgeInsets.all(
             FlashcardStudySessionTokens.screenPadding,
           ),
-        child: _StudySessionBody(
+          child: _StudySessionBody(
             provider: provider,
             l10n: l10n,
             fillController: _fillController,
@@ -156,7 +157,9 @@ class _FlashcardStudySessionScreenState
   }
 
   StudySessionArgs _buildNextCycleArgs({required StudyMode mode}) {
-    final List<StudyMode> cycleModes = _resolveCycleModes(args: widget.args);
+    final List<StudyMode> cycleModes = resolveStudyCycleModes(
+      args: widget.args,
+    );
     final int modeIndex = cycleModes.indexOf(mode);
     final int nextCycleIndex = modeIndex < 0 ? 0 : modeIndex;
     return widget.args.copyWith(
@@ -297,7 +300,11 @@ class _StudySessionBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _StudyProgressHeader(provider: provider, studyArgs: studyArgs, l10n: l10n),
+        _StudyProgressHeader(
+          provider: provider,
+          studyArgs: studyArgs,
+          l10n: l10n,
+        ),
         const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
         Expanded(
           child: _StudyUnitBody(
@@ -335,10 +342,22 @@ class _StudyUnitBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final StudySessionState state = ref.watch(provider);
     final StudySessionController controller = ref.read(provider.notifier);
+    final int displayedCompletedModeCount = resolveDisplayedCompletedModeCount(
+      args: studyArgs,
+      completedModeCount: state.completedModeCount,
+      requiredModeCount: state.requiredModeCount,
+      isModeCompleted: state.isCompleted,
+      isSessionCompleted: state.isSessionCompleted,
+      currentMode: state.mode,
+    );
     if (state.isCompleted) {
-      final StudyMode? nextMode = _resolveNextCycleMode(
+      final StudyMode? nextMode = resolveNextCycleMode(
         args: studyArgs,
-        state: state,
+        currentMode: state.mode,
+        completedModeCount: state.completedModeCount,
+        requiredModeCount: state.requiredModeCount,
+        isModeCompleted: state.isCompleted,
+        isSessionCompleted: state.isSessionCompleted,
       );
       final String? nextModeLabel = _resolveNextModeLabel(
         l10n: l10n,
@@ -346,8 +365,8 @@ class _StudyUnitBody extends ConsumerWidget {
       );
       return _StudyCompletedCard(
         state: state,
+        displayedCompletedModeCount: displayedCompletedModeCount,
         l10n: l10n,
-        onRestartPressed: controller.restart,
         onNextModePressed: nextMode == null
             ? null
             : () => onNextModePressed(nextMode),
@@ -511,14 +530,28 @@ class _StudyProgressHeader extends ConsumerWidget {
     final int requiredModeCount = ref.watch(
       provider.select((value) => value.requiredModeCount),
     );
+    final bool isModeCompleted = ref.watch(
+      provider.select((value) => value.isCompleted),
+    );
+    final bool isSessionCompleted = ref.watch(
+      provider.select((value) => value.isSessionCompleted),
+    );
+    final int displayedCompletedModeCount = resolveDisplayedCompletedModeCount(
+      args: studyArgs,
+      completedModeCount: completedModeCount,
+      requiredModeCount: requiredModeCount,
+      isModeCompleted: isModeCompleted,
+      isSessionCompleted: isSessionCompleted,
+      currentMode: mode,
+    );
     final Widget Function(BuildContext context) builder = _resolveBuilder(
       mode: mode,
       progressPercent: progressPercent,
       currentStep: currentStep,
       totalCount: totalCount,
     );
-    final List<StudyMode> cycleModes = _resolveCycleModes(args: studyArgs);
-    final int cycleModeIndex = _resolveCycleModeIndex(
+    final List<StudyMode> cycleModes = resolveStudyCycleModes(args: studyArgs);
+    final int cycleModeIndex = resolveStudyCycleModeIndex(
       args: studyArgs,
       cycleModes: cycleModes,
       currentMode: mode,
@@ -530,7 +563,7 @@ class _StudyProgressHeader extends ConsumerWidget {
         const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
         Text(
           l10n.flashcardsStudyCycleProgressLabel(
-            completedModeCount,
+            displayedCompletedModeCount,
             requiredModeCount,
           ),
           textAlign: TextAlign.center,
@@ -541,7 +574,7 @@ class _StudyProgressHeader extends ConsumerWidget {
           _buildCycleDisplayText(
             cycleModes: cycleModes,
             cycleModeIndex: cycleModeIndex,
-            completedModeCount: completedModeCount,
+            completedModeCount: displayedCompletedModeCount,
             l10n: l10n,
           ),
           textAlign: TextAlign.center,
@@ -689,16 +722,16 @@ class _StudyProgressHeader extends ConsumerWidget {
 class _StudyCompletedCard extends StatelessWidget {
   const _StudyCompletedCard({
     required this.state,
+    required this.displayedCompletedModeCount,
     required this.l10n,
-    required this.onRestartPressed,
     required this.onClosePressed,
     this.onNextModePressed,
     this.nextModeLabel,
   });
 
   final StudySessionState state;
+  final int displayedCompletedModeCount;
   final AppLocalizations l10n;
-  final VoidCallback onRestartPressed;
   final VoidCallback onClosePressed;
   final VoidCallback? onNextModePressed;
   final String? nextModeLabel;
@@ -724,7 +757,7 @@ class _StudyCompletedCard extends StatelessWidget {
             const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
             Text(
               l10n.flashcardsStudyCycleProgressLabel(
-                state.completedModeCount,
+                displayedCompletedModeCount,
                 state.requiredModeCount,
               ),
               textAlign: TextAlign.center,
@@ -739,16 +772,7 @@ class _StudyCompletedCard extends StatelessWidget {
                 ),
               ),
             if (onNextModePressed != null && nextModeLabel != null)
-              const SizedBox(
-                height: FlashcardStudySessionTokens.answerSpacing,
-              ),
-            _buildCompletedActionButtonContainer(
-              child: FilledButton(
-                onPressed: onRestartPressed,
-                child: Text(l10n.flashcardsStudyRestartLabel),
-              ),
-            ),
-            const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
+              const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
             _buildCompletedActionButtonContainer(
               child: OutlinedButton(
                 onPressed: onClosePressed,
@@ -787,57 +811,4 @@ String _resolveModeLabel({
     return mode.name;
   }
   return resolver(l10n);
-}
-
-List<StudyMode> _resolveCycleModes({required StudySessionArgs args}) {
-  if (args.cycleModes.isNotEmpty) {
-    return args.cycleModes;
-  }
-  return buildStudyModeCycle(startMode: args.mode);
-}
-
-int _resolveCycleModeIndex({
-  required StudySessionArgs args,
-  required List<StudyMode> cycleModes,
-  required StudyMode currentMode,
-}) {
-  final int modeIndex = cycleModes.indexOf(currentMode);
-  if (modeIndex >= 0) {
-    return modeIndex;
-  }
-  final int rawIndex = args.cycleModeIndex;
-  if (rawIndex >= 0 && rawIndex < cycleModes.length) {
-    return rawIndex;
-  }
-  final int argsModeIndex = cycleModes.indexOf(args.mode);
-  if (argsModeIndex >= 0) {
-    return argsModeIndex;
-  }
-  return 0;
-}
-
-StudyMode? _resolveNextCycleMode({
-  required StudySessionArgs args,
-  required StudySessionState state,
-}) {
-  if (state.isSessionCompleted) {
-    return null;
-  }
-  final List<StudyMode> cycleModes = _resolveCycleModes(args: args);
-  final int nextByCompletedCount = state.completedModeCount;
-  final bool hasProgressBasedNextMode =
-      nextByCompletedCount >= 0 && nextByCompletedCount < cycleModes.length;
-  if (hasProgressBasedNextMode) {
-    return cycleModes[nextByCompletedCount];
-  }
-  final int currentIndex = _resolveCycleModeIndex(
-    args: args,
-    cycleModes: cycleModes,
-    currentMode: state.mode,
-  );
-  final int nextIndex = currentIndex + 1;
-  if (nextIndex >= cycleModes.length) {
-    return null;
-  }
-  return cycleModes[nextIndex];
 }

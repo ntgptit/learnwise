@@ -36,6 +36,8 @@ class StudyConstants {
   static const int fillToleranceDistance = 1;
   static const int audioPlayingIndicatorDurationMs = 1400;
   static const int localMatchFeedbackDurationMs = 650;
+  static const int matchFeedbackUnlockFallbackMs = 120;
+  static const int matchFeedbackUnlockSkewMs = 24;
   static const String matchBoardUnitId = 'match_board';
   static const String unsupportedModeMessagePrefix =
       'Study mode is not registered: ';

@@ -183,6 +183,8 @@ class StudySessionController extends _$StudySessionController {
   int? _playingFlashcardId;
   Timer? _audioPlayingIndicatorTimer;
   Timer? _localMatchFeedbackTimer;
+  Timer? _remoteMatchFeedbackReleaseTimer;
+  int? _remoteMatchFeedbackUntilEpochMs;
   bool _isCompletingMode = false;
   bool _isMatchModeCompletionSynced = false;
   int _clientSequence = StudyConstants.defaultClientSequence;
@@ -198,6 +200,7 @@ class StudySessionController extends _$StudySessionController {
     ref.onDispose(() {
       _audioPlayingIndicatorTimer?.cancel();
       _localMatchFeedbackTimer?.cancel();
+      _remoteMatchFeedbackReleaseTimer?.cancel();
     });
     final StudySessionState bootstrapState = _buildBootstrapState(args);
     unawaited(_startSessionFromBackend());
@@ -775,8 +778,92 @@ class StudySessionController extends _$StudySessionController {
       _syncLocalLinearState();
       return;
     }
+    _syncMatchFeedbackRelease(snapshot);
     _syncMatchModeCompletion(snapshot);
     state = _mapResponseToState(snapshot);
+  }
+
+  void _syncMatchFeedbackRelease(StudySessionResponseModel snapshot) {
+    if (snapshot.mode != StudyMode.match) {
+      _clearRemoteMatchFeedbackReleaseTimer();
+      return;
+    }
+    final StudyAttemptResultModel? lastAttempt = snapshot.lastAttemptResult;
+    if (lastAttempt == null) {
+      _clearRemoteMatchFeedbackReleaseTimer();
+      return;
+    }
+    if (!lastAttempt.interactionLocked) {
+      _clearRemoteMatchFeedbackReleaseTimer();
+      return;
+    }
+    final DateTime? feedbackUntil = lastAttempt.feedbackUntil;
+    if (feedbackUntil == null) {
+      _scheduleRemoteMatchFeedbackRelease(
+        dueEpochMs:
+            DateTime.now().millisecondsSinceEpoch +
+            StudyConstants.matchFeedbackUnlockFallbackMs,
+      );
+      return;
+    }
+    _scheduleRemoteMatchFeedbackRelease(
+      dueEpochMs:
+          feedbackUntil.millisecondsSinceEpoch +
+          StudyConstants.matchFeedbackUnlockSkewMs,
+    );
+  }
+
+  void _scheduleRemoteMatchFeedbackRelease({required int dueEpochMs}) {
+    final Timer? existingTimer = _remoteMatchFeedbackReleaseTimer;
+    final bool hasSameSchedule =
+        _remoteMatchFeedbackUntilEpochMs == dueEpochMs &&
+        existingTimer != null &&
+        existingTimer.isActive;
+    if (hasSameSchedule) {
+      return;
+    }
+    _remoteMatchFeedbackReleaseTimer?.cancel();
+    _remoteMatchFeedbackUntilEpochMs = dueEpochMs;
+    final int nowEpochMs = DateTime.now().millisecondsSinceEpoch;
+    final int delayMs = max(1, dueEpochMs - nowEpochMs);
+    _remoteMatchFeedbackReleaseTimer = Timer(
+      Duration(milliseconds: delayMs),
+      _refreshSessionAfterMatchFeedbackRelease,
+    );
+  }
+
+  Future<void> _refreshSessionAfterMatchFeedbackRelease() async {
+    _remoteMatchFeedbackReleaseTimer = null;
+    _remoteMatchFeedbackUntilEpochMs = null;
+    final int? sessionId = _sessionId;
+    if (sessionId == null) {
+      return;
+    }
+    try {
+      final StudySessionResponseModel response = await _repository.getSession(
+        sessionId: sessionId,
+      );
+      if (!ref.mounted) {
+        return;
+      }
+      _lastResponse = response;
+      _syncFromSnapshot();
+    } catch (_) {
+      if (!ref.mounted) {
+        return;
+      }
+      _scheduleRemoteMatchFeedbackRelease(
+        dueEpochMs:
+            DateTime.now().millisecondsSinceEpoch +
+            StudyConstants.matchFeedbackUnlockFallbackMs,
+      );
+    }
+  }
+
+  void _clearRemoteMatchFeedbackReleaseTimer() {
+    _remoteMatchFeedbackReleaseTimer?.cancel();
+    _remoteMatchFeedbackReleaseTimer = null;
+    _remoteMatchFeedbackUntilEpochMs = null;
   }
 
   void _syncMatchModeCompletion(StudySessionResponseModel snapshot) {
@@ -1411,6 +1498,7 @@ class StudySessionController extends _$StudySessionController {
     _playingFlashcardId = null;
     _audioPlayingIndicatorTimer?.cancel();
     _localMatchFeedbackTimer?.cancel();
+    _clearRemoteMatchFeedbackReleaseTimer();
     _isCompletingMode = false;
     _isMatchModeCompletionSynced = false;
     _clientSequence = StudyConstants.defaultClientSequence;

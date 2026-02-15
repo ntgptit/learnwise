@@ -985,6 +985,15 @@
   "@flashcardsStudyRecallRememberedLabel": {
     "description": "Button label for recall mode when learner remembers the answer."
   },
+  "flashcardsStudyRecallShowCountdownLabel": "Hiện ({seconds}s)",
+  "@flashcardsStudyRecallShowCountdownLabel": {
+    "description": "Action label in recall mode before revealing answer.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "flashcardsStudyFillInputLabel": "Câu trả lời",
   "@flashcardsStudyFillInputLabel": {
     "description": "Input label in fill mode."

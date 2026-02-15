@@ -6,7 +6,10 @@ import 'package:learnwise/features/flashcards/study/model/study_answer.dart';
 import 'package:learnwise/features/flashcards/study/model/study_constants.dart';
 import 'package:learnwise/features/flashcards/study/model/study_mode.dart';
 import 'package:learnwise/features/flashcards/study/model/study_session_args.dart';
+import 'package:learnwise/features/flashcards/study/model/study_session_models.dart';
 import 'package:learnwise/features/flashcards/study/model/study_unit.dart';
+import 'package:learnwise/features/flashcards/study/repository/study_session_repository.dart';
+import 'package:learnwise/features/flashcards/study/repository/study_session_repository_provider.dart';
 import 'package:learnwise/features/flashcards/study/viewmodel/study_session_viewmodel.dart';
 
 void main() {
@@ -258,6 +261,210 @@ void main() {
       expect(state.currentIndex, 1);
     });
   });
+
+  group('StudySessionController recall mode', () {
+    test(
+      'not yet pushes current unit to retry queue and revisits after initial cycle',
+      () {
+        final ProviderContainer container = ProviderContainer();
+        addTearDown(container.dispose);
+        final StudySessionArgs args = StudySessionArgs(
+          deckId: 0,
+          mode: StudyMode.recall,
+          items: _buildItems(count: 2),
+          title: 'Recall',
+        );
+        final provider = studySessionControllerProvider(args);
+        final StudySessionController controller = container.read(
+          provider.notifier,
+        );
+
+        StudySessionState state = container.read(provider);
+        final RecallUnit firstUnit = state.currentUnit! as RecallUnit;
+        controller.submitRecallEvaluation(isRemembered: false);
+
+        state = container.read(provider);
+        expect(state.currentIndex, 1);
+        expect(state.totalCount, 2);
+        expect(state.isCompleted, isFalse);
+
+        controller.submitRecallEvaluation(isRemembered: true);
+        state = container.read(provider);
+        final RecallUnit retryUnit = state.currentUnit! as RecallUnit;
+        expect(retryUnit.prompt, firstUnit.prompt);
+        expect(state.currentIndex, 2);
+        expect(state.totalCount, 3);
+
+        controller.submitRecallEvaluation(isRemembered: true);
+        state = container.read(provider);
+        expect(state.isCompleted, isTrue);
+      },
+    );
+
+    test('repeated not yet keeps cycling until remembered', () {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.recall,
+        items: _buildItems(count: 1),
+        title: 'Recall',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+
+      controller.submitRecallEvaluation(isRemembered: false);
+      StudySessionState state = container.read(provider);
+      expect(state.currentIndex, 1);
+      expect(state.totalCount, 2);
+      expect(state.isCompleted, isFalse);
+
+      controller.submitRecallEvaluation(isRemembered: false);
+      state = container.read(provider);
+      expect(state.currentIndex, 2);
+      expect(state.totalCount, 3);
+      expect(state.isCompleted, isFalse);
+
+      controller.submitRecallEvaluation(isRemembered: true);
+      state = container.read(provider);
+      expect(state.isCompleted, isTrue);
+    });
+
+    test('multiple not yet answers keep all items in retry queue order', () {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.recall,
+        items: _buildItems(count: 3),
+        title: 'Recall',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+
+      StudySessionState state = container.read(provider);
+      final RecallUnit first = state.currentUnit! as RecallUnit;
+      controller.submitRecallEvaluation(isRemembered: false);
+
+      state = container.read(provider);
+      final RecallUnit second = state.currentUnit! as RecallUnit;
+      controller.submitRecallEvaluation(isRemembered: false);
+
+      state = container.read(provider);
+      controller.submitRecallEvaluation(isRemembered: true);
+
+      state = container.read(provider);
+      final RecallUnit retryFirst = state.currentUnit! as RecallUnit;
+      expect(retryFirst.prompt, first.prompt);
+
+      controller.submitRecallEvaluation(isRemembered: true);
+      state = container.read(provider);
+      final RecallUnit retrySecond = state.currentUnit! as RecallUnit;
+      expect(retrySecond.prompt, second.prompt);
+
+      controller.submitRecallEvaluation(isRemembered: true);
+      state = container.read(provider);
+      expect(state.isCompleted, isTrue);
+    });
+
+    test('round 2 not yet is re-queued for next retry cycle', () {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.recall,
+        items: _buildItems(count: 2),
+        title: 'Recall',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+
+      StudySessionState state = container.read(provider);
+      final RecallUnit firstUnit = state.currentUnit! as RecallUnit;
+      controller.submitRecallEvaluation(isRemembered: false);
+
+      controller.submitRecallEvaluation(isRemembered: true);
+      state = container.read(provider);
+      expect((state.currentUnit! as RecallUnit).prompt, firstUnit.prompt);
+      expect(state.currentIndex, 2);
+
+      controller.submitRecallEvaluation(isRemembered: false);
+      state = container.read(provider);
+      expect((state.currentUnit! as RecallUnit).prompt, firstUnit.prompt);
+      expect(state.currentIndex, 3);
+      expect(state.isCompleted, isFalse);
+
+      controller.submitRecallEvaluation(isRemembered: true);
+      state = container.read(provider);
+      expect(state.isCompleted, isTrue);
+    });
+
+    test(
+      'delayed start snapshot keeps all queued not yet units before first cycle completes',
+      () async {
+        final List<FlashcardItem> items = _buildItems(count: 3);
+        final _DelayedStartStudySessionRepository repository =
+            _DelayedStartStudySessionRepository(
+              response: _buildRecallStartResponse(items: items),
+            );
+        final ProviderContainer container = ProviderContainer(
+          overrides: [
+            studySessionRepositoryProvider.overrideWithValue(repository),
+          ],
+        );
+        addTearDown(container.dispose);
+        final StudySessionArgs args = StudySessionArgs(
+          deckId: 42,
+          mode: StudyMode.recall,
+          items: items,
+          title: 'Recall',
+        );
+        final provider = studySessionControllerProvider(args);
+        final StudySessionController controller = container.read(
+          provider.notifier,
+        );
+
+        StudySessionState state = container.read(provider);
+        final RecallUnit firstUnit = state.currentUnit! as RecallUnit;
+        controller.submitRecallEvaluation(isRemembered: false);
+
+        state = container.read(provider);
+        final RecallUnit secondUnit = state.currentUnit! as RecallUnit;
+        controller.submitRecallEvaluation(isRemembered: false);
+        expect(secondUnit.prompt, isNot(firstUnit.prompt));
+
+        await Future<void>.delayed(
+          const Duration(
+            milliseconds:
+                _DelayedStartStudySessionRepository.startSessionDelayMs + 120,
+          ),
+        );
+
+        state = container.read(provider);
+        expect(state.currentIndex, 2);
+        expect(state.totalCount, 3);
+        expect(state.isCompleted, isFalse);
+
+        controller.submitRecallEvaluation(isRemembered: true);
+        state = container.read(provider);
+        final RecallUnit retryFirst = state.currentUnit! as RecallUnit;
+        expect(retryFirst.prompt, firstUnit.prompt);
+        expect(state.currentIndex, 3);
+        expect(state.totalCount, 5);
+
+        controller.submitRecallEvaluation(isRemembered: true);
+        state = container.read(provider);
+        final RecallUnit retrySecond = state.currentUnit! as RecallUnit;
+        expect(retrySecond.prompt, secondUnit.prompt);
+      },
+    );
+  });
 }
 
 List<FlashcardItem> _buildItems({required int count}) {
@@ -280,4 +487,89 @@ List<FlashcardItem> _buildItems({required int count}) {
       ),
     );
   });
+}
+
+StudySessionResponseModel _buildRecallStartResponse({
+  required List<FlashcardItem> items,
+}) {
+  final DateTime startedAt = DateTime.utc(2026, 1, 1);
+  final List<StudyReviewItemModel> reviewItems = items
+      .asMap()
+      .entries
+      .map((entry) {
+        final FlashcardItem item = entry.value;
+        return StudyReviewItemModel(
+          sessionItemId: item.id,
+          flashcardId: item.id,
+          itemOrder: entry.key,
+          frontText: item.frontText,
+          backText: item.backText,
+        );
+      })
+      .toList(growable: false);
+  return StudySessionResponseModel(
+    sessionId: 99,
+    deckId: 1,
+    mode: StudyMode.recall,
+    status: 'active',
+    currentIndex: 0,
+    totalUnits: reviewItems.length,
+    correctCount: 0,
+    wrongCount: 0,
+    completed: false,
+    startedAt: startedAt,
+    completedAt: null,
+    reviewItems: reviewItems,
+    leftTiles: const <StudyMatchTileModel>[],
+    rightTiles: const <StudyMatchTileModel>[],
+    lastAttemptResult: null,
+    completedModeCount: 0,
+    requiredModeCount: StudyConstants.requiredStudyModeCount,
+    sessionCompleted: false,
+  );
+}
+
+class _DelayedStartStudySessionRepository implements StudySessionRepository {
+  _DelayedStartStudySessionRepository({required this.response});
+
+  static const int startSessionDelayMs = 350;
+  final StudySessionResponseModel response;
+
+  @override
+  Future<StudySessionResponseModel> completeSession({
+    required int sessionId,
+  }) async {
+    return response;
+  }
+
+  @override
+  Future<StudySessionResponseModel> getSession({required int sessionId}) async {
+    return response;
+  }
+
+  @override
+  Future<StudySessionResponseModel> restartMode({
+    required int sessionId,
+  }) async {
+    return response;
+  }
+
+  @override
+  Future<StudySessionResponseModel> startSession({
+    required int deckId,
+    required StudySessionStartRequest request,
+  }) async {
+    await Future<void>.delayed(
+      const Duration(milliseconds: startSessionDelayMs),
+    );
+    return response;
+  }
+
+  @override
+  Future<StudySessionResponseModel> submitEvent({
+    required int sessionId,
+    required StudySessionEventRequest request,
+  }) async {
+    return response;
+  }
 }

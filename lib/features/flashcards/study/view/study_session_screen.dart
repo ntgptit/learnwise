@@ -423,14 +423,13 @@ class _StudyUnitBody extends ConsumerWidget {
     }
     if (currentUnit is RecallUnit) {
       return RecallStudyModeView(
+        key: ValueKey<int>(state.currentIndex),
         unit: currentUnit,
         onMissedPressed: () {
-          controller.submitAnswer(const RecallStudyAnswer(isRemembered: false));
-          controller.next();
+          controller.submitRecallEvaluation(isRemembered: false);
         },
         onRememberedPressed: () {
-          controller.submitAnswer(const RecallStudyAnswer(isRemembered: true));
-          controller.next();
+          controller.submitRecallEvaluation(isRemembered: true);
         },
         l10n: l10n,
       );

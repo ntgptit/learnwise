@@ -38,6 +38,8 @@ class StudyConstants {
   static const int audioPlayingIndicatorDurationMs = 1400;
   static const int localGuessFeedbackDurationMs = 800;
   static const int localMatchFeedbackDurationMs = 800;
+  static const int recallRevealCountdownSeconds = 30;
+  static const int secondDurationInMs = 1000;
   static const int matchFeedbackUnlockFallbackMs = 120;
   static const int matchFeedbackUnlockSkewMs = 24;
   static const String matchBoardUnitId = 'match_board';

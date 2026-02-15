@@ -287,6 +287,8 @@ class FlashcardStudySessionTokens {
   static const double recallAnswerOpacity = AppOpacities.muted55;
   static const double recallButtonHeight = AppSizes.size52;
   static const double recallButtonWidthFactor = 0.68;
+  static const double recallActionButtonsWidthFactor = 0.84;
+  static const double recallActionButtonsGap = AppSizes.spacingSm;
   static const double recallButtonBottomGap = AppSizes.spacingXs;
 }
 

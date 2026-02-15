@@ -229,6 +229,8 @@ class StudySessionController extends _$StudySessionController {
   Set<int> _submittedAnswerIndexes = <int>{};
   int _localCorrectCount = StudyConstants.defaultIndex;
   int _localWrongCount = StudyConstants.defaultIndex;
+  bool _hasLocalRecallProgress = false;
+  List<RecallUnit> _recallWaitingUnits = <RecallUnit>[];
   Set<String> _guessSuccessOptionIds = <String>{};
   Set<String> _guessErrorOptionIds = <String>{};
   bool _isGuessInteractionLocked = false;
@@ -275,6 +277,75 @@ class StudySessionController extends _$StudySessionController {
       correctOptionId: currentUnit.correctOptionId,
       isCorrect: isCorrect,
     );
+  }
+
+  void submitRecallEvaluation({required bool isRemembered}) {
+    if (state.mode != StudyMode.recall) {
+      return;
+    }
+    final StudyUnit? currentUnit = state.currentUnit;
+    if (currentUnit is! RecallUnit) {
+      return;
+    }
+    if (state.isCompleted) {
+      return;
+    }
+    _hasLocalRecallProgress = true;
+    submitAnswer(RecallStudyAnswer(isRemembered: isRemembered));
+    if (!isRemembered) {
+      _enqueueRecallUnitForRetry(currentUnit);
+    }
+    _advanceRecallFlow();
+  }
+
+  void _enqueueRecallUnitForRetry(RecallUnit unit) {
+    final List<RecallUnit> nextWaitingUnits = List<RecallUnit>.from(
+      _recallWaitingUnits,
+    )..add(unit);
+    _recallWaitingUnits = List<RecallUnit>.unmodifiable(nextWaitingUnits);
+  }
+
+  void _appendRecallWaitingUnitsToLinearUnits() {
+    if (_recallWaitingUnits.isEmpty) {
+      return;
+    }
+    final List<StudyUnit> nextUnits = List<StudyUnit>.from(_linearUnits)
+      ..addAll(_recallWaitingUnits);
+    _linearUnits = List<StudyUnit>.unmodifiable(nextUnits);
+    _recallWaitingUnits = const <RecallUnit>[];
+  }
+
+  void _advanceRecallFlow() {
+    final int currentTotalCount = _linearUnits.length;
+    if (currentTotalCount <= StudyConstants.defaultIndex) {
+      _isLinearCompleted = true;
+      _clearAudioPlayingIndicator();
+      _syncLocalLinearState();
+      return;
+    }
+    final int nextIndex = state.currentIndex + 1;
+    if (nextIndex >= currentTotalCount) {
+      if (_recallWaitingUnits.isEmpty) {
+        _isLinearCompleted = true;
+        _clearAudioPlayingIndicator();
+        _syncLocalLinearState();
+        unawaited(completeCurrentMode());
+        return;
+      }
+      _appendRecallWaitingUnitsToLinearUnits();
+    }
+    final int nextTotalCount = _linearUnits.length;
+    if (nextIndex >= nextTotalCount) {
+      _isLinearCompleted = true;
+      _clearAudioPlayingIndicator();
+      _syncLocalLinearState();
+      unawaited(completeCurrentMode());
+      return;
+    }
+    _isFrontVisible = true;
+    _isLinearCompleted = false;
+    _clearAudioPlayingIndicator();
+    _moveLinearLocallyTo(nextIndex);
   }
 
   void _startLocalGuessFeedback({
@@ -440,7 +511,7 @@ class StudySessionController extends _$StudySessionController {
   }
 
   void _moveLinearLocallyTo(int targetIndex) {
-    final int totalCount = state.totalCount;
+    final int totalCount = _linearUnits.length;
     if (totalCount <= StudyConstants.defaultIndex) {
       _syncLocalLinearState();
       return;
@@ -943,9 +1014,25 @@ class StudySessionController extends _$StudySessionController {
       _syncLocalLinearState();
       return;
     }
+    if (_shouldSkipRecallSnapshotSync(snapshot)) {
+      return;
+    }
     _syncMatchFeedbackRelease(snapshot);
     _syncMatchModeCompletion(snapshot);
     state = _mapResponseToState(snapshot);
+  }
+
+  bool _shouldSkipRecallSnapshotSync(StudySessionResponseModel snapshot) {
+    if (snapshot.mode != StudyMode.recall) {
+      return false;
+    }
+    if (!_hasLocalRecallProgress) {
+      return false;
+    }
+    if (snapshot.completed) {
+      return false;
+    }
+    return true;
   }
 
   void _syncMatchFeedbackRelease(StudySessionResponseModel snapshot) {
@@ -1054,7 +1141,7 @@ class StudySessionController extends _$StudySessionController {
     if (!_isLinearMode(state.mode)) {
       return;
     }
-    final int totalCount = state.totalCount;
+    final int totalCount = _linearUnits.length;
     if (totalCount <= StudyConstants.defaultIndex) {
       state = state.copyWith(
         clearCurrentUnit: true,
@@ -1720,6 +1807,8 @@ class StudySessionController extends _$StudySessionController {
     _submittedAnswerIndexes = <int>{};
     _localCorrectCount = StudyConstants.defaultIndex;
     _localWrongCount = StudyConstants.defaultIndex;
+    _hasLocalRecallProgress = false;
+    _recallWaitingUnits = <RecallUnit>[];
   }
 }
 

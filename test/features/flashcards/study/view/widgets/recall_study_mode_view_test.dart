@@ -6,7 +6,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 void main() {
   group('RecallStudyModeView', () {
-    testWidgets('renders fixed three-zone layout without scroll widgets', (
+    testWidgets('starts hidden answer state with show countdown button', (
       tester,
     ) async {
       int missedCount = 0;
@@ -27,15 +27,17 @@ void main() {
       expect(find.byType(SingleChildScrollView), findsNothing);
       expect(find.byType(FilledButton), findsOneWidget);
       expect(find.byType(OutlinedButton), findsNothing);
-      expect(find.byType(Center), findsWidgets);
       expect(find.text('Front text'), findsOneWidget);
-      expect(find.text('Back text'), findsOneWidget);
+      expect(find.text('Back text'), findsNothing);
+      expect(find.textContaining('(30s)'), findsOneWidget);
       expect(missedCount, 0);
       expect(rememberedCount, 0);
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('tap calls remembered callback only', (tester) async {
+    testWidgets('tap show reveals answer and renders recall actions', (
+      tester,
+    ) async {
       int missedCount = 0;
       int rememberedCount = 0;
       await tester.pumpWidget(
@@ -50,6 +52,36 @@ void main() {
         ),
       );
 
+      await tester.tap(find.textContaining('(30s)'));
+      await tester.pump();
+
+      expect(find.text('Back text'), findsOneWidget);
+      expect(find.byType(OutlinedButton), findsOneWidget);
+      expect(find.text('Remembered'), findsOneWidget);
+      expect(find.textContaining('(30s)'), findsNothing);
+      expect(rememberedCount, 0);
+      expect(missedCount, 0);
+    });
+
+    testWidgets('tap remembered calls remembered callback only', (
+      tester,
+    ) async {
+      int missedCount = 0;
+      int rememberedCount = 0;
+      await tester.pumpWidget(
+        _buildSubject(
+          unit: _buildUnit(),
+          onMissedPressed: () {
+            missedCount++;
+          },
+          onRememberedPressed: () {
+            rememberedCount++;
+          },
+        ),
+      );
+
+      await tester.tap(find.textContaining('(30s)'));
+      await tester.pump();
       await tester.tap(find.byType(FilledButton));
       await tester.pump();
 
@@ -57,7 +89,7 @@ void main() {
       expect(missedCount, 0);
     });
 
-    testWidgets('long press calls missed callback only', (tester) async {
+    testWidgets('tap missed calls missed callback only', (tester) async {
       int missedCount = 0;
       int rememberedCount = 0;
       await tester.pumpWidget(
@@ -72,11 +104,32 @@ void main() {
         ),
       );
 
-      await tester.longPress(find.byType(FilledButton));
+      await tester.tap(find.textContaining('(30s)'));
+      await tester.pump();
+      await tester.tap(find.byType(OutlinedButton));
       await tester.pump();
 
       expect(missedCount, 1);
       expect(rememberedCount, 0);
+    });
+
+    testWidgets('auto reveals answer when countdown reaches zero', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildSubject(
+          unit: _buildUnit(),
+          onMissedPressed: () {},
+          onRememberedPressed: () {},
+        ),
+      );
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+
+      expect(find.text('Back text'), findsOneWidget);
+      expect(find.byType(OutlinedButton), findsOneWidget);
+      expect(find.textContaining('(30s)'), findsNothing);
     });
 
     testWidgets('does not overflow on compact viewport', (tester) async {
@@ -107,6 +160,7 @@ Widget _buildSubject({
   double height = 640,
 }) {
   return MaterialApp(
+    locale: const Locale('en'),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(

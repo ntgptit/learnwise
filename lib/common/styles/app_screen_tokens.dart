@@ -246,6 +246,8 @@ class FlashcardStudySessionTokens {
   static const double cardElevation = AppSizes.size1;
   static const double cardPadding = AppSizes.spacingLg;
   static const double answerSpacing = AppSizes.spacingSm;
+  static const double fillProgressToModeGap = AppSizes.size6;
+  static const double fillHeaderToContentGap = AppSizes.size22;
   static const double completedActionButtonWidth = AppSizes.size240;
   static const double progressHeight = AppSizes.size2;
   static const double progressRadius = AppSizes.radiusPill;
@@ -290,6 +292,28 @@ class FlashcardStudySessionTokens {
   static const double recallActionButtonsWidthFactor = 0.84;
   static const double recallActionButtonsGap = AppSizes.spacingSm;
   static const double recallButtonBottomGap = AppSizes.spacingXs;
+  static const int fillPromptFlex = 54;
+  static const int fillAnswerFlex = 42;
+  static const int fillPromptFlexWhenKeyboardVisible = 56;
+  static const int fillAnswerFlexWhenKeyboardVisible = 40;
+  static const int fillPromptMaxLines = 6;
+  static const int fillInputMaxLines = 1;
+  static const double fillCardGap = AppSizes.spacingMd;
+  static const double fillCardGapWhenKeyboardVisible = AppSizes.spacingSm;
+  static const double fillPromptIconSize = AppSizes.size20;
+  static const double fillPromptCardDefaultOpacity = 0.95;
+  static const double fillPromptCardFocusedOpacity = 0.92;
+  static const int fillPromptOpacityAnimationMs = 180;
+  static const double fillPromptIconOpacity = 0.68;
+  static const double fillInputHintOpacity = 0.7;
+  static const double fillInputWidthFactor = 0.92;
+  static const double fillInputMinHeight = AppSizes.size56;
+  static const double fillActionButtonHeight = AppSizes.size56;
+  static const double fillActionButtonRadius = AppSizes.radiusPill;
+  static const double fillActionTopGap = AppSizes.size22;
+  static const double fillActionBottomPadding = AppSizes.spacingXs;
+  static const double fillCheckDisabledContentOpacity = 0.38;
+  static const double fillCheckDisabledContainerOpacity = 0.12;
 }
 
 class TtsScreenTokens {

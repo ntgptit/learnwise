@@ -1002,6 +1002,14 @@
   "@flashcardsStudyFillInputHint": {
     "description": "Input hint in fill mode."
   },
+  "flashcardsStudyFillHelpLabel": "Trợ giúp",
+  "@flashcardsStudyFillHelpLabel": {
+    "description": "Help button label in fill mode."
+  },
+  "flashcardsStudyFillCheckLabel": "Kiểm tra",
+  "@flashcardsStudyFillCheckLabel": {
+    "description": "Check button label in fill mode."
+  },
   "flashcardsStudySubmitLabel": "Trả lời",
   "@flashcardsStudySubmitLabel": {
     "description": "Submit button label in study modes."

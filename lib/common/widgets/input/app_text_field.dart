@@ -44,6 +44,8 @@ class AppTextField extends StatelessWidget {
     this.fillColor,
     this.enabled = true,
     this.obscureText = false,
+    this.textAlign = TextAlign.start,
+    this.hintStyle,
   });
 
   /// Controller for managing the text field's content.
@@ -98,6 +100,12 @@ class AppTextField extends StatelessWidget {
   /// Whether to obscure the text (e.g., for passwords). Defaults to false.
   final bool obscureText;
 
+  /// Horizontal alignment of the editable text.
+  final TextAlign textAlign;
+
+  /// Optional style for hint text.
+  final TextStyle? hintStyle;
+
   @override
   Widget build(BuildContext context) {
     final InputDecoration decoration = _buildDecoration(context);
@@ -119,6 +127,7 @@ class AppTextField extends StatelessWidget {
         textInputAction: textInputAction,
         enabled: enabled,
         obscureText: obscureText,
+        textAlign: textAlign,
         decoration: decoration,
       ),
     );
@@ -137,6 +146,7 @@ class AppTextField extends StatelessWidget {
     return InputDecoration(
       labelText: label,
       hintText: hint,
+      hintStyle: hintStyle,
       prefixIcon: prefixIcon,
       suffixIcon: suffixIcon,
     );

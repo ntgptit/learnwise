@@ -290,6 +290,8 @@ class _StudySessionBody extends ConsumerWidget {
     final bool isEmpty = ref.watch(
       provider.select((value) => value.totalCount <= 0),
     );
+    final StudyMode mode = ref.watch(provider.select((value) => value.mode));
+    final double headerToContentGap = _resolveHeaderToContentGap(mode);
 
     if (isEmpty) {
       return EmptyState(
@@ -307,7 +309,7 @@ class _StudySessionBody extends ConsumerWidget {
           studyArgs: studyArgs,
           l10n: l10n,
         ),
-        const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
+        SizedBox(height: headerToContentGap),
         Expanded(
           child: _StudyUnitBody(
             provider: provider,
@@ -320,6 +322,13 @@ class _StudySessionBody extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  double _resolveHeaderToContentGap(StudyMode mode) {
+    if (mode == StudyMode.fill) {
+      return FlashcardStudySessionTokens.fillHeaderToContentGap;
+    }
+    return FlashcardStudySessionTokens.sectionSpacing;
   }
 }
 
@@ -470,6 +479,7 @@ class _StudyUnitBody extends ConsumerWidget {
           StudyMode.match: _buildDirectContentLayout,
           StudyMode.guess: _buildDirectContentLayout,
           StudyMode.recall: _buildDirectContentLayout,
+          StudyMode.fill: _buildDirectContentLayout,
         };
     final _UnitContentLayoutBuilder? builder = registry[mode];
     if (builder == null) {
@@ -549,12 +559,13 @@ class _StudyProgressHeader extends ConsumerWidget {
       mode: mode,
       progressPercent: progressPercent,
     );
+    final double progressToModeGap = _resolveProgressToModeGap(mode);
     final List<StudyMode> cycleModes = resolveStudyCycleModes(args: studyArgs);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         builder(context),
-        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
+        SizedBox(height: progressToModeGap),
         _StudyCycleModeProgress(
           cycleModes: cycleModes,
           completedModeCount: displayedCompletedModeCount,
@@ -562,6 +573,13 @@ class _StudyProgressHeader extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  double _resolveProgressToModeGap(StudyMode mode) {
+    if (mode == StudyMode.fill) {
+      return FlashcardStudySessionTokens.fillProgressToModeGap;
+    }
+    return FlashcardStudySessionTokens.answerSpacing;
   }
 
   Widget Function(BuildContext context) _resolveBuilder({

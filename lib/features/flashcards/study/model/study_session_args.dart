@@ -4,6 +4,7 @@ import 'study_mode.dart';
 
 class StudySessionArgs {
   const StudySessionArgs({
+    required this.deckId,
     required this.mode,
     required this.items,
     required this.title,
@@ -12,12 +13,14 @@ class StudySessionArgs {
   });
 
   const StudySessionArgs.fallback()
-    : mode = StudyMode.review,
+    : deckId = 0,
+      mode = StudyMode.review,
       items = const <FlashcardItem>[],
       title = '',
       initialIndex = StudyConstants.defaultIndex,
       seed = StudyConstants.defaultSeed;
 
+  final int deckId;
   final StudyMode mode;
   final List<FlashcardItem> items;
   final String title;

@@ -25,6 +25,7 @@ public final class FolderConst {
     public static final String SORT_BY_CREATED_AT = "createdAt";
     public static final String SORT_BY_NAME = "name";
     public static final String SORT_BY_FLASHCARD_COUNT = "flashcardCount";
+    public static final String SORT_BY_TIE_BREAKER = "id";
     public static final String SORT_DIRECTION_ASC = "asc";
     public static final String SORT_DIRECTION_DESC = "desc";
     public static final int DEFAULT_DIRECT_FLASHCARD_COUNT = 0;

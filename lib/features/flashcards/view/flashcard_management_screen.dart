@@ -425,10 +425,7 @@ class _FlashcardManagementScreenState
       FlashcardStudyAction(
         label: l10n.flashcardsActionLearn,
         icon: Icons.school_outlined,
-        onPressed: () => _onStudyModePressed(
-          l10n: l10n,
-          listing: listing,
-        ),
+        onPressed: () => _onStudyModePressed(l10n: l10n, listing: listing),
       ),
     ];
   }
@@ -475,7 +472,9 @@ class _FlashcardManagementScreenState
         builder: (sheetContext) {
           return SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(FlashcardScreenTokens.screenPadding),
+              padding: const EdgeInsets.all(
+                FlashcardScreenTokens.screenPadding,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -519,6 +518,7 @@ class _FlashcardManagementScreenState
       context.push(
         RouteNames.flashcardStudySession,
         extra: StudySessionArgs(
+          deckId: widget.args.deckId,
           mode: mode,
           items: listing.items,
           title: _resolveTitle(l10n),

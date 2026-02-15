@@ -14,6 +14,15 @@ public final class ApiConst {
     public static final String DECK_FLASHCARDS_PATH = API_BASE_PATH + "/decks/{deckId}/flashcards";
     public static final String DECK_FLASHCARDS_WILDCARD_PATH = API_BASE_PATH + "/decks/*/flashcards/**";
     public static final String DECK_FLASHCARDS_ROOT_WILDCARD_PATH = API_BASE_PATH + "/decks/*/flashcards";
+    public static final String STUDY_SESSIONS_PATH = API_BASE_PATH + "/decks/{deckId}/study-sessions";
+    public static final String STUDY_SESSIONS_WILDCARD_PATH = API_BASE_PATH + "/decks/*/study-sessions/**";
+    public static final String STUDY_SESSIONS_ROOT_WILDCARD_PATH = API_BASE_PATH + "/decks/*/study-sessions";
+    public static final String STUDY_SESSION_PATH = API_BASE_PATH + "/study-sessions";
+    public static final String STUDY_SESSION_BY_ID_PATH = STUDY_SESSION_PATH + "/{sessionId}";
+    public static final String STUDY_SESSION_EVENTS_PATH = STUDY_SESSION_BY_ID_PATH + "/events";
+    public static final String STUDY_SESSION_COMPLETE_PATH = STUDY_SESSION_BY_ID_PATH + "/complete";
+    public static final String STUDY_SESSION_WILDCARD_PATH = STUDY_SESSION_PATH + "/**";
+    public static final String STUDY_SESSION_ROOT_WILDCARD_PATH = STUDY_SESSION_PATH;
     public static final String OPEN_API_TITLE = "Learn Wire API";
     public static final String OPEN_API_VERSION = "v1";
     public static final String OPEN_API_DESCRIPTION = "REST API for Learn Wire backend services.";

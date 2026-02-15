@@ -115,25 +115,10 @@ class _FlashcardStudySessionScreenState
             provider: provider,
             l10n: l10n,
             fillController: _fillController,
-            reviewUnits: _buildReviewUnits(),
           ),
         ),
       ),
     );
-  }
-
-  List<ReviewUnit> _buildReviewUnits() {
-    return widget.args.items
-        .map((item) {
-          return ReviewUnit(
-            unitId: item.id.toString(),
-            flashcardId: item.id,
-            frontText: item.frontText,
-            backText: item.backText,
-            note: item.note,
-          );
-        })
-        .toList(growable: false);
   }
 
   List<Widget> _buildAppBarActions({
@@ -237,13 +222,11 @@ class _StudySessionBody extends ConsumerWidget {
     required this.provider,
     required this.l10n,
     required this.fillController,
-    required this.reviewUnits,
   });
 
   final StudySessionControllerProvider provider;
   final AppLocalizations l10n;
   final TextEditingController fillController;
-  final List<ReviewUnit> reviewUnits;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -269,7 +252,6 @@ class _StudySessionBody extends ConsumerWidget {
             provider: provider,
             l10n: l10n,
             fillController: fillController,
-            reviewUnits: reviewUnits,
           ),
         ),
       ],
@@ -282,13 +264,11 @@ class _StudyUnitBody extends ConsumerWidget {
     required this.provider,
     required this.l10n,
     required this.fillController,
-    required this.reviewUnits,
   });
 
   final StudySessionControllerProvider provider;
   final AppLocalizations l10n;
   final TextEditingController fillController;
-  final List<ReviewUnit> reviewUnits;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -323,7 +303,7 @@ class _StudyUnitBody extends ConsumerWidget {
   }) {
     if (currentUnit is ReviewUnit) {
       return ReviewStudyModeView(
-        units: reviewUnits,
+        units: state.reviewUnits,
         currentIndex: state.currentIndex,
         playingFlashcardId: state.playingFlashcardId,
         onPageChanged: controller.goTo,
@@ -346,15 +326,11 @@ class _StudyUnitBody extends ConsumerWidget {
       return RecallStudyModeView(
         unit: currentUnit,
         onMissedPressed: () {
-          controller.submitAnswer(
-            const RecallStudyAnswer(isRemembered: false),
-          );
+          controller.submitAnswer(const RecallStudyAnswer(isRemembered: false));
           controller.next();
         },
         onRememberedPressed: () {
-          controller.submitAnswer(
-            const RecallStudyAnswer(isRemembered: true),
-          );
+          controller.submitAnswer(const RecallStudyAnswer(isRemembered: true));
           controller.next();
         },
         l10n: l10n,
@@ -411,7 +387,9 @@ class _StudyUnitBody extends ConsumerWidget {
       variant: AppCardVariant.elevated,
       elevation: FlashcardStudySessionTokens.cardElevation,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(FlashcardStudySessionTokens.cardRadius),
+      borderRadius: BorderRadius.circular(
+        FlashcardStudySessionTokens.cardRadius,
+      ),
       padding: const EdgeInsets.all(FlashcardStudySessionTokens.cardPadding),
       child: unitContent,
     );
@@ -430,8 +408,12 @@ class _StudyProgressHeader extends ConsumerWidget {
     final double progressPercent = ref.watch(
       provider.select((value) => value.progressPercent),
     );
-    final int currentStep = ref.watch(provider.select((value) => value.currentStep));
-    final int totalCount = ref.watch(provider.select((value) => value.totalCount));
+    final int currentStep = ref.watch(
+      provider.select((value) => value.currentStep),
+    );
+    final int totalCount = ref.watch(
+      provider.select((value) => value.totalCount),
+    );
     final Widget Function(BuildContext context) builder = _resolveBuilder(
       mode: mode,
       progressPercent: progressPercent,

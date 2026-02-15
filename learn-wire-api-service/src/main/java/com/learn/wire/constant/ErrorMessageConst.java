@@ -17,6 +17,14 @@ public final class ErrorMessageConst {
     public static final String DECK_ERROR_FOLDER_HAS_SUBFOLDERS = "deck.error.folderHasSubfolders";
     public static final String FLASHCARD_ERROR_NOT_FOUND = "flashcard.error.notFound";
     public static final String FLASHCARD_ERROR_DECK_NOT_FOUND = "flashcard.error.deckNotFound";
+    public static final String STUDY_ERROR_SESSION_NOT_FOUND = "study.error.sessionNotFound";
+    public static final String STUDY_ERROR_SESSION_NOT_ACTIVE = "study.error.sessionNotActive";
+    public static final String STUDY_ERROR_MATCH_STATE_NOT_FOUND = "study.error.matchStateNotFound";
+    public static final String STUDY_ERROR_MATCH_TILE_NOT_FOUND = "study.error.matchTileNotFound";
+    public static final String STUDY_ERROR_MATCH_TILE_SIDE_INVALID = "study.error.matchTileSideInvalid";
+    public static final String STUDY_ERROR_DECK_HAS_NO_FLASHCARDS = "study.error.deckHasNoFlashcards";
+    public static final String STUDY_ERROR_MATCH_REQUIRES_MORE_FLASHCARDS = "study.error.matchRequiresMoreFlashcards";
+    public static final String STUDY_ERROR_EVENT_NOT_SUPPORTED = "study.error.eventNotSupported";
 
     public static final String FOLDER_VALIDATION_NAME_REQUIRED = "folder.validation.name.required";
     public static final String FOLDER_VALIDATION_NAME_TOO_LONG = "folder.validation.name.tooLong";
@@ -44,4 +52,11 @@ public final class ErrorMessageConst {
     public static final String DECK_VALIDATION_SIZE_INVALID = "deck.validation.size.invalid";
     public static final String DECK_VALIDATION_SORT_BY_INVALID = "deck.validation.sortBy.invalid";
     public static final String DECK_VALIDATION_SORT_DIRECTION_INVALID = "deck.validation.sortDirection.invalid";
+    public static final String STUDY_VALIDATION_MODE_INVALID = "study.validation.mode.invalid";
+    public static final String STUDY_VALIDATION_SEED_INVALID = "study.validation.seed.invalid";
+    public static final String STUDY_VALIDATION_EVENT_TYPE_INVALID = "study.validation.eventType.invalid";
+    public static final String STUDY_VALIDATION_EVENT_CLIENT_EVENT_ID_REQUIRED = "study.validation.event.clientEventId.required";
+    public static final String STUDY_VALIDATION_EVENT_CLIENT_SEQUENCE_INVALID = "study.validation.event.clientSequence.invalid";
+    public static final String STUDY_VALIDATION_EVENT_TARGET_TILE_REQUIRED = "study.validation.event.targetTileId.required";
+    public static final String STUDY_VALIDATION_EVENT_TARGET_INDEX_INVALID = "study.validation.event.targetIndex.invalid";
 }

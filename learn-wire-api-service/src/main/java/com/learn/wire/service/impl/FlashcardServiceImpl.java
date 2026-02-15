@@ -18,6 +18,7 @@ import com.learn.wire.constant.FlashcardConst;
 import com.learn.wire.constant.FolderConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.flashcard.query.FlashcardListQuery;
+import com.learn.wire.dto.flashcard.query.FlashcardSortField;
 import com.learn.wire.dto.flashcard.request.FlashcardCreateRequest;
 import com.learn.wire.dto.flashcard.request.FlashcardUpdateRequest;
 import com.learn.wire.dto.flashcard.response.FlashcardResponse;
@@ -81,6 +82,10 @@ public class FlashcardServiceImpl implements FlashcardService {
 
     private Sort buildSort(FlashcardListQuery query) {
         final Sort primarySort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
+        if (query.sortField() == FlashcardSortField.UPDATED_AT && query.sortDirection().isDescending()) {
+            final Sort tieBreakerSort = Sort.by(Sort.Direction.ASC, FlashcardConst.SORT_BY_TIE_BREAKER);
+            return primarySort.and(tieBreakerSort);
+        }
         final Sort tieBreakerSort = Sort.by(query.sortDirection().toSpringDirection(), FlashcardConst.SORT_BY_TIE_BREAKER);
         return primarySort.and(tieBreakerSort);
     }

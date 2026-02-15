@@ -170,7 +170,9 @@ public class FolderServiceImpl implements FolderService {
     }
 
     private Page<FolderEntity> findPageSortedByDatabase(FolderListQuery query) {
-        final Sort sort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
+        final Sort sort = Sort
+                .by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty())
+                .and(Sort.by(query.sortDirection().toSpringDirection(), FolderConst.SORT_BY_TIE_BREAKER));
         final Pageable pageable = PageRequest.of(query.page(), query.size(), sort);
         return this.repository.findPageByParentAndSearch(query.parentFolderId(), query.search(), pageable);
     }

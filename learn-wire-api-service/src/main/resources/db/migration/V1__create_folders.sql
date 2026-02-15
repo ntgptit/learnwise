@@ -3,6 +3,9 @@ CREATE TABLE folders (
     name VARCHAR(120) NOT NULL,
     description VARCHAR(400) NOT NULL DEFAULT '',
     color_hex VARCHAR(16) NOT NULL,
+    parent_folder_id BIGINT,
+    direct_flashcard_count INT NOT NULL DEFAULT 0,
+    aggregate_flashcard_count INT NOT NULL DEFAULT 0,
     created_by VARCHAR(120) NOT NULL DEFAULT 'system',
     updated_by VARCHAR(120) NOT NULL DEFAULT 'system',
     deleted_by VARCHAR(120),
@@ -11,6 +14,24 @@ CREATE TABLE folders (
     deleted_at TIMESTAMP
 );
 
-CREATE INDEX idx_folders_updated_at ON folders (updated_at DESC);
+ALTER TABLE folders
+ADD CONSTRAINT fk_folders_parent_folder
+FOREIGN KEY (parent_folder_id) REFERENCES folders (id);
+
+ALTER TABLE folders
+ADD CONSTRAINT chk_folders_name_not_blank
+CHECK (TRIM(name) <> '');
+
+ALTER TABLE folders
+ADD CONSTRAINT chk_folders_direct_flashcard_count_non_negative
+CHECK (direct_flashcard_count >= 0);
+
+ALTER TABLE folders
+ADD CONSTRAINT chk_folders_aggregate_flashcard_count_non_negative
+CHECK (aggregate_flashcard_count >= 0);
+
 CREATE INDEX idx_folders_deleted_at ON folders (deleted_at);
+CREATE INDEX idx_folders_parent_folder_id ON folders (parent_folder_id);
+CREATE INDEX idx_folders_parent_deleted_at ON folders (parent_folder_id, deleted_at);
 CREATE INDEX idx_folders_name ON folders (name);
+CREATE INDEX idx_folders_updated_at ON folders (updated_at);

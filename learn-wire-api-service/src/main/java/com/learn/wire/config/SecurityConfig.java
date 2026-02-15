@@ -50,7 +50,11 @@ public class SecurityConfig {
                         ApiConst.DECKS_ROOT_WILDCARD_PATH,
                         ApiConst.DECKS_WILDCARD_PATH,
                         ApiConst.DECK_FLASHCARDS_ROOT_WILDCARD_PATH,
-                        ApiConst.DECK_FLASHCARDS_WILDCARD_PATH)
+                        ApiConst.DECK_FLASHCARDS_WILDCARD_PATH,
+                        ApiConst.STUDY_SESSIONS_ROOT_WILDCARD_PATH,
+                        ApiConst.STUDY_SESSIONS_WILDCARD_PATH,
+                        ApiConst.STUDY_SESSION_ROOT_WILDCARD_PATH,
+                        ApiConst.STUDY_SESSION_WILDCARD_PATH)
                 .permitAll()
                 .anyRequest()
                 .authenticated());

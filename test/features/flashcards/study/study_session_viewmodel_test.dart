@@ -14,12 +14,15 @@ void main() {
       final ProviderContainer container = ProviderContainer();
       addTearDown(container.dispose);
       final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
         mode: StudyMode.review,
         items: _buildItems(count: 2),
         title: 'Review',
       );
       final provider = studySessionControllerProvider(args);
-      final StudySessionController controller = container.read(provider.notifier);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
 
       for (int index = 0; index < 100;) {
         controller.submitFlip();
@@ -35,12 +38,15 @@ void main() {
       final ProviderContainer container = ProviderContainer();
       addTearDown(container.dispose);
       final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
         mode: StudyMode.review,
         items: _buildItems(count: 1),
         title: 'Review',
       );
       final provider = studySessionControllerProvider(args);
-      final StudySessionController controller = container.read(provider.notifier);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
 
       controller.previous();
       StudySessionState state = container.read(provider);
@@ -61,12 +67,15 @@ void main() {
       final ProviderContainer container = ProviderContainer();
       addTearDown(container.dispose);
       const StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
         mode: StudyMode.review,
         items: <FlashcardItem>[],
         title: 'Review',
       );
       final provider = studySessionControllerProvider(args);
-      final StudySessionController controller = container.read(provider.notifier);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
 
       controller.next();
       controller.previous();
@@ -83,12 +92,15 @@ void main() {
       final ProviderContainer container = ProviderContainer();
       addTearDown(container.dispose);
       final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
         mode: StudyMode.review,
         items: _buildItems(count: 3),
         title: 'Review',
       );
       final provider = studySessionControllerProvider(args);
-      final StudySessionController controller = container.read(provider.notifier);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
 
       controller.next();
       final StudySessionState firstRead = container.read(provider);
@@ -100,46 +112,52 @@ void main() {
   });
 
   group('StudySessionController match mode', () {
-    test('wrong attempt flashes only attempted pair and locks interaction', () async {
-      final ProviderContainer container = ProviderContainer();
-      addTearDown(container.dispose);
-      final StudySessionArgs args = StudySessionArgs(
-        mode: StudyMode.match,
-        items: _buildItems(count: 3),
-        title: 'Match',
-      );
-      final provider = studySessionControllerProvider(args);
-      final StudySessionController controller = container.read(provider.notifier);
-      final MatchUnit initialUnit =
-          container.read(provider).currentUnit! as MatchUnit;
-      final int leftId = initialUnit.leftEntries.first.id;
-      final int wrongRightId = initialUnit.rightEntries
-          .firstWhere((entry) => entry.id != leftId)
-          .id;
+    test(
+      'wrong attempt flashes only attempted pair and locks interaction',
+      () async {
+        final ProviderContainer container = ProviderContainer();
+        addTearDown(container.dispose);
+        final StudySessionArgs args = StudySessionArgs(
+          deckId: 0,
+          mode: StudyMode.match,
+          items: _buildItems(count: 3),
+          title: 'Match',
+        );
+        final provider = studySessionControllerProvider(args);
+        final StudySessionController controller = container.read(
+          provider.notifier,
+        );
+        final MatchUnit initialUnit =
+            container.read(provider).currentUnit! as MatchUnit;
+        final int leftId = initialUnit.leftEntries.first.id;
+        final int wrongRightId = initialUnit.rightEntries
+            .firstWhere((entry) => entry.id != leftId)
+            .id;
 
-      controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
-      controller.submitAnswer(
-        MatchSelectRightStudyAnswer(rightId: wrongRightId),
-      );
+        controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+        controller.submitAnswer(
+          MatchSelectRightStudyAnswer(rightId: wrongRightId),
+        );
 
-      StudySessionState state = container.read(provider);
-      expect(state.wrongCount, 1);
-      expect(state.isMatchInteractionLocked, isTrue);
-      expect(
-        state.matchErrorFlashKeys,
-        <String>{'left:$leftId', 'right:$wrongRightId'},
-      );
+        StudySessionState state = container.read(provider);
+        expect(state.wrongCount, 1);
+        expect(state.isMatchInteractionLocked, isTrue);
+        expect(state.matchErrorFlashKeys, <String>{
+          'left:$leftId',
+          'right:$wrongRightId',
+        });
 
-      controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
-      state = container.read(provider);
-      expect(state.wrongCount, 1);
+        controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+        state = container.read(provider);
+        expect(state.wrongCount, 1);
 
-      await Future<void>.delayed(const Duration(milliseconds: 700));
+        await Future<void>.delayed(const Duration(milliseconds: 700));
 
-      state = container.read(provider);
-      expect(state.isMatchInteractionLocked, isFalse);
-      expect(state.matchErrorFlashKeys, isEmpty);
-    });
+        state = container.read(provider);
+        expect(state.isMatchInteractionLocked, isFalse);
+        expect(state.matchErrorFlashKeys, isEmpty);
+      },
+    );
   });
 }
 

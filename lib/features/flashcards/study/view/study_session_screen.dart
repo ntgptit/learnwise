@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../model/study_answer.dart';
@@ -111,13 +114,51 @@ class _FlashcardStudySessionScreenState
           padding: const EdgeInsets.all(
             FlashcardStudySessionTokens.screenPadding,
           ),
-          child: _StudySessionBody(
+        child: _StudySessionBody(
             provider: provider,
             l10n: l10n,
             fillController: _fillController,
+            studyArgs: widget.args,
+            onNextModePressed: (mode) {
+              _onNextModePressed(provider: provider, mode: mode);
+            },
+            onClosePressed: () {
+              _onClosePressed(provider: provider);
+            },
           ),
         ),
       ),
+    );
+  }
+
+  void _onNextModePressed({
+    required StudySessionControllerProvider provider,
+    required StudyMode mode,
+  }) {
+    final StudySessionController controller = ref.read(provider.notifier);
+    unawaited(controller.completeCurrentMode());
+    final StudySessionArgs nextArgs = _buildNextCycleArgs(mode: mode);
+    context.pushReplacement(RouteNames.flashcardStudySession, extra: nextArgs);
+  }
+
+  void _onClosePressed({
+    required StudySessionControllerProvider provider,
+  }) {
+    final StudySessionController controller = ref.read(provider.notifier);
+    unawaited(controller.completeCurrentMode());
+    context.pop(true);
+  }
+
+  StudySessionArgs _buildNextCycleArgs({required StudyMode mode}) {
+    final List<StudyMode> cycleModes = _resolveCycleModes(args: widget.args);
+    final int currentIndex = _resolveCycleModeIndex(
+      args: widget.args,
+      cycleModes: cycleModes,
+    );
+    return widget.args.copyWith(
+      mode: mode,
+      cycleModes: cycleModes,
+      cycleModeIndex: currentIndex + 1,
     );
   }
 
@@ -222,11 +263,17 @@ class _StudySessionBody extends ConsumerWidget {
     required this.provider,
     required this.l10n,
     required this.fillController,
+    required this.studyArgs,
+    required this.onNextModePressed,
+    required this.onClosePressed,
   });
 
   final StudySessionControllerProvider provider;
   final AppLocalizations l10n;
   final TextEditingController fillController;
+  final StudySessionArgs studyArgs;
+  final ValueChanged<StudyMode> onNextModePressed;
+  final VoidCallback onClosePressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -245,13 +292,16 @@ class _StudySessionBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        _StudyProgressHeader(provider: provider),
+        _StudyProgressHeader(provider: provider, studyArgs: studyArgs, l10n: l10n),
         const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
         Expanded(
           child: _StudyUnitBody(
             provider: provider,
             l10n: l10n,
             fillController: fillController,
+            studyArgs: studyArgs,
+            onNextModePressed: onNextModePressed,
+            onClosePressed: onClosePressed,
           ),
         ),
       ],
@@ -264,21 +314,40 @@ class _StudyUnitBody extends ConsumerWidget {
     required this.provider,
     required this.l10n,
     required this.fillController,
+    required this.studyArgs,
+    required this.onNextModePressed,
+    required this.onClosePressed,
   });
 
   final StudySessionControllerProvider provider;
   final AppLocalizations l10n;
   final TextEditingController fillController;
+  final StudySessionArgs studyArgs;
+  final ValueChanged<StudyMode> onNextModePressed;
+  final VoidCallback onClosePressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final StudySessionState state = ref.watch(provider);
     final StudySessionController controller = ref.read(provider.notifier);
     if (state.isCompleted) {
+      final StudyMode? nextMode = _resolveNextCycleMode(
+        args: studyArgs,
+        state: state,
+      );
+      final String? nextModeLabel = _resolveNextModeLabel(
+        l10n: l10n,
+        nextMode: nextMode,
+      );
       return _StudyCompletedCard(
         state: state,
         l10n: l10n,
         onRestartPressed: controller.restart,
+        onNextModePressed: nextMode == null
+            ? null
+            : () => onNextModePressed(nextMode),
+        nextModeLabel: nextModeLabel,
+        onClosePressed: onClosePressed,
       );
     }
     final StudyUnit? currentUnit = state.currentUnit;
@@ -395,12 +464,29 @@ class _StudyUnitBody extends ConsumerWidget {
     );
     return SingleChildScrollView(child: content);
   }
+
+  String? _resolveNextModeLabel({
+    required AppLocalizations l10n,
+    required StudyMode? nextMode,
+  }) {
+    if (nextMode == null) {
+      return null;
+    }
+    final String modeLabel = _resolveModeLabel(mode: nextMode, l10n: l10n);
+    return l10n.flashcardsStudyNextModeLabel(modeLabel);
+  }
 }
 
 class _StudyProgressHeader extends ConsumerWidget {
-  const _StudyProgressHeader({required this.provider});
+  const _StudyProgressHeader({
+    required this.provider,
+    required this.studyArgs,
+    required this.l10n,
+  });
 
   final StudySessionControllerProvider provider;
+  final StudySessionArgs studyArgs;
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -414,13 +500,49 @@ class _StudyProgressHeader extends ConsumerWidget {
     final int totalCount = ref.watch(
       provider.select((value) => value.totalCount),
     );
+    final int completedModeCount = ref.watch(
+      provider.select((value) => value.completedModeCount),
+    );
+    final int requiredModeCount = ref.watch(
+      provider.select((value) => value.requiredModeCount),
+    );
     final Widget Function(BuildContext context) builder = _resolveBuilder(
       mode: mode,
       progressPercent: progressPercent,
       currentStep: currentStep,
       totalCount: totalCount,
     );
-    return builder(context);
+    final List<StudyMode> cycleModes = _resolveCycleModes(args: studyArgs);
+    final int cycleModeIndex = _resolveCycleModeIndex(
+      args: studyArgs,
+      cycleModes: cycleModes,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        builder(context),
+        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
+        Text(
+          l10n.flashcardsStudyCycleProgressLabel(
+            completedModeCount,
+            requiredModeCount,
+          ),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
+        Text(
+          _buildCycleDisplayText(
+            cycleModes: cycleModes,
+            cycleModeIndex: cycleModeIndex,
+            completedModeCount: completedModeCount,
+            l10n: l10n,
+          ),
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
   }
 
   Widget Function(BuildContext context) _resolveBuilder({
@@ -520,6 +642,42 @@ class _StudyProgressHeader extends ConsumerWidget {
       ],
     );
   }
+
+  String _buildCycleDisplayText({
+    required List<StudyMode> cycleModes,
+    required int cycleModeIndex,
+    required int completedModeCount,
+    required AppLocalizations l10n,
+  }) {
+    final List<String> parts = <String>[];
+    int index = 0;
+    while (index < cycleModes.length) {
+      final StudyMode mode = cycleModes[index];
+      final String label = _resolveModeLabel(mode: mode, l10n: l10n);
+      final String marker = _resolveCycleMarker(
+        index: index,
+        cycleModeIndex: cycleModeIndex,
+        completedModeCount: completedModeCount,
+      );
+      parts.add('$marker $label');
+      index++;
+    }
+    return parts.join(' -> ');
+  }
+
+  String _resolveCycleMarker({
+    required int index,
+    required int cycleModeIndex,
+    required int completedModeCount,
+  }) {
+    if (index < completedModeCount) {
+      return '[x]';
+    }
+    if (index == cycleModeIndex) {
+      return '[>]';
+    }
+    return '[ ]';
+  }
 }
 
 class _StudyCompletedCard extends StatelessWidget {
@@ -527,11 +685,17 @@ class _StudyCompletedCard extends StatelessWidget {
     required this.state,
     required this.l10n,
     required this.onRestartPressed,
+    required this.onClosePressed,
+    this.onNextModePressed,
+    this.nextModeLabel,
   });
 
   final StudySessionState state;
   final AppLocalizations l10n;
   final VoidCallback onRestartPressed;
+  final VoidCallback onClosePressed;
+  final VoidCallback? onNextModePressed;
+  final String? nextModeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -560,14 +724,32 @@ class _StudyCompletedCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
+            Text(
+              l10n.flashcardsStudyCycleProgressLabel(
+                state.completedModeCount,
+                state.requiredModeCount,
+              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
+            if (onNextModePressed != null && nextModeLabel != null)
+              FilledButton(
+                onPressed: onNextModePressed,
+                child: Text(nextModeLabel!),
+              ),
+            if (onNextModePressed != null && nextModeLabel != null)
+              const SizedBox(
+                height: FlashcardStudySessionTokens.answerSpacing,
+              ),
             FilledButton(
               onPressed: onRestartPressed,
               child: Text(l10n.flashcardsStudyRestartLabel),
             ),
             const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
             OutlinedButton(
-              onPressed: () => context.pop(true),
+              onPressed: onClosePressed,
               child: Text(l10n.flashcardsCloseTooltip),
             ),
           ],
@@ -586,4 +768,45 @@ String _resolveModeLabel({
     return mode.name;
   }
   return resolver(l10n);
+}
+
+List<StudyMode> _resolveCycleModes({required StudySessionArgs args}) {
+  if (args.cycleModes.isNotEmpty) {
+    return args.cycleModes;
+  }
+  return buildStudyModeCycle(startMode: args.mode);
+}
+
+int _resolveCycleModeIndex({
+  required StudySessionArgs args,
+  required List<StudyMode> cycleModes,
+}) {
+  final int rawIndex = args.cycleModeIndex;
+  if (rawIndex >= 0 && rawIndex < cycleModes.length) {
+    return rawIndex;
+  }
+  final int modeIndex = cycleModes.indexOf(args.mode);
+  if (modeIndex >= 0) {
+    return modeIndex;
+  }
+  return 0;
+}
+
+StudyMode? _resolveNextCycleMode({
+  required StudySessionArgs args,
+  required StudySessionState state,
+}) {
+  if (state.isSessionCompleted) {
+    return null;
+  }
+  final List<StudyMode> cycleModes = _resolveCycleModes(args: args);
+  final int currentIndex = _resolveCycleModeIndex(
+    args: args,
+    cycleModes: cycleModes,
+  );
+  final int nextIndex = currentIndex + 1;
+  if (nextIndex >= cycleModes.length) {
+    return null;
+  }
+  return cycleModes[nextIndex];
 }

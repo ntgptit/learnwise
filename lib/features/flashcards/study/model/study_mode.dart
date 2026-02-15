@@ -3,6 +3,14 @@ import 'study_constants.dart';
 
 enum StudyMode { review, match, guess, recall, fill }
 
+const List<StudyMode> _defaultStudyModeCycle = <StudyMode>[
+  StudyMode.review,
+  StudyMode.match,
+  StudyMode.guess,
+  StudyMode.recall,
+  StudyMode.fill,
+];
+
 extension StudyModeApiX on StudyMode {
   String get apiValue {
     return switch (this) {
@@ -35,4 +43,24 @@ extension StudyModeApiX on StudyMode {
       '${StudyConstants.unsupportedModeMessagePrefix}$rawValue',
     );
   }
+}
+
+List<StudyMode> buildStudyModeCycle({required StudyMode startMode}) {
+  final int startIndex = _defaultStudyModeCycle.indexOf(startMode);
+  if (startIndex <= StudyConstants.defaultIndex) {
+    return List<StudyMode>.unmodifiable(_defaultStudyModeCycle);
+  }
+  final List<StudyMode> cycle = <StudyMode>[];
+  final int modeCount = _defaultStudyModeCycle.length;
+  int offset = StudyConstants.defaultIndex;
+  while (offset < modeCount) {
+    final int index = (startIndex + offset) % modeCount;
+    cycle.add(_defaultStudyModeCycle[index]);
+    offset++;
+  }
+  return List<StudyMode>.unmodifiable(cycle);
+}
+
+List<StudyMode> getDefaultStudyModeCycle() {
+  return List<StudyMode>.unmodifiable(_defaultStudyModeCycle);
 }

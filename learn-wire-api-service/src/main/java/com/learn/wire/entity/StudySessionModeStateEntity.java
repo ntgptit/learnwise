@@ -5,7 +5,6 @@ import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.learn.wire.constant.FlashcardConst;
 import com.learn.wire.constant.StudyConst;
 
 import jakarta.persistence.Column;
@@ -20,35 +19,44 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = StudyConst.MATCH_TILE_TABLE_NAME)
+@Table(name = StudyConst.SESSION_MODE_STATE_TABLE_NAME)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MatchSessionTileEntity {
+public class StudySessionModeStateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "mode_state_id", nullable = false)
-    private Long modeStateId;
+    @Column(name = "session_id", nullable = false)
+    private Long sessionId;
 
-    @Column(name = "pair_key", nullable = false)
-    private int pairKey;
+    @Column(name = "mode", nullable = false, length = StudyConst.MODE_MAX_LENGTH)
+    private String mode;
 
-    @Column(name = "side", nullable = false, length = StudyConst.TILE_SIDE_MAX_LENGTH)
-    private String side;
+    @Column(name = "status", nullable = false, length = StudyConst.STATUS_MAX_LENGTH)
+    private String status;
 
-    @Column(name = "label_text", nullable = false, length = FlashcardConst.BACK_TEXT_MAX_LENGTH)
-    private String labelText;
+    @Column(name = "current_index", nullable = false)
+    private int currentIndex;
 
-    @Column(name = "tile_order", nullable = false)
-    private int tileOrder;
+    @Column(name = "total_units", nullable = false)
+    private int totalUnits;
 
-    @Column(name = "is_matched", nullable = false)
-    private boolean matched;
+    @Column(name = "correct_count", nullable = false)
+    private int correctCount;
+
+    @Column(name = "wrong_count", nullable = false)
+    private int wrongCount;
+
+    @Column(name = "started_at", nullable = false)
+    private Instant startedAt;
+
+    @Column(name = "completed_at")
+    private Instant completedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

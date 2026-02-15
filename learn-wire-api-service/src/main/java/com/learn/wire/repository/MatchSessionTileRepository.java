@@ -9,9 +9,9 @@ import com.learn.wire.entity.MatchSessionTileEntity;
 
 public interface MatchSessionTileRepository extends JpaRepository<MatchSessionTileEntity, Long> {
 
-    List<MatchSessionTileEntity> findBySessionIdAndSideOrderByTileOrderAsc(Long sessionId, String side);
+    List<MatchSessionTileEntity> findByModeStateIdAndSideOrderByTileOrderAsc(Long modeStateId, String side);
 
-    Optional<MatchSessionTileEntity> findBySessionIdAndId(Long sessionId, Long id);
+    Optional<MatchSessionTileEntity> findByModeStateIdAndId(Long modeStateId, Long id);
 
-    long countBySessionIdAndMatchedTrue(Long sessionId);
+    long countByModeStateIdAndMatchedTrue(Long modeStateId);
 }

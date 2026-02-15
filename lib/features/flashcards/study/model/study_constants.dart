@@ -30,6 +30,7 @@ class StudyConstants {
   static const int defaultIndex = 0;
   static const int defaultClientSequence = 0;
   static const int defaultSeed = 37;
+  static const int requiredStudyModeCount = 5;
   static const int defaultGuessOptionCount = 4;
   static const int minimumMatchPairCount = 2;
   static const int fillToleranceDistance = 1;

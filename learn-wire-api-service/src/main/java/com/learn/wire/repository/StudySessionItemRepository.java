@@ -8,5 +8,5 @@ import com.learn.wire.entity.StudySessionItemEntity;
 
 public interface StudySessionItemRepository extends JpaRepository<StudySessionItemEntity, Long> {
 
-    List<StudySessionItemEntity> findBySessionIdOrderByItemOrderAsc(Long sessionId);
+    List<StudySessionItemEntity> findByModeStateIdOrderByItemOrderAsc(Long modeStateId);
 }

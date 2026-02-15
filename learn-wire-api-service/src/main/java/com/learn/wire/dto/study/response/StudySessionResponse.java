@@ -18,5 +18,8 @@ public record StudySessionResponse(
         List<StudyReviewItemResponse> reviewItems,
         List<StudyMatchTileResponse> leftTiles,
         List<StudyMatchTileResponse> rightTiles,
-        StudyAttemptResultResponse lastAttemptResult) {
+        StudyAttemptResultResponse lastAttemptResult,
+        int completedModeCount,
+        int requiredModeCount,
+        boolean sessionCompleted) {
 }

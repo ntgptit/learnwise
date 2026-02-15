@@ -932,6 +932,27 @@
       }
     }
   },
+  "flashcardsStudyCycleProgressLabel": "Đã hoàn thành chế độ: {completedModeCount}/{requiredModeCount}",
+  "@flashcardsStudyCycleProgressLabel": {
+    "description": "Cycle progress label in completed study state.",
+    "placeholders": {
+      "completedModeCount": {
+        "type": "int"
+      },
+      "requiredModeCount": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsStudyNextModeLabel": "Chế độ tiếp theo: {modeLabel}",
+  "@flashcardsStudyNextModeLabel": {
+    "description": "Button label for continuing to the next study mode.",
+    "placeholders": {
+      "modeLabel": {
+        "type": "String"
+      }
+    }
+  },
   "flashcardsStudyRestartLabel": "Học lại",
   "@flashcardsStudyRestartLabel": {
     "description": "Action label to restart study session."

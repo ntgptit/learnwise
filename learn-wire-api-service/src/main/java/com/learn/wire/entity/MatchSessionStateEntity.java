@@ -31,8 +31,8 @@ public class MatchSessionStateEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "session_id", nullable = false)
-    private Long sessionId;
+    @Column(name = "mode_state_id", nullable = false)
+    private Long modeStateId;
 
     @Column(name = "selected_left_tile_id")
     private Long selectedLeftTileId;

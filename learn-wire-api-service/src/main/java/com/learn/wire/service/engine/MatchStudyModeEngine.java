@@ -20,6 +20,7 @@ import com.learn.wire.entity.MatchSessionStateEntity;
 import com.learn.wire.entity.MatchSessionTileEntity;
 import com.learn.wire.entity.StudyAttemptEntity;
 import com.learn.wire.entity.StudySessionEntity;
+import com.learn.wire.entity.StudySessionModeStateEntity;
 import com.learn.wire.exception.BadRequestException;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.MatchSessionStateNotFoundException;
@@ -28,6 +29,7 @@ import com.learn.wire.exception.StudyEventNotSupportedException;
 import com.learn.wire.repository.MatchSessionStateRepository;
 import com.learn.wire.repository.MatchSessionTileRepository;
 import com.learn.wire.repository.StudyAttemptRepository;
+import com.learn.wire.repository.StudySessionModeStateRepository;
 import com.learn.wire.repository.StudySessionItemRepository;
 import com.learn.wire.repository.StudySessionRepository;
 
@@ -39,11 +41,16 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
 
     public MatchStudyModeEngine(
             StudySessionRepository studySessionRepository,
+            StudySessionModeStateRepository studySessionModeStateRepository,
             StudySessionItemRepository studySessionItemRepository,
             StudyAttemptRepository studyAttemptRepository,
             MatchSessionTileRepository matchSessionTileRepository,
             MatchSessionStateRepository matchSessionStateRepository) {
-        super(studySessionRepository, studySessionItemRepository, studyAttemptRepository);
+        super(
+                studySessionRepository,
+                studySessionModeStateRepository,
+                studySessionItemRepository,
+                studyAttemptRepository);
         this.matchSessionTileRepository = matchSessionTileRepository;
         this.matchSessionStateRepository = matchSessionStateRepository;
     }
@@ -54,21 +61,24 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     }
 
     @Override
-    public void initializeSession(StudySessionEntity session, List<FlashcardEntity> flashcards) {
+    public void initializeSession(
+            StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
+            List<FlashcardEntity> flashcards) {
         final List<FlashcardEntity> shuffled = shuffleFlashcards(flashcards, session.getSeed());
         if (shuffled.size() >= StudyConst.MINIMUM_MATCH_PAIR_COUNT) {
-            final List<MatchSessionTileEntity> tiles = createTiles(session.getId(), shuffled, session.getSeed());
+            final List<MatchSessionTileEntity> tiles = createTiles(modeState.getId(), shuffled, session.getSeed());
             this.matchSessionTileRepository.saveAll(tiles);
             final MatchSessionStateEntity state = new MatchSessionStateEntity();
-            state.setSessionId(session.getId());
+            state.setModeStateId(modeState.getId());
             state.setInteractionLocked(false);
             state.setVersion(StudyConst.DEFAULT_INDEX);
             this.matchSessionStateRepository.save(state);
-            session.setCurrentIndex(StudyConst.DEFAULT_INDEX);
-            session.setTotalUnits(shuffled.size());
-            session.setCorrectCount(StudyConst.ZERO_SCORE);
-            session.setWrongCount(StudyConst.ZERO_SCORE);
-            this.studySessionRepository.save(session);
+            modeState.setCurrentIndex(StudyConst.DEFAULT_INDEX);
+            modeState.setTotalUnits(shuffled.size());
+            modeState.setCorrectCount(StudyConst.ZERO_SCORE);
+            modeState.setWrongCount(StudyConst.ZERO_SCORE);
+            this.studySessionModeStateRepository.save(modeState);
             return;
         }
         throw new BusinessException(StudyConst.MATCH_REQUIRES_MORE_FLASHCARDS_KEY);
@@ -85,16 +95,17 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     @Override
     protected void handleEventInternal(
             StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
             StudySessionEventCommand command,
             StudyAttemptEntity attempt) {
-        final MatchSessionStateEntity state = getRequiredState(session.getId());
+        final MatchSessionStateEntity state = getRequiredState(modeState.getId());
         releaseExpiredFeedback(state);
         if (state.isInteractionLocked()) {
             return;
         }
         final StudyEventType eventType = command.eventType();
         final String expectedSide = resolveExpectedSide(eventType);
-        final MatchSessionTileEntity tile = resolveTargetTile(session.getId(), command.targetTileId(), expectedSide);
+        final MatchSessionTileEntity tile = resolveTargetTile(modeState.getId(), command.targetTileId(), expectedSide);
         if (tile.isMatched()) {
             return;
         }
@@ -103,36 +114,39 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             this.matchSessionStateRepository.save(state);
             return;
         }
-        resolvePairAttempt(session, state, attempt);
+        resolvePairAttempt(modeState, state, attempt);
         this.matchSessionStateRepository.save(state);
     }
 
     @Override
-    protected StudySessionResponse buildResponseInternal(StudySessionEntity session) {
-        final MatchSessionStateEntity state = getRequiredState(session.getId());
+    protected StudySessionResponse buildResponseInternal(
+            StudySessionEntity session,
+            StudySessionModeStateEntity modeState) {
+        final MatchSessionStateEntity state = getRequiredState(modeState.getId());
         releaseExpiredFeedback(state);
         final List<MatchSessionTileEntity> leftTiles = this.matchSessionTileRepository
-                .findBySessionIdAndSideOrderByTileOrderAsc(session.getId(), StudyConst.TILE_SIDE_LEFT);
+                .findByModeStateIdAndSideOrderByTileOrderAsc(modeState.getId(), StudyConst.TILE_SIDE_LEFT);
         final List<MatchSessionTileEntity> rightTiles = this.matchSessionTileRepository
-                .findBySessionIdAndSideOrderByTileOrderAsc(session.getId(), StudyConst.TILE_SIDE_RIGHT);
+                .findByModeStateIdAndSideOrderByTileOrderAsc(modeState.getId(), StudyConst.TILE_SIDE_RIGHT);
         final List<StudyMatchTileResponse> leftResponses = toMatchTileResponses(leftTiles, state);
         final List<StudyMatchTileResponse> rightResponses = toMatchTileResponses(rightTiles, state);
         final StudyAttemptResultResponse lastAttemptResult = toAttemptResult(state);
         return buildSessionResponse(
                 session,
+                modeState,
                 List.of(),
                 leftResponses,
                 rightResponses,
                 lastAttemptResult);
     }
 
-    private List<MatchSessionTileEntity> createTiles(Long sessionId, List<FlashcardEntity> flashcards, int seed) {
+    private List<MatchSessionTileEntity> createTiles(Long modeStateId, List<FlashcardEntity> flashcards, int seed) {
         final List<MatchSessionTileEntity> leftTiles = new ArrayList<>();
         final List<MatchSessionTileEntity> rightTiles = new ArrayList<>();
         int pairKey = StudyConst.DEFAULT_INDEX;
         for (final FlashcardEntity flashcard : flashcards) {
-            leftTiles.add(buildTile(sessionId, pairKey, StudyConst.TILE_SIDE_LEFT, flashcard.getFrontText()));
-            rightTiles.add(buildTile(sessionId, pairKey, StudyConst.TILE_SIDE_RIGHT, flashcard.getBackText()));
+            leftTiles.add(buildTile(modeStateId, pairKey, StudyConst.TILE_SIDE_LEFT, flashcard.getFrontText()));
+            rightTiles.add(buildTile(modeStateId, pairKey, StudyConst.TILE_SIDE_RIGHT, flashcard.getBackText()));
             pairKey++;
         }
         Collections.shuffle(leftTiles, new Random(seed + 1L));
@@ -145,9 +159,9 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
         return allTiles;
     }
 
-    private MatchSessionTileEntity buildTile(Long sessionId, int pairKey, String side, String label) {
+    private MatchSessionTileEntity buildTile(Long modeStateId, int pairKey, String side, String label) {
         final MatchSessionTileEntity tile = new MatchSessionTileEntity();
-        tile.setSessionId(sessionId);
+        tile.setModeStateId(modeStateId);
         tile.setPairKey(pairKey);
         tile.setSide(side);
         tile.setLabelText(label);
@@ -179,24 +193,24 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
     }
 
     private void resolvePairAttempt(
-            StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
             MatchSessionStateEntity state,
             StudyAttemptEntity attempt) {
-        final MatchSessionTileEntity leftTile = resolveTileById(session.getId(), state.getSelectedLeftTileId());
-        final MatchSessionTileEntity rightTile = resolveTileById(session.getId(), state.getSelectedRightTileId());
+        final MatchSessionTileEntity leftTile = resolveTileById(modeState.getId(), state.getSelectedLeftTileId());
+        final MatchSessionTileEntity rightTile = resolveTileById(modeState.getId(), state.getSelectedRightTileId());
         validateTileSide(leftTile, StudyConst.TILE_SIDE_LEFT);
         validateTileSide(rightTile, StudyConst.TILE_SIDE_RIGHT);
         attempt.setLeftTileId(leftTile.getId());
         attempt.setRightTileId(rightTile.getId());
         if (leftTile.getPairKey() == rightTile.getPairKey()) {
-            applySuccessFeedback(session, state, leftTile, rightTile, attempt);
+            applySuccessFeedback(modeState, state, leftTile, rightTile, attempt);
             return;
         }
-        applyErrorFeedback(session, state, leftTile, rightTile, attempt);
+        applyErrorFeedback(modeState, state, leftTile, rightTile, attempt);
     }
 
     private void applySuccessFeedback(
-            StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
             MatchSessionStateEntity state,
             MatchSessionTileEntity leftTile,
             MatchSessionTileEntity rightTile,
@@ -204,24 +218,24 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
         leftTile.setMatched(true);
         rightTile.setMatched(true);
         this.matchSessionTileRepository.saveAll(List.of(leftTile, rightTile));
-        session.setCorrectCount(session.getCorrectCount() + 1);
-        session.setCurrentIndex(session.getCorrectCount());
+        modeState.setCorrectCount(modeState.getCorrectCount() + 1);
+        modeState.setCurrentIndex(modeState.getCorrectCount());
         attempt.setIsCorrect(true);
         applyFeedbackState(state, StudyConst.FEEDBACK_SUCCESS, leftTile.getId(), rightTile.getId());
-        if (session.getCorrectCount() < session.getTotalUnits()) {
+        if (modeState.getCorrectCount() < modeState.getTotalUnits()) {
             return;
         }
-        session.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
-        session.setCompletedAt(Instant.now());
+        modeState.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
+        modeState.setCompletedAt(Instant.now());
     }
 
     private void applyErrorFeedback(
-            StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
             MatchSessionStateEntity state,
             MatchSessionTileEntity leftTile,
             MatchSessionTileEntity rightTile,
             StudyAttemptEntity attempt) {
-        session.setWrongCount(session.getWrongCount() + 1);
+        modeState.setWrongCount(modeState.getWrongCount() + 1);
         attempt.setIsCorrect(false);
         applyFeedbackState(state, StudyConst.FEEDBACK_ERROR, leftTile.getId(), rightTile.getId());
     }
@@ -241,25 +255,25 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
         state.setVersion(state.getVersion() + 1);
     }
 
-    private MatchSessionTileEntity resolveTargetTile(Long sessionId, Long targetTileId, String expectedSide) {
+    private MatchSessionTileEntity resolveTargetTile(Long modeStateId, Long targetTileId, String expectedSide) {
         if (targetTileId != null) {
-            final MatchSessionTileEntity tile = resolveTileById(sessionId, targetTileId);
+            final MatchSessionTileEntity tile = resolveTileById(modeStateId, targetTileId);
             validateTileSide(tile, expectedSide);
             return tile;
         }
         throw new BadRequestException(StudyConst.EVENT_TARGET_TILE_REQUIRED_KEY);
     }
 
-    private MatchSessionTileEntity resolveTileById(Long sessionId, Long tileId) {
+    private MatchSessionTileEntity resolveTileById(Long modeStateId, Long tileId) {
         return this.matchSessionTileRepository
-                .findBySessionIdAndId(sessionId, tileId)
+                .findByModeStateIdAndId(modeStateId, tileId)
                 .orElseThrow(() -> new MatchSessionTileNotFoundException(tileId));
     }
 
-    private MatchSessionStateEntity getRequiredState(Long sessionId) {
+    private MatchSessionStateEntity getRequiredState(Long modeStateId) {
         return this.matchSessionStateRepository
-                .findBySessionId(sessionId)
-                .orElseThrow(() -> new MatchSessionStateNotFoundException(sessionId));
+                .findByModeStateId(modeStateId)
+                .orElseThrow(() -> new MatchSessionStateNotFoundException(modeStateId));
     }
 
     private String resolveExpectedSide(StudyEventType eventType) {

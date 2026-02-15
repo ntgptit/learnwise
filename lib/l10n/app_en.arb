@@ -932,6 +932,27 @@
       }
     }
   },
+  "flashcardsStudyCycleProgressLabel": "Completed modes: {completedModeCount}/{requiredModeCount}",
+  "@flashcardsStudyCycleProgressLabel": {
+    "description": "Cycle progress label in completed study state.",
+    "placeholders": {
+      "completedModeCount": {
+        "type": "int"
+      },
+      "requiredModeCount": {
+        "type": "int"
+      }
+    }
+  },
+  "flashcardsStudyNextModeLabel": "Next mode: {modeLabel}",
+  "@flashcardsStudyNextModeLabel": {
+    "description": "Button label for continuing to the next study mode.",
+    "placeholders": {
+      "modeLabel": {
+        "type": "String"
+      }
+    }
+  },
   "flashcardsStudyRestartLabel": "Restart",
   "@flashcardsStudyRestartLabel": {
     "description": "Action label to restart study session."

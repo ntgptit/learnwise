@@ -17,6 +17,9 @@ const String _jsonKeyReviewItems = 'reviewItems';
 const String _jsonKeyLeftTiles = 'leftTiles';
 const String _jsonKeyRightTiles = 'rightTiles';
 const String _jsonKeyLastAttemptResult = 'lastAttemptResult';
+const String _jsonKeyCompletedModeCount = 'completedModeCount';
+const String _jsonKeyRequiredModeCount = 'requiredModeCount';
+const String _jsonKeySessionCompleted = 'sessionCompleted';
 
 const String _jsonKeySessionItemId = 'sessionItemId';
 const String _jsonKeyFlashcardId = 'flashcardId';
@@ -131,6 +134,9 @@ class StudySessionResponseModel {
     required this.leftTiles,
     required this.rightTiles,
     required this.lastAttemptResult,
+    required this.completedModeCount,
+    required this.requiredModeCount,
+    required this.sessionCompleted,
   });
 
   final int sessionId;
@@ -148,6 +154,9 @@ class StudySessionResponseModel {
   final List<StudyMatchTileModel> leftTiles;
   final List<StudyMatchTileModel> rightTiles;
   final StudyAttemptResultModel? lastAttemptResult;
+  final int completedModeCount;
+  final int requiredModeCount;
+  final bool sessionCompleted;
 
   factory StudySessionResponseModel.fromJson(Map<String, dynamic> json) {
     return StudySessionResponseModel(
@@ -183,6 +192,21 @@ class StudySessionResponseModel {
         json: json,
         key: _jsonKeyLastAttemptResult,
       )?.let(StudyAttemptResultModel.fromJson),
+      completedModeCount: _readIntWithFallback(
+        json: json,
+        key: _jsonKeyCompletedModeCount,
+        fallbackValue: 0,
+      ),
+      requiredModeCount: _readIntWithFallback(
+        json: json,
+        key: _jsonKeyRequiredModeCount,
+        fallbackValue: 5,
+      ),
+      sessionCompleted: _readBoolWithFallback(
+        json: json,
+        key: _jsonKeySessionCompleted,
+        fallbackValue: false,
+      ),
     );
   }
 }
@@ -388,6 +412,33 @@ bool _readRequiredBool({
   required String key,
 }) {
   final dynamic rawValue = json[key];
+  if (rawValue is bool) {
+    return rawValue;
+  }
+  throw FormatException('Invalid bool for key: $key');
+}
+
+int _readIntWithFallback({
+  required Map<String, dynamic> json,
+  required String key,
+  required int fallbackValue,
+}) {
+  final int? value = _readNullableInt(json: json, key: key);
+  if (value == null) {
+    return fallbackValue;
+  }
+  return value;
+}
+
+bool _readBoolWithFallback({
+  required Map<String, dynamic> json,
+  required String key,
+  required bool fallbackValue,
+}) {
+  final dynamic rawValue = json[key];
+  if (rawValue == null) {
+    return fallbackValue;
+  }
   if (rawValue is bool) {
     return rawValue;
   }

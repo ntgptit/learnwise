@@ -10,10 +10,12 @@ import com.learn.wire.dto.study.response.StudySessionResponse;
 import com.learn.wire.entity.FlashcardEntity;
 import com.learn.wire.entity.StudyAttemptEntity;
 import com.learn.wire.entity.StudySessionEntity;
+import com.learn.wire.entity.StudySessionModeStateEntity;
 import com.learn.wire.entity.StudySessionItemEntity;
 import com.learn.wire.exception.BadRequestException;
 import com.learn.wire.exception.StudyEventNotSupportedException;
 import com.learn.wire.repository.StudyAttemptRepository;
+import com.learn.wire.repository.StudySessionModeStateRepository;
 import com.learn.wire.repository.StudySessionItemRepository;
 import com.learn.wire.repository.StudySessionRepository;
 
@@ -24,9 +26,14 @@ public abstract class AbstractLinearStudyModeEngine extends AbstractStudyModeEng
     protected AbstractLinearStudyModeEngine(
             StudyMode mode,
             StudySessionRepository studySessionRepository,
+            StudySessionModeStateRepository studySessionModeStateRepository,
             StudySessionItemRepository studySessionItemRepository,
             StudyAttemptRepository studyAttemptRepository) {
-        super(studySessionRepository, studySessionItemRepository, studyAttemptRepository);
+        super(
+                studySessionRepository,
+                studySessionModeStateRepository,
+                studySessionItemRepository,
+                studyAttemptRepository);
         this.mode = mode;
     }
 
@@ -36,15 +43,18 @@ public abstract class AbstractLinearStudyModeEngine extends AbstractStudyModeEng
     }
 
     @Override
-    public void initializeSession(StudySessionEntity session, List<FlashcardEntity> flashcards) {
+    public void initializeSession(
+            StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
+            List<FlashcardEntity> flashcards) {
         final List<FlashcardEntity> shuffled = shuffleFlashcards(flashcards, session.getSeed());
-        final List<StudySessionItemEntity> sessionItems = createSessionItems(session.getId(), shuffled);
+        final List<StudySessionItemEntity> sessionItems = createSessionItems(modeState.getId(), shuffled);
         this.studySessionItemRepository.saveAll(sessionItems);
-        session.setCurrentIndex(StudyConst.DEFAULT_INDEX);
-        session.setTotalUnits(sessionItems.size());
-        session.setCorrectCount(StudyConst.ZERO_SCORE);
-        session.setWrongCount(StudyConst.ZERO_SCORE);
-        this.studySessionRepository.save(session);
+        modeState.setCurrentIndex(StudyConst.DEFAULT_INDEX);
+        modeState.setTotalUnits(sessionItems.size());
+        modeState.setCorrectCount(StudyConst.ZERO_SCORE);
+        modeState.setWrongCount(StudyConst.ZERO_SCORE);
+        this.studySessionModeStateRepository.save(modeState);
     }
 
     @Override
@@ -58,24 +68,25 @@ public abstract class AbstractLinearStudyModeEngine extends AbstractStudyModeEng
     @Override
     protected final void handleEventInternal(
             StudySessionEntity session,
+            StudySessionModeStateEntity modeState,
             StudySessionEventCommand command,
             StudyAttemptEntity attempt) {
         final StudyEventType eventType = command.eventType();
         if (eventType == StudyEventType.REVIEW_NEXT) {
-            final int nextIndex = clampIndex(session.getCurrentIndex() + 1, session.getTotalUnits());
-            session.setCurrentIndex(nextIndex);
+            final int nextIndex = clampIndex(modeState.getCurrentIndex() + 1, modeState.getTotalUnits());
+            modeState.setCurrentIndex(nextIndex);
             attempt.setTargetIndex(nextIndex);
             return;
         }
         if (eventType == StudyEventType.REVIEW_PREVIOUS) {
-            final int previousIndex = clampIndex(session.getCurrentIndex() - 1, session.getTotalUnits());
-            session.setCurrentIndex(previousIndex);
+            final int previousIndex = clampIndex(modeState.getCurrentIndex() - 1, modeState.getTotalUnits());
+            modeState.setCurrentIndex(previousIndex);
             attempt.setTargetIndex(previousIndex);
             return;
         }
         if (eventType == StudyEventType.REVIEW_GOTO_INDEX) {
-            final int targetIndex = resolveTargetIndex(command.targetIndex(), session.getTotalUnits());
-            session.setCurrentIndex(targetIndex);
+            final int targetIndex = resolveTargetIndex(command.targetIndex(), modeState.getTotalUnits());
+            modeState.setCurrentIndex(targetIndex);
             attempt.setTargetIndex(targetIndex);
             return;
         }
@@ -83,8 +94,10 @@ public abstract class AbstractLinearStudyModeEngine extends AbstractStudyModeEng
     }
 
     @Override
-    protected StudySessionResponse buildResponseInternal(StudySessionEntity session) {
-        return buildLinearResponse(session);
+    protected StudySessionResponse buildResponseInternal(
+            StudySessionEntity session,
+            StudySessionModeStateEntity modeState) {
+        return buildLinearResponse(session, modeState);
     }
 
     private int resolveTargetIndex(Integer targetIndex, int totalUnits) {

@@ -16,12 +16,14 @@ import com.learn.wire.dto.study.response.StudySessionResponse;
 import com.learn.wire.entity.DeckEntity;
 import com.learn.wire.entity.FlashcardEntity;
 import com.learn.wire.entity.StudySessionEntity;
+import com.learn.wire.entity.StudySessionModeStateEntity;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.DeckNotFoundException;
 import com.learn.wire.exception.StudySessionNotFoundException;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.StudySessionRepository;
+import com.learn.wire.repository.StudySessionModeStateRepository;
 import com.learn.wire.service.StudySessionService;
 import com.learn.wire.service.engine.StudyModeEngine;
 import com.learn.wire.service.factory.StudyEngineFactory;
@@ -38,6 +40,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final StudySessionRepository studySessionRepository;
+    private final StudySessionModeStateRepository studySessionModeStateRepository;
     private final StudyEngineFactory studyEngineFactory;
 
     @Override
@@ -50,61 +53,115 @@ public class StudySessionServiceImpl implements StudySessionService {
                 command.seed());
         getActiveDeckEntity(command.deckId());
         final List<FlashcardEntity> flashcards = this.flashcardRepository.findByDeckIdAndDeletedAtIsNull(command.deckId());
-        if (!flashcards.isEmpty()) {
-            final StudySessionEntity session = createSession(command);
-            final StudySessionEntity createdSession = this.studySessionRepository.save(session);
-            final StudyModeEngine engine = this.studyEngineFactory.getEngine(command.mode());
-            engine.initializeSession(createdSession, flashcards);
-            final StudySessionEntity refreshedSession = getActiveSessionEntity(createdSession.getId());
-            return engine.buildResponse(refreshedSession);
+        if (flashcards.isEmpty()) {
+            throw new BusinessException(StudyConst.DECK_HAS_NO_FLASHCARDS_KEY, command.deckId());
         }
-        throw new BusinessException(StudyConst.DECK_HAS_NO_FLASHCARDS_KEY, command.deckId());
+        final StudySessionEntity session = upsertActiveSession(command);
+        final StudyMode mode = command.mode();
+        final StudySessionModeStateEntity modeState = upsertModeState(session, mode);
+        final StudyModeEngine engine = this.studyEngineFactory.getEngine(mode);
+        if (isModeStateInitialized(modeState)) {
+            return engine.buildResponse(session, modeState);
+        }
+        engine.initializeSession(session, modeState, flashcards);
+        final StudySessionModeStateEntity initializedModeState = getModeStateEntity(session.getId(), mode);
+        return engine.buildResponse(session, initializedModeState);
     }
 
     @Override
     @Transactional(readOnly = true)
     public StudySessionResponse getSession(Long sessionId) {
-        final StudySessionEntity session = getActiveSessionEntity(sessionId);
-        final StudyModeEngine engine = resolveEngine(session);
-        return engine.buildResponse(session);
+        final StudySessionEntity session = getSessionEntity(sessionId);
+        final StudyMode mode = resolveActiveMode(session);
+        final StudySessionModeStateEntity modeState = getModeStateEntity(session.getId(), mode);
+        final StudyModeEngine engine = this.studyEngineFactory.getEngine(mode);
+        return engine.buildResponse(session, modeState);
     }
 
     @Override
     public StudySessionResponse submitEvent(Long sessionId, StudySessionEventRequest request) {
         final StudySessionEventCommand command = StudySessionEventCommand.fromRequest(request);
-        final StudySessionEntity session = getActiveSessionEntity(sessionId);
-        final StudyModeEngine engine = resolveEngine(session);
-        return engine.handleEvent(session, command);
+        final StudySessionEntity session = getSessionEntity(sessionId);
+        final StudyMode mode = resolveActiveMode(session);
+        final StudySessionModeStateEntity modeState = getModeStateEntity(session.getId(), mode);
+        final StudyModeEngine engine = this.studyEngineFactory.getEngine(mode);
+        return engine.handleEvent(session, modeState, command);
     }
 
     @Override
     public StudySessionResponse completeSession(Long sessionId) {
-        final StudySessionEntity session = getActiveSessionEntity(sessionId);
-        if (!StudyConst.SESSION_STATUS_ACTIVE.equalsIgnoreCase(session.getStatus())) {
-            return resolveEngine(session).buildResponse(session);
+        final StudySessionEntity session = getSessionEntity(sessionId);
+        final StudyMode mode = resolveActiveMode(session);
+        final StudySessionModeStateEntity modeState = getModeStateEntity(session.getId(), mode);
+        if (StudyConst.SESSION_STATUS_ACTIVE.equalsIgnoreCase(modeState.getStatus())) {
+            markModeStateCompleted(modeState);
+            this.studySessionModeStateRepository.save(modeState);
         }
-        session.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
-        session.setCompletedAt(Instant.now());
-        session.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
-        final StudySessionEntity completedSession = this.studySessionRepository.save(session);
-        return resolveEngine(completedSession).buildResponse(completedSession);
+        if (!shouldCompleteSession(session)) {
+            return this.studyEngineFactory.getEngine(mode).buildResponse(session, modeState);
+        }
+        if (StudyConst.SESSION_STATUS_ACTIVE.equalsIgnoreCase(session.getStatus())) {
+            session.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
+            session.setCompletedAt(Instant.now());
+            session.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
+            this.studySessionRepository.save(session);
+        }
+        final StudySessionEntity completedSession = getSessionEntity(sessionId);
+        return this.studyEngineFactory.getEngine(mode).buildResponse(completedSession, modeState);
     }
 
-    private StudyModeEngine resolveEngine(StudySessionEntity session) {
-        final StudyMode mode = StudyMode.fromValue(session.getMode());
-        return this.studyEngineFactory.getEngine(mode);
+    private boolean shouldCompleteSession(StudySessionEntity session) {
+        final long completedModeCount = this.studySessionModeStateRepository.countBySessionIdAndStatus(
+                session.getId(),
+                StudyConst.SESSION_STATUS_COMPLETED);
+        return completedModeCount >= StudyMode.values().length;
+    }
+
+    private void markModeStateCompleted(StudySessionModeStateEntity modeState) {
+        modeState.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
+        modeState.setCompletedAt(Instant.now());
+    }
+
+    private boolean isModeStateInitialized(StudySessionModeStateEntity modeState) {
+        return modeState.getTotalUnits() > StudyConst.DEFAULT_INDEX;
+    }
+
+    private StudySessionEntity upsertActiveSession(StudySessionStartCommand command) {
+        final StudySessionEntity session = this.studySessionRepository
+                .findFirstByDeckIdAndStatusAndDeletedAtIsNullOrderByStartedAtDesc(
+                        command.deckId(),
+                        StudyConst.SESSION_STATUS_ACTIVE)
+                .orElseGet(() -> createSession(command));
+        session.setActiveMode(command.mode().value());
+        session.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
+        return this.studySessionRepository.save(session);
+    }
+
+    private StudySessionModeStateEntity upsertModeState(StudySessionEntity session, StudyMode mode) {
+        return this.studySessionModeStateRepository
+                .findBySessionIdAndMode(session.getId(), mode.value())
+                .orElseGet(() -> createModeState(session, mode));
+    }
+
+    private StudySessionModeStateEntity createModeState(StudySessionEntity session, StudyMode mode) {
+        final StudySessionModeStateEntity modeState = new StudySessionModeStateEntity();
+        modeState.setSessionId(session.getId());
+        modeState.setMode(mode.value());
+        modeState.setStatus(StudyConst.SESSION_STATUS_ACTIVE);
+        modeState.setCurrentIndex(StudyConst.DEFAULT_INDEX);
+        modeState.setTotalUnits(StudyConst.DEFAULT_INDEX);
+        modeState.setCorrectCount(StudyConst.ZERO_SCORE);
+        modeState.setWrongCount(StudyConst.ZERO_SCORE);
+        modeState.setStartedAt(Instant.now());
+        return this.studySessionModeStateRepository.save(modeState);
     }
 
     private StudySessionEntity createSession(StudySessionStartCommand command) {
         final StudySessionEntity session = new StudySessionEntity();
         session.setDeckId(command.deckId());
-        session.setMode(command.mode().value());
+        session.setActiveMode(command.mode().value());
         session.setStatus(StudyConst.SESSION_STATUS_ACTIVE);
         session.setSeed(command.seed());
-        session.setCurrentIndex(StudyConst.DEFAULT_INDEX);
-        session.setTotalUnits(StudyConst.DEFAULT_INDEX);
-        session.setCorrectCount(StudyConst.ZERO_SCORE);
-        session.setWrongCount(StudyConst.ZERO_SCORE);
         session.setStartedAt(Instant.now());
         session.setCreatedBy(StudyConst.DEFAULT_ACTOR);
         session.setUpdatedBy(StudyConst.DEFAULT_ACTOR);
@@ -117,9 +174,19 @@ public class StudySessionServiceImpl implements StudySessionService {
                 .orElseThrow(() -> new DeckNotFoundException(deckId));
     }
 
-    private StudySessionEntity getActiveSessionEntity(Long sessionId) {
+    private StudySessionEntity getSessionEntity(Long sessionId) {
         return this.studySessionRepository
                 .findByIdAndDeletedAtIsNull(sessionId)
+                .orElseThrow(() -> new StudySessionNotFoundException(sessionId));
+    }
+
+    private StudyMode resolveActiveMode(StudySessionEntity session) {
+        return StudyMode.fromValue(session.getActiveMode());
+    }
+
+    private StudySessionModeStateEntity getModeStateEntity(Long sessionId, StudyMode mode) {
+        return this.studySessionModeStateRepository
+                .findBySessionIdAndMode(sessionId, mode.value())
                 .orElseThrow(() -> new StudySessionNotFoundException(sessionId));
     }
 }

@@ -60,7 +60,9 @@ class MatchStudyModeView extends StatelessWidget {
         bottom: FlashcardStudySessionTokens.reviewBodyBottomGap,
       ),
       separatorBuilder: (context, index) {
-        return const SizedBox(height: FlashcardStudySessionTokens.matchRowSpacing);
+        return const SizedBox(
+          height: FlashcardStudySessionTokens.matchRowSpacing,
+        );
       },
       itemBuilder: (context, index) {
         final MatchEntry leftEntry = visibleLeftEntries[index];
@@ -69,29 +71,19 @@ class MatchStudyModeView extends StatelessWidget {
         final bool isRightSelected = unit.selectedRightId == rightEntry.id;
         final bool isLeftMatched = unit.matchedIds.contains(leftEntry.id);
         final bool isRightMatched = unit.matchedIds.contains(rightEntry.id);
-        final bool isLeftAnimatingSuccess = state.matchSuccessFlashKeys.contains(
-          _buildMatchTileFlashKey(
-            isLeftTile: true,
-            pairId: leftEntry.id,
-          ),
-        );
-        final bool isRightAnimatingSuccess = state.matchSuccessFlashKeys.contains(
-          _buildMatchTileFlashKey(
-            isLeftTile: false,
-            pairId: rightEntry.id,
-          ),
-        );
+        final bool isLeftAnimatingSuccess = state.matchSuccessFlashKeys
+            .contains(
+              _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
+            );
+        final bool isRightAnimatingSuccess = state.matchSuccessFlashKeys
+            .contains(
+              _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
+            );
         final bool isLeftErrorFlash = state.matchErrorFlashKeys.contains(
-          _buildMatchTileFlashKey(
-            isLeftTile: true,
-            pairId: leftEntry.id,
-          ),
+          _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
         );
         final bool isRightErrorFlash = state.matchErrorFlashKeys.contains(
-          _buildMatchTileFlashKey(
-            isLeftTile: false,
-            pairId: rightEntry.id,
-          ),
+          _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
         );
         return SizedBox(
           height: FlashcardStudySessionTokens.matchRowHeight,
@@ -167,7 +159,9 @@ List<MatchEntry> _resolveVisibleEntries({
   required List<MatchEntry> entries,
   required Set<int> hiddenMatchedIds,
 }) {
-  return entries.where((entry) => !hiddenMatchedIds.contains(entry.id)).toList();
+  return entries
+      .where((entry) => !hiddenMatchedIds.contains(entry.id))
+      .toList();
 }
 
 int _resolveRowCount({required int leftCount, required int rightCount}) {
@@ -290,7 +284,9 @@ class _MatchBoardTile extends StatelessWidget {
       return colorScheme.primary.withValues(alpha: AppOpacities.soft35);
     }
     if (isMatched) {
-      return colorScheme.primaryContainer.withValues(alpha: AppOpacities.soft20);
+      return colorScheme.primaryContainer.withValues(
+        alpha: AppOpacities.soft20,
+      );
     }
     return colorScheme.surfaceContainerHigh;
   }
@@ -314,7 +310,9 @@ class _MatchBoardTile extends StatelessWidget {
         alpha: AppOpacities.muted82,
       );
       if (isSelected) {
-        return theme.textTheme.titleMedium?.copyWith(color: colorScheme.onSurface);
+        return theme.textTheme.titleMedium?.copyWith(
+          color: colorScheme.onSurface,
+        );
       }
       if (isMatched) {
         return theme.textTheme.titleMedium?.copyWith(color: promptColor);

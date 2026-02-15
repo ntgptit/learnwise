@@ -30,6 +30,9 @@ class StudySessionState {
     required this.canGoPrevious,
     required this.canGoNext,
     required this.isCompleted,
+    required this.completedModeCount,
+    required this.requiredModeCount,
+    required this.isSessionCompleted,
     required this.matchHiddenIds,
     required this.matchSuccessFlashKeys,
     required this.matchErrorFlashKeys,
@@ -49,6 +52,9 @@ class StudySessionState {
   final bool canGoPrevious;
   final bool canGoNext;
   final bool isCompleted;
+  final int completedModeCount;
+  final int requiredModeCount;
+  final bool isSessionCompleted;
   final Set<int> matchHiddenIds;
   final Set<String> matchSuccessFlashKeys;
   final Set<String> matchErrorFlashKeys;
@@ -79,6 +85,9 @@ class StudySessionState {
       canGoPrevious: currentIndex > StudyConstants.defaultIndex,
       canGoNext: totalCount > StudyConstants.defaultIndex,
       isCompleted: false,
+      completedModeCount: StudyConstants.defaultIndex,
+      requiredModeCount: StudyConstants.requiredStudyModeCount,
+      isSessionCompleted: false,
       matchHiddenIds: const <int>{},
       matchSuccessFlashKeys: const <String>{},
       matchErrorFlashKeys: const <String>{},
@@ -102,6 +111,9 @@ class StudySessionState {
     bool? canGoPrevious,
     bool? canGoNext,
     bool? isCompleted,
+    int? completedModeCount,
+    int? requiredModeCount,
+    bool? isSessionCompleted,
     Set<int>? matchHiddenIds,
     Set<String>? matchSuccessFlashKeys,
     Set<String>? matchErrorFlashKeys,
@@ -129,6 +141,9 @@ class StudySessionState {
       canGoPrevious: canGoPrevious ?? this.canGoPrevious,
       canGoNext: canGoNext ?? this.canGoNext,
       isCompleted: isCompleted ?? this.isCompleted,
+      completedModeCount: completedModeCount ?? this.completedModeCount,
+      requiredModeCount: requiredModeCount ?? this.requiredModeCount,
+      isSessionCompleted: isSessionCompleted ?? this.isSessionCompleted,
       matchHiddenIds: Set<int>.unmodifiable(
         matchHiddenIds ?? this.matchHiddenIds,
       ),
@@ -168,6 +183,8 @@ class StudySessionController extends _$StudySessionController {
   int? _playingFlashcardId;
   Timer? _audioPlayingIndicatorTimer;
   Timer? _localMatchFeedbackTimer;
+  bool _isCompletingMode = false;
+  bool _isMatchModeCompletionSynced = false;
   int _clientSequence = StudyConstants.defaultClientSequence;
   Set<int> _submittedAnswerIndexes = <int>{};
   int _localCorrectCount = StudyConstants.defaultIndex;
@@ -209,6 +226,7 @@ class StudySessionController extends _$StudySessionController {
       _isLinearCompleted = true;
       _clearAudioPlayingIndicator();
       _syncFromSnapshot();
+      unawaited(completeCurrentMode());
       return;
     }
     _isFrontVisible = true;
@@ -349,6 +367,29 @@ class StudySessionController extends _$StudySessionController {
 
   void restart() {
     ref.invalidateSelf();
+  }
+
+  Future<void> completeCurrentMode() async {
+    if (_isCompletingMode) {
+      return;
+    }
+    final int? sessionId = _sessionId;
+    if (sessionId == null) {
+      return;
+    }
+    _isCompletingMode = true;
+    try {
+      final StudySessionResponseModel response = await _repository
+          .completeSession(sessionId: sessionId);
+      if (!ref.mounted) {
+        return;
+      }
+      _lastResponse = response;
+      _syncFromSnapshot();
+    } catch (_) {
+    } finally {
+      _isCompletingMode = false;
+    }
   }
 
   Future<void> _startSessionFromBackend() async {
@@ -730,7 +771,27 @@ class StudySessionController extends _$StudySessionController {
       _syncLocalLinearState();
       return;
     }
+    _syncMatchModeCompletion(snapshot);
     state = _mapResponseToState(snapshot);
+  }
+
+  void _syncMatchModeCompletion(StudySessionResponseModel snapshot) {
+    if (snapshot.mode != StudyMode.match) {
+      _isMatchModeCompletionSynced = false;
+      return;
+    }
+    if (!snapshot.completed) {
+      _isMatchModeCompletionSynced = false;
+      return;
+    }
+    if (snapshot.sessionCompleted) {
+      return;
+    }
+    if (_isMatchModeCompletionSynced) {
+      return;
+    }
+    _isMatchModeCompletionSynced = true;
+    unawaited(completeCurrentMode());
   }
 
   void _syncLocalLinearState() {
@@ -845,6 +906,9 @@ class StudySessionController extends _$StudySessionController {
         isCompleted: isCompleted,
       ),
       isCompleted: isCompleted,
+      completedModeCount: response.completedModeCount,
+      requiredModeCount: response.requiredModeCount,
+      isSessionCompleted: response.sessionCompleted,
       matchHiddenIds: const <int>{},
       matchSuccessFlashKeys: const <String>{},
       matchErrorFlashKeys: const <String>{},
@@ -918,6 +982,9 @@ class StudySessionController extends _$StudySessionController {
         isCompleted: response.completed,
       ),
       isCompleted: response.completed,
+      completedModeCount: response.completedModeCount,
+      requiredModeCount: response.requiredModeCount,
+      isSessionCompleted: response.sessionCompleted,
       matchHiddenIds: hiddenIds,
       matchSuccessFlashKeys: successFlashKeys,
       matchErrorFlashKeys: errorFlashKeys,
@@ -1340,6 +1407,8 @@ class StudySessionController extends _$StudySessionController {
     _playingFlashcardId = null;
     _audioPlayingIndicatorTimer?.cancel();
     _localMatchFeedbackTimer?.cancel();
+    _isCompletingMode = false;
+    _isMatchModeCompletionSynced = false;
     _clientSequence = StudyConstants.defaultClientSequence;
     _submittedAnswerIndexes = <int>{};
     _localCorrectCount = StudyConstants.defaultIndex;

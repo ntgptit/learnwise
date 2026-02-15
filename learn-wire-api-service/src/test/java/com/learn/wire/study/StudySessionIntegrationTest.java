@@ -38,6 +38,7 @@ class StudySessionIntegrationTest {
     private static final String TRUNCATE_MATCH_TILES_SQL = "TRUNCATE TABLE match_session_tiles";
     private static final String TRUNCATE_STUDY_ATTEMPTS_SQL = "TRUNCATE TABLE study_attempts";
     private static final String TRUNCATE_STUDY_ITEMS_SQL = "TRUNCATE TABLE study_session_items";
+    private static final String TRUNCATE_STUDY_MODE_STATES_SQL = "TRUNCATE TABLE study_session_mode_states";
     private static final String TRUNCATE_STUDY_SESSIONS_SQL = "TRUNCATE TABLE study_sessions";
     private static final String TRUNCATE_FLASHCARDS_SQL = "TRUNCATE TABLE flashcards";
     private static final String TRUNCATE_DECKS_SQL = "TRUNCATE TABLE decks";
@@ -65,6 +66,7 @@ class StudySessionIntegrationTest {
         this.jdbcTemplate.execute(TRUNCATE_MATCH_TILES_SQL);
         this.jdbcTemplate.execute(TRUNCATE_STUDY_ATTEMPTS_SQL);
         this.jdbcTemplate.execute(TRUNCATE_STUDY_ITEMS_SQL);
+        this.jdbcTemplate.execute(TRUNCATE_STUDY_MODE_STATES_SQL);
         this.jdbcTemplate.execute(TRUNCATE_STUDY_SESSIONS_SQL);
         this.jdbcTemplate.execute(TRUNCATE_FLASHCARDS_SQL);
         this.jdbcTemplate.execute(TRUNCATE_DECKS_SQL);
@@ -89,6 +91,9 @@ class StudySessionIntegrationTest {
         assertThat(response.reviewItems()).hasSize(3);
         assertThat(response.leftTiles()).isEmpty();
         assertThat(response.rightTiles()).isEmpty();
+        assertThat(response.completedModeCount()).isEqualTo(0);
+        assertThat(response.requiredModeCount()).isEqualTo(5);
+        assertThat(response.sessionCompleted()).isFalse();
     }
 
     @Test
@@ -142,6 +147,53 @@ class StudySessionIntegrationTest {
                 .orElseThrow();
         assertThat(errorLeftTile.tileId()).isEqualTo(leftTile.tileId());
         assertThat(errorRightTile.tileId()).isEqualTo(wrongRightTile.tileId());
+    }
+
+    @Test
+    void completeAllModes_shouldCompleteSingleCycleSession() {
+        final Long deckId = createDeckWithFlashcards(_unique("Cycle"), List.of(
+                new FlashcardCreateRequest("alpha", "mot"),
+                new FlashcardCreateRequest("beta", "hai"),
+                new FlashcardCreateRequest("gamma", "ba")));
+
+        final StudySessionResponse reviewSession = this.studySessionService.startSession(
+                deckId,
+                new StudySessionStartRequest(StudyConst.MODE_REVIEW, 17));
+        final StudySessionResponse completedReview = this.studySessionService.completeSession(reviewSession.sessionId());
+        assertThat(completedReview.completed()).isTrue();
+        assertThat(completedReview.sessionCompleted()).isFalse();
+
+        final StudySessionResponse guessSession = this.studySessionService.startSession(
+                deckId,
+                new StudySessionStartRequest(StudyConst.MODE_GUESS, 19));
+        assertThat(guessSession.sessionId()).isEqualTo(reviewSession.sessionId());
+        final StudySessionResponse completedGuess = this.studySessionService.completeSession(guessSession.sessionId());
+        assertThat(completedGuess.sessionCompleted()).isFalse();
+
+        final StudySessionResponse recallSession = this.studySessionService.startSession(
+                deckId,
+                new StudySessionStartRequest(StudyConst.MODE_RECALL, 23));
+        assertThat(recallSession.sessionId()).isEqualTo(reviewSession.sessionId());
+        final StudySessionResponse completedRecall = this.studySessionService.completeSession(recallSession.sessionId());
+        assertThat(completedRecall.sessionCompleted()).isFalse();
+
+        final StudySessionResponse fillSession = this.studySessionService.startSession(
+                deckId,
+                new StudySessionStartRequest(StudyConst.MODE_FILL, 29));
+        assertThat(fillSession.sessionId()).isEqualTo(reviewSession.sessionId());
+        final StudySessionResponse completedFill = this.studySessionService.completeSession(fillSession.sessionId());
+        assertThat(completedFill.sessionCompleted()).isFalse();
+
+        final StudySessionResponse matchSession = this.studySessionService.startSession(
+                deckId,
+                new StudySessionStartRequest(StudyConst.MODE_MATCH, 31));
+        assertThat(matchSession.sessionId()).isEqualTo(reviewSession.sessionId());
+        final StudySessionResponse completedMatch = this.studySessionService.completeSession(matchSession.sessionId());
+
+        assertThat(completedMatch.completedModeCount()).isEqualTo(5);
+        assertThat(completedMatch.requiredModeCount()).isEqualTo(5);
+        assertThat(completedMatch.sessionCompleted()).isTrue();
+        assertThat(completedMatch.status()).isEqualTo(StudyConst.SESSION_STATUS_COMPLETED);
     }
 
     private StudyMatchTileResponse findWrongRightTile(List<StudyMatchTileResponse> rightTiles, int pairKey) {

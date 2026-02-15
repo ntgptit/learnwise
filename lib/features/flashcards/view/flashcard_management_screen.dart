@@ -13,6 +13,7 @@ import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_management_args.dart';
 import '../model/flashcard_models.dart';
+import '../study/model/study_constants.dart';
 import '../study/model/study_mode.dart';
 import '../study/model/study_session_args.dart';
 import '../viewmodel/flashcard_viewmodel.dart';
@@ -514,6 +515,7 @@ class _FlashcardManagementScreenState
     required StudyMode mode,
   }) {
     final int seed = widget.args.deckId ^ listing.items.length ^ mode.index;
+    final List<StudyMode> cycleModes = buildStudyModeCycle(startMode: mode);
     unawaited(
       context.push(
         RouteNames.flashcardStudySession,
@@ -523,6 +525,8 @@ class _FlashcardManagementScreenState
           items: listing.items,
           title: _resolveTitle(l10n),
           seed: seed,
+          cycleModes: cycleModes,
+          cycleModeIndex: StudyConstants.defaultIndex,
         ),
       ),
     );

@@ -8,5 +8,5 @@ import com.learn.wire.entity.StudyAttemptEntity;
 
 public interface StudyAttemptRepository extends JpaRepository<StudyAttemptEntity, Long> {
 
-    Optional<StudyAttemptEntity> findBySessionIdAndClientEventId(Long sessionId, String clientEventId);
+    Optional<StudyAttemptEntity> findByModeStateIdAndClientEventId(Long modeStateId, String clientEventId);
 }

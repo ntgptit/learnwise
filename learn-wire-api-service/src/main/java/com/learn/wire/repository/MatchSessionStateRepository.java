@@ -8,5 +8,5 @@ import com.learn.wire.entity.MatchSessionStateEntity;
 
 public interface MatchSessionStateRepository extends JpaRepository<MatchSessionStateEntity, Long> {
 
-    Optional<MatchSessionStateEntity> findBySessionId(Long sessionId);
+    Optional<MatchSessionStateEntity> findByModeStateId(Long modeStateId);
 }

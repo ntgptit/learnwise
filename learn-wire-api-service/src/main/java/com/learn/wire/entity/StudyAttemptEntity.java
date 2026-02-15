@@ -30,8 +30,8 @@ public class StudyAttemptEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "session_id", nullable = false)
-    private Long sessionId;
+    @Column(name = "mode_state_id", nullable = false)
+    private Long modeStateId;
 
     @Column(name = "client_event_id", nullable = false, length = StudyConst.EVENT_ID_MAX_LENGTH)
     private String clientEventId;

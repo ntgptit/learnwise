@@ -111,12 +111,8 @@ class _GuessPromptCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          const Align(
-            alignment: Alignment.centerRight,
-            child: Icon(
-              Icons.edit_outlined,
-              size: FlashcardStudySessionTokens.iconSize,
-            ),
+          const _GuessPromptActionIcon(
+            iconData: Icons.edit_outlined,
           ),
           const SizedBox(
             height: FlashcardStudySessionTokens.reviewCardActionTopGap,
@@ -146,14 +142,47 @@ class _GuessPromptCard extends StatelessWidget {
           const SizedBox(
             height: FlashcardStudySessionTokens.reviewCardActionTopGap,
           ),
-          const Align(
-            alignment: Alignment.centerRight,
+          const _GuessPromptActionIcon(
+            iconData: Icons.volume_up_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuessPromptActionIcon extends StatelessWidget {
+  const _GuessPromptActionIcon({required this.iconData});
+
+  final IconData iconData;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: FlashcardStudySessionTokens.guessPromptActionOuterPadding,
+        ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(
+              FlashcardStudySessionTokens.guessPromptActionRadius,
+            ),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(
+              FlashcardStudySessionTokens.guessPromptActionInnerPadding,
+            ),
             child: Icon(
-              Icons.volume_up_outlined,
+              iconData,
               size: FlashcardStudySessionTokens.iconSize,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -203,20 +232,22 @@ class _GuessOptionCard extends StatelessWidget {
   }
 
   Widget _buildOptionText(BuildContext context) {
-    final Text text = Text(
+    Widget text = Text(
       label,
       textAlign: TextAlign.center,
       maxLines: FlashcardStudySessionTokens.guessOptionMaxLines,
       overflow: TextOverflow.ellipsis,
       style: _resolveTextStyle(context),
     );
-    if (!enabled || isInteractionLocked) {
-      return text;
+    if (enabled && !isInteractionLocked) {
+      text = Semantics(
+        label: semanticLabel,
+        button: true,
+        child: ExcludeSemantics(child: text),
+      );
     }
-    return Semantics(
-      label: semanticLabel,
-      button: true,
-      child: ExcludeSemantics(child: text),
+    return Center(
+      child: text,
     );
   }
 

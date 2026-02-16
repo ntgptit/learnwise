@@ -273,6 +273,9 @@ class FlashcardStudySessionTokens {
   static const int guessOptionsFlex = 68;
   static const double guessPromptHorizontalPadding = AppSizes.spacingSm;
   static const double guessOptionVerticalPadding = AppSizes.spacingXs;
+  static const double guessPromptActionOuterPadding = AppSizes.spacing2Xs;
+  static const double guessPromptActionInnerPadding = AppSizes.spacing2Xs;
+  static const double guessPromptActionRadius = AppSizes.radiusPill;
   static const double cycleProgressItemHeight = AppSizes.size32;
   static const double cycleProgressItemGap = AppSizes.spacingXs;
   static const double cycleProgressItemRadius = AppSizes.radiusPill;

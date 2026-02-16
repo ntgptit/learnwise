@@ -166,6 +166,51 @@ void main() {
         expect(state.matchErrorFlashKeys, isEmpty);
       },
     );
+
+    test('correct attempt updates progress only after success feedback ends', () async {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.match,
+        items: _buildItems(count: 3),
+        title: 'Match',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+      final MatchUnit initialUnit =
+          container.read(provider).currentUnit! as MatchUnit;
+      final int leftId = initialUnit.leftEntries.first.id;
+      final int rightId = initialUnit.rightEntries
+          .firstWhere((entry) => entry.id == leftId)
+          .id;
+
+      controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+      controller.submitAnswer(MatchSelectRightStudyAnswer(rightId: rightId));
+
+      StudySessionState state = container.read(provider);
+      expect(state.currentIndex, 0);
+      expect(state.progressPercent, 0);
+      expect(state.isMatchInteractionLocked, isTrue);
+      expect(state.matchSuccessFlashKeys, <String>{
+        'left:$leftId',
+        'right:$rightId',
+      });
+
+      await Future<void>.delayed(
+        const Duration(
+          milliseconds: StudyConstants.localMatchFeedbackDurationMs + 120,
+        ),
+      );
+
+      state = container.read(provider);
+      expect(state.currentIndex, 1);
+      expect(state.progressPercent, closeTo(1 / 3, 0.0001));
+      expect(state.isMatchInteractionLocked, isFalse);
+      expect(state.matchSuccessFlashKeys, isEmpty);
+    });
   });
 
   group('StudySessionController guess mode', () {

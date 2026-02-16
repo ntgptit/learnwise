@@ -814,20 +814,25 @@ class StudySessionController extends _$StudySessionController {
     _localMatchFeedbackTimer?.cancel();
     final int totalCount = updatedUnit.leftEntries.length;
     final int currentIndex = updatedUnit.matchedIds.length;
-    final bool isCompleted = totalCount > 0 && currentIndex >= totalCount;
+    final bool shouldDelayProgressUpdate = successFlashKeys.isNotEmpty;
+    final int displayCurrentIndex = _resolveMatchDisplayCurrentIndex(
+      currentIndex: currentIndex,
+      shouldDelayProgressUpdate: shouldDelayProgressUpdate,
+    );
+    final bool isCompleted = totalCount > 0 && displayCurrentIndex >= totalCount;
     state = state.copyWith(
       currentUnit: updatedUnit,
-      currentIndex: currentIndex,
+      currentIndex: displayCurrentIndex,
       totalCount: totalCount,
       progressPercent: _resolveProgressPercent(
-        currentIndex: currentIndex,
+        currentIndex: displayCurrentIndex,
         totalCount: totalCount,
         isCompleted: isCompleted,
       ),
       correctCount: _localCorrectCount,
       wrongCount: _localWrongCount,
       canGoPrevious: _resolveCanGoPrevious(
-        currentIndex: currentIndex,
+        currentIndex: displayCurrentIndex,
         totalCount: totalCount,
         isCompleted: isCompleted,
       ),
@@ -1289,34 +1294,41 @@ class StudySessionController extends _$StudySessionController {
       selectByTile: (tile) => tile.errorFlash,
     );
     final bool isInteractionLocked = _resolveMatchInteractionLocked(response);
+    final bool shouldDelayProgressUpdate =
+        isInteractionLocked && successFlashKeys.isNotEmpty;
+    final int displayCurrentIndex = _resolveMatchDisplayCurrentIndex(
+      currentIndex: response.currentIndex,
+      shouldDelayProgressUpdate: shouldDelayProgressUpdate,
+    );
+    final bool isCompleted = response.completed && !shouldDelayProgressUpdate;
     return StudySessionState(
       mode: response.mode,
       reviewUnits: const <ReviewUnit>[],
       currentUnit: matchUnit,
       currentIndex: _resolveCurrentIndex(
-        responseIndex: response.currentIndex,
+        responseIndex: displayCurrentIndex,
         totalCount: response.totalUnits,
       ),
       totalCount: response.totalUnits,
       progressPercent: _resolveProgressPercent(
-        currentIndex: response.currentIndex,
+        currentIndex: displayCurrentIndex,
         totalCount: response.totalUnits,
-        isCompleted: response.completed,
+        isCompleted: isCompleted,
       ),
       isFrontVisible: _isFrontVisible,
       playingFlashcardId: _playingFlashcardId,
       correctCount: response.correctCount,
       wrongCount: response.wrongCount,
       canGoPrevious: _resolveCanGoPrevious(
-        currentIndex: response.currentIndex,
+        currentIndex: displayCurrentIndex,
         totalCount: response.totalUnits,
-        isCompleted: response.completed,
+        isCompleted: isCompleted,
       ),
       canGoNext: _resolveCanGoNext(
         totalCount: response.totalUnits,
-        isCompleted: response.completed,
+        isCompleted: isCompleted,
       ),
-      isCompleted: response.completed,
+      isCompleted: isCompleted,
       completedModeCount: response.completedModeCount,
       requiredModeCount: response.requiredModeCount,
       isSessionCompleted: response.sessionCompleted,
@@ -1328,6 +1340,16 @@ class StudySessionController extends _$StudySessionController {
       guessErrorOptionIds: const <String>{},
       isGuessInteractionLocked: false,
     );
+  }
+
+  int _resolveMatchDisplayCurrentIndex({
+    required int currentIndex,
+    required bool shouldDelayProgressUpdate,
+  }) {
+    if (!shouldDelayProgressUpdate) {
+      return currentIndex;
+    }
+    return max(StudyConstants.defaultIndex, currentIndex - 1);
   }
 
   Set<String> _resolveGuessSuccessOptionIds({required StudyMode mode}) {

@@ -137,7 +137,6 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
       return;
     }
     widget.onSubmitAnswer(normalizedAnswer);
-    widget.fillController.clear();
     _helpAnswerNotifier.value = null;
   }
 
@@ -262,9 +261,9 @@ class _FillInputCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
               ),
             );
           }

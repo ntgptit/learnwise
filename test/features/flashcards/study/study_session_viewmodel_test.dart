@@ -262,6 +262,54 @@ void main() {
     });
   });
 
+  group('StudySessionController fill mode', () {
+    test('correct check advances to next vocabulary', () {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.fill,
+        items: _buildItems(count: 2),
+        title: 'Fill',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+
+      StudySessionState state = container.read(provider);
+      expect(state.currentIndex, 0);
+
+      controller.submitFillAnswer('Front 1');
+      state = container.read(provider);
+      expect(state.currentIndex, 1);
+      expect(state.correctCount, 1);
+    });
+
+    test('wrong check does not advance to next vocabulary', () {
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final StudySessionArgs args = StudySessionArgs(
+        deckId: 0,
+        mode: StudyMode.fill,
+        items: _buildItems(count: 2),
+        title: 'Fill',
+      );
+      final provider = studySessionControllerProvider(args);
+      final StudySessionController controller = container.read(
+        provider.notifier,
+      );
+
+      StudySessionState state = container.read(provider);
+      expect(state.currentIndex, 0);
+
+      controller.submitFillAnswer('wrong answer');
+      state = container.read(provider);
+      expect(state.currentIndex, 0);
+      expect(state.wrongCount, 1);
+    });
+  });
+
   group('StudySessionController recall mode', () {
     test(
       'not yet pushes current unit to retry queue and revisits after initial cycle',

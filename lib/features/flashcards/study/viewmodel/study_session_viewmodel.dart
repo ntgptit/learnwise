@@ -298,6 +298,28 @@ class StudySessionController extends _$StudySessionController {
     _advanceRecallFlow();
   }
 
+  void submitFillAnswer(String answer) {
+    if (state.mode != StudyMode.fill) {
+      return;
+    }
+    if (state.isCompleted) {
+      return;
+    }
+    final StudyUnit? currentUnit = state.currentUnit;
+    if (currentUnit is! FillUnit) {
+      return;
+    }
+    final bool isCorrect = _isFillAnswerCorrect(
+      actual: answer,
+      expected: currentUnit.expectedAnswer,
+    );
+    submitAnswer(FillStudyAnswer(text: answer));
+    if (!isCorrect) {
+      return;
+    }
+    next();
+  }
+
   void _enqueueRecallUnitForRetry(RecallUnit unit) {
     final List<RecallUnit> nextWaitingUnits = List<RecallUnit>.from(
       _recallWaitingUnits,
@@ -940,62 +962,7 @@ class StudySessionController extends _$StudySessionController {
     if (normalizedActual.isEmpty) {
       return false;
     }
-    if (normalizedActual == normalizedExpected) {
-      return true;
-    }
-    final int distance = _levenshteinDistance(
-      left: normalizedActual,
-      right: normalizedExpected,
-    );
-    return distance <= StudyConstants.fillToleranceDistance;
-  }
-
-  int _levenshteinDistance({required String left, required String right}) {
-    if (left.isEmpty) {
-      return right.length;
-    }
-    if (right.isEmpty) {
-      return left.length;
-    }
-    final int columnCount = right.length + 1;
-    List<int> previous = List<int>.generate(columnCount, (index) => index);
-    for (
-      int leftIndex = StudyConstants.defaultIndex;
-      leftIndex < left.length;
-    ) {
-      final List<int> current = List<int>.filled(columnCount, 0);
-      current[StudyConstants.defaultIndex] = leftIndex + 1;
-      for (
-        int rightIndex = StudyConstants.defaultIndex;
-        rightIndex < right.length;
-      ) {
-        final int insertionCost = current[rightIndex] + 1;
-        final int deletionCost = previous[rightIndex + 1] + 1;
-        final int substitutionCost =
-            previous[rightIndex] +
-            (left[leftIndex] == right[rightIndex] ? 0 : 1);
-        current[rightIndex + 1] = _min3(
-          insertionCost,
-          deletionCost,
-          substitutionCost,
-        );
-        rightIndex++;
-      }
-      previous = current;
-      leftIndex++;
-    }
-    return previous[columnCount - 1];
-  }
-
-  int _min3(int first, int second, int third) {
-    int minValue = first;
-    if (second < minValue) {
-      minValue = second;
-    }
-    if (third < minValue) {
-      minValue = third;
-    }
-    return minValue;
+    return normalizedActual == normalizedExpected;
   }
 
   bool _isMatchAnswer(StudyAnswer answer) {
@@ -1472,8 +1439,8 @@ class StudySessionController extends _$StudySessionController {
           .map((unit) {
             return FillUnit(
               unitId: unit.unitId,
-              prompt: unit.frontText,
-              expectedAnswer: unit.backText,
+              prompt: unit.backText,
+              expectedAnswer: unit.frontText,
             );
           })
           .toList(growable: false);

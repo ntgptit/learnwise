@@ -447,8 +447,7 @@ class _StudyUnitBody extends ConsumerWidget {
       return FillStudyModeView(
         unit: currentUnit,
         onSubmitAnswer: (answer) {
-          controller.submitAnswer(FillStudyAnswer(text: answer));
-          controller.next();
+          controller.submitFillAnswer(answer);
         },
         l10n: l10n,
         fillController: fillController,

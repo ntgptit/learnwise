@@ -57,75 +57,97 @@ class MatchStudyModeView extends StatelessWidget {
         ),
       );
     }
-    return ListView.separated(
-      itemCount: rowCount,
-      padding: const EdgeInsets.only(
-        bottom: FlashcardStudySessionTokens.reviewBodyBottomGap,
-      ),
-      separatorBuilder: (context, index) {
-        return const SizedBox(
-          height: FlashcardStudySessionTokens.matchRowSpacing,
+    final int baselineRowCount = _resolveBaselineRowCount(
+      totalLeftCount: unit.leftEntries.length,
+      totalRightCount: unit.rightEntries.length,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double rowHeight = _resolveAdaptiveRowHeight(
+          viewportHeight: constraints.maxHeight,
+          baselineRowCount: baselineRowCount,
         );
-      },
-      itemBuilder: (context, index) {
-        final MatchEntry leftEntry = visibleLeftEntries[index];
-        final MatchEntry rightEntry = visibleRightEntries[index];
-        final bool isLeftSelected = unit.selectedLeftId == leftEntry.id;
-        final bool isRightSelected = unit.selectedRightId == rightEntry.id;
-        final bool isLeftMatched = unit.matchedIds.contains(leftEntry.id);
-        final bool isRightMatched = unit.matchedIds.contains(rightEntry.id);
-        final bool isLeftAnimatingSuccess = matchFeedback.successIds.contains(
-          _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
-        );
-        final bool isRightAnimatingSuccess = matchFeedback.successIds.contains(
-          _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
-        );
-        final bool isLeftErrorFlash = matchFeedback.errorIds.contains(
-          _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
-        );
-        final bool isRightErrorFlash = matchFeedback.errorIds.contains(
-          _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
-        );
-        return SizedBox(
-          height: FlashcardStudySessionTokens.matchRowHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Expanded(
-                child: _MatchBoardTile(
-                  label: leftEntry.label,
-                  semanticPrefix: l10n.flashcardsStudyMatchLeftColumnLabel,
-                  isPromptTile: true,
-                  isSelected: isLeftSelected,
-                  isMatched: isLeftMatched,
-                  showSuccessState: isLeftAnimatingSuccess,
-                  showErrorState: isLeftErrorFlash,
-                  onPressed: _resolveTapCallback(
-                    isLocked: matchFeedback.isLocked,
-                    isMatched: isLeftMatched,
-                    onPressed: () => onLeftPressed(leftEntry.id),
-                  ),
-                ),
-              ),
-              const SizedBox(width: FlashcardStudySessionTokens.sectionSpacing),
-              Expanded(
-                child: _MatchBoardTile(
-                  label: rightEntry.label,
-                  semanticPrefix: l10n.flashcardsStudyMatchRightColumnLabel,
-                  isPromptTile: false,
-                  isSelected: isRightSelected,
-                  isMatched: isRightMatched,
-                  showSuccessState: isRightAnimatingSuccess,
-                  showErrorState: isRightErrorFlash,
-                  onPressed: _resolveTapCallback(
-                    isLocked: matchFeedback.isLocked,
-                    isMatched: isRightMatched,
-                    onPressed: () => onRightPressed(rightEntry.id),
-                  ),
-                ),
-              ),
-            ],
+        return ListView.separated(
+          itemCount: rowCount,
+          padding: const EdgeInsets.only(
+            bottom: FlashcardStudySessionTokens.reviewBodyBottomGap,
           ),
+          separatorBuilder: (context, index) {
+            return const SizedBox(
+              height: FlashcardStudySessionTokens.matchRowSpacing,
+            );
+          },
+          itemBuilder: (context, index) {
+            final MatchEntry leftEntry = visibleLeftEntries[index];
+            final MatchEntry rightEntry = visibleRightEntries[index];
+            final bool isLeftSelected = unit.selectedLeftId == leftEntry.id;
+            final bool isRightSelected = unit.selectedRightId == rightEntry.id;
+            final bool isLeftMatched = unit.matchedIds.contains(leftEntry.id);
+            final bool isRightMatched = unit.matchedIds.contains(rightEntry.id);
+            final bool isLeftAnimatingSuccess = matchFeedback.successIds
+                .contains(
+                  _buildMatchTileFlashKey(
+                    isLeftTile: true,
+                    pairId: leftEntry.id,
+                  ),
+                );
+            final bool isRightAnimatingSuccess = matchFeedback.successIds
+                .contains(
+                  _buildMatchTileFlashKey(
+                    isLeftTile: false,
+                    pairId: rightEntry.id,
+                  ),
+                );
+            final bool isLeftErrorFlash = matchFeedback.errorIds.contains(
+              _buildMatchTileFlashKey(isLeftTile: true, pairId: leftEntry.id),
+            );
+            final bool isRightErrorFlash = matchFeedback.errorIds.contains(
+              _buildMatchTileFlashKey(isLeftTile: false, pairId: rightEntry.id),
+            );
+            return SizedBox(
+              height: rowHeight,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Expanded(
+                    child: _MatchBoardTile(
+                      label: leftEntry.label,
+                      semanticPrefix: l10n.flashcardsStudyMatchLeftColumnLabel,
+                      isPromptTile: true,
+                      isSelected: isLeftSelected,
+                      isMatched: isLeftMatched,
+                      showSuccessState: isLeftAnimatingSuccess,
+                      showErrorState: isLeftErrorFlash,
+                      onPressed: _resolveTapCallback(
+                        isLocked: matchFeedback.isLocked,
+                        isMatched: isLeftMatched,
+                        onPressed: () => onLeftPressed(leftEntry.id),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: FlashcardStudySessionTokens.sectionSpacing,
+                  ),
+                  Expanded(
+                    child: _MatchBoardTile(
+                      label: rightEntry.label,
+                      semanticPrefix: l10n.flashcardsStudyMatchRightColumnLabel,
+                      isPromptTile: false,
+                      isSelected: isRightSelected,
+                      isMatched: isRightMatched,
+                      showSuccessState: isRightAnimatingSuccess,
+                      showErrorState: isRightErrorFlash,
+                      onPressed: _resolveTapCallback(
+                        isLocked: matchFeedback.isLocked,
+                        isMatched: isRightMatched,
+                        onPressed: () => onRightPressed(rightEntry.id),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -174,6 +196,44 @@ int _resolveRowCount({required int leftCount, required int rightCount}) {
     return leftCount;
   }
   return rightCount;
+}
+
+int _resolveBaselineRowCount({
+  required int totalLeftCount,
+  required int totalRightCount,
+}) {
+  final int totalRowCount = _resolveRowCount(
+    leftCount: totalLeftCount,
+    rightCount: totalRightCount,
+  );
+  if (totalRowCount <= FlashcardStudySessionTokens.matchVisiblePairCount) {
+    return totalRowCount;
+  }
+  return FlashcardStudySessionTokens.matchVisiblePairCount;
+}
+
+double _resolveAdaptiveRowHeight({
+  required double viewportHeight,
+  required int baselineRowCount,
+}) {
+  if (baselineRowCount <= 0) {
+    return FlashcardStudySessionTokens.matchRowHeight;
+  }
+  if (viewportHeight <= 0) {
+    return FlashcardStudySessionTokens.matchRowHeight;
+  }
+  final double spacingHeight =
+      FlashcardStudySessionTokens.matchRowSpacing * (baselineRowCount - 1);
+  const double paddingHeight = FlashcardStudySessionTokens.reviewBodyBottomGap;
+  final double availableHeight = viewportHeight - spacingHeight - paddingHeight;
+  if (availableHeight <= 0) {
+    return FlashcardStudySessionTokens.matchRowHeight;
+  }
+  final double adaptiveHeight = availableHeight / baselineRowCount;
+  if (adaptiveHeight <= FlashcardStudySessionTokens.matchRowHeight) {
+    return adaptiveHeight;
+  }
+  return FlashcardStudySessionTokens.matchRowHeight;
 }
 
 class _MatchBoardTile extends StatelessWidget {
@@ -308,9 +368,10 @@ class _MatchBoardTile extends StatelessWidget {
     required ThemeData theme,
     required ColorScheme colorScheme,
   }) {
+    final double labelFontSize = _resolveLabelFontSize();
     final TextStyle? baseStyle = theme.textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.normal,
-      fontSize: FlashcardStudySessionTokens.matchLabelFontSize,
+      fontSize: labelFontSize,
     );
     final Color tileTextColor = colorScheme.onSurfaceVariant.withValues(
       alpha: AppOpacities.muted82,
@@ -322,6 +383,13 @@ class _MatchBoardTile extends StatelessWidget {
       return baseStyle?.copyWith(color: tileTextColor);
     }
     return baseStyle?.copyWith(color: tileTextColor);
+  }
+
+  double _resolveLabelFontSize() {
+    if (isPromptTile) {
+      return FlashcardStudySessionTokens.matchPromptLabelFontSize;
+    }
+    return FlashcardStudySessionTokens.matchMeaningLabelFontSize;
   }
 
   double _resolveOpacity() {

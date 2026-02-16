@@ -265,9 +265,12 @@ class FlashcardStudySessionTokens {
   static const double matchCardPadding = AppSizes.spacingSm;
   static const double matchCardMinHeight = AppSizes.size72;
   static const double matchRowHeightBase = AppSizes.size72 + AppSizes.spacingLg;
-  static const double matchRowHeight = matchRowHeightBase * 4 / 3;
+  static const double matchRowHeight = matchRowHeightBase * 2;
+  static const int matchVisiblePairCount = 5;
   static const double matchSuccessBorderWidth = AppSizes.size2;
-  static const double matchLabelFontSize = AppSizes.size20;
+  static const double matchPromptLabelFontSize = AppSizes.size20;
+  static const double matchMeaningLabelFontSize =
+      AppSizes.size14 + AppSizes.size1;
   static const int guessOptionCount = 5;
   static const int guessPromptMaxLines = 5;
   static const int guessOptionMaxLines = 2;

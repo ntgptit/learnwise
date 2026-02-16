@@ -216,7 +216,7 @@ class _FillPromptCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: colorScheme.onSurface,
                   ),
                 ),

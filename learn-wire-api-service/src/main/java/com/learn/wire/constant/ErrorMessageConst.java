@@ -17,6 +17,10 @@ public final class ErrorMessageConst {
     public static final String DECK_ERROR_FOLDER_HAS_SUBFOLDERS = "deck.error.folderHasSubfolders";
     public static final String FLASHCARD_ERROR_NOT_FOUND = "flashcard.error.notFound";
     public static final String FLASHCARD_ERROR_DECK_NOT_FOUND = "flashcard.error.deckNotFound";
+    public static final String AUTH_ERROR_EMAIL_ALREADY_EXISTS = "auth.error.emailAlreadyExists";
+    public static final String AUTH_ERROR_INVALID_CREDENTIALS = "auth.error.invalidCredentials";
+    public static final String AUTH_ERROR_REFRESH_TOKEN_INVALID = "auth.error.refreshTokenInvalid";
+    public static final String AUTH_ERROR_UNAUTHORIZED = "auth.error.unauthorized";
     public static final String STUDY_ERROR_SESSION_NOT_FOUND = "study.error.sessionNotFound";
     public static final String STUDY_ERROR_SESSION_NOT_ACTIVE = "study.error.sessionNotActive";
     public static final String STUDY_ERROR_MATCH_STATE_NOT_FOUND = "study.error.matchStateNotFound";
@@ -52,6 +56,14 @@ public final class ErrorMessageConst {
     public static final String DECK_VALIDATION_SIZE_INVALID = "deck.validation.size.invalid";
     public static final String DECK_VALIDATION_SORT_BY_INVALID = "deck.validation.sortBy.invalid";
     public static final String DECK_VALIDATION_SORT_DIRECTION_INVALID = "deck.validation.sortDirection.invalid";
+    public static final String AUTH_VALIDATION_EMAIL_REQUIRED = "auth.validation.email.required";
+    public static final String AUTH_VALIDATION_EMAIL_INVALID = "auth.validation.email.invalid";
+    public static final String AUTH_VALIDATION_EMAIL_TOO_LONG = "auth.validation.email.tooLong";
+    public static final String AUTH_VALIDATION_PASSWORD_REQUIRED = "auth.validation.password.required";
+    public static final String AUTH_VALIDATION_PASSWORD_TOO_SHORT = "auth.validation.password.tooShort";
+    public static final String AUTH_VALIDATION_PASSWORD_TOO_LONG = "auth.validation.password.tooLong";
+    public static final String AUTH_VALIDATION_DISPLAY_NAME_TOO_LONG = "auth.validation.displayName.tooLong";
+    public static final String AUTH_VALIDATION_REFRESH_TOKEN_REQUIRED = "auth.validation.refreshToken.required";
     public static final String STUDY_VALIDATION_MODE_INVALID = "study.validation.mode.invalid";
     public static final String STUDY_VALIDATION_SEED_INVALID = "study.validation.seed.invalid";
     public static final String STUDY_VALIDATION_EVENT_TYPE_INVALID = "study.validation.eventType.invalid";

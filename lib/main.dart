@@ -5,6 +5,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import 'app/router/app_router.dart';
 import 'app/theme/app_theme.dart';
 import 'core/error/global_error_handler.dart';
+import 'core/network/auth_session.dart';
 
 void main() {
   runApp(const ProviderScope(child: LearnWiseApp()));
@@ -15,6 +16,16 @@ class LearnWiseApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const _LearnWiseAppView();
+  }
+}
+
+class _LearnWiseAppView extends ConsumerWidget {
+  const _LearnWiseAppView();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       scaffoldMessengerKey: appScaffoldMessengerKey,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
@@ -22,13 +33,30 @@ class LearnWiseApp extends StatelessWidget {
       darkTheme: AppTheme.dark(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: AppRouter.router,
+      routerConfig: router,
       builder: (context, child) {
         if (child == null) {
           return const SizedBox.shrink();
         }
-        return GlobalErrorHandler(child: child);
+        return _AppActivityListener(child: GlobalErrorHandler(child: child));
       },
+    );
+  }
+}
+
+class _AppActivityListener extends ConsumerWidget {
+  const _AppActivityListener({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) {
+        ref.read(authSessionManagerProvider).markUserActivity();
+      },
+      child: child,
     );
   }
 }

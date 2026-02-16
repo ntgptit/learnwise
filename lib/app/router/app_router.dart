@@ -1,21 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/network/auth_session.dart';
+import '../../features/auth/view/login_screen.dart';
+import '../../features/auth/view/register_screen.dart';
 import '../../features/dashboard/view/dashboard_screen.dart';
 import '../../features/flashcards/model/flashcard_management_args.dart';
+import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
+import '../../features/folders/view/folder_screen.dart';
 import '../../features/study/model/study_session_args.dart';
 import '../../features/study/view/index.dart';
-import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
-import '../../features/folders/view/folder_screen.dart';
 import '../../features/tts/view/tts_screen.dart';
 import 'route_names.dart';
 
-class AppRouter {
-  const AppRouter._();
+part 'app_router.g.dart';
 
-  static final GoRouter router = GoRouter(
-    initialLocation: RouteNames.dashboard,
+@Riverpod(keepAlive: true)
+GoRouter appRouter(Ref ref) {
+  final AuthSessionManager authSessionManager = ref.read(
+    authSessionManagerProvider,
+  );
+
+  return GoRouter(
+    initialLocation: RouteNames.login,
+    refreshListenable: authSessionManager,
+    redirect: (context, state) {
+      final String location = state.uri.path;
+      final bool isAuthRoute =
+          location == RouteNames.login || location == RouteNames.register;
+      if (!authSessionManager.isReady) {
+        if (isAuthRoute) {
+          return null;
+        }
+        return RouteNames.login;
+      }
+      if (!authSessionManager.isAuthenticated && !isAuthRoute) {
+        return RouteNames.login;
+      }
+      if (authSessionManager.isAuthenticated && isAuthRoute) {
+        return RouteNames.dashboard;
+      }
+      return null;
+    },
     routes: <RouteBase>[
       GoRoute(
         path: RouteNames.root,
@@ -73,7 +101,13 @@ class AppRouter {
       GoRoute(
         path: RouteNames.login,
         builder: (context, state) {
-          return const _StubScreen(title: _RouteText.login);
+          return const LoginScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.register,
+        builder: (context, state) {
+          return const RegisterScreen();
         },
       ),
       GoRoute(
@@ -93,27 +127,27 @@ class AppRouter {
       return const _NotFoundScreen();
     },
   );
+}
 
-  static FlashcardManagementArgs _resolveFlashcardArgs(Object? extra) {
-    if (extra is FlashcardManagementArgs) {
-      return extra;
-    }
-    return const FlashcardManagementArgs.fallback();
+FlashcardManagementArgs _resolveFlashcardArgs(Object? extra) {
+  if (extra is FlashcardManagementArgs) {
+    return extra;
   }
+  return const FlashcardManagementArgs.fallback();
+}
 
-  static FlashcardFlipStudyArgs _resolveFlipStudyArgs(Object? extra) {
-    if (extra is FlashcardFlipStudyArgs) {
-      return extra;
-    }
-    return const FlashcardFlipStudyArgs.fallback();
+FlashcardFlipStudyArgs _resolveFlipStudyArgs(Object? extra) {
+  if (extra is FlashcardFlipStudyArgs) {
+    return extra;
   }
+  return const FlashcardFlipStudyArgs.fallback();
+}
 
-  static StudySessionArgs _resolveStudySessionArgs(Object? extra) {
-    if (extra is StudySessionArgs) {
-      return extra;
-    }
-    return const StudySessionArgs.fallback();
+StudySessionArgs _resolveStudySessionArgs(Object? extra) {
+  if (extra is StudySessionArgs) {
+    return extra;
   }
+  return const StudySessionArgs.fallback();
 }
 
 class _StubScreen extends StatelessWidget {
@@ -142,7 +176,6 @@ class _NotFoundScreen extends StatelessWidget {
 class _RouteText {
   const _RouteText._();
 
-  static const String login = 'Login';
   static const String learning = 'Learning';
   static const String progressDetail = 'Progress Detail';
   static const String notImplementedSuffix = ' screen is not implemented yet.';

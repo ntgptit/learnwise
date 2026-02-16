@@ -23,6 +23,12 @@ public final class ApiConst {
     public static final String STUDY_SESSION_COMPLETE_PATH = STUDY_SESSION_BY_ID_PATH + "/complete";
     public static final String STUDY_SESSION_WILDCARD_PATH = STUDY_SESSION_PATH + "/**";
     public static final String STUDY_SESSION_ROOT_WILDCARD_PATH = STUDY_SESSION_PATH;
+    public static final String AUTH_PATH = API_BASE_PATH + "/auth";
+    public static final String AUTH_REGISTER_PATH = AUTH_PATH + "/register";
+    public static final String AUTH_LOGIN_PATH = AUTH_PATH + "/login";
+    public static final String AUTH_REFRESH_PATH = AUTH_PATH + "/refresh";
+    public static final String AUTH_ME_PATH = AUTH_PATH + "/me";
+    public static final String AUTH_WILDCARD_PATH = AUTH_PATH + "/**";
     public static final String OPEN_API_TITLE = "Learn Wire API";
     public static final String OPEN_API_VERSION = "v1";
     public static final String OPEN_API_DESCRIPTION = "REST API for Learn Wire backend services.";
@@ -34,6 +40,7 @@ public final class ApiConst {
     public static final String ERROR_CODE_FLASHCARD_NOT_FOUND = "FLASHCARD_NOT_FOUND";
     public static final String ERROR_CODE_RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND";
     public static final String ERROR_CODE_BUSINESS = "BUSINESS_ERROR";
+    public static final String ERROR_CODE_UNAUTHORIZED = "UNAUTHORIZED";
     public static final String ERROR_CODE_INTEGRATION = "INTEGRATION_ERROR";
     public static final String ERROR_CODE_INTERNAL_ERROR = "INTERNAL_ERROR";
     public static final String ERROR_DETAIL_VALIDATION = "VALIDATION";

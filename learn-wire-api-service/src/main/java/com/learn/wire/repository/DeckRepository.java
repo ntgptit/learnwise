@@ -13,16 +13,17 @@ import com.learn.wire.entity.DeckEntity;
 
 public interface DeckRepository extends JpaRepository<DeckEntity, Long> {
 
-    Optional<DeckEntity> findByIdAndDeletedAtIsNull(Long id);
+    Optional<DeckEntity> findByIdAndCreatedByAndDeletedAtIsNull(Long id, String createdBy);
 
-    Optional<DeckEntity> findByIdAndFolderIdAndDeletedAtIsNull(Long id, Long folderId);
+    Optional<DeckEntity> findByIdAndFolderIdAndCreatedByAndDeletedAtIsNull(Long id, Long folderId, String createdBy);
 
-    boolean existsByFolderIdAndDeletedAtIsNull(Long folderId);
+    boolean existsByFolderIdAndCreatedByAndDeletedAtIsNull(Long folderId, String createdBy);
 
     @Query("""
             SELECT deck
             FROM DeckEntity deck
             WHERE deck.deletedAt IS NULL
+              AND deck.createdBy = :createdBy
               AND deck.folderId = :folderId
               AND (
                 :search = ''
@@ -32,6 +33,7 @@ public interface DeckRepository extends JpaRepository<DeckEntity, Long> {
             """)
     Page<DeckEntity> findPageByFolderAndSearch(
             @Param("folderId") Long folderId,
+            @Param("createdBy") String createdBy,
             @Param("search") String search,
             Pageable pageable);
 
@@ -39,23 +41,27 @@ public interface DeckRepository extends JpaRepository<DeckEntity, Long> {
             SELECT CASE WHEN COUNT(deck.id) > 0 THEN true ELSE false END
             FROM DeckEntity deck
             WHERE deck.deletedAt IS NULL
+              AND deck.createdBy = :createdBy
               AND deck.folderId = :folderId
               AND deck.normalizedName = :normalizedName
             """)
     boolean existsActiveByFolderAndNormalizedName(
             @Param("folderId") Long folderId,
+            @Param("createdBy") String createdBy,
             @Param("normalizedName") String normalizedName);
 
     @Query("""
             SELECT CASE WHEN COUNT(deck.id) > 0 THEN true ELSE false END
             FROM DeckEntity deck
             WHERE deck.deletedAt IS NULL
+              AND deck.createdBy = :createdBy
               AND deck.folderId = :folderId
               AND deck.id <> :excludeDeckId
               AND deck.normalizedName = :normalizedName
             """)
     boolean existsActiveByFolderAndNormalizedNameExcludingDeckId(
             @Param("folderId") Long folderId,
+            @Param("createdBy") String createdBy,
             @Param("normalizedName") String normalizedName,
             @Param("excludeDeckId") Long excludeDeckId);
 
@@ -63,10 +69,13 @@ public interface DeckRepository extends JpaRepository<DeckEntity, Long> {
             SELECT deck.folderId as folderId, COUNT(deck.id) as deckCount
             FROM DeckEntity deck
             WHERE deck.deletedAt IS NULL
+              AND deck.createdBy = :createdBy
               AND deck.folderId IN :folderIds
             GROUP BY deck.folderId
             """)
-    List<FolderDeckCountProjection> countActiveDecksByFolderIds(@Param("folderIds") List<Long> folderIds);
+    List<FolderDeckCountProjection> countActiveDecksByFolderIds(
+            @Param("folderIds") List<Long> folderIds,
+            @Param("createdBy") String createdBy);
 
     interface FolderDeckCountProjection {
         Long getFolderId();

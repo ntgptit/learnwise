@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,8 +33,9 @@ import com.learn.wire.exception.FolderNotFoundException;
 import com.learn.wire.mapper.DeckMapper;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
-import com.learn.wire.repository.FolderRepository;
 import com.learn.wire.repository.FlashcardRepository.DeckFlashcardCountProjection;
+import com.learn.wire.repository.FolderRepository;
+import com.learn.wire.security.CurrentUserAccessor;
 import com.learn.wire.service.DeckService;
 
 import lombok.RequiredArgsConstructor;
@@ -51,10 +51,12 @@ public class DeckServiceImpl implements DeckService {
     private final FolderRepository folderRepository;
     private final FlashcardRepository flashcardRepository;
     private final DeckMapper deckMapper;
+    private final CurrentUserAccessor currentUserAccessor;
 
     @Override
     @Transactional(readOnly = true)
     public PageResponse<DeckResponse> getDecks(DeckListQuery query) {
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug(
                 "Get decks with folderId={}, page={}, size={}, sortBy={}, sortDirection={}",
                 query.folderId(),
@@ -62,15 +64,16 @@ public class DeckServiceImpl implements DeckService {
                 query.size(),
                 query.sortField().value(),
                 query.sortDirection().value());
-        getActiveFolderEntity(query.folderId());
-        final Sort sort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
+        getActiveFolderEntity(query.folderId(), currentActor);
+        final var sort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
         final Pageable pageable = PageRequest.of(query.page(), query.size(), sort);
-        final Page<DeckEntity> page = this.deckRepository.findPageByFolderAndSearch(
+        final var page = this.deckRepository.findPageByFolderAndSearch(
                 query.folderId(),
+                currentActor,
                 query.search(),
                 pageable);
-        final Map<Long, Long> flashcardCountByDeck = resolveFlashcardCountByDeck(page.getContent());
-        final List<DeckResponse> items = toResponses(page.getContent(), flashcardCountByDeck);
+        final var flashcardCountByDeck = resolveFlashcardCountByDeck(page.getContent(), currentActor);
+        final var items = toResponses(page.getContent(), flashcardCountByDeck);
         return new PageResponse<>(
                 items,
                 page.getNumber(),
@@ -87,75 +90,87 @@ public class DeckServiceImpl implements DeckService {
     @Override
     @Transactional(readOnly = true)
     public DeckResponse getDeck(Long folderId, Long deckId) {
-        final DeckEntity deck = getActiveDeckEntity(folderId, deckId);
-        final long flashcardCount = this.flashcardRepository.countByDeckIdAndDeletedAtIsNull(deckId);
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
+        final var deck = getActiveDeckEntity(folderId, deckId, currentActor);
+        final var flashcardCount = this.flashcardRepository.countByDeckIdAndCreatedByAndDeletedAtIsNull(
+                deckId,
+                currentActor);
         return toResponse(deck, flashcardCount);
     }
 
     @Override
     public DeckResponse createDeck(Long folderId, DeckCreateRequest request) {
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Create deck in folderId={}", folderId);
-        getActiveFolderEntity(folderId);
+        getActiveFolderEntity(folderId, currentActor);
         validateRequest(request.name(), request.description());
-        validateFolderAllowsDeckCreation(folderId);
-        final String normalizedName = normalizeName(request.name());
-        final String normalizedNameForIndex = normalizeNameForIndex(normalizedName);
-        validateNameUniquenessForCreate(folderId, normalizedNameForIndex);
+        validateFolderAllowsDeckCreation(folderId, currentActor);
+        final var normalizedName = normalizeName(request.name());
+        final var normalizedNameForIndex = normalizeNameForIndex(normalizedName);
+        validateNameUniquenessForCreate(folderId, normalizedNameForIndex, currentActor);
 
-        final DeckEntity entity = this.deckMapper.toEntity(request);
+        final var entity = this.deckMapper.toEntity(request);
         entity.setFolderId(folderId);
         entity.setName(normalizedName);
         entity.setNormalizedName(normalizedNameForIndex);
         entity.setDescription(normalizeDescription(request.description()));
-        entity.setCreatedBy(DeckConst.DEFAULT_ACTOR);
-        entity.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
+        entity.setCreatedBy(currentActor);
+        entity.setUpdatedBy(currentActor);
 
-        final DeckEntity created = persistDeckWithDuplicateNameGuard(entity);
+        final var created = persistDeckWithDuplicateNameGuard(entity);
         return toResponse(created, 0L);
     }
 
     @Override
     public DeckResponse updateDeck(Long folderId, Long deckId, DeckUpdateRequest request) {
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Update deck id={} in folderId={}", deckId, folderId);
         validateRequest(request.name(), request.description());
-        final String normalizedName = normalizeName(request.name());
-        final String normalizedNameForIndex = normalizeNameForIndex(normalizedName);
-        final DeckEntity deck = getActiveDeckEntity(folderId, deckId);
-        validateNameUniquenessForUpdate(folderId, deckId, normalizedNameForIndex);
+        final var normalizedName = normalizeName(request.name());
+        final var normalizedNameForIndex = normalizeNameForIndex(normalizedName);
+        final var deck = getActiveDeckEntity(folderId, deckId, currentActor);
+        validateNameUniquenessForUpdate(folderId, deckId, normalizedNameForIndex, currentActor);
         this.deckMapper.updateEntity(request, deck);
         deck.setName(normalizedName);
         deck.setNormalizedName(normalizedNameForIndex);
         deck.setDescription(normalizeDescription(request.description()));
-        deck.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
-        final DeckEntity updated = persistDeckWithDuplicateNameGuard(deck);
-        final long flashcardCount = this.flashcardRepository.countByDeckIdAndDeletedAtIsNull(deckId);
+        deck.setUpdatedBy(currentActor);
+        final var updated = persistDeckWithDuplicateNameGuard(deck);
+        final var flashcardCount = this.flashcardRepository.countByDeckIdAndCreatedByAndDeletedAtIsNull(
+                deckId,
+                currentActor);
         return toResponse(updated, flashcardCount);
     }
 
     @Override
     public void deleteDeck(Long folderId, Long deckId) {
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Delete deck id={} in folderId={}", deckId, folderId);
-        final DeckEntity deck = getActiveDeckEntity(folderId, deckId);
-        final List<FlashcardEntity> activeFlashcards = this.flashcardRepository.findByDeckIdAndDeletedAtIsNull(deckId);
+        final var deck = getActiveDeckEntity(folderId, deckId, currentActor);
+        final var activeFlashcards = this.flashcardRepository
+                .findByDeckIdAndCreatedByAndDeletedAtIsNull(
+                        deckId,
+                        currentActor);
         if (!activeFlashcards.isEmpty()) {
-            final List<FolderEntity> activeFolders = this.folderRepository.findByDeletedAtIsNull();
-            final Map<Long, FolderEntity> folderById = toFolderById(activeFolders);
-            applyFlashcardDelta(deck.getFolderId(), -activeFlashcards.size(), folderById);
+            final var activeFolders = this.folderRepository.findByCreatedByAndDeletedAtIsNull(
+                    currentActor);
+            final var folderById = toFolderById(activeFolders);
+            applyFlashcardDelta(deck.getFolderId(), -activeFlashcards.size(), folderById, currentActor);
             this.folderRepository.saveAll(activeFolders);
 
-            final Instant deletedAt = Instant.now();
+            final var deletedAt = Instant.now();
             for (final FlashcardEntity flashcard : activeFlashcards) {
                 flashcard.setDeletedAt(deletedAt);
-                flashcard.setDeletedBy(DeckConst.DEFAULT_ACTOR);
-                flashcard.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
+                flashcard.setDeletedBy(currentActor);
+                flashcard.setUpdatedBy(currentActor);
             }
             this.flashcardRepository.saveAll(activeFlashcards);
         }
 
         deck.setDeletedAt(Instant.now());
         deck.setNormalizedName(null);
-        deck.setDeletedBy(DeckConst.DEFAULT_ACTOR);
-        deck.setUpdatedBy(DeckConst.DEFAULT_ACTOR);
+        deck.setDeletedBy(currentActor);
+        deck.setUpdatedBy(currentActor);
         this.deckRepository.save(deck);
     }
 
@@ -183,7 +198,7 @@ public class DeckServiceImpl implements DeckService {
                 entity.getUpdatedAt());
     }
 
-    private Map<Long, Long> resolveFlashcardCountByDeck(List<DeckEntity> decks) {
+    private Map<Long, Long> resolveFlashcardCountByDeck(List<DeckEntity> decks, String currentActor) {
         if (CollectionUtils.isEmpty(decks)) {
             return Map.of();
         }
@@ -193,7 +208,9 @@ public class DeckServiceImpl implements DeckService {
             deckIds.add(deck.getId());
         }
 
-        final List<DeckFlashcardCountProjection> rows = this.flashcardRepository.countActiveFlashcardsByDeckIds(deckIds);
+        final var rows = this.flashcardRepository.countActiveFlashcardsByDeckIds(
+                deckIds,
+                currentActor);
         final Map<Long, Long> countByDeckId = new HashMap<>();
         for (final DeckFlashcardCountProjection row : rows) {
             countByDeckId.put(row.getDeckId(), row.getFlashcardCount());
@@ -201,22 +218,23 @@ public class DeckServiceImpl implements DeckService {
         return countByDeckId;
     }
 
-    private void applyFlashcardDelta(Long folderId, int delta, Map<Long, FolderEntity> folderById) {
-        final FolderEntity currentFolder = folderById.get(folderId);
+    private void applyFlashcardDelta(Long folderId, int delta, Map<Long, FolderEntity> folderById,
+            String currentActor) {
+        final var currentFolder = folderById.get(folderId);
         if (currentFolder == null) {
             throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
         }
 
-        Long cursor = folderId;
-        boolean isCurrentFolder = true;
+        var cursor = folderId;
+        var isCurrentFolder = true;
         while (cursor != null) {
-            final FolderEntity folder = folderById.get(cursor);
+            final var folder = folderById.get(cursor);
             if (folder == null) {
                 throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
             }
 
             if (isCurrentFolder) {
-                final int updatedDirectCount = folder.getDirectFlashcardCount() + delta;
+                final var updatedDirectCount = folder.getDirectFlashcardCount() + delta;
                 if (updatedDirectCount < FolderConst.MIN_PAGE) {
                     throw new BusinessException(FolderConst.NEGATIVE_AGGREGATE_KEY);
                 }
@@ -224,12 +242,12 @@ public class DeckServiceImpl implements DeckService {
                 isCurrentFolder = false;
             }
 
-            final int updatedAggregateCount = folder.getAggregateFlashcardCount() + delta;
+            final var updatedAggregateCount = folder.getAggregateFlashcardCount() + delta;
             if (updatedAggregateCount < FolderConst.MIN_PAGE) {
                 throw new BusinessException(FolderConst.NEGATIVE_AGGREGATE_KEY);
             }
             folder.setAggregateFlashcardCount(updatedAggregateCount);
-            folder.setUpdatedBy(FolderConst.DEFAULT_ACTOR);
+            folder.setUpdatedBy(currentActor);
             cursor = folder.getParentFolderId();
         }
     }
@@ -242,17 +260,20 @@ public class DeckServiceImpl implements DeckService {
         return folderById;
     }
 
-    private void validateFolderAllowsDeckCreation(Long folderId) {
-        final boolean hasSubfolders = this.folderRepository.existsByParentFolderIdAndDeletedAtIsNull(folderId);
+    private void validateFolderAllowsDeckCreation(Long folderId, String currentActor) {
+        final var hasSubfolders = this.folderRepository.existsByParentFolderIdAndCreatedByAndDeletedAtIsNull(
+                folderId,
+                currentActor);
         if (!hasSubfolders) {
             return;
         }
         throw new BusinessException(DeckConst.FOLDER_HAS_SUBFOLDERS_KEY);
     }
 
-    private void validateNameUniquenessForCreate(Long folderId, String normalizedNameForIndex) {
-        final boolean hasDuplicateName = this.deckRepository.existsActiveByFolderAndNormalizedName(
+    private void validateNameUniquenessForCreate(Long folderId, String normalizedNameForIndex, String currentActor) {
+        final var hasDuplicateName = this.deckRepository.existsActiveByFolderAndNormalizedName(
                 folderId,
+                currentActor,
                 normalizedNameForIndex);
         if (!hasDuplicateName) {
             return;
@@ -260,9 +281,14 @@ public class DeckServiceImpl implements DeckService {
         throw new BusinessException(DeckConst.DUPLICATE_NAME_KEY);
     }
 
-    private void validateNameUniquenessForUpdate(Long folderId, Long deckId, String normalizedNameForIndex) {
-        final boolean hasDuplicateName = this.deckRepository.existsActiveByFolderAndNormalizedNameExcludingDeckId(
+    private void validateNameUniquenessForUpdate(
+            Long folderId,
+            Long deckId,
+            String normalizedNameForIndex,
+            String currentActor) {
+        final var hasDuplicateName = this.deckRepository.existsActiveByFolderAndNormalizedNameExcludingDeckId(
                 folderId,
+                currentActor,
                 normalizedNameForIndex,
                 deckId);
         if (!hasDuplicateName) {
@@ -274,7 +300,7 @@ public class DeckServiceImpl implements DeckService {
     private DeckEntity persistDeckWithDuplicateNameGuard(DeckEntity deck) {
         try {
             return this.deckRepository.save(deck);
-        } catch (DataIntegrityViolationException exception) {
+        } catch (final DataIntegrityViolationException exception) {
             log.warn(
                     "Duplicate active deck name with folderId={} and name={}",
                     deck.getFolderId(),
@@ -283,21 +309,21 @@ public class DeckServiceImpl implements DeckService {
         }
     }
 
-    private DeckEntity getActiveDeckEntity(Long folderId, Long deckId) {
-        getActiveFolderEntity(folderId);
+    private DeckEntity getActiveDeckEntity(Long folderId, Long deckId, String currentActor) {
+        getActiveFolderEntity(folderId, currentActor);
         return this.deckRepository
-                .findByIdAndFolderIdAndDeletedAtIsNull(deckId, folderId)
+                .findByIdAndFolderIdAndCreatedByAndDeletedAtIsNull(deckId, folderId, currentActor)
                 .orElseThrow(() -> new DeckNotFoundException(deckId));
     }
 
-    private FolderEntity getActiveFolderEntity(Long folderId) {
+    private FolderEntity getActiveFolderEntity(Long folderId, String currentActor) {
         return this.folderRepository
-                .findByIdAndDeletedAtIsNull(folderId)
+                .findByIdAndCreatedByAndDeletedAtIsNull(folderId, currentActor)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
     }
 
     private void validateRequest(String name, String description) {
-        final String normalizedName = normalizeName(name);
+        final var normalizedName = normalizeName(name);
         if (normalizedName.isEmpty()) {
             throw new BadRequestException(DeckConst.NAME_IS_REQUIRED_KEY);
         }
@@ -305,7 +331,7 @@ public class DeckServiceImpl implements DeckService {
             throw new BadRequestException(DeckConst.NAME_TOO_LONG_KEY);
         }
 
-        final String normalizedDescription = normalizeDescription(description);
+        final var normalizedDescription = normalizeDescription(description);
         if (normalizedDescription.length() <= DeckConst.DESCRIPTION_MAX_LENGTH) {
             return;
         }
@@ -317,7 +343,7 @@ public class DeckServiceImpl implements DeckService {
     }
 
     private String normalizeNameForIndex(String value) {
-        final String normalizedName = normalizeName(value);
+        final var normalizedName = normalizeName(value);
         return normalizedName.toLowerCase(Locale.ROOT);
     }
 

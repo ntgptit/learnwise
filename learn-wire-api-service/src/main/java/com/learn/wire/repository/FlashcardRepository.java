@@ -17,6 +17,7 @@ public interface FlashcardRepository extends JpaRepository<FlashcardEntity, Long
             SELECT flashcard
             FROM FlashcardEntity flashcard
             WHERE flashcard.deletedAt IS NULL
+              AND flashcard.createdBy = :createdBy
               AND flashcard.deckId = :deckId
               AND (
                 :search = ''
@@ -26,23 +27,27 @@ public interface FlashcardRepository extends JpaRepository<FlashcardEntity, Long
             """)
     Page<FlashcardEntity> findPageByDeckAndSearch(
             @Param("deckId") Long deckId,
+            @Param("createdBy") String createdBy,
             @Param("search") String search,
             Pageable pageable);
 
-    Optional<FlashcardEntity> findByIdAndDeckIdAndDeletedAtIsNull(Long id, Long deckId);
+    Optional<FlashcardEntity> findByIdAndDeckIdAndCreatedByAndDeletedAtIsNull(Long id, Long deckId, String createdBy);
 
-    List<FlashcardEntity> findByDeckIdAndDeletedAtIsNull(Long deckId);
+    List<FlashcardEntity> findByDeckIdAndCreatedByAndDeletedAtIsNull(Long deckId, String createdBy);
 
-    long countByDeckIdAndDeletedAtIsNull(Long deckId);
+    long countByDeckIdAndCreatedByAndDeletedAtIsNull(Long deckId, String createdBy);
 
     @Query("""
             SELECT flashcard.deckId as deckId, COUNT(flashcard.id) as flashcardCount
             FROM FlashcardEntity flashcard
             WHERE flashcard.deletedAt IS NULL
+              AND flashcard.createdBy = :createdBy
               AND flashcard.deckId IN :deckIds
             GROUP BY flashcard.deckId
             """)
-    List<DeckFlashcardCountProjection> countActiveFlashcardsByDeckIds(@Param("deckIds") List<Long> deckIds);
+    List<DeckFlashcardCountProjection> countActiveFlashcardsByDeckIds(
+            @Param("deckIds") List<Long> deckIds,
+            @Param("createdBy") String createdBy);
 
     interface DeckFlashcardCountProjection {
         Long getDeckId();

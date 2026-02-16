@@ -24,6 +24,8 @@ public final class SecurityConst {
     public static final String HEADER_ACCEPT = "Accept";
     public static final String HEADER_X_REQUESTED_WITH = "X-Requested-With";
     public static final String HEADER_LOCATION = "Location";
+    public static final String JWT_CLAIM_EMAIL = "email";
+    public static final String JWT_CLAIM_DISPLAY_NAME = "display_name";
 
     public static final long CORS_MAX_AGE_SECONDS = 3600L;
 }

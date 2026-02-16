@@ -12,9 +12,13 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -22,6 +26,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.learn.wire.constant.ApiConst;
 import com.learn.wire.constant.SecurityConst;
+import com.learn.wire.security.SecurityProperties;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,16 +51,9 @@ public class SecurityConfig {
                         SecurityConst.API_DOCS_PATH,
                         SecurityConst.SWAGGER_UI_PATH,
                         SecurityConst.SWAGGER_UI_HTML_PATH,
-                        ApiConst.FOLDERS_PATH,
-                        ApiConst.FOLDERS_WILDCARD_PATH,
-                        ApiConst.DECKS_ROOT_WILDCARD_PATH,
-                        ApiConst.DECKS_WILDCARD_PATH,
-                        ApiConst.DECK_FLASHCARDS_ROOT_WILDCARD_PATH,
-                        ApiConst.DECK_FLASHCARDS_WILDCARD_PATH,
-                        ApiConst.STUDY_SESSIONS_ROOT_WILDCARD_PATH,
-                        ApiConst.STUDY_SESSIONS_WILDCARD_PATH,
-                        ApiConst.STUDY_SESSION_ROOT_WILDCARD_PATH,
-                        ApiConst.STUDY_SESSION_WILDCARD_PATH)
+                        ApiConst.AUTH_REGISTER_PATH,
+                        ApiConst.AUTH_LOGIN_PATH,
+                        ApiConst.AUTH_REFRESH_PATH)
                 .permitAll()
                 .anyRequest()
                 .authenticated());
@@ -63,7 +62,7 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        final CorsConfiguration corsConfiguration = new CorsConfiguration();
+        final var corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedOrigins(this.securityProperties.getCorsAllowedOrigins());
         corsConfiguration.setAllowedMethods(List.of(
@@ -81,15 +80,27 @@ public class SecurityConfig {
         corsConfiguration.setExposedHeaders(List.of(SecurityConst.HEADER_LOCATION));
         corsConfiguration.setMaxAge(SecurityConst.CORS_MAX_AGE_SECONDS);
 
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
 
     @Bean
     JwtDecoder jwtDecoder() {
-        final byte[] keyBytes = this.securityProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
-        final SecretKeySpec key = new SecretKeySpec(keyBytes, SecurityConst.JWT_SECRET_ALGORITHM);
+        final var keyBytes = this.securityProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
+        final var key = new SecretKeySpec(keyBytes, SecurityConst.JWT_SECRET_ALGORITHM);
         return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
+    }
+
+    @Bean
+    JwtEncoder jwtEncoder() {
+        final var keyBytes = this.securityProperties.getJwtSecret().getBytes(StandardCharsets.UTF_8);
+        final var key = new SecretKeySpec(keyBytes, SecurityConst.JWT_SECRET_ALGORITHM);
+        return new NimbusJwtEncoder(new ImmutableSecret<>(key));
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

@@ -6,6 +6,7 @@ class AppConstants {
 
   static const String appEnvDefineKey = 'APP_ENV';
   static const String defaultAppEnv = 'DEV';
+  static const String appApiBaseUrlDefineKey = 'APP_API_BASE_URL';
 
   static const String defaultLanguageCode = 'en';
   static const String fallbackCountryCode = 'US';

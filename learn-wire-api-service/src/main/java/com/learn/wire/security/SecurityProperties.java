@@ -1,4 +1,4 @@
-package com.learn.wire.config;
+package com.learn.wire.security;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import com.learn.wire.constant.SecurityConst;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,4 +24,13 @@ public class SecurityProperties {
 
     @NotEmpty
     private List<String> corsAllowedOrigins;
+
+    @Positive
+    private long accessTokenTtlSeconds = 900L;
+
+    @Positive
+    private long refreshTokenTtlSeconds = 2592000L;
+
+    @NotBlank
+    private String tokenIssuer = "learnwise-api";
 }

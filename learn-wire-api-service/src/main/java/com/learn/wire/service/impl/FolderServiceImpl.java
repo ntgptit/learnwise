@@ -32,6 +32,7 @@ import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.DeckRepository.FolderDeckCountProjection;
 import com.learn.wire.repository.FolderRepository;
 import com.learn.wire.repository.FolderRepository.ParentChildCountProjection;
+import com.learn.wire.security.CurrentUserAccessor;
 import com.learn.wire.service.FolderService;
 
 import lombok.RequiredArgsConstructor;
@@ -46,10 +47,12 @@ public class FolderServiceImpl implements FolderService {
     private final FolderRepository repository;
     private final DeckRepository deckRepository;
     private final FolderMapper mapper;
+    private final CurrentUserAccessor currentUserAccessor;
 
     @Override
     @Transactional(readOnly = true)
     public PageResponse<FolderResponse> getFolders(FolderListQuery query) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug(
                 "Get folders with page={}, size={}, parentFolderId={}, sortBy={}, sortDirection={}",
                 query.page(),
@@ -57,12 +60,13 @@ public class FolderServiceImpl implements FolderService {
                 query.parentFolderId(),
                 query.sortField().value(),
                 query.sortDirection().value());
-        validateParentFilter(query.parentFolderId());
+        validateParentFilter(query.parentFolderId(), currentActor);
 
-        final Page<FolderEntity> page = findPageSortedByDatabase(query);
-        final Map<Long, Integer> childCountByParent = resolveChildCountByParent(page.getContent());
-        final Map<Long, Integer> directDeckCountByFolder = resolveDirectDeckCountByFolder(page.getContent());
-        final List<FolderResponse> items = toResponses(page.getContent(), childCountByParent, directDeckCountByFolder);
+        final var page = findPageSortedByDatabase(query, currentActor);
+        final var childCountByParent = resolveChildCountByParent(page.getContent(), currentActor);
+        final var directDeckCountByFolder = resolveDirectDeckCountByFolder(page.getContent(),
+                currentActor);
+        final var items = toResponses(page.getContent(), childCountByParent, directDeckCountByFolder);
 
         return new PageResponse<>(
                 items,
@@ -80,57 +84,60 @@ public class FolderServiceImpl implements FolderService {
     @Override
     @Transactional(readOnly = true)
     public FolderResponse getFolder(Long folderId) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug("Get folder id={}", folderId);
-        final FolderEntity entity = getActiveFolderEntity(folderId);
-        final int childFolderCount = resolveChildFolderCount(folderId);
-        final int directDeckCount = resolveDirectDeckCount(folderId);
+        final var entity = getActiveFolderEntity(folderId, currentActor);
+        final var childFolderCount = resolveChildFolderCount(folderId, currentActor);
+        final var directDeckCount = resolveDirectDeckCount(folderId, currentActor);
         return toResponse(entity, childFolderCount, directDeckCount);
     }
 
     @Override
     public FolderResponse createFolder(FolderCreateRequest request) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Create folder with parentFolderId={}", request.parentFolderId());
         validateRequest(request.name(), request.description(), request.colorHex());
-        validateParentAllowsSubfolderCreation(request.parentFolderId());
-        final String normalizedName = normalizeName(request.name());
-        validateNameUniquenessForCreate(normalizedName, request.parentFolderId());
+        validateParentAllowsSubfolderCreation(request.parentFolderId(), currentActor);
+        final var normalizedName = normalizeName(request.name());
+        validateNameUniquenessForCreate(normalizedName, request.parentFolderId(), currentActor);
 
-        final FolderEntity entity = this.mapper.toEntity(request);
+        final var entity = this.mapper.toEntity(request);
         entity.setName(normalizedName);
         entity.setDescription(normalizeDescription(request.description()));
         entity.setColorHex(normalizeColorHex(request.colorHex()));
         entity.setParentFolderId(request.parentFolderId());
         entity.setDirectFlashcardCount(FolderConst.DEFAULT_DIRECT_FLASHCARD_COUNT);
         entity.setAggregateFlashcardCount(FolderConst.DEFAULT_DIRECT_FLASHCARD_COUNT);
-        entity.setCreatedBy(FolderConst.DEFAULT_ACTOR);
-        entity.setUpdatedBy(FolderConst.DEFAULT_ACTOR);
+        entity.setCreatedBy(currentActor);
+        entity.setUpdatedBy(currentActor);
 
-        final FolderEntity created = this.repository.save(entity);
+        final var created = this.repository.save(entity);
         log.info("Created folder id={}", created.getId());
         return toResponse(created, FolderConst.MIN_PAGE, FolderConst.MIN_PAGE);
     }
 
     @Override
     public FolderResponse updateFolder(Long folderId, FolderUpdateRequest request) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Update folder id={} with new parent={}", folderId, request.parentFolderId());
         validateRequest(request.name(), request.description(), request.colorHex());
-        final String normalizedName = normalizeName(request.name());
+        final var normalizedName = normalizeName(request.name());
 
-        final FolderEntity entity = getActiveFolderEntity(folderId);
-        final Long oldParentFolderId = entity.getParentFolderId();
-        final Long newParentFolderId = request.parentFolderId();
-        final int subtreeAggregate = entity.getAggregateFlashcardCount();
+        final var entity = getActiveFolderEntity(folderId, currentActor);
+        final var oldParentFolderId = entity.getParentFolderId();
+        final var newParentFolderId = request.parentFolderId();
+        final var subtreeAggregate = entity.getAggregateFlashcardCount();
 
-        final List<FolderEntity> activeFolders = this.repository.findByDeletedAtIsNull();
-        final Map<Long, FolderEntity> folderById = toFolderById(activeFolders);
+        final var activeFolders = this.repository.findByCreatedByAndDeletedAtIsNull(currentActor);
+        final var folderById = toFolderById(activeFolders);
         validateParentForUpdate(folderId, newParentFolderId, folderById);
-        validateNameUniquenessForUpdate(folderId, normalizedName, newParentFolderId);
-        final boolean isParentChanged = !isSameParent(oldParentFolderId, newParentFolderId);
+        validateNameUniquenessForUpdate(folderId, normalizedName, newParentFolderId, currentActor);
+        final var isParentChanged = !isSameParent(oldParentFolderId, newParentFolderId);
 
         if (isParentChanged) {
-            validateParentAllowsSubfolderCreationForUpdate(newParentFolderId, folderById);
-            applyAggregateDeltaToAncestors(oldParentFolderId, -subtreeAggregate, folderById);
-            applyAggregateDeltaToAncestors(newParentFolderId, subtreeAggregate, folderById);
+            validateParentAllowsSubfolderCreationForUpdate(newParentFolderId, folderById, currentActor);
+            applyAggregateDeltaToAncestors(oldParentFolderId, -subtreeAggregate, folderById, currentActor);
+            applyAggregateDeltaToAncestors(newParentFolderId, subtreeAggregate, folderById, currentActor);
         }
 
         this.mapper.updateEntity(request, entity);
@@ -138,43 +145,45 @@ public class FolderServiceImpl implements FolderService {
         entity.setDescription(normalizeDescription(request.description()));
         entity.setColorHex(normalizeColorHex(request.colorHex()));
         entity.setParentFolderId(newParentFolderId);
-        entity.setUpdatedBy(FolderConst.DEFAULT_ACTOR);
+        entity.setUpdatedBy(currentActor);
 
-        final FolderEntity updated = this.repository.save(entity);
+        final var updated = this.repository.save(entity);
         log.info("Updated folder id={}", updated.getId());
-        final int childFolderCount = resolveChildFolderCount(updated.getId());
-        final int directDeckCount = resolveDirectDeckCount(updated.getId());
+        final var childFolderCount = resolveChildFolderCount(updated.getId(), currentActor);
+        final var directDeckCount = resolveDirectDeckCount(updated.getId(), currentActor);
         return toResponse(updated, childFolderCount, directDeckCount);
     }
 
     @Override
     public void deleteFolder(Long folderId) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Delete folder id={}", folderId);
-        final FolderEntity target = getActiveFolderEntity(folderId);
-        final int subtreeAggregate = target.getAggregateFlashcardCount();
+        final var target = getActiveFolderEntity(folderId, currentActor);
+        final var subtreeAggregate = target.getAggregateFlashcardCount();
 
-        final List<FolderEntity> activeFolders = this.repository.findByDeletedAtIsNull();
-        final Map<Long, FolderEntity> folderById = toFolderById(activeFolders);
-        final Map<Long, List<FolderEntity>> childrenByParentId = toChildrenByParent(activeFolders);
-        applyAggregateDeltaToAncestors(target.getParentFolderId(), -subtreeAggregate, folderById);
+        final var activeFolders = this.repository.findByCreatedByAndDeletedAtIsNull(currentActor);
+        final var folderById = toFolderById(activeFolders);
+        final var childrenByParentId = toChildrenByParent(activeFolders);
+        applyAggregateDeltaToAncestors(target.getParentFolderId(), -subtreeAggregate, folderById, currentActor);
 
-        final List<FolderEntity> toDelete = collectSubtree(target, childrenByParentId);
-        final Instant deletedAt = Instant.now();
+        final var toDelete = collectSubtree(target, childrenByParentId);
+        final var deletedAt = Instant.now();
         for (final FolderEntity entity : toDelete) {
             entity.setDeletedAt(deletedAt);
-            entity.setDeletedBy(FolderConst.DEFAULT_ACTOR);
-            entity.setUpdatedBy(FolderConst.DEFAULT_ACTOR);
+            entity.setDeletedBy(currentActor);
+            entity.setUpdatedBy(currentActor);
         }
         this.repository.saveAll(toDelete);
         log.info("Soft deleted subtree rootId={} affectedCount={}", folderId, toDelete.size());
     }
 
-    private Page<FolderEntity> findPageSortedByDatabase(FolderListQuery query) {
-        final Sort sort = Sort
+    private Page<FolderEntity> findPageSortedByDatabase(FolderListQuery query, String currentActor) {
+        final var sort = Sort
                 .by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty())
                 .and(Sort.by(query.sortDirection().toSpringDirection(), FolderConst.SORT_BY_TIE_BREAKER));
         final Pageable pageable = PageRequest.of(query.page(), query.size(), sort);
-        return this.repository.findPageByParentAndSearch(query.parentFolderId(), query.search(), pageable);
+        return this.repository.findPageByParentAndSearch(query.parentFolderId(), currentActor, query.search(),
+                pageable);
     }
 
     private List<FolderResponse> toResponses(
@@ -207,7 +216,7 @@ public class FolderServiceImpl implements FolderService {
                 entity.getUpdatedAt());
     }
 
-    private Map<Long, Integer> resolveDirectDeckCountByFolder(List<FolderEntity> folders) {
+    private Map<Long, Integer> resolveDirectDeckCountByFolder(List<FolderEntity> folders, String currentActor) {
         if (CollectionUtils.isEmpty(folders)) {
             return Map.of();
         }
@@ -217,7 +226,8 @@ public class FolderServiceImpl implements FolderService {
             folderIds.add(folder.getId());
         }
 
-        final List<FolderDeckCountProjection> rows = this.deckRepository.countActiveDecksByFolderIds(folderIds);
+        final var rows = this.deckRepository.countActiveDecksByFolderIds(folderIds,
+                currentActor);
         final Map<Long, Integer> countByFolder = new HashMap<>();
         for (final FolderDeckCountProjection row : rows) {
             countByFolder.put(row.getFolderId(), (int) row.getDeckCount());
@@ -225,15 +235,17 @@ public class FolderServiceImpl implements FolderService {
         return countByFolder;
     }
 
-    private int resolveDirectDeckCount(Long folderId) {
-        final List<FolderDeckCountProjection> rows = this.deckRepository.countActiveDecksByFolderIds(List.of(folderId));
+    private int resolveDirectDeckCount(Long folderId, String currentActor) {
+        final var rows = this.deckRepository.countActiveDecksByFolderIds(
+                List.of(folderId),
+                currentActor);
         if (rows.isEmpty()) {
             return FolderConst.MIN_PAGE;
         }
         return (int) rows.get(FolderConst.MIN_PAGE).getDeckCount();
     }
 
-    private Map<Long, Integer> resolveChildCountByParent(List<FolderEntity> parents) {
+    private Map<Long, Integer> resolveChildCountByParent(List<FolderEntity> parents, String currentActor) {
         if (CollectionUtils.isEmpty(parents)) {
             return Map.of();
         }
@@ -243,7 +255,8 @@ public class FolderServiceImpl implements FolderService {
             parentIds.add(parent.getId());
         }
 
-        final List<ParentChildCountProjection> rows = this.repository.countActiveChildrenByParentIds(parentIds);
+        final var rows = this.repository.countActiveChildrenByParentIds(parentIds,
+                currentActor);
         final Map<Long, Integer> childCountByParent = new HashMap<>();
         for (final ParentChildCountProjection row : rows) {
             childCountByParent.put(row.getParentFolderId(), (int) row.getChildCount());
@@ -251,8 +264,10 @@ public class FolderServiceImpl implements FolderService {
         return childCountByParent;
     }
 
-    private int resolveChildFolderCount(Long parentFolderId) {
-        final List<ParentChildCountProjection> rows = this.repository.countActiveChildrenByParentIds(List.of(parentFolderId));
+    private int resolveChildFolderCount(Long parentFolderId, String currentActor) {
+        final var rows = this.repository.countActiveChildrenByParentIds(
+                List.of(parentFolderId),
+                currentActor);
         if (rows.isEmpty()) {
             return FolderConst.MIN_PAGE;
         }
@@ -262,20 +277,21 @@ public class FolderServiceImpl implements FolderService {
     private void applyAggregateDeltaToAncestors(
             Long startParentFolderId,
             int delta,
-            Map<Long, FolderEntity> folderById) {
-        Long cursor = startParentFolderId;
+            Map<Long, FolderEntity> folderById,
+            String currentActor) {
+        var cursor = startParentFolderId;
         while (cursor != null) {
-            final FolderEntity ancestor = folderById.get(cursor);
+            final var ancestor = folderById.get(cursor);
             if (ancestor == null) {
                 return;
             }
 
-            final int updatedAggregate = ancestor.getAggregateFlashcardCount() + delta;
+            final var updatedAggregate = ancestor.getAggregateFlashcardCount() + delta;
             if (updatedAggregate < FolderConst.MIN_PAGE) {
                 throw new BusinessException(FolderConst.NEGATIVE_AGGREGATE_KEY);
             }
             ancestor.setAggregateFlashcardCount(updatedAggregate);
-            ancestor.setUpdatedBy(FolderConst.DEFAULT_ACTOR);
+            ancestor.setUpdatedBy(currentActor);
             cursor = ancestor.getParentFolderId();
         }
     }
@@ -284,14 +300,14 @@ public class FolderServiceImpl implements FolderService {
             FolderEntity root,
             Map<Long, List<FolderEntity>> childrenByParentId) {
         final List<FolderEntity> nodes = new ArrayList<>();
-        final ArrayDeque<FolderEntity> stack = new ArrayDeque<>();
+        final var stack = new ArrayDeque<FolderEntity>();
         stack.push(root);
 
         while (!stack.isEmpty()) {
-            final FolderEntity current = stack.pop();
+            final var current = stack.pop();
             nodes.add(current);
 
-            final List<FolderEntity> children = childrenByParentId.get(current.getId());
+            final var children = childrenByParentId.get(current.getId());
             if (children == null) {
                 continue;
             }
@@ -313,8 +329,8 @@ public class FolderServiceImpl implements FolderService {
     private Map<Long, List<FolderEntity>> toChildrenByParent(List<FolderEntity> folders) {
         final Map<Long, List<FolderEntity>> childrenByParentId = new HashMap<>();
         for (final FolderEntity folder : folders) {
-            final Long parentFolderId = folder.getParentFolderId();
-            final List<FolderEntity> children = childrenByParentId.computeIfAbsent(
+            final var parentFolderId = folder.getParentFolderId();
+            final var children = childrenByParentId.computeIfAbsent(
                     parentFolderId,
                     ignored -> new ArrayList<>());
             children.add(folder);
@@ -322,15 +338,15 @@ public class FolderServiceImpl implements FolderService {
         return childrenByParentId;
     }
 
-    private void validateParentFilter(Long parentFolderId) {
+    private void validateParentFilter(Long parentFolderId, String currentActor) {
         if (parentFolderId == null) {
             return;
         }
-        validateParentExists(parentFolderId);
+        validateParentExists(parentFolderId, currentActor);
     }
 
-    private void validateParentExists(Long parentFolderId) {
-        if (this.repository.findByIdAndDeletedAtIsNull(parentFolderId).isPresent()) {
+    private void validateParentExists(Long parentFolderId, String currentActor) {
+        if (this.repository.findByIdAndCreatedByAndDeletedAtIsNull(parentFolderId, currentActor).isPresent()) {
             return;
         }
         throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
@@ -350,12 +366,12 @@ public class FolderServiceImpl implements FolderService {
             throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
         }
 
-        Long cursor = parentFolderId;
+        var cursor = parentFolderId;
         while (cursor != null) {
             if (cursor.equals(folderId)) {
                 throw new BadRequestException(FolderConst.PARENT_CYCLE_KEY);
             }
-            final FolderEntity current = folderById.get(cursor);
+            final var current = folderById.get(cursor);
             if (current == null) {
                 break;
             }
@@ -363,14 +379,16 @@ public class FolderServiceImpl implements FolderService {
         }
     }
 
-    private void validateParentAllowsSubfolderCreation(Long parentFolderId) {
+    private void validateParentAllowsSubfolderCreation(Long parentFolderId, String currentActor) {
         if (parentFolderId == null) {
             return;
         }
         this.repository
-                .findByIdAndDeletedAtIsNull(parentFolderId)
+                .findByIdAndCreatedByAndDeletedAtIsNull(parentFolderId, currentActor)
                 .orElseThrow(() -> new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY));
-        final boolean hasDirectDecks = this.deckRepository.existsByFolderIdAndDeletedAtIsNull(parentFolderId);
+        final var hasDirectDecks = this.deckRepository.existsByFolderIdAndCreatedByAndDeletedAtIsNull(
+                parentFolderId,
+                currentActor);
         if (!hasDirectDecks) {
             return;
         }
@@ -379,14 +397,17 @@ public class FolderServiceImpl implements FolderService {
 
     private void validateParentAllowsSubfolderCreationForUpdate(
             Long parentFolderId,
-            Map<Long, FolderEntity> folderById) {
+            Map<Long, FolderEntity> folderById,
+            String currentActor) {
         if (parentFolderId == null) {
             return;
         }
         if (!folderById.containsKey(parentFolderId)) {
             throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
         }
-        final boolean hasDirectDecks = this.deckRepository.existsByFolderIdAndDeletedAtIsNull(parentFolderId);
+        final var hasDirectDecks = this.deckRepository.existsByFolderIdAndCreatedByAndDeletedAtIsNull(
+                parentFolderId,
+                currentActor);
         if (!hasDirectDecks) {
             return;
         }
@@ -394,26 +415,34 @@ public class FolderServiceImpl implements FolderService {
     }
 
     private boolean isSameParent(Long value, Long expected) {
-        if (value == null && expected == null) {
+        if ((value == null) && (expected == null)) {
             return true;
         }
-        if (value == null || expected == null) {
+        if ((value == null) || (expected == null)) {
             return false;
         }
         return value.equals(expected);
     }
 
-    private void validateNameUniquenessForCreate(String normalizedName, Long parentFolderId) {
-        final boolean hasDuplicateName = this.repository.existsActiveByParentAndName(parentFolderId, normalizedName);
+    private void validateNameUniquenessForCreate(String normalizedName, Long parentFolderId, String currentActor) {
+        final var hasDuplicateName = this.repository.existsActiveByParentAndName(
+                parentFolderId,
+                currentActor,
+                normalizedName);
         if (!hasDuplicateName) {
             return;
         }
         throw new BusinessException(FolderConst.DUPLICATE_NAME_KEY);
     }
 
-    private void validateNameUniquenessForUpdate(Long folderId, String normalizedName, Long parentFolderId) {
-        final boolean hasDuplicateName = this.repository.existsActiveByParentAndNameExcludingFolderId(
+    private void validateNameUniquenessForUpdate(
+            Long folderId,
+            String normalizedName,
+            Long parentFolderId,
+            String currentActor) {
+        final var hasDuplicateName = this.repository.existsActiveByParentAndNameExcludingFolderId(
                 parentFolderId,
+                currentActor,
                 normalizedName,
                 folderId);
         if (!hasDuplicateName) {
@@ -422,14 +451,14 @@ public class FolderServiceImpl implements FolderService {
         throw new BusinessException(FolderConst.DUPLICATE_NAME_KEY);
     }
 
-    private FolderEntity getActiveFolderEntity(Long folderId) {
+    private FolderEntity getActiveFolderEntity(Long folderId, String currentActor) {
         return this.repository
-                .findByIdAndDeletedAtIsNull(folderId)
+                .findByIdAndCreatedByAndDeletedAtIsNull(folderId, currentActor)
                 .orElseThrow(() -> new FolderNotFoundException(folderId));
     }
 
     private void validateRequest(String name, String description, String colorHex) {
-        final String normalizedName = normalizeName(name);
+        final var normalizedName = normalizeName(name);
         if (normalizedName.isEmpty()) {
             throw new BadRequestException(FolderConst.NAME_IS_REQUIRED_KEY);
         }
@@ -437,12 +466,12 @@ public class FolderServiceImpl implements FolderService {
             throw new BadRequestException(FolderConst.NAME_TOO_LONG_KEY);
         }
 
-        final String normalizedDescription = normalizeDescription(description);
+        final var normalizedDescription = normalizeDescription(description);
         if (normalizedDescription.length() > FolderConst.DESCRIPTION_MAX_LENGTH) {
             throw new BadRequestException(FolderConst.DESCRIPTION_TOO_LONG_KEY);
         }
 
-        final String normalizedColorHex = normalizeColorHex(colorHex);
+        final var normalizedColorHex = normalizeColorHex(colorHex);
         if (normalizedColorHex.matches(FolderConst.COLOR_HEX_PATTERN)) {
             return;
         }
@@ -458,11 +487,10 @@ public class FolderServiceImpl implements FolderService {
     }
 
     private String normalizeColorHex(String value) {
-        final String normalized = StringUtils.trimToEmpty(value);
+        final var normalized = StringUtils.trimToEmpty(value);
         if (normalized.isEmpty()) {
             return FolderConst.DEFAULT_COLOR_HEX;
         }
         return normalized.toUpperCase(Locale.ROOT);
     }
 }
-

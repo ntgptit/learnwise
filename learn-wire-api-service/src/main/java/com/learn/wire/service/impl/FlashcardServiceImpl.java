@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,6 +32,7 @@ import com.learn.wire.mapper.FlashcardMapper;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.FolderRepository;
+import com.learn.wire.security.CurrentUserAccessor;
 import com.learn.wire.service.FlashcardService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,10 +48,12 @@ public class FlashcardServiceImpl implements FlashcardService {
     private final DeckRepository deckRepository;
     private final FolderRepository folderRepository;
     private final FlashcardMapper flashcardMapper;
+    private final CurrentUserAccessor currentUserAccessor;
 
     @Override
     @Transactional(readOnly = true)
     public PageResponse<FlashcardResponse> getFlashcards(FlashcardListQuery query) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug(
                 "Get flashcards with deckId={}, page={}, size={}, sortBy={}, sortDirection={}",
                 query.deckId(),
@@ -59,14 +61,15 @@ public class FlashcardServiceImpl implements FlashcardService {
                 query.size(),
                 query.sortField().value(),
                 query.sortDirection().value());
-        getActiveDeckEntity(query.deckId());
-        final Sort sort = buildSort(query);
+        getActiveDeckEntity(query.deckId(), currentActor);
+        final var sort = buildSort(query);
         final Pageable pageable = PageRequest.of(query.page(), query.size(), sort);
-        final Page<FlashcardEntity> page = this.flashcardRepository.findPageByDeckAndSearch(
+        final var page = this.flashcardRepository.findPageByDeckAndSearch(
                 query.deckId(),
+                currentActor,
                 query.search(),
                 pageable);
-        final List<FlashcardResponse> items = toResponses(page.getContent());
+        final var items = toResponses(page.getContent());
         return new PageResponse<>(
                 items,
                 page.getNumber(),
@@ -81,34 +84,36 @@ public class FlashcardServiceImpl implements FlashcardService {
     }
 
     private Sort buildSort(FlashcardListQuery query) {
-        final Sort primarySort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
-        if (query.sortField() == FlashcardSortField.UPDATED_AT && query.sortDirection().isDescending()) {
-            final Sort tieBreakerSort = Sort.by(Sort.Direction.ASC, FlashcardConst.SORT_BY_TIE_BREAKER);
+        final var primarySort = Sort.by(query.sortDirection().toSpringDirection(), query.sortField().sortProperty());
+        if ((query.sortField() == FlashcardSortField.UPDATED_AT) && query.sortDirection().isDescending()) {
+            final var tieBreakerSort = Sort.by(Sort.Direction.ASC, FlashcardConst.SORT_BY_TIE_BREAKER);
             return primarySort.and(tieBreakerSort);
         }
-        final Sort tieBreakerSort = Sort.by(query.sortDirection().toSpringDirection(), FlashcardConst.SORT_BY_TIE_BREAKER);
+        final var tieBreakerSort = Sort.by(query.sortDirection().toSpringDirection(),
+                FlashcardConst.SORT_BY_TIE_BREAKER);
         return primarySort.and(tieBreakerSort);
     }
 
     @Override
     public FlashcardResponse createFlashcard(Long deckId, FlashcardCreateRequest request) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Create flashcard in deckId={}", deckId);
-        final String normalizedFrontText = normalizeText(request.frontText());
-        final String normalizedBackText = normalizeText(request.backText());
+        final var normalizedFrontText = normalizeText(request.frontText());
+        final var normalizedBackText = normalizeText(request.backText());
         validateRequest(normalizedFrontText, normalizedBackText);
 
-        final DeckEntity deck = getActiveDeckEntity(deckId);
-        final FlashcardEntity entity = this.flashcardMapper.toEntity(request);
+        final var deck = getActiveDeckEntity(deckId, currentActor);
+        final var entity = this.flashcardMapper.toEntity(request);
         entity.setDeckId(deckId);
         entity.setFrontText(normalizedFrontText);
         entity.setBackText(normalizedBackText);
-        entity.setCreatedBy(FlashcardConst.DEFAULT_ACTOR);
-        entity.setUpdatedBy(FlashcardConst.DEFAULT_ACTOR);
+        entity.setCreatedBy(currentActor);
+        entity.setUpdatedBy(currentActor);
 
-        final FlashcardEntity created = this.flashcardRepository.save(entity);
-        final List<FolderEntity> activeFolders = this.folderRepository.findByDeletedAtIsNull();
-        final Map<Long, FolderEntity> folderById = toFolderById(activeFolders);
-        applyFlashcardDelta(deck.getFolderId(), 1, folderById);
+        final var created = this.flashcardRepository.save(entity);
+        final var activeFolders = this.folderRepository.findByCreatedByAndDeletedAtIsNull(currentActor);
+        final var folderById = toFolderById(activeFolders);
+        applyFlashcardDelta(deck.getFolderId(), 1, folderById, currentActor);
         this.folderRepository.saveAll(activeFolders);
         log.info("Created flashcard id={} in deckId={}", created.getId(), deckId);
         return toResponse(created);
@@ -116,34 +121,36 @@ public class FlashcardServiceImpl implements FlashcardService {
 
     @Override
     public FlashcardResponse updateFlashcard(Long deckId, Long flashcardId, FlashcardUpdateRequest request) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Update flashcard id={} in deckId={}", flashcardId, deckId);
-        final String normalizedFrontText = normalizeText(request.frontText());
-        final String normalizedBackText = normalizeText(request.backText());
+        final var normalizedFrontText = normalizeText(request.frontText());
+        final var normalizedBackText = normalizeText(request.backText());
         validateRequest(normalizedFrontText, normalizedBackText);
 
-        final FlashcardEntity entity = getActiveFlashcardEntity(deckId, flashcardId);
+        final var entity = getActiveFlashcardEntity(deckId, flashcardId, currentActor);
         this.flashcardMapper.updateEntity(request, entity);
         entity.setFrontText(normalizedFrontText);
         entity.setBackText(normalizedBackText);
-        entity.setUpdatedBy(FlashcardConst.DEFAULT_ACTOR);
-        final FlashcardEntity updated = this.flashcardRepository.save(entity);
+        entity.setUpdatedBy(currentActor);
+        final var updated = this.flashcardRepository.save(entity);
         return toResponse(updated);
     }
 
     @Override
     public void deleteFlashcard(Long deckId, Long flashcardId) {
+        final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.info("Delete flashcard id={} in deckId={}", flashcardId, deckId);
-        final FlashcardEntity entity = getActiveFlashcardEntity(deckId, flashcardId);
-        final DeckEntity deck = getActiveDeckEntity(deckId);
-        final Instant deletedAt = Instant.now();
+        final var entity = getActiveFlashcardEntity(deckId, flashcardId, currentActor);
+        final var deck = getActiveDeckEntity(deckId, currentActor);
+        final var deletedAt = Instant.now();
         entity.setDeletedAt(deletedAt);
-        entity.setDeletedBy(FlashcardConst.DEFAULT_ACTOR);
-        entity.setUpdatedBy(FlashcardConst.DEFAULT_ACTOR);
+        entity.setDeletedBy(currentActor);
+        entity.setUpdatedBy(currentActor);
         this.flashcardRepository.save(entity);
 
-        final List<FolderEntity> activeFolders = this.folderRepository.findByDeletedAtIsNull();
-        final Map<Long, FolderEntity> folderById = toFolderById(activeFolders);
-        applyFlashcardDelta(deck.getFolderId(), -1, folderById);
+        final var activeFolders = this.folderRepository.findByCreatedByAndDeletedAtIsNull(currentActor);
+        final var folderById = toFolderById(activeFolders);
+        applyFlashcardDelta(deck.getFolderId(), -1, folderById, currentActor);
         this.folderRepository.saveAll(activeFolders);
     }
 
@@ -167,22 +174,23 @@ public class FlashcardServiceImpl implements FlashcardService {
                 entity.getUpdatedAt());
     }
 
-    private void applyFlashcardDelta(Long folderId, int delta, Map<Long, FolderEntity> folderById) {
-        final FolderEntity currentFolder = folderById.get(folderId);
+    private void applyFlashcardDelta(Long folderId, int delta, Map<Long, FolderEntity> folderById,
+            String currentActor) {
+        final var currentFolder = folderById.get(folderId);
         if (currentFolder == null) {
             throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
         }
 
-        Long cursor = folderId;
-        boolean isCurrentFolder = true;
+        var cursor = folderId;
+        var isCurrentFolder = true;
         while (cursor != null) {
-            final FolderEntity folder = folderById.get(cursor);
+            final var folder = folderById.get(cursor);
             if (folder == null) {
                 throw new BadRequestException(FolderConst.PARENT_NOT_FOUND_KEY);
             }
 
             if (isCurrentFolder) {
-                final int updatedDirectCount = folder.getDirectFlashcardCount() + delta;
+                final var updatedDirectCount = folder.getDirectFlashcardCount() + delta;
                 if (updatedDirectCount < FolderConst.MIN_PAGE) {
                     throw new BusinessException(FolderConst.NEGATIVE_AGGREGATE_KEY);
                 }
@@ -190,12 +198,12 @@ public class FlashcardServiceImpl implements FlashcardService {
                 isCurrentFolder = false;
             }
 
-            final int updatedAggregateCount = folder.getAggregateFlashcardCount() + delta;
+            final var updatedAggregateCount = folder.getAggregateFlashcardCount() + delta;
             if (updatedAggregateCount < FolderConst.MIN_PAGE) {
                 throw new BusinessException(FolderConst.NEGATIVE_AGGREGATE_KEY);
             }
             folder.setAggregateFlashcardCount(updatedAggregateCount);
-            folder.setUpdatedBy(FolderConst.DEFAULT_ACTOR);
+            folder.setUpdatedBy(currentActor);
             cursor = folder.getParentFolderId();
         }
     }
@@ -208,16 +216,16 @@ public class FlashcardServiceImpl implements FlashcardService {
         return folderById;
     }
 
-    private DeckEntity getActiveDeckEntity(Long deckId) {
+    private DeckEntity getActiveDeckEntity(Long deckId, String currentActor) {
         return this.deckRepository
-                .findByIdAndDeletedAtIsNull(deckId)
+                .findByIdAndCreatedByAndDeletedAtIsNull(deckId, currentActor)
                 .orElseThrow(() -> new DeckNotFoundException(deckId));
     }
 
-    private FlashcardEntity getActiveFlashcardEntity(Long deckId, Long flashcardId) {
-        getActiveDeckEntity(deckId);
+    private FlashcardEntity getActiveFlashcardEntity(Long deckId, Long flashcardId, String currentActor) {
+        getActiveDeckEntity(deckId, currentActor);
         return this.flashcardRepository
-                .findByIdAndDeckIdAndDeletedAtIsNull(flashcardId, deckId)
+                .findByIdAndDeckIdAndCreatedByAndDeletedAtIsNull(flashcardId, deckId, currentActor)
                 .orElseThrow(() -> new FlashcardNotFoundException(flashcardId));
     }
 

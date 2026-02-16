@@ -5,40 +5,30 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:learnwise/main.dart';
 
 void main() {
-  testWidgets('Dashboard renders with overview and quick actions', (
-    tester,
-  ) async {
+  testWidgets('Login screen is the default start screen', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: LearnWiseApp()));
     await tester.pumpAndSettle();
 
-    expect(find.text('LearnWise Dashboard'), findsOneWidget);
-    expect(find.text('Overview'), findsOneWidget);
-
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Quick actions'), findsOneWidget);
-    expect(find.text('Start learning'), findsOneWidget);
-    expect(find.text('Open progress'), findsOneWidget);
-    expect(find.text('Open TTS lab'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
+    expect(find.text('Create an account'), findsOneWidget);
   });
 
-  testWidgets('Dashboard quick action buttons are visible', (tester) async {
+  testWidgets('Login screen can open register screen', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: LearnWiseApp()));
     await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.tap(find.text('Create an account'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Start learning'), findsOneWidget);
-    expect(find.text('Open progress'), findsOneWidget);
-    expect(find.text('Open TTS lab'), findsOneWidget);
+    expect(find.text('Create account'), findsOneWidget);
+    expect(find.text('Register'), findsOneWidget);
+    expect(find.text('Already have an account? Sign in'), findsOneWidget);
   });
 }

@@ -8,9 +8,10 @@ import com.learn.wire.entity.StudySessionEntity;
 
 public interface StudySessionRepository extends JpaRepository<StudySessionEntity, Long> {
 
-    Optional<StudySessionEntity> findByIdAndDeletedAtIsNull(Long id);
+    Optional<StudySessionEntity> findByIdAndDeletedAtIsNullAndCreatedBy(Long id, String createdBy);
 
-    Optional<StudySessionEntity> findFirstByDeckIdAndStatusAndDeletedAtIsNullOrderByStartedAtDesc(
+    Optional<StudySessionEntity> findFirstByDeckIdAndStatusAndDeletedAtIsNullAndCreatedByOrderByStartedAtDesc(
             Long deckId,
-            String status);
+            String status,
+            String createdBy);
 }

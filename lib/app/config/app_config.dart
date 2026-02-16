@@ -1,5 +1,7 @@
 import '../../core/network/api_constants.dart';
+import '../../core/utils/string_utils.dart';
 import 'env.dart';
+import 'app_constants.dart';
 
 class AppConfig {
   const AppConfig({
@@ -24,11 +26,18 @@ class AppConfig {
 
   factory AppConfig.fromEnv([AppEnv? env]) {
     final AppEnv target = env ?? AppEnv.fromDartDefine();
+    const String rawBaseUrlOverride = String.fromEnvironment(
+      AppConstants.appApiBaseUrlDefineKey,
+      defaultValue: '',
+    );
+    final String? baseUrlOverride = StringUtils.normalizeNullable(
+      rawBaseUrlOverride,
+    );
     switch (target) {
       case AppEnv.prod:
-        return const AppConfig(
+        return AppConfig(
           env: AppEnv.prod,
-          baseUrl: ApiConstants.prodBaseUrl,
+          baseUrl: baseUrlOverride ?? ApiConstants.prodBaseUrl,
           apiVersion: ApiConstants.apiVersion,
           enableHttpLog: false,
           enableRetry: true,
@@ -36,9 +45,9 @@ class AppConfig {
           enableMockApi: false,
         );
       case AppEnv.stg:
-        return const AppConfig(
+        return AppConfig(
           env: AppEnv.stg,
-          baseUrl: ApiConstants.stgBaseUrl,
+          baseUrl: baseUrlOverride ?? ApiConstants.stgBaseUrl,
           apiVersion: ApiConstants.apiVersion,
           enableHttpLog: true,
           enableRetry: true,
@@ -46,9 +55,9 @@ class AppConfig {
           enableMockApi: false,
         );
       case AppEnv.dev:
-        return const AppConfig(
+        return AppConfig(
           env: AppEnv.dev,
-          baseUrl: ApiConstants.devBaseUrl,
+          baseUrl: baseUrlOverride ?? ApiConstants.devBaseUrl,
           apiVersion: ApiConstants.apiVersion,
           enableHttpLog: true,
           enableRetry: true,

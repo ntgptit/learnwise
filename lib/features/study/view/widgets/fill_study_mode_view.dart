@@ -262,9 +262,10 @@ class _FillInputCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.normal,
+                ),
               ),
             );
           }

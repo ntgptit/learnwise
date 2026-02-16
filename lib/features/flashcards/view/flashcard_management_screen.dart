@@ -13,9 +13,9 @@ import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_management_args.dart';
 import '../model/flashcard_models.dart';
-import '../study/model/study_constants.dart';
-import '../study/model/study_mode.dart';
-import '../study/model/study_session_args.dart';
+import '../../study/model/study_constants.dart';
+import '../../study/model/study_mode.dart';
+import '../../study/model/study_session_args.dart';
 import '../viewmodel/flashcard_viewmodel.dart';
 import 'widgets/flashcard_card_section_header.dart';
 import 'widgets/flashcard_content_card.dart';
@@ -35,11 +35,7 @@ enum _FlashcardMenuAction {
   sortDirectionAsc,
 }
 
-enum _StudyLearnAction {
-  startCycle,
-  chooseMode,
-  resetSession,
-}
+enum _StudyLearnAction { startCycle, chooseMode, resetSession }
 
 class _StudyModeOption {
   const _StudyModeOption({
@@ -452,7 +448,8 @@ class _FlashcardManagementScreenState
     required AppLocalizations l10n,
     required FlashcardListingState listing,
   }) async {
-    final _StudyLearnAction? action = await showModalBottomSheet<_StudyLearnAction>(
+    final _StudyLearnAction?
+    action = await showModalBottomSheet<_StudyLearnAction>(
       context: context,
       showDragHandle: true,
       builder: (sheetContext) {

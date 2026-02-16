@@ -1,5 +1,23 @@
 # Project Agent Rules
 
+## Child Component – Flutter Architecture Checklist
+
+`AGENTS.md` bao gồm checklist con sau và checklist này bắt buộc áp dụng khi sửa code Flutter:
+
+- Source: `C:\Users\ntgpt\.codex\flutter_architecture_checklist.md`
+- Role: checklist kiến trúc Flutter/Riverpod theo tier structure
+- Scope: toàn bộ thay đổi trong `lib/**` và `test/**` liên quan Flutter
+
+Precedence trong repo này:
+
+1. `AGENTS.md` (parent contract)
+2. `C:\Users\ntgpt\.codex\flutter_architecture_checklist.md` (child checklist)
+
+Yêu cầu thực thi:
+
+- Khi task liên quan Flutter UI/state/architecture, phải đối chiếu checklist con trước khi patch.
+- Nếu có xung đột, giữ nguyên quy tắc ở `AGENTS.md` và áp dụng checklist con trong phạm vi không mâu thuẫn.
+
 ## Common Widgets
 
 `lib/common/widgets` must stay render-only.

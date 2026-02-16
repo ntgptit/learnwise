@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/dashboard/view/dashboard_screen.dart';
 import '../../features/flashcards/model/flashcard_management_args.dart';
-import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
-import '../../features/flashcards/study/model/study_session_args.dart';
-import '../../features/flashcards/study/view/study_session_screen.dart';
+import '../../features/study/model/study_session_args.dart';
+import '../../features/study/view/index.dart';
+import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/folders/view/folder_screen.dart';
 import '../../features/tts/view/tts_screen.dart';
 import 'route_names.dart';

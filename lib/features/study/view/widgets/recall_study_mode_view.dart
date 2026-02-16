@@ -237,6 +237,9 @@ class _RecallCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle? resolvedTextStyle = textStyle?.copyWith(
+      fontWeight: FontWeight.normal,
+    );
     return Opacity(
       opacity: opacity,
       child: AppCard(
@@ -253,7 +256,7 @@ class _RecallCard extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: maxLines,
             overflow: TextOverflow.ellipsis,
-            style: textStyle,
+            style: resolvedTextStyle,
           ),
         ),
       ),

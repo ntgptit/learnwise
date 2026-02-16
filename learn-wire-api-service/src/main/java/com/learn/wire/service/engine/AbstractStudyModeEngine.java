@@ -49,6 +49,9 @@ public abstract class AbstractStudyModeEngine implements StudyModeEngine {
         if (isDuplicateEvent(modeState.getId(), command.clientEventId())) {
             return buildResponse(session, modeState);
         }
+        if (isDuplicateSequence(modeState.getId(), command.clientSequence())) {
+            return buildResponse(session, modeState);
+        }
         final StudyAttemptEntity attempt = createAttempt(modeState, command);
         handleEventInternal(session, modeState, command, attempt);
         this.studySessionRepository.save(session);
@@ -189,6 +192,10 @@ public abstract class AbstractStudyModeEngine implements StudyModeEngine {
 
     private boolean isDuplicateEvent(Long modeStateId, String clientEventId) {
         return this.studyAttemptRepository.findByModeStateIdAndClientEventId(modeStateId, clientEventId).isPresent();
+    }
+
+    private boolean isDuplicateSequence(Long modeStateId, int clientSequence) {
+        return this.studyAttemptRepository.findByModeStateIdAndClientSequence(modeStateId, clientSequence).isPresent();
     }
 
     private StudyAttemptEntity createAttempt(StudySessionModeStateEntity modeState, StudySessionEventCommand command) {

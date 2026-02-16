@@ -603,7 +603,7 @@ class _FlashcardManagementScreenState
         extra: StudySessionArgs(
           deckId: widget.args.deckId,
           mode: mode,
-          items: listing.items,
+          items: const <FlashcardItem>[],
           title: _resolveTitle(l10n),
           seed: seed,
           cycleModes: cycleModes,

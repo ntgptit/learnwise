@@ -51,7 +51,9 @@ class MatchStudyModeView extends StatelessWidget {
         child: Text(
           l10n.flashcardsStudyMatchPrompt,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleMedium,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.normal),
         ),
       );
     }
@@ -306,28 +308,20 @@ class _MatchBoardTile extends StatelessWidget {
     required ThemeData theme,
     required ColorScheme colorScheme,
   }) {
-    if (isPromptTile) {
-      final Color promptColor = colorScheme.onSurfaceVariant.withValues(
-        alpha: AppOpacities.muted82,
-      );
-      if (isSelected) {
-        return theme.textTheme.titleMedium?.copyWith(
-          color: colorScheme.onSurface,
-        );
-      }
-      if (isMatched) {
-        return theme.textTheme.titleMedium?.copyWith(color: promptColor);
-      }
-      return theme.textTheme.titleMedium?.copyWith(color: promptColor);
-    }
-    final Color answerColor = colorScheme.onSurfaceVariant;
+    final TextStyle? baseStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.normal,
+      fontSize: FlashcardStudySessionTokens.matchLabelFontSize,
+    );
+    final Color tileTextColor = colorScheme.onSurfaceVariant.withValues(
+      alpha: AppOpacities.muted82,
+    );
     if (isSelected) {
-      return theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface);
+      return baseStyle?.copyWith(color: colorScheme.onSurface);
     }
     if (isMatched) {
-      return theme.textTheme.bodyMedium?.copyWith(color: answerColor);
+      return baseStyle?.copyWith(color: tileTextColor);
     }
-    return theme.textTheme.bodyMedium?.copyWith(color: answerColor);
+    return baseStyle?.copyWith(color: tileTextColor);
   }
 
   double _resolveOpacity() {

@@ -819,7 +819,8 @@ class StudySessionController extends _$StudySessionController {
       currentIndex: currentIndex,
       shouldDelayProgressUpdate: shouldDelayProgressUpdate,
     );
-    final bool isCompleted = totalCount > 0 && displayCurrentIndex >= totalCount;
+    final bool isCompleted =
+        totalCount > 0 && displayCurrentIndex >= totalCount;
     state = state.copyWith(
       currentUnit: updatedUnit,
       currentIndex: displayCurrentIndex,
@@ -1651,6 +1652,9 @@ class StudySessionController extends _$StudySessionController {
   }
 
   StudySessionState _buildBootstrapState(StudySessionArgs args) {
+    if (args.deckId > StudyConstants.defaultIndex) {
+      return _buildBackendBootstrapState(args);
+    }
     final List<ReviewUnit> reviewUnits = args.items
         .map((item) {
           return ReviewUnit(
@@ -1700,6 +1704,22 @@ class StudySessionController extends _$StudySessionController {
     return bootstrapState.copyWith(
       clearCurrentUnit: true,
       isCompleted: true,
+      canGoNext: false,
+      canGoPrevious: false,
+    );
+  }
+
+  StudySessionState _buildBackendBootstrapState(StudySessionArgs args) {
+    _linearUnits = const <StudyUnit>[];
+    return StudySessionState.initial(
+      mode: args.mode,
+      reviewUnits: const <ReviewUnit>[],
+      currentUnit: null,
+      currentIndex: StudyConstants.defaultIndex,
+      totalCount: StudyConstants.defaultIndex,
+    ).copyWith(
+      clearCurrentUnit: true,
+      isCompleted: false,
       canGoNext: false,
       canGoPrevious: false,
     );

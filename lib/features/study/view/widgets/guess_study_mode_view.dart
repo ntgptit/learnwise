@@ -111,9 +111,7 @@ class _GuessPromptCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          const _GuessPromptActionIcon(
-            iconData: Icons.edit_outlined,
-          ),
+          const _GuessPromptActionIcon(iconData: Icons.edit_outlined),
           const SizedBox(
             height: FlashcardStudySessionTokens.reviewCardActionTopGap,
           ),
@@ -132,7 +130,8 @@ class _GuessPromptCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: FlashcardStudySessionTokens.guessPromptMaxLines,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.normal),
                     ),
                   ),
                 ),
@@ -142,9 +141,7 @@ class _GuessPromptCard extends StatelessWidget {
           const SizedBox(
             height: FlashcardStudySessionTokens.reviewCardActionTopGap,
           ),
-          const _GuessPromptActionIcon(
-            iconData: Icons.volume_up_outlined,
-          ),
+          const _GuessPromptActionIcon(iconData: Icons.volume_up_outlined),
         ],
       ),
     );
@@ -177,10 +174,7 @@ class _GuessPromptActionIcon extends StatelessWidget {
             padding: const EdgeInsets.all(
               FlashcardStudySessionTokens.guessPromptActionInnerPadding,
             ),
-            child: Icon(
-              iconData,
-              size: FlashcardStudySessionTokens.iconSize,
-            ),
+            child: Icon(iconData, size: FlashcardStudySessionTokens.iconSize),
           ),
         ),
       ),
@@ -246,9 +240,7 @@ class _GuessOptionCard extends StatelessWidget {
         child: ExcludeSemantics(child: text),
       );
     }
-    return Center(
-      child: text,
-    );
+    return Center(child: text);
   }
 
   Color _resolveBackgroundColor(ColorScheme colorScheme) {
@@ -279,11 +271,14 @@ class _GuessOptionCard extends StatelessWidget {
   TextStyle? _resolveTextStyle(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
+    final TextStyle? fallbackStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.normal,
+    );
     return resolveStudyFeedbackTextStyle(
       colorScheme: colorScheme,
       showSuccessState: showSuccessState,
       showErrorState: showErrorState,
-      fallbackStyle: theme.textTheme.bodyMedium,
+      fallbackStyle: fallbackStyle,
     );
   }
 

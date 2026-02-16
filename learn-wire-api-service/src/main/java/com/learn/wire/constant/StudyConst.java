@@ -8,6 +8,7 @@ public final class StudyConst {
     public static final String SESSION_TABLE_NAME = "study_sessions";
     public static final String SESSION_MODE_STATE_TABLE_NAME = "study_session_mode_states";
     public static final String SESSION_ITEM_TABLE_NAME = "study_session_items";
+    public static final String SESSION_SNAPSHOT_ITEM_TABLE_NAME = "study_session_snapshot_items";
     public static final String ATTEMPT_TABLE_NAME = "study_attempts";
     public static final String MATCH_TILE_TABLE_NAME = "match_session_tiles";
     public static final String MATCH_STATE_TABLE_NAME = "match_session_states";

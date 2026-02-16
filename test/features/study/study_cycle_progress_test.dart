@@ -143,6 +143,33 @@ void main() {
 
       expect(modeIndex, 3);
     });
+
+    test(
+      'resumed session keeps forward progress when current mode is already completed',
+      () {
+        final StudySessionArgs args = _buildArgs(mode: StudyMode.review);
+
+        final int displayCount = resolveDisplayedCompletedModeCount(
+          args: args,
+          completedModeCount: 2,
+          requiredModeCount: 5,
+          isModeCompleted: true,
+          isSessionCompleted: false,
+          currentMode: StudyMode.review,
+        );
+        final StudyMode? nextMode = resolveNextCycleMode(
+          args: args,
+          currentMode: StudyMode.review,
+          completedModeCount: 2,
+          requiredModeCount: 5,
+          isModeCompleted: true,
+          isSessionCompleted: false,
+        );
+
+        expect(displayCount, 2);
+        expect(nextMode, StudyMode.guess);
+      },
+    );
   });
 }
 

@@ -22,12 +22,19 @@ class _StudySessionBody extends ConsumerWidget {
     final bool isEmpty = ref.watch(
       provider.select((value) => value.totalCount <= 0),
     );
+    final bool isCompleted = ref.watch(
+      provider.select((value) => value.isCompleted),
+    );
     final StudyMode mode = ref.watch(provider.select((value) => value.mode));
     final StudyModeContentBuilder? modeContentBuilder =
         _resolveModeContentBuilder(mode);
     final double headerToContentGap =
         modeContentBuilder?.resolveHeaderToContentGap() ??
         FlashcardStudySessionTokens.sectionSpacing;
+
+    if (isEmpty && !isCompleted) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     if (isEmpty) {
       return EmptyState(

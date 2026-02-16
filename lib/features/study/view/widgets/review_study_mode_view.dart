@@ -213,7 +213,7 @@ class _ReviewPage extends StatelessWidget {
         Expanded(
           child: _ReviewCardFace(
             text: meaningDisplayText,
-            textStyle: Theme.of(context).textTheme.titleLarge,
+            textStyle: Theme.of(context).textTheme.titleMedium,
             actionIcon: Icons.edit_outlined,
             selectedActionIcon: Icons.edit_outlined,
             tooltip: l10n.flashcardsEditTooltip,
@@ -268,6 +268,9 @@ class _ReviewCardFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle? resolvedTextStyle = textStyle?.copyWith(
+      fontWeight: FontWeight.normal,
+    );
     return AppCard(
       variant: AppCardVariant.elevated,
       elevation: FlashcardStudySessionTokens.cardElevation,
@@ -309,7 +312,7 @@ class _ReviewCardFace extends StatelessWidget {
                   text,
                   textAlign: TextAlign.center,
                   softWrap: true,
-                  style: textStyle,
+                  style: resolvedTextStyle,
                 ),
               ),
             ),

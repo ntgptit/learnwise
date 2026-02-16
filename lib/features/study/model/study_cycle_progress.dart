@@ -49,16 +49,12 @@ int resolveDisplayedCompletedModeCount({
   if (isModeCompleted) {
     minimumCompletedCount = currentIndex + 1;
   }
-  int maximumCompletedCount = currentIndex;
-  if (isModeCompleted) {
-    maximumCompletedCount = currentIndex + 1;
-  }
   int displayCount = completedModeCount;
   if (displayCount < minimumCompletedCount) {
     displayCount = minimumCompletedCount;
   }
-  if (displayCount > maximumCompletedCount) {
-    displayCount = maximumCompletedCount;
+  if (!isModeCompleted && displayCount > currentIndex) {
+    displayCount = currentIndex;
   }
   if (displayCount < 0) {
     return 0;

@@ -167,50 +167,53 @@ void main() {
       },
     );
 
-    test('correct attempt updates progress only after success feedback ends', () async {
-      final ProviderContainer container = ProviderContainer();
-      addTearDown(container.dispose);
-      final StudySessionArgs args = StudySessionArgs(
-        deckId: 0,
-        mode: StudyMode.match,
-        items: _buildItems(count: 3),
-        title: 'Match',
-      );
-      final provider = studySessionControllerProvider(args);
-      final StudySessionController controller = container.read(
-        provider.notifier,
-      );
-      final MatchUnit initialUnit =
-          container.read(provider).currentUnit! as MatchUnit;
-      final int leftId = initialUnit.leftEntries.first.id;
-      final int rightId = initialUnit.rightEntries
-          .firstWhere((entry) => entry.id == leftId)
-          .id;
+    test(
+      'correct attempt updates progress only after success feedback ends',
+      () async {
+        final ProviderContainer container = ProviderContainer();
+        addTearDown(container.dispose);
+        final StudySessionArgs args = StudySessionArgs(
+          deckId: 0,
+          mode: StudyMode.match,
+          items: _buildItems(count: 3),
+          title: 'Match',
+        );
+        final provider = studySessionControllerProvider(args);
+        final StudySessionController controller = container.read(
+          provider.notifier,
+        );
+        final MatchUnit initialUnit =
+            container.read(provider).currentUnit! as MatchUnit;
+        final int leftId = initialUnit.leftEntries.first.id;
+        final int rightId = initialUnit.rightEntries
+            .firstWhere((entry) => entry.id == leftId)
+            .id;
 
-      controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
-      controller.submitAnswer(MatchSelectRightStudyAnswer(rightId: rightId));
+        controller.submitAnswer(MatchSelectLeftStudyAnswer(leftId: leftId));
+        controller.submitAnswer(MatchSelectRightStudyAnswer(rightId: rightId));
 
-      StudySessionState state = container.read(provider);
-      expect(state.currentIndex, 0);
-      expect(state.progressPercent, 0);
-      expect(state.isMatchInteractionLocked, isTrue);
-      expect(state.matchSuccessFlashKeys, <String>{
-        'left:$leftId',
-        'right:$rightId',
-      });
+        StudySessionState state = container.read(provider);
+        expect(state.currentIndex, 0);
+        expect(state.progressPercent, 0);
+        expect(state.isMatchInteractionLocked, isTrue);
+        expect(state.matchSuccessFlashKeys, <String>{
+          'left:$leftId',
+          'right:$rightId',
+        });
 
-      await Future<void>.delayed(
-        const Duration(
-          milliseconds: StudyConstants.localMatchFeedbackDurationMs + 120,
-        ),
-      );
+        await Future<void>.delayed(
+          const Duration(
+            milliseconds: StudyConstants.localMatchFeedbackDurationMs + 120,
+          ),
+        );
 
-      state = container.read(provider);
-      expect(state.currentIndex, 1);
-      expect(state.progressPercent, closeTo(1 / 3, 0.0001));
-      expect(state.isMatchInteractionLocked, isFalse);
-      expect(state.matchSuccessFlashKeys, isEmpty);
-    });
+        state = container.read(provider);
+        expect(state.currentIndex, 1);
+        expect(state.progressPercent, closeTo(1 / 3, 0.0001));
+        expect(state.isMatchInteractionLocked, isFalse);
+        expect(state.matchSuccessFlashKeys, isEmpty);
+      },
+    );
   });
 
   group('StudySessionController guess mode', () {
@@ -499,7 +502,7 @@ void main() {
     });
 
     test(
-      'delayed start snapshot keeps all queued not yet units before first cycle completes',
+      'backend-owned bootstrap waits snapshot before recall interaction',
       () async {
         final List<FlashcardItem> items = _buildItems(count: 3);
         final _DelayedStartStudySessionRepository repository =
@@ -524,13 +527,9 @@ void main() {
         );
 
         StudySessionState state = container.read(provider);
-        final RecallUnit firstUnit = state.currentUnit! as RecallUnit;
-        controller.submitRecallEvaluation(isRemembered: false);
-
-        state = container.read(provider);
-        final RecallUnit secondUnit = state.currentUnit! as RecallUnit;
-        controller.submitRecallEvaluation(isRemembered: false);
-        expect(secondUnit.prompt, isNot(firstUnit.prompt));
+        expect(state.currentUnit, isNull);
+        expect(state.totalCount, 0);
+        expect(state.isCompleted, isFalse);
 
         await Future<void>.delayed(
           const Duration(
@@ -540,21 +539,14 @@ void main() {
         );
 
         state = container.read(provider);
-        expect(state.currentIndex, 2);
+        expect(state.currentUnit, isA<RecallUnit>());
+        expect(state.currentIndex, 0);
         expect(state.totalCount, 3);
+
+        controller.submitRecallEvaluation(isRemembered: false);
+        state = container.read(provider);
+        expect(state.currentIndex, 1);
         expect(state.isCompleted, isFalse);
-
-        controller.submitRecallEvaluation(isRemembered: true);
-        state = container.read(provider);
-        final RecallUnit retryFirst = state.currentUnit! as RecallUnit;
-        expect(retryFirst.prompt, firstUnit.prompt);
-        expect(state.currentIndex, 3);
-        expect(state.totalCount, 5);
-
-        controller.submitRecallEvaluation(isRemembered: true);
-        state = container.read(provider);
-        final RecallUnit retrySecond = state.currentUnit! as RecallUnit;
-        expect(retrySecond.prompt, secondUnit.prompt);
       },
     );
   });

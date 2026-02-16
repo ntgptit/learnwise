@@ -310,7 +310,7 @@ class _FillPromptCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.normal,
                   ),
@@ -370,7 +370,7 @@ class _FillInputCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: colorScheme.onSurface,
                       fontWeight: FontWeight.normal,
                     ),
@@ -386,13 +386,15 @@ class _FillInputCard extends StatelessWidget {
                   minLines: FlashcardStudySessionTokens.fillInputMaxLines,
                   textAlign: TextAlign.center,
                   textInputAction: TextInputAction.done,
+                  hint: AppLocalizations.of(
+                    context,
+                  )!.flashcardsStudyFillInputHint,
                   variant: InputFieldVariant.filled,
                   fillColor: colorScheme.surfaceContainerHigh,
-                  textStyle: Theme.of(context).textTheme.headlineSmall
-                      ?.copyWith(
-                        color: colorScheme.onSurface,
-                        fontWeight: FontWeight.normal,
-                      ),
+                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.normal,
+                  ),
                   hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant.withValues(
                       alpha: FlashcardStudySessionTokens.fillInputHintOpacity,
@@ -418,7 +420,7 @@ class _FillWrongAnswerHighlightedText extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextStyle baseStyle =
-        theme.textTheme.headlineSmall?.copyWith(
+        theme.textTheme.titleMedium?.copyWith(
           color: colorScheme.onSurface,
           fontWeight: FontWeight.normal,
         ) ??

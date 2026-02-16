@@ -46,6 +46,7 @@ class AppTextField extends StatelessWidget {
     this.obscureText = false,
     this.textAlign = TextAlign.start,
     this.hintStyle,
+    this.textStyle,
   });
 
   /// Controller for managing the text field's content.
@@ -106,6 +107,9 @@ class AppTextField extends StatelessWidget {
   /// Optional style for hint text.
   final TextStyle? hintStyle;
 
+  /// Optional style for the input text.
+  final TextStyle? textStyle;
+
   @override
   Widget build(BuildContext context) {
     final InputDecoration decoration = _buildDecoration(context);
@@ -128,6 +132,7 @@ class AppTextField extends StatelessWidget {
         enabled: enabled,
         obscureText: obscureText,
         textAlign: textAlign,
+        style: textStyle,
         decoration: decoration,
       ),
     );

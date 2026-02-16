@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../../../../core/utils/string_utils.dart';
+import '../../model/study_constants.dart';
 import '../../model/study_unit.dart';
 
 class FillStudyModeView extends StatefulWidget {
@@ -25,13 +26,12 @@ class FillStudyModeView extends StatefulWidget {
 }
 
 class _FillStudyModeViewState extends State<FillStudyModeView> {
-  late final ValueNotifier<String?> _helpAnswerNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _helpAnswerNotifier = ValueNotifier<String?>(null);
-  }
+  final ValueNotifier<String?> _helpAnswerNotifier = ValueNotifier<String?>(
+    null,
+  );
+  final ValueNotifier<_FillWrongAnswerFeedback?> _wrongAnswerNotifier =
+      ValueNotifier<_FillWrongAnswerFeedback?>(null);
+  final FocusNode _fillInputFocusNode = FocusNode(debugLabel: 'fill_input');
 
   @override
   void didUpdateWidget(covariant FillStudyModeView oldWidget) {
@@ -40,11 +40,14 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
       return;
     }
     _helpAnswerNotifier.value = null;
+    _wrongAnswerNotifier.value = null;
   }
 
   @override
   void dispose() {
     _helpAnswerNotifier.dispose();
+    _wrongAnswerNotifier.dispose();
+    _fillInputFocusNode.dispose();
     super.dispose();
   }
 
@@ -64,8 +67,10 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
           flex: 1,
           child: _FillInputCard(
             fillController: widget.fillController,
+            fillInputFocusNode: _fillInputFocusNode,
             onSubmitPressed: _submitCurrentAnswer,
             helpAnswerListenable: _helpAnswerNotifier,
+            wrongAnswerListenable: _wrongAnswerNotifier,
           ),
         ),
         const SizedBox(height: FlashcardStudySessionTokens.fillActionTopGap),
@@ -74,40 +79,57 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
           minimum: const EdgeInsets.only(
             bottom: FlashcardStudySessionTokens.fillActionBottomPadding,
           ),
-          child: ValueListenableBuilder<TextEditingValue>(
-            valueListenable: widget.fillController,
-            builder: (context, value, child) {
-              final bool canSubmit = StringUtils.normalize(
-                value.text,
-              ).isNotEmpty;
-              return Row(
-                children: <Widget>[
-                  Expanded(
-                    child: SizedBox(
-                      height:
-                          FlashcardStudySessionTokens.fillActionButtonHeight,
-                      child: FilledButton(
-                        onPressed: _onHelpPressed,
-                        style: _resolveActionButtonStyle(context),
-                        child: Text(widget.l10n.flashcardsStudyFillHelpLabel),
+          child: ValueListenableBuilder<_FillWrongAnswerFeedback?>(
+            valueListenable: _wrongAnswerNotifier,
+            builder: (context, wrongAnswerFeedback, child) {
+              final bool isAwaitingConfirm = wrongAnswerFeedback != null;
+              return ValueListenableBuilder<TextEditingValue>(
+                valueListenable: widget.fillController,
+                builder: (context, value, child) {
+                  final bool canSubmit = StringUtils.normalize(
+                    value.text,
+                  ).isNotEmpty;
+                  return Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: SizedBox(
+                          height: FlashcardStudySessionTokens
+                              .fillActionButtonHeight,
+                          child: FilledButton(
+                            onPressed: _resolveHelpButtonHandler(
+                              isAwaitingConfirm: isAwaitingConfirm,
+                            ),
+                            style: _resolveActionButtonStyle(context),
+                            child: Text(
+                              widget.l10n.flashcardsStudyFillHelpLabel,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: FlashcardStudySessionTokens.bottomActionGap,
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height:
-                          FlashcardStudySessionTokens.fillActionButtonHeight,
-                      child: FilledButton(
-                        onPressed: canSubmit ? _submitCurrentAnswer : null,
-                        style: _resolveCheckButtonStyle(context),
-                        child: Text(widget.l10n.flashcardsStudyFillCheckLabel),
+                      const SizedBox(
+                        width: FlashcardStudySessionTokens.bottomActionGap,
                       ),
-                    ),
-                  ),
-                ],
+                      Expanded(
+                        child: SizedBox(
+                          height: FlashcardStudySessionTokens
+                              .fillActionButtonHeight,
+                          child: FilledButton(
+                            onPressed: _resolveCheckButtonHandler(
+                              canSubmit: canSubmit,
+                              isAwaitingConfirm: isAwaitingConfirm,
+                            ),
+                            style: _resolveCheckButtonStyle(context),
+                            child: Text(
+                              _resolveCheckButtonLabel(
+                                isAwaitingConfirm: isAwaitingConfirm,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -125,6 +147,7 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
 
   void _onHelpPressed() {
     _helpAnswerNotifier.value = widget.unit.expectedAnswer;
+    _wrongAnswerNotifier.value = null;
     widget.fillController.text = widget.unit.expectedAnswer;
     widget.fillController.selection = TextSelection.collapsed(
       offset: widget.unit.expectedAnswer.length,
@@ -136,8 +159,79 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
     if (normalizedAnswer.isEmpty) {
       return;
     }
-    widget.onSubmitAnswer(normalizedAnswer);
+    final bool isCorrect = _isFillAnswerCorrect(
+      actual: normalizedAnswer,
+      expected: widget.unit.expectedAnswer,
+    );
+    if (isCorrect) {
+      _helpAnswerNotifier.value = null;
+      _wrongAnswerNotifier.value = null;
+      widget.onSubmitAnswer(normalizedAnswer);
+      return;
+    }
     _helpAnswerNotifier.value = null;
+    _wrongAnswerNotifier.value = _FillWrongAnswerFeedback(
+      actualText: normalizedAnswer,
+      expectedText: StringUtils.normalize(widget.unit.expectedAnswer),
+    );
+    widget.onSubmitAnswer(normalizedAnswer);
+  }
+
+  void _confirmIncorrectAndAdvance() {
+    final _FillWrongAnswerFeedback? feedback = _wrongAnswerNotifier.value;
+    if (feedback == null) {
+      return;
+    }
+    _wrongAnswerNotifier.value = null;
+    _helpAnswerNotifier.value = null;
+    widget.fillController.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _fillInputFocusNode.requestFocus();
+    });
+  }
+
+  bool _isFillAnswerCorrect({
+    required String actual,
+    required String expected,
+  }) {
+    final String normalizedActual = StringUtils.normalize(actual).toLowerCase();
+    final String normalizedExpected = StringUtils.normalize(
+      expected,
+    ).toLowerCase();
+    if (normalizedActual.isEmpty) {
+      return false;
+    }
+    return normalizedActual == normalizedExpected;
+  }
+
+  VoidCallback? _resolveHelpButtonHandler({required bool isAwaitingConfirm}) {
+    if (isAwaitingConfirm) {
+      return null;
+    }
+    return _onHelpPressed;
+  }
+
+  VoidCallback? _resolveCheckButtonHandler({
+    required bool canSubmit,
+    required bool isAwaitingConfirm,
+  }) {
+    if (isAwaitingConfirm) {
+      return _confirmIncorrectAndAdvance;
+    }
+    if (!canSubmit) {
+      return null;
+    }
+    return _submitCurrentAnswer;
+  }
+
+  String _resolveCheckButtonLabel({required bool isAwaitingConfirm}) {
+    if (isAwaitingConfirm) {
+      return widget.l10n.flashcardsStudyFillContinueLabel;
+    }
+    return widget.l10n.flashcardsStudyFillCheckLabel;
   }
 
   ButtonStyle _resolveActionButtonStyle(BuildContext context) {
@@ -233,13 +327,17 @@ class _FillPromptCard extends StatelessWidget {
 class _FillInputCard extends StatelessWidget {
   const _FillInputCard({
     required this.fillController,
+    required this.fillInputFocusNode,
     required this.onSubmitPressed,
     required this.helpAnswerListenable,
+    required this.wrongAnswerListenable,
   });
 
   final TextEditingController fillController;
+  final FocusNode fillInputFocusNode;
   final VoidCallback onSubmitPressed;
   final ValueNotifier<String?> helpAnswerListenable;
+  final ValueNotifier<_FillWrongAnswerFeedback?> wrongAnswerListenable;
 
   @override
   Widget build(BuildContext context) {
@@ -255,39 +353,165 @@ class _FillInputCard extends StatelessWidget {
       child: ValueListenableBuilder<String?>(
         valueListenable: helpAnswerListenable,
         builder: (context, helpAnswer, child) {
-          if (helpAnswer != null) {
-            return Center(
-              child: Text(
-                helpAnswer,
-                textAlign: TextAlign.center,
-                maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.normal,
+          return ValueListenableBuilder<_FillWrongAnswerFeedback?>(
+            valueListenable: wrongAnswerListenable,
+            builder: (context, wrongAnswerFeedback, child) {
+              if (wrongAnswerFeedback != null) {
+                return Center(
+                  child: _FillWrongAnswerHighlightedText(
+                    feedback: wrongAnswerFeedback,
+                  ),
+                );
+              }
+              if (helpAnswer != null) {
+                return Center(
+                  child: Text(
+                    helpAnswer,
+                    textAlign: TextAlign.center,
+                    maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                );
+              }
+              return Center(
+                child: AppTextField(
+                  controller: fillController,
+                  focusNode: fillInputFocusNode,
+                  onSubmitted: (_) => onSubmitPressed(),
+                  maxLines: FlashcardStudySessionTokens.fillInputMaxLines,
+                  minLines: FlashcardStudySessionTokens.fillInputMaxLines,
+                  textAlign: TextAlign.center,
+                  textInputAction: TextInputAction.done,
+                  variant: InputFieldVariant.filled,
+                  fillColor: colorScheme.surfaceContainerHigh,
+                  textStyle: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.normal,
+                      ),
+                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant.withValues(
+                      alpha: FlashcardStudySessionTokens.fillInputHintOpacity,
+                    ),
+                  ),
                 ),
-              ),
-            );
-          }
-          return Center(
-            child: AppTextField(
-              controller: fillController,
-              onSubmitted: (_) => onSubmitPressed(),
-              maxLines: FlashcardStudySessionTokens.fillInputMaxLines,
-              minLines: FlashcardStudySessionTokens.fillInputMaxLines,
-              textAlign: TextAlign.center,
-              textInputAction: TextInputAction.done,
-              variant: InputFieldVariant.filled,
-              fillColor: colorScheme.surfaceContainerHigh,
-              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: colorScheme.onSurfaceVariant.withValues(
-                  alpha: FlashcardStudySessionTokens.fillInputHintOpacity,
-                ),
-              ),
-            ),
+              );
+            },
           );
         },
       ),
     );
   }
+}
+
+class _FillWrongAnswerHighlightedText extends StatelessWidget {
+  const _FillWrongAnswerHighlightedText({required this.feedback});
+
+  final _FillWrongAnswerFeedback feedback;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextStyle baseStyle =
+        theme.textTheme.headlineSmall?.copyWith(
+          color: colorScheme.onSurface,
+          fontWeight: FontWeight.normal,
+        ) ??
+        TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.normal);
+    final TextStyle errorStyle = baseStyle.copyWith(color: colorScheme.error);
+    final TextStyle missingStyle = errorStyle.copyWith(
+      decoration: TextDecoration.underline,
+      decorationColor: colorScheme.error,
+    );
+    final List<InlineSpan> spans = _buildHighlightedSpans(
+      actual: feedback.actualText,
+      expected: feedback.expectedText,
+      baseStyle: baseStyle,
+      errorStyle: errorStyle,
+      missingStyle: missingStyle,
+    );
+    return Semantics(
+      label: feedback.expectedText,
+      child: ExcludeSemantics(
+        child: Text.rich(
+          TextSpan(children: spans),
+          textAlign: TextAlign.center,
+          maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  List<InlineSpan> _buildHighlightedSpans({
+    required String actual,
+    required String expected,
+    required TextStyle baseStyle,
+    required TextStyle errorStyle,
+    required TextStyle missingStyle,
+  }) {
+    final String normalizedActual = StringUtils.normalize(actual);
+    final String normalizedExpected = StringUtils.normalize(expected);
+    final String actualLower = normalizedActual.toLowerCase();
+    final String expectedLower = normalizedExpected.toLowerCase();
+
+    int minLength = actualLower.length;
+    if (expectedLower.length < minLength) {
+      minLength = expectedLower.length;
+    }
+
+    int mismatchIndex = minLength;
+    int index = StudyConstants.defaultIndex;
+    while (index < minLength) {
+      if (actualLower[index] != expectedLower[index]) {
+        mismatchIndex = index;
+        break;
+      }
+      index++;
+    }
+
+    if (actualLower.length == expectedLower.length &&
+        mismatchIndex == minLength) {
+      return <InlineSpan>[TextSpan(text: normalizedActual, style: baseStyle)];
+    }
+
+    final List<InlineSpan> spans = <InlineSpan>[];
+    final String correctPrefix = normalizedActual.substring(
+      StudyConstants.defaultIndex,
+      mismatchIndex,
+    );
+    if (correctPrefix.isNotEmpty) {
+      spans.add(TextSpan(text: correctPrefix, style: baseStyle));
+    }
+
+    final String wrongSuffix = normalizedActual.substring(mismatchIndex);
+    if (wrongSuffix.isNotEmpty) {
+      spans.add(TextSpan(text: wrongSuffix, style: errorStyle));
+    }
+
+    if (normalizedExpected.length > normalizedActual.length) {
+      final String missingSuffix = normalizedExpected.substring(
+        normalizedActual.length,
+      );
+      if (missingSuffix.isNotEmpty) {
+        spans.add(TextSpan(text: missingSuffix, style: missingStyle));
+      }
+    }
+    return spans;
+  }
+}
+
+class _FillWrongAnswerFeedback {
+  const _FillWrongAnswerFeedback({
+    required this.actualText,
+    required this.expectedText,
+  });
+
+  final String actualText;
+  final String expectedText;
 }

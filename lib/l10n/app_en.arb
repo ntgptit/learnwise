@@ -1010,6 +1010,10 @@
   "@flashcardsStudyFillCheckLabel": {
     "description": "Check button label in fill mode."
   },
+  "flashcardsStudyFillContinueLabel": "Re-enter",
+  "@flashcardsStudyFillContinueLabel": {
+    "description": "Continue button label in fill mode after incorrect answer confirmation."
+  },
   "flashcardsStudySubmitLabel": "Submit",
   "@flashcardsStudySubmitLabel": {
     "description": "Submit button label in study modes."

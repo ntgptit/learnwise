@@ -3,6 +3,8 @@ package com.learn.wire.service;
 import com.learn.wire.dto.auth.request.AuthLoginRequest;
 import com.learn.wire.dto.auth.request.AuthRefreshRequest;
 import com.learn.wire.dto.auth.request.AuthRegisterRequest;
+import com.learn.wire.dto.auth.request.AuthUpdateProfileRequest;
+import com.learn.wire.dto.auth.request.AuthUpdateSettingsRequest;
 import com.learn.wire.dto.auth.response.AuthMeResponse;
 import com.learn.wire.dto.auth.response.AuthTokenResponse;
 
@@ -15,4 +17,8 @@ public interface AuthService {
     AuthTokenResponse refresh(AuthRefreshRequest request);
 
     AuthMeResponse me();
+
+    AuthMeResponse updateMe(AuthUpdateProfileRequest request);
+
+    AuthMeResponse updateSettings(AuthUpdateSettingsRequest request);
 }

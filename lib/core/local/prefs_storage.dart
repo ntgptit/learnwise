@@ -10,6 +10,7 @@ class PrefsStorageKey {
 
   static const String localeCode = 'learnwise.prefs.locale_code';
   static const String darkModeEnabled = 'learnwise.prefs.dark_mode';
+  static const String themeModeCode = 'learnwise.prefs.theme_mode_code';
 }
 
 typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
@@ -26,6 +27,12 @@ abstract class PrefsStorage {
   Future<bool?> readDarkModeEnabled();
 
   Future<void> clearDarkModeEnabled();
+
+  Future<void> saveThemeModeCode(String themeModeCode);
+
+  Future<String?> readThemeModeCode();
+
+  Future<void> clearThemeModeCode();
 }
 
 @Riverpod(keepAlive: true)
@@ -82,6 +89,32 @@ class SharedPrefsStorage implements PrefsStorage {
   Future<void> clearDarkModeEnabled() async {
     final SharedPreferences prefs = await _prefs();
     await prefs.remove(PrefsStorageKey.darkModeEnabled);
+  }
+
+  @override
+  Future<void> saveThemeModeCode(String themeModeCode) async {
+    final String value = StringUtils.normalize(themeModeCode);
+    if (value.isEmpty) {
+      throw ArgumentError.value(
+        themeModeCode,
+        'themeModeCode',
+        'Theme mode code must not be empty.',
+      );
+    }
+    final SharedPreferences prefs = await _prefs();
+    await prefs.setString(PrefsStorageKey.themeModeCode, value);
+  }
+
+  @override
+  Future<String?> readThemeModeCode() async {
+    final SharedPreferences prefs = await _prefs();
+    return prefs.getString(PrefsStorageKey.themeModeCode);
+  }
+
+  @override
+  Future<void> clearThemeModeCode() async {
+    final SharedPreferences prefs = await _prefs();
+    await prefs.remove(PrefsStorageKey.themeModeCode);
   }
 
   Future<SharedPreferences> _prefs() async {

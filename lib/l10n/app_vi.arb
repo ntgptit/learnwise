@@ -153,6 +153,109 @@
   "@dashboardNavFolders": {
     "description": "Bottom navigation label for folders tab."
   },
+  "dashboardNavProfile": "Cá nhân",
+  "@dashboardNavProfile": {
+    "description": "Bottom navigation label for profile tab."
+  },
+  "profileTitle": "Thông tin cá nhân",
+  "@profileTitle": {
+    "description": "App bar title for profile screen."
+  },
+  "profilePersonalInformationTitle": "Thông tin cá nhân",
+  "@profilePersonalInformationTitle": {
+    "description": "Section title for personal information card."
+  },
+  "profileUserIdLabel": "User ID: {userId}",
+  "@profileUserIdLabel": {
+    "description": "Profile row label for user ID.",
+    "placeholders": {
+      "userId": {
+        "type": "int"
+      }
+    }
+  },
+  "profileEmailLabel": "Email: {email}",
+  "@profileEmailLabel": {
+    "description": "Profile row label for email.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDisplayNameLabel": "Tên hiển thị",
+  "@profileDisplayNameLabel": {
+    "description": "Input label for display name."
+  },
+  "profileDisplayNameHint": "Nhập tên hiển thị",
+  "@profileDisplayNameHint": {
+    "description": "Input hint for display name."
+  },
+  "profileSaveChangesLabel": "Lưu thay đổi",
+  "@profileSaveChangesLabel": {
+    "description": "Primary button label for saving profile updates."
+  },
+  "profileSignOutLabel": "Đăng xuất",
+  "@profileSignOutLabel": {
+    "description": "Button label for signing out from profile screen."
+  },
+  "profileLoadErrorTitle": "Không thể tải thông tin cá nhân",
+  "@profileLoadErrorTitle": {
+    "description": "Error title when profile load fails."
+  },
+  "profileDefaultErrorMessage": "Vui lòng thử lại.",
+  "@profileDefaultErrorMessage": {
+    "description": "Fallback error message on profile screen."
+  },
+  "profileRetryLabel": "Thử lại",
+  "@profileRetryLabel": {
+    "description": "Retry action label on profile screen."
+  },
+  "profileLoadingLabel": "Đang tải thông tin cá nhân...",
+  "@profileLoadingLabel": {
+    "description": "Loading state message on profile screen."
+  },
+  "profileSettingsTitle": "Cài đặt người dùng",
+  "@profileSettingsTitle": {
+    "description": "Section title for user settings on profile screen."
+  },
+  "profileThemeLabel": "Giao diện",
+  "@profileThemeLabel": {
+    "description": "Input label for theme preference."
+  },
+  "profileThemeSystemOption": "Theo hệ thống",
+  "@profileThemeSystemOption": {
+    "description": "Option label for using system theme."
+  },
+  "profileThemeLightOption": "Sáng",
+  "@profileThemeLightOption": {
+    "description": "Option label for light theme."
+  },
+  "profileThemeDarkOption": "Tối",
+  "@profileThemeDarkOption": {
+    "description": "Option label for dark theme."
+  },
+  "profileStudyAutoPlayAudioLabel": "Tự động phát âm khi học",
+  "@profileStudyAutoPlayAudioLabel": {
+    "description": "Toggle label for auto-playing pronunciation in study modes."
+  },
+  "profileStudyCardsPerSessionLabel": "Số thẻ mỗi phiên học",
+  "@profileStudyCardsPerSessionLabel": {
+    "description": "Input label for preferred cards per study session."
+  },
+  "profileStudyCardsPerSessionOption": "{count} thẻ mỗi phiên học",
+  "@profileStudyCardsPerSessionOption": {
+    "description": "Option label for cards per study session.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSaveSettingsLabel": "Lưu cài đặt",
+  "@profileSaveSettingsLabel": {
+    "description": "Primary action label for saving user settings."
+  },
   "foldersTitle": "Quản lý thư mục",
   "@foldersTitle": {
     "description": "App bar title for folder management screen."

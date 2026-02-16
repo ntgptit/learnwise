@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import 'app/router/app_router.dart';
 import 'app/theme/app_theme.dart';
+import 'app/theme/app_theme_mode_controller.dart';
 import 'core/error/global_error_handler.dart';
 import 'core/network/auth_session.dart';
 
@@ -26,11 +27,13 @@ class _LearnWiseAppView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final ThemeMode themeMode = ref.watch(appThemeModeControllerProvider);
     return MaterialApp.router(
       scaffoldMessengerKey: appScaffoldMessengerKey,
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
+      themeMode: themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,

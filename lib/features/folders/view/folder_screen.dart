@@ -378,6 +378,11 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             selectedIcon: Icons.folder_rounded,
             label: l10n.dashboardNavFolders,
           ),
+          AppBottomNavDestination(
+            icon: Icons.person_outline_rounded,
+            selectedIcon: Icons.person_rounded,
+            label: l10n.dashboardNavProfile,
+          ),
         ],
         selectedIndex: FolderConstants.foldersNavIndex,
         onDestinationSelected: _onBottomNavSelected,
@@ -419,10 +424,17 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _onBottomNavSelected(int index) {
+    if (index == FolderConstants.dashboardNavIndex) {
+      context.go(RouteNames.dashboard);
+      return;
+    }
     if (index == FolderConstants.foldersNavIndex) {
       return;
     }
-    context.go(RouteNames.dashboard);
+    if (index == FolderConstants.profileNavIndex) {
+      context.go(RouteNames.profile);
+      return;
+    }
   }
 
   List<PopupMenuEntry<_FolderMenuAction>> _buildMenuItems({

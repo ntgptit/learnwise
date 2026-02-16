@@ -153,6 +153,109 @@
   "@dashboardNavFolders": {
     "description": "Bottom navigation label for folders tab."
   },
+  "dashboardNavProfile": "Profile",
+  "@dashboardNavProfile": {
+    "description": "Bottom navigation label for profile tab."
+  },
+  "profileTitle": "Profile",
+  "@profileTitle": {
+    "description": "App bar title for profile screen."
+  },
+  "profilePersonalInformationTitle": "Personal information",
+  "@profilePersonalInformationTitle": {
+    "description": "Section title for personal information card."
+  },
+  "profileUserIdLabel": "User ID: {userId}",
+  "@profileUserIdLabel": {
+    "description": "Profile row label for user ID.",
+    "placeholders": {
+      "userId": {
+        "type": "int"
+      }
+    }
+  },
+  "profileEmailLabel": "Email: {email}",
+  "@profileEmailLabel": {
+    "description": "Profile row label for email.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDisplayNameLabel": "Display name",
+  "@profileDisplayNameLabel": {
+    "description": "Input label for display name."
+  },
+  "profileDisplayNameHint": "Enter display name",
+  "@profileDisplayNameHint": {
+    "description": "Input hint for display name."
+  },
+  "profileSaveChangesLabel": "Save changes",
+  "@profileSaveChangesLabel": {
+    "description": "Primary button label for saving profile updates."
+  },
+  "profileSignOutLabel": "Sign out",
+  "@profileSignOutLabel": {
+    "description": "Button label for signing out from profile screen."
+  },
+  "profileLoadErrorTitle": "Unable to load profile",
+  "@profileLoadErrorTitle": {
+    "description": "Error title when profile load fails."
+  },
+  "profileDefaultErrorMessage": "Please try again.",
+  "@profileDefaultErrorMessage": {
+    "description": "Fallback error message on profile screen."
+  },
+  "profileRetryLabel": "Retry",
+  "@profileRetryLabel": {
+    "description": "Retry action label on profile screen."
+  },
+  "profileLoadingLabel": "Loading profile...",
+  "@profileLoadingLabel": {
+    "description": "Loading state message on profile screen."
+  },
+  "profileSettingsTitle": "User settings",
+  "@profileSettingsTitle": {
+    "description": "Section title for user settings on profile screen."
+  },
+  "profileThemeLabel": "Theme",
+  "@profileThemeLabel": {
+    "description": "Input label for theme preference."
+  },
+  "profileThemeSystemOption": "System default",
+  "@profileThemeSystemOption": {
+    "description": "Option label for using system theme."
+  },
+  "profileThemeLightOption": "Light",
+  "@profileThemeLightOption": {
+    "description": "Option label for light theme."
+  },
+  "profileThemeDarkOption": "Dark",
+  "@profileThemeDarkOption": {
+    "description": "Option label for dark theme."
+  },
+  "profileStudyAutoPlayAudioLabel": "Auto-play pronunciation in study",
+  "@profileStudyAutoPlayAudioLabel": {
+    "description": "Toggle label for auto-playing pronunciation in study modes."
+  },
+  "profileStudyCardsPerSessionLabel": "Cards per session",
+  "@profileStudyCardsPerSessionLabel": {
+    "description": "Input label for preferred cards per study session."
+  },
+  "profileStudyCardsPerSessionOption": "{count} cards per session",
+  "@profileStudyCardsPerSessionOption": {
+    "description": "Option label for cards per study session.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSaveSettingsLabel": "Save settings",
+  "@profileSaveSettingsLabel": {
+    "description": "Primary action label for saving user settings."
+  },
   "foldersTitle": "Folder Manager",
   "@foldersTitle": {
     "description": "App bar title for folder management screen."

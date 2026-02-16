@@ -28,6 +28,7 @@ public final class ApiConst {
     public static final String AUTH_LOGIN_PATH = AUTH_PATH + "/login";
     public static final String AUTH_REFRESH_PATH = AUTH_PATH + "/refresh";
     public static final String AUTH_ME_PATH = AUTH_PATH + "/me";
+    public static final String AUTH_ME_SETTINGS_PATH = AUTH_ME_PATH + "/settings";
     public static final String AUTH_WILDCARD_PATH = AUTH_PATH + "/**";
     public static final String OPEN_API_TITLE = "Learn Wire API";
     public static final String OPEN_API_VERSION = "v1";

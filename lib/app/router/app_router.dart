@@ -10,6 +10,7 @@ import '../../features/flashcards/model/flashcard_management_args.dart';
 import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
 import '../../features/folders/view/folder_screen.dart';
+import '../../features/profile/view/profile_screen.dart';
 import '../../features/study/model/study_session_args.dart';
 import '../../features/study/view/index.dart';
 import '../../features/tts/view/tts_screen.dart';
@@ -61,6 +62,12 @@ GoRouter appRouter(Ref ref) {
         path: RouteNames.folders,
         builder: (context, state) {
           return const FolderScreen();
+        },
+      ),
+      GoRoute(
+        path: RouteNames.profile,
+        builder: (context, state) {
+          return const ProfileScreen();
         },
       ),
       GoRoute(

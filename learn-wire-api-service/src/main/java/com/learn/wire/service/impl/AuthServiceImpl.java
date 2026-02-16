@@ -22,6 +22,9 @@ import com.learn.wire.constant.SecurityConst;
 import com.learn.wire.dto.auth.request.AuthLoginRequest;
 import com.learn.wire.dto.auth.request.AuthRefreshRequest;
 import com.learn.wire.dto.auth.request.AuthRegisterRequest;
+import com.learn.wire.dto.auth.request.AuthUpdateProfileRequest;
+import com.learn.wire.dto.auth.request.AuthUpdateSettingsRequest;
+import com.learn.wire.dto.auth.query.AuthThemeMode;
 import com.learn.wire.dto.auth.response.AuthMeResponse;
 import com.learn.wire.dto.auth.response.AuthTokenResponse;
 import com.learn.wire.entity.AppUserEntity;
@@ -63,13 +66,13 @@ public class AuthServiceImpl implements AuthService {
         user.setNormalizedEmail(normalizedEmail);
         user.setPasswordHash(this.passwordEncoder.encode(request.password()));
         user.setDisplayName(resolveDisplayName(request.displayName(), normalizedEmail));
+        applyDefaultSettings(user);
         final var createdUser = this.appUserRepository.save(user);
         log.info("Registered new user id={} email={}", createdUser.getId(), createdUser.getEmail());
         return issueTokenResponse(createdUser);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public AuthTokenResponse login(AuthLoginRequest request) {
         final var normalizedEmail = normalizeEmail(request.email());
         final var user = this.appUserRepository
@@ -133,7 +136,35 @@ public class AuthServiceImpl implements AuthService {
         final var user = this.appUserRepository
                 .findById(currentUser.userId())
                 .orElseThrow(() -> new UnauthorizedException(AuthConst.UNAUTHORIZED_KEY));
-        return new AuthMeResponse(user.getId(), user.getEmail(), user.getDisplayName());
+        return toMeResponse(user);
+    }
+
+    @Override
+    public AuthMeResponse updateMe(AuthUpdateProfileRequest request) {
+        final var currentUser = this.currentUserAccessor.getCurrentUser();
+        final var user = this.appUserRepository
+                .findById(currentUser.userId())
+                .orElseThrow(() -> new UnauthorizedException(AuthConst.UNAUTHORIZED_KEY));
+        final var normalizedDisplayName = StringUtils.trimToEmpty(request.displayName());
+        user.setDisplayName(normalizedDisplayName);
+        final var updatedUser = this.appUserRepository.save(user);
+        return toMeResponse(updatedUser);
+    }
+
+    @Override
+    public AuthMeResponse updateSettings(AuthUpdateSettingsRequest request) {
+        final var currentUser = this.currentUserAccessor.getCurrentUser();
+        final var user = this.appUserRepository
+                .findById(currentUser.userId())
+                .orElseThrow(() -> new UnauthorizedException(AuthConst.UNAUTHORIZED_KEY));
+
+        final var normalizedThemeMode = AuthThemeMode.fromValue(request.themeMode()).value();
+        user.setThemeMode(normalizedThemeMode);
+        user.setStudyAutoPlayAudio(request.studyAutoPlayAudio());
+        user.setStudyCardsPerSession(request.studyCardsPerSession());
+
+        final var updatedUser = this.appUserRepository.save(user);
+        return toMeResponse(updatedUser);
     }
 
     private AuthTokenResponse issueTokenResponse(AppUserEntity user) {
@@ -203,6 +234,34 @@ public class AuthServiceImpl implements AuthService {
         return normalizedEmail;
     }
 
+    private void applyDefaultSettings(AppUserEntity user) {
+        user.setThemeMode(AuthConst.THEME_MODE_DEFAULT);
+        user.setStudyAutoPlayAudio(AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT);
+        user.setStudyCardsPerSession(AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT);
+    }
+
+    private String resolveThemeMode(String value) {
+        final String normalizedValue = StringUtils.trimToNull(value);
+        if (normalizedValue == null) {
+            return AuthConst.THEME_MODE_DEFAULT;
+        }
+        return AuthThemeMode.fromValue(normalizedValue).value();
+    }
+
+    private Boolean resolveStudyAutoPlayAudio(Boolean value) {
+        if (value == null) {
+            return AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT;
+        }
+        return value;
+    }
+
+    private Integer resolveStudyCardsPerSession(Integer value) {
+        if (value == null) {
+            return AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT;
+        }
+        return value;
+    }
+
     private String hashRefreshToken(String rawToken) {
         final MessageDigest digest;
         try {
@@ -224,6 +283,16 @@ public class AuthServiceImpl implements AuthService {
             builder.append(hex);
         }
         return builder.toString();
+    }
+
+    private AuthMeResponse toMeResponse(AppUserEntity user) {
+        return new AuthMeResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getDisplayName(),
+                resolveThemeMode(user.getThemeMode()),
+                resolveStudyAutoPlayAudio(user.getStudyAutoPlayAudio()),
+                resolveStudyCardsPerSession(user.getStudyCardsPerSession()));
     }
 
     private record RefreshTokenMaterial(

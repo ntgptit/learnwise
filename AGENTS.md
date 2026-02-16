@@ -1,3 +1,126 @@
+# AGENTS.md — Codex Agent Instructions (ROOT ENTRY)
+Version: 1.1
+Owner: Codex Governance
+Scope: global/agents
+Intent: **File entrypoint chạy ĐẦU TIÊN trong mọi phiên Codex.** Điều phối toàn bộ hành vi theo cây `.codex` (MASTER + factory backend/frontend + core checklists) và **buộc tuân thủ Master Coding Contract** (constant-first, no-else, fail-fast, structure-first).
+
+---
+## 0) Load Conditions
+Load when:
+- Bất kỳ phiên Codex nào bắt đầu.
+
+Do NOT load when:
+- Không có (luôn áp dụng).
+
+Guarantee:
+- **AGENTS.md luôn được load đầu tiên.**
+- Sau khi AGENTS.md được load, mới được load các file khác theo Decision Flow.
+
+---
+## 1) Priority & Non-Goals
+Priority: **P0** — root entrypoint, điều phối checklist, thực thi Coding Contract.
+
+Non-goals:
+- Không thay thế nội dung chi tiết trong MASTER/factory/core checklists.
+- Không định nghĩa business logic.
+
+---
+## 2) Definitions
+- **AGENTS:** `./AGENTS.md` (this file, root entrypoint)
+- **MASTER:** `./MASTER.md` (điều phối core + factory, quyết định mode/platform)
+- **CODING-CONTRACT:** `./coding_contract.md` (Master Coding Contract; constant-first, no-else, fail-fast)
+- **Factory:** `backend/_factory.md`, `frontend/_factory.md`
+- **Core tree:** `core/**` (architecture, stability, scope-control, constants, error-handling, config, logging, messaging, ...)
+
+---
+## 3) Decision Flow (Corrected Precedence & Load Order)
+Step 0: **Load AGENTS.md** (this file) — luôn đầu tiên.
+Step 1: Load **MASTER.md** để xác định platform/size/task, ưu tiên, quyết định cuối.
+Step 2: Load **coding_contract.md** để khóa chuẩn code-gen (constant-first, no-else, fail-fast, structure/order).
+Step 3: Load core bắt buộc: architecture, stability, scope-control, config, constants, error-handling, logging, messaging.
+Step 4: Theo platform:
+- Backend → dùng backend/_factory.md, luôn load backend/common/*, chọn đúng một tech folder (spring-boot/quarkus/nodejs).
+- Frontend → dùng frontend/_factory.md, luôn load frontend/common/*, chọn đúng một tech/state folder (react TS/JS, flutter riverpod/bloc, vue khi có).
+Step 5: Chỉ load design-patterns khi refactor/extensibility.
+Step 6: Chỉ load solid khi review/đề xuất chỉnh code.
+Step 7: Chỉ load packaging khi tạo/move class/folder.
+Step 8: Áp dụng modes (small/standard/enterprise).
+Step 9: Nếu bất kỳ FAIL → dừng, báo theo Output Contract.
+
+---
+## 4) Rules
+### 4.1 MUST (Fail if violated)
+- MUST-01: Luôn tuân theo MASTER + factory để chọn checklist; không tự chọn thủ công.
+  - Rationale: tránh thiếu/thừa checklist.
+  - Evidence: checklist platform không được load qua factory.
+  - Fix: chạy lại theo MASTER + factory.
+
+- MUST-02: Tuân thủ Output Rules: với yêu cầu sửa, chỉ trả diff/patch/snippet; review theo format Critical/Improvements/Optional/Final verdict.
+  - Rationale: giảm noise, đúng hợp đồng người dùng.
+  - Evidence: trả full file hoặc thiếu verdict.
+  - Fix: gửi lại patch/ngắn gọn + verdict.
+
+- MUST-03: Áp dụng Minimal-change & Stability (core/stability, scope-control).
+  - Rationale: tránh regressions.
+  - Evidence: chỉnh code ổn định không trong scope.
+  - Fix: revert/thu hẹp patch.
+
+- MUST-04: **Tuân thủ Master Coding Contract khi sinh/patch code.**
+  - Constant-first: define constants trước logic.
+  - No-else: guard clause + early return.
+  - Fail-fast: validate/throw sớm.
+  - No-hardcode: mọi literal đưa vào constants/enums/config.
+  - Correct file order: constants → enums → interfaces → DTO/model → config → mapper → base/abstract → repo → service → controller → utils → tests.
+  - Enum over string for state/type.
+  - No business logic in controller.
+
+- MUST-05: Khi patch code → **chuẩn hóa theo Coding Contract trước khi xuất output** (extract literals, reorder, remove else, flatten nesting).
+
+### 4.2 SHOULD (Warn if violated)
+- SHOULD-01: Nhắc user nếu thiếu thông tin để chọn mode (small/standard/enterprise) hoặc tech/platform.
+
+### 4.3 MUST NOT (Fail if violated)
+- MUSTNOT-01: Không thêm checklist không thuộc factory hoặc ngoài scope platform hiện tại.
+  - Evidence: load nhiều backend tech cùng lúc.
+  - Fix: giữ đúng một implementation.
+
+- MUSTNOT-02: Không sinh output code nếu vi phạm Coding Contract (else, hardcode, sai order).
+
+---
+## 5) Output Contract
+Khi báo lỗi/vi phạm:
+- Liệt kê Rule ID.
+- Bước sửa tối thiểu.
+- Không đề xuất refactor ngoài phạm vi.
+
+Khi fix:
+- Trả diff/patch hoặc snippet.
+- Không trả full file trừ khi user yêu cầu.
+
+---
+## 6) Examples
+Good:
+"Loaded AGENTS → MASTER → CODING-CONTRACT → core → backend/common → spring-boot via factory; findings: MUST-04 fail … patch: …"
+
+Bad:
+- Bỏ qua AGENTS, load MASTER trực tiếp.
+- Tự chọn spring-boot + nodejs cùng lúc.
+- Trả full file khi chỉ cần patch.
+
+---
+## 7) Cross-References
+Related files:
+- AGENTS.md
+- MASTER.md
+- coding_contract.md
+- backend/_factory.md, frontend/_factory.md
+- core/** (architecture, stability, scope-control, design-patterns, solid, packaging, config, messaging, constants, error-handling, logging)
+
+Precedence:
+**AGENTS > MASTER > CODING-CONTRACT > factory > core/platform checklists**
+
+---
+
 # Project Agent Rules
 
 ## Child Component – Flutter Architecture Checklist

@@ -73,13 +73,25 @@ class DashboardScreen extends ConsumerWidget {
             selectedIcon: Icons.folder_rounded,
             label: l10n.dashboardNavFolders,
           ),
+          AppBottomNavDestination(
+            icon: Icons.person_outline_rounded,
+            selectedIcon: Icons.person_rounded,
+            label: l10n.dashboardNavProfile,
+          ),
         ],
         selectedIndex: DashboardConstants.dashboardNavIndex,
         onDestinationSelected: (index) {
           if (index == DashboardConstants.dashboardNavIndex) {
             return;
           }
-          context.go(RouteNames.folders);
+          if (index == DashboardConstants.foldersNavIndex) {
+            context.go(RouteNames.folders);
+            return;
+          }
+          if (index == DashboardConstants.profileNavIndex) {
+            context.go(RouteNames.profile);
+            return;
+          }
         },
       ),
     );

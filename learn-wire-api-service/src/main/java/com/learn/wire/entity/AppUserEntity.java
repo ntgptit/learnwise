@@ -43,6 +43,15 @@ public class AppUserEntity {
     @Column(name = "display_name", nullable = false, length = AuthConst.DISPLAY_NAME_MAX_LENGTH)
     private String displayName;
 
+    @Column(name = "theme_mode", nullable = false, length = AuthConst.THEME_MODE_MAX_LENGTH)
+    private String themeMode;
+
+    @Column(name = "study_auto_play_audio", nullable = false)
+    private Boolean studyAutoPlayAudio;
+
+    @Column(name = "study_cards_per_session", nullable = false)
+    private Integer studyCardsPerSession;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

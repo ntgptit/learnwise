@@ -62,8 +62,15 @@ public final class ErrorMessageConst {
     public static final String AUTH_VALIDATION_PASSWORD_REQUIRED = "auth.validation.password.required";
     public static final String AUTH_VALIDATION_PASSWORD_TOO_SHORT = "auth.validation.password.tooShort";
     public static final String AUTH_VALIDATION_PASSWORD_TOO_LONG = "auth.validation.password.tooLong";
+    public static final String AUTH_VALIDATION_DISPLAY_NAME_REQUIRED = "auth.validation.displayName.required";
     public static final String AUTH_VALIDATION_DISPLAY_NAME_TOO_LONG = "auth.validation.displayName.tooLong";
     public static final String AUTH_VALIDATION_REFRESH_TOKEN_REQUIRED = "auth.validation.refreshToken.required";
+    public static final String AUTH_VALIDATION_THEME_MODE_REQUIRED = "auth.validation.themeMode.required";
+    public static final String AUTH_VALIDATION_THEME_MODE_INVALID = "auth.validation.themeMode.invalid";
+    public static final String AUTH_VALIDATION_STUDY_AUTO_PLAY_AUDIO_REQUIRED = "auth.validation.study.autoPlayAudio.required";
+    public static final String AUTH_VALIDATION_STUDY_CARDS_PER_SESSION_REQUIRED = "auth.validation.study.cardsPerSession.required";
+    public static final String AUTH_VALIDATION_STUDY_CARDS_PER_SESSION_MIN = "auth.validation.study.cardsPerSession.min";
+    public static final String AUTH_VALIDATION_STUDY_CARDS_PER_SESSION_MAX = "auth.validation.study.cardsPerSession.max";
     public static final String STUDY_VALIDATION_MODE_INVALID = "study.validation.mode.invalid";
     public static final String STUDY_VALIDATION_SEED_INVALID = "study.validation.seed.invalid";
     public static final String STUDY_VALIDATION_EVENT_TYPE_INVALID = "study.validation.eventType.invalid";

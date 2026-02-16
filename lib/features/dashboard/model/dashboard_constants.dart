@@ -20,4 +20,5 @@ class DashboardConstants {
 
   static const int dashboardNavIndex = 0;
   static const int foldersNavIndex = 1;
+  static const int profileNavIndex = 2;
 }

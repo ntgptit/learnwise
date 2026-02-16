@@ -20,9 +20,9 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        default_schema: learnwise
+        '[default_schema]': learnwise
         jdbc:
-          time_zone: UTC
+          '[time_zone]': UTC
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -30,7 +30,7 @@ spring:
     default-schema: learnwise
     validate-on-migrate: true
     placeholders:
-      seed_demo_data: ${APP_DB_SEED_DEMO_DATA:false}
+      '[seed_demo_data]': ${APP_DB_SEED_DEMO_DATA:false}
   messages:
     basename: messages
 

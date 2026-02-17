@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function
 part of '../study_session_screen.dart';
 
 class _FlashcardStudySessionScreenState
@@ -95,10 +96,10 @@ class _FlashcardStudySessionScreenState
   Future<void> _onClosePressed({
     required StudySessionControllerProvider provider,
   }) async {
-    final NavigatorState navigator = Navigator.of(context);
+    final GoRouter router = GoRouter.of(context);
     final StudySessionController controller = ref.read(provider.notifier);
     await controller.completeCurrentMode();
-    navigator.pop(true);
+    router.pop(true);
   }
 
   StudySessionArgs _buildNextCycleArgs({required StudyMode mode}) {

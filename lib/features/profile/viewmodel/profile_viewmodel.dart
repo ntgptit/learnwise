@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../core/error/api_error_mapper.dart';
 import '../../../core/error/error_code.dart';
-import '../../../core/network/auth_session.dart';
 import '../model/profile_models.dart';
 import '../repository/profile_repository.dart';
 import '../repository/profile_repository_provider.dart';
@@ -15,13 +14,11 @@ part 'profile_viewmodel.g.dart';
 class ProfileController extends _$ProfileController {
   late final ProfileRepository _repository;
   late final AppErrorAdvisor _errorAdvisor;
-  late final AuthSessionManager _authSessionManager;
 
   @override
   Future<UserProfile> build() async {
     _repository = ref.read(profileRepositoryProvider);
     _errorAdvisor = ref.read(appErrorAdvisorProvider);
-    _authSessionManager = ref.read(authSessionManagerProvider);
     return _loadProfile();
   }
 
@@ -43,7 +40,7 @@ class ProfileController extends _$ProfileController {
   }
 
   Future<void> signOut() {
-    return _authSessionManager.signOut();
+    return _repository.signOut();
   }
 
   Future<UserProfile> _loadProfile() async {

@@ -2,23 +2,24 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../core/network/auth_session.dart';
+import '../repository/auth_action_repository.dart';
+import '../repository/auth_action_repository_provider.dart';
 
 part 'auth_action_viewmodel.g.dart';
 
 @Riverpod(keepAlive: true)
 class AuthActionController extends _$AuthActionController {
-  late final AuthSessionManager _authSessionManager;
+  late final AuthActionRepository _authActionRepository;
 
   @override
   FutureOr<void> build() {
-    _authSessionManager = ref.read(authSessionManagerProvider);
+    _authActionRepository = ref.read(authActionRepositoryProvider);
   }
 
   Future<void> login({required String email, required String password}) async {
     state = const AsyncLoading<void>();
     state = await AsyncValue.guard(() {
-      return _authSessionManager.login(email: email, password: password);
+      return _authActionRepository.login(email: email, password: password);
     });
   }
 
@@ -29,7 +30,7 @@ class AuthActionController extends _$AuthActionController {
   }) async {
     state = const AsyncLoading<void>();
     state = await AsyncValue.guard(() {
-      return _authSessionManager.register(
+      return _authActionRepository.register(
         email: email,
         password: password,
         displayName: displayName,
@@ -40,7 +41,7 @@ class AuthActionController extends _$AuthActionController {
   Future<void> signOut() async {
     state = const AsyncLoading<void>();
     state = await AsyncValue.guard(() {
-      return _authSessionManager.signOut();
+      return _authActionRepository.signOut();
     });
   }
 

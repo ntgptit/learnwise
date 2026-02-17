@@ -185,12 +185,7 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
     _wrongAnswerNotifier.value = null;
     _helpAnswerNotifier.value = null;
     widget.fillController.clear();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      _fillInputFocusNode.requestFocus();
-    });
+    _fillInputFocusNode.requestFocus();
   }
 
   bool _isFillAnswerCorrect({

@@ -43,8 +43,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final AsyncValue<void> actionState = ref.watch(authActionControllerProvider);
-    final bool isSubmitting = actionState.isLoading;
-    final String? errorMessage = _resolveErrorMessage(actionState.error);
+    final bool isSubmitting = actionState.when(
+      data: (_) => false,
+      error: (_, stackTrace) => false,
+      loading: () => true,
+    );
+    final String? errorMessage = actionState.when(
+      data: (_) => null,
+      error: (error, stackTrace) => _resolveErrorMessage(error),
+      loading: () => null,
+    );
 
     return AppScaffold(
       useSafeArea: true,

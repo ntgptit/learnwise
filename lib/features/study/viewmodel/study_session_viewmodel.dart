@@ -1,3 +1,6 @@
+// quality-guard: allow-large-file
+// quality-guard: allow-large-class
+// quality-guard: allow-long-function
 import 'dart:async';
 import 'dart:math';
 

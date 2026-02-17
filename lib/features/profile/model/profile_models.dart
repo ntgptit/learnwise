@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
+
 import '../../../core/error/app_exception.dart';
+import '../../../core/utils/string_utils.dart';
 
 enum UserThemeMode {
   system,
@@ -16,10 +19,11 @@ enum UserThemeMode {
   }
 
   static UserThemeMode fromApiValue(String? rawValue) {
-    if (rawValue == null) {
+    final String? normalizedRawValue = StringUtils.normalizeNullable(rawValue);
+    if (normalizedRawValue == null) {
       return UserThemeMode.system;
     }
-    final String normalizedValue = rawValue.trim().toUpperCase();
+    final String normalizedValue = normalizedRawValue.toUpperCase();
     if (normalizedValue == 'LIGHT') {
       return UserThemeMode.light;
     }
@@ -30,6 +34,7 @@ enum UserThemeMode {
   }
 }
 
+@immutable
 class UserStudySettings {
   const UserStudySettings({
     required this.themeMode,
@@ -88,6 +93,7 @@ class UserStudySettings {
   }
 }
 
+@immutable
 class UserProfile {
   const UserProfile({
     required this.userId,

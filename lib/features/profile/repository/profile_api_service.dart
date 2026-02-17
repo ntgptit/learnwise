@@ -1,13 +1,19 @@
 import '../../../core/network/api_client.dart';
+import '../../../core/network/auth_session.dart';
 import '../../../core/error/app_exception.dart';
 import '../model/profile_constants.dart';
 import '../model/profile_models.dart';
 import 'profile_repository.dart';
 
 class ProfileApiService implements ProfileRepository {
-  ProfileApiService({required ApiClient apiClient}) : _apiClient = apiClient;
+  ProfileApiService({
+    required ApiClient apiClient,
+    required AuthSessionManager authSessionManager,
+  }) : _apiClient = apiClient,
+       _authSessionManager = authSessionManager;
 
   final ApiClient _apiClient;
+  final AuthSessionManager _authSessionManager;
 
   @override
   Future<UserProfile> getProfile() {
@@ -53,5 +59,10 @@ class ProfileApiService implements ProfileRepository {
     }
     final Map<String, dynamic> profileJson = Map<String, dynamic>.from(payload);
     return UserProfile.fromJson(profileJson);
+  }
+
+  @override
+  Future<void> signOut() {
+    return _authSessionManager.signOut();
   }
 }

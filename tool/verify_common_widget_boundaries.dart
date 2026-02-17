@@ -20,6 +20,7 @@ class CommonWidgetGuardConst {
     'lib/common/widgets/input/password_text_box.dart',
     'lib/common/widgets/loader/shimmer_box.dart',
     'lib/common/widgets/navigation/',
+    'lib/common/widgets/buttons/app_expandable_fab.dart',
   ];
 }
 

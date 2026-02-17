@@ -6,4 +6,6 @@ abstract class ProfileRepository {
   Future<UserProfile> updateDisplayName(String displayName);
 
   Future<UserProfile> updateSettings(UserStudySettings settings);
+
+  Future<void> signOut();
 }

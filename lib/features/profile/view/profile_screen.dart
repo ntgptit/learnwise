@@ -114,14 +114,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             const SizedBox(height: AppSizes.spacingLg),
                             // Avatar
                             Container(
-                              width: 100,
-                              height: 100,
+                              width: AppSizes.size72,
+                              height: AppSizes.size72,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: colorScheme.primary,
                                 border: Border.all(
                                   color: colorScheme.surface,
-                                  width: 4,
+                                  width: AppSizes.size1,
                                 ),
                                 boxShadow: <BoxShadow>[
                                   BoxShadow(
@@ -133,7 +133,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                               child: Icon(
                                 Icons.person_rounded,
-                                size: 48,
+                                size: AppSizes.size24,
                                 color: colorScheme.onPrimary,
                               ),
                             ),
@@ -183,7 +183,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 value: profile.userId.toString(),
                               ),
                               Divider(
-                                height: 1,
+                                height: AppSizes.size1,
                                 color: colorScheme.outlineVariant,
                               ),
                               _buildInfoTile(
@@ -193,7 +193,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 value: profile.email,
                               ),
                               Divider(
-                                height: 1,
+                                height: AppSizes.size1,
                                 color: colorScheme.outlineVariant,
                               ),
                               Padding(
@@ -270,7 +270,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       children: <Widget>[
                                         Icon(
                                           Icons.palette_outlined,
-                                          size: 20,
+                                          size: AppSizes.size24,
                                           color: colorScheme.primary,
                                         ),
                                         const SizedBox(width: AppSizes.spacingSm),
@@ -329,7 +329,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   ),
                                   const SizedBox(height: AppSizes.spacingMd),
                                   Divider(
-                                    height: 1,
+                                    height: AppSizes.size1,
                                     color: colorScheme.outlineVariant,
                                   ),
                                   // Auto Play Audio Switch
@@ -338,11 +338,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: colorScheme.primaryContainer,
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(
+                                          AppSizes.radiusSm,
+                                        ),
                                       ),
                                       child: Icon(
                                         Icons.volume_up_rounded,
-                                        size: 20,
+                                        size: AppSizes.size24,
                                         color: colorScheme.onPrimaryContainer,
                                       ),
                                     ),
@@ -361,7 +363,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     ),
                                   ),
                                   Divider(
-                                    height: 1,
+                                    height: AppSizes.size1,
                                     color: colorScheme.outlineVariant,
                                   ),
                                   // Cards Per Session with Slider
@@ -381,11 +383,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                                 color: colorScheme
                                                     .secondaryContainer,
                                                 borderRadius:
-                                                    BorderRadius.circular(8),
+                                                    BorderRadius.circular(
+                                                      AppSizes.radiusSm,
+                                                    ),
                                               ),
                                               child: Icon(
                                                 Icons.collections_bookmark_rounded,
-                                                size: 20,
+                                                size: AppSizes.size24,
                                                 color: colorScheme
                                                     .onSecondaryContainer,
                                               ),
@@ -408,7 +412,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                               decoration: BoxDecoration(
                                                 color: colorScheme.primary,
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                    BorderRadius.circular(
+                                                      AppSizes.radiusMd,
+                                                    ),
                                               ),
                                               child: Text(
                                                 l10n.profileStudyCardsPerSessionOption(
@@ -550,7 +556,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       children: <Widget>[
         Icon(
           icon,
-          size: 20,
+          size: AppSizes.size24,
           color: colorScheme.primary,
         ),
         const SizedBox(width: AppSizes.spacingSm),
@@ -582,14 +588,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: Row(
         children: <Widget>[
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSizes.spacingXs),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppSizes.radiusSm),
             ),
             child: Icon(
               icon,
-              size: 20,
+              size: AppSizes.size24,
               color: colorScheme.onSurfaceVariant,
             ),
           ),
@@ -604,7 +610,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSizes.size2),
                 Text(
                   value,
                   style: textTheme.bodyMedium?.copyWith(

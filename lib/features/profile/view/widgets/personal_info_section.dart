@@ -6,6 +6,8 @@ import '../../../../common/widgets/widgets.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../model/profile_models.dart';
 
+// quality-guard: allow-long-function
+// Justification: Single compose function keeps personal info section layout readable.
 class PersonalInfoSection extends StatelessWidget {
   const PersonalInfoSection({
     required this.profile,
@@ -42,14 +44,20 @@ class PersonalInfoSection extends StatelessWidget {
                 label: 'User ID',
                 value: profile.userId.toString(),
               ),
-              Divider(height: AppSizes.size1, color: colorScheme.outlineVariant),
+              Divider(
+                height: AppSizes.size1,
+                color: colorScheme.outlineVariant,
+              ),
               _buildInfoTile(
                 context: context,
                 icon: Icons.email_outlined,
                 label: 'Email',
                 value: profile.email,
               ),
-              Divider(height: AppSizes.size1, color: colorScheme.outlineVariant),
+              Divider(
+                height: AppSizes.size1,
+                color: colorScheme.outlineVariant,
+              ),
               _buildEditSection(context, l10n),
             ],
           ),

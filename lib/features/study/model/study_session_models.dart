@@ -8,6 +8,7 @@ const String _jsonKeyMode = 'mode';
 const String _jsonKeyStatus = 'status';
 const String _jsonKeyCurrentIndex = 'currentIndex';
 const String _jsonKeyTotalUnits = 'totalUnits';
+const String _jsonKeyEffectiveCardsPerSession = 'effectiveCardsPerSession';
 const String _jsonKeyCorrectCount = 'correctCount';
 const String _jsonKeyWrongCount = 'wrongCount';
 const String _jsonKeyCompleted = 'completed';
@@ -138,6 +139,7 @@ class StudySessionResponseModel {
     required this.status,
     required this.currentIndex,
     required this.totalUnits,
+    required this.effectiveCardsPerSession,
     required this.correctCount,
     required this.wrongCount,
     required this.completed,
@@ -158,6 +160,7 @@ class StudySessionResponseModel {
   final String status;
   final int currentIndex;
   final int totalUnits;
+  final int effectiveCardsPerSession;
   final int correctCount;
   final int wrongCount;
   final bool completed;
@@ -181,6 +184,11 @@ class StudySessionResponseModel {
       status: _readRequiredString(json: json, key: _jsonKeyStatus),
       currentIndex: _readRequiredInt(json: json, key: _jsonKeyCurrentIndex),
       totalUnits: _readRequiredInt(json: json, key: _jsonKeyTotalUnits),
+      effectiveCardsPerSession: _readIntWithFallback(
+        json: json,
+        key: _jsonKeyEffectiveCardsPerSession,
+        fallbackValue: _readRequiredInt(json: json, key: _jsonKeyTotalUnits),
+      ),
       correctCount: _readIntWithFallback(
         json: json,
         key: _jsonKeyCorrectCount,

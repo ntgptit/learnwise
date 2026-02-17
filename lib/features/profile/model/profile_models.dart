@@ -43,6 +43,8 @@ class UserStudySettings {
   });
 
   static const bool defaultStudyAutoPlayAudio = false;
+  static const int minStudyCardsPerSession = 5;
+  static const int maxStudyCardsPerSession = 20;
   static const int defaultStudyCardsPerSession = 10;
 
   final UserThemeMode themeMode;
@@ -62,7 +64,9 @@ class UserStudySettings {
 
     int resolvedStudyCardsPerSession = defaultStudyCardsPerSession;
     if (rawStudyCardsPerSession is num) {
-      resolvedStudyCardsPerSession = rawStudyCardsPerSession.toInt();
+      resolvedStudyCardsPerSession = normalizeStudyCardsPerSession(
+        rawStudyCardsPerSession.toInt(),
+      );
     }
 
     return UserStudySettings(
@@ -76,7 +80,9 @@ class UserStudySettings {
     return <String, dynamic>{
       'themeMode': themeMode.toApiValue(),
       'studyAutoPlayAudio': studyAutoPlayAudio,
-      'studyCardsPerSession': studyCardsPerSession,
+      'studyCardsPerSession': normalizeStudyCardsPerSession(
+        studyCardsPerSession,
+      ),
     };
   }
 
@@ -88,8 +94,20 @@ class UserStudySettings {
     return UserStudySettings(
       themeMode: themeMode ?? this.themeMode,
       studyAutoPlayAudio: studyAutoPlayAudio ?? this.studyAutoPlayAudio,
-      studyCardsPerSession: studyCardsPerSession ?? this.studyCardsPerSession,
+      studyCardsPerSession: normalizeStudyCardsPerSession(
+        studyCardsPerSession ?? this.studyCardsPerSession,
+      ),
     );
+  }
+
+  static int normalizeStudyCardsPerSession(int value) {
+    if (value < minStudyCardsPerSession) {
+      return minStudyCardsPerSession;
+    }
+    if (value > maxStudyCardsPerSession) {
+      return maxStudyCardsPerSession;
+    }
+    return value;
   }
 }
 

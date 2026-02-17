@@ -262,7 +262,8 @@ class FolderCrudIntegrationTest {
     }
 
     private void _recalculateAggregateFlashcardCounts() {
-        final List<FolderEntity> activeFolders = this.folderRepository.findByDeletedAtIsNull();
+        final List<FolderEntity> activeFolders = this.folderRepository.findByCreatedByAndDeletedAtIsNull(
+                FolderConst.DEFAULT_ACTOR);
         final Map<Long, FolderEntity> folderById = new HashMap<>();
         final Map<Long, List<FolderEntity>> childrenByParent = new HashMap<>();
 

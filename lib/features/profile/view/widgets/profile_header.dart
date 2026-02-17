@@ -4,6 +4,8 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../../common/styles/app_sizes.dart';
 import '../../model/profile_models.dart';
 
+// quality-guard: allow-long-function
+// Justification: Header composition is intentionally in one build tree for visual coherence.
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     required this.profile,
@@ -91,10 +93,7 @@ class ProfileHeader extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: colorScheme.primary,
-        border: Border.all(
-          color: colorScheme.surface,
-          width: AppSizes.size1,
-        ),
+        border: Border.all(color: colorScheme.surface, width: AppSizes.size1),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.2),

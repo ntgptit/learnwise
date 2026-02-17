@@ -7,6 +7,8 @@ import '../../model/profile_models.dart';
 
 // quality-guard: allow-large-class
 // Justification: Settings section contains multiple related UI components
+// quality-guard: allow-long-function
+// Justification: build() keeps section rhythm and card composition in one place.
 class SettingsSection extends StatelessWidget {
   const SettingsSection({
     required this.profile,
@@ -179,7 +181,7 @@ class SettingsSection extends StatelessWidget {
         children: <Widget>[
           _buildCardsPerSessionHeader(context, l10n, draft),
           const SizedBox(height: AppSizes.spacingSm),
-          _buildCardsPerSessionSlider(draft),
+          _buildCardsPerSessionSlider(l10n, draft),
         ],
       ),
     );
@@ -235,18 +237,27 @@ class SettingsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildCardsPerSessionSlider(ProfileSettingsDraft draft) {
+  Widget _buildCardsPerSessionSlider(
+    AppLocalizations l10n,
+    ProfileSettingsDraft draft,
+  ) {
+    final int normalizedCardsPerSession =
+        UserStudySettings.normalizeStudyCardsPerSession(
+          draft.studyCardsPerSession,
+        );
     return Slider(
-      value: studyCardsPerSessionOptions
-          .indexOf(draft.studyCardsPerSession)
-          .toDouble(),
-      min: 0,
-      max: (studyCardsPerSessionOptions.length - 1).toDouble(),
-      divisions: studyCardsPerSessionOptions.length - 1,
+      value: normalizedCardsPerSession.toDouble(),
+      min: UserStudySettings.minStudyCardsPerSession.toDouble(),
+      max: UserStudySettings.maxStudyCardsPerSession.toDouble(),
+      divisions:
+          UserStudySettings.maxStudyCardsPerSession -
+          UserStudySettings.minStudyCardsPerSession,
+      label: l10n.profileStudyCardsPerSessionOption(normalizedCardsPerSession),
       onChanged: (value) {
-        final int index = value.round();
+        final int nextCardsPerSession =
+            UserStudySettings.normalizeStudyCardsPerSession(value.round());
         settingsDraftNotifier.value = draft.copyWith(
-          studyCardsPerSession: studyCardsPerSessionOptions[index],
+          studyCardsPerSession: nextCardsPerSession,
         );
       },
     );
@@ -300,10 +311,7 @@ class SettingsSection extends StatelessWidget {
     );
   }
 
-  bool _isSettingsChanged(
-    UserProfile profile,
-    ProfileSettingsDraft draft,
-  ) {
+  bool _isSettingsChanged(UserProfile profile, ProfileSettingsDraft draft) {
     return draft.themeMode != profile.settings.themeMode ||
         draft.studyAutoPlayAudio != profile.settings.studyAutoPlayAudio ||
         draft.studyCardsPerSession != profile.settings.studyCardsPerSession;
@@ -326,21 +334,14 @@ class ProfileSettingsDraft {
     bool? studyAutoPlayAudio,
     int? studyCardsPerSession,
   }) {
+    final int nextStudyCardsPerSession =
+        UserStudySettings.normalizeStudyCardsPerSession(
+          studyCardsPerSession ?? this.studyCardsPerSession,
+        );
     return ProfileSettingsDraft(
       themeMode: themeMode ?? this.themeMode,
       studyAutoPlayAudio: studyAutoPlayAudio ?? this.studyAutoPlayAudio,
-      studyCardsPerSession: studyCardsPerSession ?? this.studyCardsPerSession,
+      studyCardsPerSession: nextStudyCardsPerSession,
     );
   }
 }
-
-const List<int> studyCardsPerSessionOptions = <int>[
-  5,
-  10,
-  15,
-  20,
-  25,
-  30,
-  40,
-  50,
-];

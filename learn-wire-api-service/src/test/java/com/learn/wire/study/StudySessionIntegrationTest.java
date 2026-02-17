@@ -90,6 +90,7 @@ class StudySessionIntegrationTest {
         assertThat(response.mode()).isEqualTo(StudyConst.MODE_REVIEW);
         assertThat(response.currentIndex()).isEqualTo(StudyConst.DEFAULT_INDEX);
         assertThat(response.totalUnits()).isEqualTo(3);
+        assertThat(response.effectiveCardsPerSession()).isEqualTo(3);
         assertThat(response.reviewItems()).hasSize(3);
         assertThat(response.leftTiles()).isEmpty();
         assertThat(response.rightTiles()).isEmpty();
@@ -278,6 +279,29 @@ class StudySessionIntegrationTest {
                 .extracting(item -> item.flashcardId())
                 .containsExactlyElementsOf(
                         reviewSession.reviewItems().stream().map(item -> item.flashcardId()).toList());
+    }
+
+    @Test
+    void startSession_shouldRespectDefaultCardsPerSessionLimit() {
+        final Long deckId = createDeckWithFlashcards(_unique("CardsPerSession"), buildFlashcards(12));
+
+        final StudySessionResponse response = this.studySessionService.startSession(
+                deckId,
+                new StudySessionStartRequest(StudyConst.MODE_REVIEW, 97, null));
+
+        assertThat(response.totalUnits()).isEqualTo(10);
+        assertThat(response.effectiveCardsPerSession()).isEqualTo(10);
+        assertThat(response.reviewItems()).hasSize(10);
+    }
+
+    private List<FlashcardCreateRequest> buildFlashcards(int count) {
+        final List<FlashcardCreateRequest> flashcards = new java.util.ArrayList<>();
+        var index = 1;
+        while (index <= count) {
+            flashcards.add(new FlashcardCreateRequest("term-" + index, "meaning-" + index));
+            index++;
+        }
+        return flashcards;
     }
 
     private StudyMatchTileResponse findWrongRightTile(List<StudyMatchTileResponse> rightTiles, int pairKey) {

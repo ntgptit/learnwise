@@ -15,7 +15,7 @@ public final class AuthConst {
     public static final int TOKEN_HASH_MAX_LENGTH = 128;
     public static final int THEME_MODE_MAX_LENGTH = 16;
     public static final int STUDY_CARDS_PER_SESSION_MIN = 5;
-    public static final int STUDY_CARDS_PER_SESSION_MAX = 50;
+    public static final int STUDY_CARDS_PER_SESSION_MAX = 20;
     public static final int STUDY_CARDS_PER_SESSION_DEFAULT = 10;
 
     public static final String THEME_MODE_SYSTEM = "SYSTEM";

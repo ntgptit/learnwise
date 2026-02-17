@@ -599,6 +599,7 @@ StudySessionResponseModel _buildRecallStartResponse({
     status: 'active',
     currentIndex: 0,
     totalUnits: reviewItems.length,
+    effectiveCardsPerSession: reviewItems.length,
     correctCount: 0,
     wrongCount: 0,
     completed: false,

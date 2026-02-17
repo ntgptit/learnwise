@@ -11,6 +11,7 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.learn.wire.constant.AuthConst;
 import com.learn.wire.constant.StudyConst;
 import com.learn.wire.dto.study.query.StudyMode;
 import com.learn.wire.dto.study.query.StudySessionEventCommand;
@@ -27,6 +28,7 @@ import com.learn.wire.entity.StudySessionSnapshotItemEntity;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.DeckNotFoundException;
 import com.learn.wire.exception.StudySessionNotFoundException;
+import com.learn.wire.repository.AppUserRepository;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.StudySessionItemRepository;
@@ -46,6 +48,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class StudySessionServiceImpl implements StudySessionService {
 
+    private static final int STUDY_CARDS_PER_SESSION_DEFAULT = AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT;
+    private static final int STUDY_CARDS_PER_SESSION_MIN = AuthConst.STUDY_CARDS_PER_SESSION_MIN;
+    private static final int STUDY_CARDS_PER_SESSION_MAX = AuthConst.STUDY_CARDS_PER_SESSION_MAX;
+
+    private final AppUserRepository appUserRepository;
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final StudySessionRepository studySessionRepository;
@@ -57,6 +64,7 @@ public class StudySessionServiceImpl implements StudySessionService {
 
     @Override
     public StudySessionResponse startSession(Long deckId, StudySessionStartRequest request) {
+        final var currentUserId = this.currentUserAccessor.getCurrentUserId();
         final var currentActor = this.currentUserAccessor.getCurrentActor();
         final var command = StudySessionStartCommand.fromRequest(deckId, request);
         log.debug(
@@ -73,7 +81,7 @@ public class StudySessionServiceImpl implements StudySessionService {
         if (isModeStateInitialized(modeState)) {
             return engine.buildResponse(session, modeState);
         }
-        final var sessionSnapshotFlashcards = resolveSessionSnapshotFlashcards(session, currentActor);
+        final var sessionSnapshotFlashcards = resolveSessionSnapshotFlashcards(session, currentActor, currentUserId);
         engine.initializeSession(session, modeState, sessionSnapshotFlashcards);
         final var initializedModeState = getModeStateEntity(session.getId(), mode);
         return engine.buildResponse(session, initializedModeState);
@@ -206,7 +214,10 @@ public class StudySessionServiceImpl implements StudySessionService {
         this.studySessionRepository.save(session);
     }
 
-    private List<FlashcardEntity> resolveSessionSnapshotFlashcards(StudySessionEntity session, String currentActor) {
+    private List<FlashcardEntity> resolveSessionSnapshotFlashcards(
+            StudySessionEntity session,
+            String currentActor,
+            Long currentUserId) {
         final var snapshotItems = this.studySessionSnapshotItemRepository
                 .findBySessionIdOrderByItemOrderAsc(session.getId());
         if (!snapshotItems.isEmpty()) {
@@ -214,13 +225,15 @@ public class StudySessionServiceImpl implements StudySessionService {
         }
         final var initializedSnapshotItems = initializeSessionSnapshotItems(
                 session,
-                currentActor);
+                currentActor,
+                currentUserId);
         return mapSnapshotItemsToFlashcards(initializedSnapshotItems, session.getDeckId());
     }
 
     private List<StudySessionSnapshotItemEntity> initializeSessionSnapshotItems(
             StudySessionEntity session,
-            String currentActor) {
+            String currentActor,
+            Long currentUserId) {
         final var existingLinearItems = findExistingLinearSessionItems(session.getId());
         if (!existingLinearItems.isEmpty()) {
             final var snapshotItems = mapLinearItemsToSnapshotItems(
@@ -234,10 +247,41 @@ public class StudySessionServiceImpl implements StudySessionService {
             throw new BusinessException(StudyConst.DECK_HAS_NO_FLASHCARDS_KEY, session.getDeckId());
         }
         final var shuffledFlashcards = shuffleFlashcards(deckFlashcards, session.getSeed());
+        final var cardsPerSession = resolveCardsPerSession(currentUserId);
+        final var snapshotFlashcards = limitFlashcardsByCardsPerSession(shuffledFlashcards, cardsPerSession);
         final var snapshotItems = mapFlashcardsToSnapshotItems(
                 session.getId(),
-                shuffledFlashcards);
+                snapshotFlashcards);
         return this.studySessionSnapshotItemRepository.saveAll(snapshotItems);
+    }
+
+    private int resolveCardsPerSession(Long userId) {
+        return this.appUserRepository
+                .findById(userId)
+                .map(user -> normalizeCardsPerSession(user.getStudyCardsPerSession()))
+                .orElse(STUDY_CARDS_PER_SESSION_DEFAULT);
+    }
+
+    private int normalizeCardsPerSession(Integer rawValue) {
+        if (rawValue == null) {
+            return STUDY_CARDS_PER_SESSION_DEFAULT;
+        }
+        if (rawValue < STUDY_CARDS_PER_SESSION_MIN) {
+            return STUDY_CARDS_PER_SESSION_MIN;
+        }
+        if (rawValue > STUDY_CARDS_PER_SESSION_MAX) {
+            return STUDY_CARDS_PER_SESSION_MAX;
+        }
+        return rawValue;
+    }
+
+    private List<FlashcardEntity> limitFlashcardsByCardsPerSession(
+            List<FlashcardEntity> flashcards,
+            int cardsPerSession) {
+        if (flashcards.size() <= cardsPerSession) {
+            return flashcards;
+        }
+        return new ArrayList<>(flashcards.subList(StudyConst.DEFAULT_INDEX, cardsPerSession));
     }
 
     private List<StudySessionItemEntity> findExistingLinearSessionItems(Long sessionId) {

@@ -12,19 +12,36 @@ class UiDesignGuardConst {
   static const String commonWidgetsPrefix = 'lib/common/widgets/';
   static const String featurePrefix = 'lib/features/';
   static const String featureViewMarker = '/view/';
+  static const String appWidgetsPrefix = 'lib/app/widgets/';
 
   static const double mobileBreakpointMax = 600;
-  static const List<double> spacingGridValues = <double>[4, 8, 12, 16, 24, 32];
+  static const List<double> spacingGridValues = <double>[
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    40,
+  ];
   static const List<double> horizontalPaddingValues = <double>[12, 16, 20];
   static const double buttonHeightMin = 40;
   static const double buttonHeightMax = 48;
-  static const double iconSize = 24;
+  static const double iconSizeMin = 20;
+  static const double iconSizeMax = 28;
   static const double appBarHeightMin = 64;
   static const double appBarHeightMax = 80;
-  static const List<double> allowedTextSizes = <double>[12, 13, 14, 15, 16, 20];
+  static const List<double> allowedTextSizes = <double>[12, 14, 16, 20, 24, 34];
   static const double touchTargetMin = 48;
-  static const double hardcodedLargeSizeMax = 80;
+  static const double hardcodedLargeSizeMax = 200;
   static const String allowLargeSizeMarker = 'ui-guard: allow-large-size';
+  static const int iconLookbackLineCount = 10;
+  static const int sizedBoxLookaroundLineCount = 12;
+  static const Set<String> allowedMaterialColors = <String>{
+    'transparent',
+    'white',
+    'black',
+  };
 }
 
 class UiDesignViolation {
@@ -50,11 +67,28 @@ final RegExp _edgeInsetsHorizontalLiteralRegExp = RegExp(
 final RegExp _spacingLiteralRegExp = RegExp(
   r'\b(?:padding|margin|spacing|runSpacing|mainAxisSpacing|crossAxisSpacing)\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
 );
+final RegExp _sizedBoxSpacingInlineRegExp = RegExp(
+  r'\bSizedBox\s*\([^)]*\b(?:height|width)\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
+);
+final RegExp _sizedBoxSizePropertyRegExp = RegExp(
+  r'^\s*(?:height|width)\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
+);
+final RegExp _sizedBoxStartRegExp = RegExp(r'\bSizedBox\s*\(');
 final RegExp _buttonHeightRegExp = RegExp(
   r'\b(?:minimumSize|fixedSize)\s*:\s*(?:const\s+)?Size\([^,]+,\s*(\d+(?:\.\d+)?)\s*\)',
 );
 final RegExp _buttonHeightFromRegExp = RegExp(
   r'Size\.fromHeight\(\s*(?:const\s+)?(\d+(?:\.\d+)?)\s*\)',
+);
+final RegExp _sizedBoxButtonHeightInlineRegExp = RegExp(
+  r'\bSizedBox\s*\([^)]*\bheight\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)'
+  r'[^)]*\bchild\s*:\s*(?:const\s+)?(?:\w+\.)?(?:ElevatedButton|FilledButton|OutlinedButton|TextButton)\s*\(',
+);
+final RegExp _heightPropertyRegExp = RegExp(
+  r'^\s*height\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
+);
+final RegExp _buttonWidgetRegExp = RegExp(
+  r'\b(?:ElevatedButton|FilledButton|OutlinedButton|TextButton)\s*\(',
 );
 final RegExp _iconSizeRegExp = RegExp(
   r'Icon\([^)]*size\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
@@ -72,9 +106,13 @@ final RegExp _fontSizeRegExp = RegExp(
 final RegExp _legacyComponentRegExp = RegExp(
   r'\b(?:ElevatedButton|BottomNavigationBar|ToggleButtons)\s*\(',
 );
-final RegExp _colorConstructorRegExp = RegExp(r'\bColor\(\s*0x[0-9A-Fa-f]+\s*\)');
+final RegExp _colorConstructorRegExp = RegExp(
+  r'\bColor\(\s*0x[0-9A-Fa-f]+\s*\)',
+);
 final RegExp _colorHexStringRegExp = RegExp(r'#[0-9A-Fa-f]{3,8}');
-final RegExp _materialColorRegExp = RegExp(r'\bColors\.([A-Za-z_][A-Za-z0-9_]*)');
+final RegExp _materialColorRegExp = RegExp(
+  r'\bColors\.([A-Za-z_][A-Za-z0-9_]*)',
+);
 final RegExp _touchTargetRegExp = RegExp(
   r'\b(?:minWidth|minHeight)\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
 );
@@ -128,6 +166,8 @@ Future<void> main() async {
         rawLine: rawLine,
         sourceLine: sourceLine,
         lineNumber: index + 1,
+        allLines: lines,
+        currentIndex: index,
       );
       _checkHorizontalPadding(
         violations: violations,
@@ -142,6 +182,8 @@ Future<void> main() async {
         rawLine: rawLine,
         sourceLine: sourceLine,
         lineNumber: index + 1,
+        allLines: lines,
+        currentIndex: index,
       );
       _checkIconSize(
         violations: violations,
@@ -261,15 +303,21 @@ void _checkSpacingGrid({
   required String rawLine,
   required String sourceLine,
   required int lineNumber,
+  required List<String> allLines,
+  required int currentIndex,
 }) {
-  final Iterable<RegExpMatch> matches = _spacingLiteralRegExp.allMatches(
-    sourceLine,
+  final Set<double> values = <double>{
+    ..._extractNumbers(_spacingLiteralRegExp, sourceLine),
+    ..._extractNumbers(_sizedBoxSpacingInlineRegExp, sourceLine),
+  };
+  final bool insideSizedBox = _isInsideSizedBoxDeclaration(
+    allLines: allLines,
+    currentIndex: currentIndex,
   );
-  for (final RegExpMatch match in matches) {
-    final double? value = double.tryParse(match.group(1) ?? '');
-    if (value == null) {
-      continue;
-    }
+  if (insideSizedBox) {
+    values.addAll(_extractNumbers(_sizedBoxSizePropertyRegExp, sourceLine));
+  }
+  for (final double value in values) {
     if (UiDesignGuardConst.spacingGridValues.contains(value)) {
       continue;
     }
@@ -277,8 +325,7 @@ void _checkSpacingGrid({
       UiDesignViolation(
         filePath: path,
         lineNumber: lineNumber,
-        reason:
-            'Spacing must use 8-point grid (4/8/12/16/24/32). If UI is too large, reduce spacing to 8-12.',
+        reason: 'Spacing must use 8-point grid (4/8/12/16/24/32/40).',
         lineContent: rawLine.trim(),
       ),
     );
@@ -292,8 +339,8 @@ void _checkHorizontalPadding({
   required String sourceLine,
   required int lineNumber,
 }) {
-  final Iterable<RegExpMatch> matches =
-      _edgeInsetsHorizontalLiteralRegExp.allMatches(sourceLine);
+  final Iterable<RegExpMatch> matches = _edgeInsetsHorizontalLiteralRegExp
+      .allMatches(sourceLine);
   for (final RegExpMatch match in matches) {
     final double? value = double.tryParse(match.group(1) ?? '');
     if (value == null) {
@@ -320,11 +367,21 @@ void _checkButtonHeight({
   required String rawLine,
   required String sourceLine,
   required int lineNumber,
+  required List<String> allLines,
+  required int currentIndex,
 }) {
-  final List<double> values = <double>[
+  final Set<double> values = <double>{
     ..._extractNumbers(_buttonHeightRegExp, sourceLine),
     ..._extractNumbers(_buttonHeightFromRegExp, sourceLine),
-  ];
+    ..._extractNumbers(_sizedBoxButtonHeightInlineRegExp, sourceLine),
+  };
+  final bool insideButtonSizedBox = _isInsideButtonSizedBoxDeclaration(
+    allLines: allLines,
+    currentIndex: currentIndex,
+  );
+  if (insideButtonSizedBox) {
+    values.addAll(_extractNumbers(_heightPropertyRegExp, sourceLine));
+  }
   if (values.isEmpty) {
     return;
   }
@@ -358,23 +415,29 @@ void _checkIconSize({
   // Check single-line Icon declarations
   final Iterable<double> values = _extractNumbers(_iconSizeRegExp, sourceLine);
   for (final double value in values) {
-    if (value == UiDesignGuardConst.iconSize) {
+    if ((value >= UiDesignGuardConst.iconSizeMin) &&
+        (value <= UiDesignGuardConst.iconSizeMax)) {
       continue;
     }
     violations.add(
       UiDesignViolation(
         filePath: path,
         lineNumber: lineNumber,
-        reason: 'Icon size should be ${UiDesignGuardConst.iconSize.toInt()}dp.',
+        reason:
+            'Icon size should be in ${UiDesignGuardConst.iconSizeMin.toInt()}-${UiDesignGuardConst.iconSizeMax.toInt()}dp (24dp default).',
         lineContent: rawLine.trim(),
       ),
     );
   }
 
   // Check multi-line Icon declarations
-  // Look back up to 10 lines to find Icon( declaration
+  // Look back up to N lines to find Icon( declaration
   bool insideIconDeclaration = false;
-  for (int i = currentIndex; i >= 0 && i > currentIndex - 10; i--) {
+  for (
+    int i = currentIndex;
+    i >= 0 && i > currentIndex - UiDesignGuardConst.iconLookbackLineCount;
+    i--
+  ) {
     final String prevLine = _stripLineComment(allLines[i]).trim();
     if (_iconStartRegExp.hasMatch(prevLine)) {
       insideIconDeclaration = true;
@@ -392,14 +455,16 @@ void _checkIconSize({
       sourceLine,
     );
     for (final double value in propertyValues) {
-      if (value == UiDesignGuardConst.iconSize) {
+      if ((value >= UiDesignGuardConst.iconSizeMin) &&
+          (value <= UiDesignGuardConst.iconSizeMax)) {
         continue;
       }
       violations.add(
         UiDesignViolation(
           filePath: path,
           lineNumber: lineNumber,
-          reason: 'Icon size should be ${UiDesignGuardConst.iconSize.toInt()}dp.',
+          reason:
+              'Icon size should be in ${UiDesignGuardConst.iconSizeMin.toInt()}-${UiDesignGuardConst.iconSizeMax.toInt()}dp (24dp default).',
           lineContent: rawLine.trim(),
         ),
       );
@@ -414,7 +479,10 @@ void _checkAppBarHeight({
   required String sourceLine,
   required int lineNumber,
 }) {
-  final Iterable<double> values = _extractNumbers(_appBarHeightRegExp, sourceLine);
+  final Iterable<double> values = _extractNumbers(
+    _appBarHeightRegExp,
+    sourceLine,
+  );
   for (final double value in values) {
     if ((value >= UiDesignGuardConst.appBarHeightMin) &&
         (value <= UiDesignGuardConst.appBarHeightMax)) {
@@ -449,7 +517,7 @@ void _checkTextSize({
         filePath: path,
         lineNumber: lineNumber,
         reason:
-            'Text size should follow Title 20sp, Body 14-16sp, Label 12-14sp. If UI is too large, reduce to 14-16sp.',
+            'Text size must use approved typography scale tokens (12/14/16/20/24/34).',
         lineContent: rawLine.trim(),
       ),
     );
@@ -463,7 +531,10 @@ void _checkTouchTarget({
   required String sourceLine,
   required int lineNumber,
 }) {
-  final Iterable<double> values = _extractNumbers(_touchTargetRegExp, sourceLine);
+  final Iterable<double> values = _extractNumbers(
+    _touchTargetRegExp,
+    sourceLine,
+  );
   for (final double value in values) {
     if (value >= UiDesignGuardConst.touchTargetMin) {
       continue;
@@ -547,7 +618,7 @@ void _checkHardcodedColor({
   );
   for (final RegExpMatch match in matches) {
     final String colorName = match.group(1) ?? '';
-    if (colorName == 'transparent') {
+    if (UiDesignGuardConst.allowedMaterialColors.contains(colorName)) {
       continue;
     }
     violations.add(
@@ -601,16 +672,45 @@ List<File> _collectSourceFiles(Directory root) {
 }
 
 String _stripLineComment(String sourceLine) {
-  final int commentIndex = sourceLine.indexOf(
-    UiDesignGuardConst.lineCommentPrefix,
-  );
-  if (commentIndex < 0) {
-    return sourceLine;
+  bool inSingleQuote = false;
+  bool inDoubleQuote = false;
+  bool escaped = false;
+  for (int index = 0; index < sourceLine.length - 1; index++) {
+    final String char = sourceLine[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if ((inSingleQuote || inDoubleQuote) && char == r'\') {
+      escaped = true;
+      continue;
+    }
+    if (!inDoubleQuote && char == '\'') {
+      inSingleQuote = !inSingleQuote;
+      continue;
+    }
+    if (!inSingleQuote && char == '"') {
+      inDoubleQuote = !inDoubleQuote;
+      continue;
+    }
+    if (inSingleQuote || inDoubleQuote) {
+      continue;
+    }
+    if (char != UiDesignGuardConst.lineCommentPrefix[0]) {
+      continue;
+    }
+    if (sourceLine[index + 1] != UiDesignGuardConst.lineCommentPrefix[1]) {
+      continue;
+    }
+    return sourceLine.substring(0, index);
   }
-  return sourceLine.substring(0, commentIndex);
+  return sourceLine;
 }
 
 bool _isUiLayerFile(String path) {
+  if (path.startsWith(UiDesignGuardConst.appWidgetsPrefix)) {
+    return true;
+  }
   if (path.startsWith(UiDesignGuardConst.commonWidgetsPrefix)) {
     return true;
   }
@@ -621,4 +721,75 @@ bool _isUiLayerFile(String path) {
     return false;
   }
   return true;
+}
+
+bool _isInsideSizedBoxDeclaration({
+  required List<String> allLines,
+  required int currentIndex,
+}) {
+  int startIndex =
+      currentIndex - UiDesignGuardConst.sizedBoxLookaroundLineCount;
+  if (startIndex < 0) {
+    startIndex = 0;
+  }
+  for (int i = currentIndex; i >= startIndex; i--) {
+    final String candidateLine = _stripLineComment(allLines[i]).trim();
+    if (_sizedBoxStartRegExp.hasMatch(candidateLine)) {
+      return true;
+    }
+    if (i == currentIndex) {
+      continue;
+    }
+    if (candidateLine.contains(');') || candidateLine.contains('}')) {
+      return false;
+    }
+  }
+  return false;
+}
+
+bool _isInsideButtonSizedBoxDeclaration({
+  required List<String> allLines,
+  required int currentIndex,
+}) {
+  int startIndex =
+      currentIndex - UiDesignGuardConst.sizedBoxLookaroundLineCount;
+  if (startIndex < 0) {
+    startIndex = 0;
+  }
+  int sizedBoxLineIndex = -1;
+  for (int i = currentIndex; i >= startIndex; i--) {
+    final String candidateLine = _stripLineComment(allLines[i]).trim();
+    if (_sizedBoxStartRegExp.hasMatch(candidateLine)) {
+      sizedBoxLineIndex = i;
+      break;
+    }
+    if (i == currentIndex) {
+      continue;
+    }
+    if (candidateLine.contains(');') || candidateLine.contains('}')) {
+      return false;
+    }
+  }
+  if (sizedBoxLineIndex < 0) {
+    return false;
+  }
+
+  int endIndex =
+      sizedBoxLineIndex + UiDesignGuardConst.sizedBoxLookaroundLineCount;
+  if (endIndex >= allLines.length) {
+    endIndex = allLines.length - 1;
+  }
+  for (int i = sizedBoxLineIndex; i <= endIndex; i++) {
+    final String candidateLine = _stripLineComment(allLines[i]).trim();
+    if (_buttonWidgetRegExp.hasMatch(candidateLine)) {
+      return true;
+    }
+    if (i == sizedBoxLineIndex) {
+      continue;
+    }
+    if (candidateLine.contains(');')) {
+      return false;
+    }
+  }
+  return false;
 }

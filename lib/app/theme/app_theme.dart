@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../common/styles/app_radius.dart';
+import '../../common/styles/app_spacing.dart';
 import '../../common/styles/app_sizes.dart';
 import 'color_schemes.dart';
 import 'typography.dart';
@@ -33,12 +35,12 @@ class AppTheme {
         foregroundColor: colorScheme.onSurface,
         iconTheme: IconThemeData(
           color: colorScheme.onSurface,
-          size: AppSizes.spacingLg,
+          size: AppSpacing.lg,
         ),
         toolbarHeight: AppSizes.size72,
       ),
       iconTheme: IconThemeData(
-        size: AppSizes.spacingLg,
+        size: AppSpacing.lg,
         color: colorScheme.onSurface,
       ),
     );
@@ -70,12 +72,12 @@ class AppTheme {
         foregroundColor: colorScheme.onSurface,
         iconTheme: IconThemeData(
           color: colorScheme.onSurface,
-          size: AppSizes.spacingLg,
+          size: AppSpacing.lg,
         ),
         toolbarHeight: AppSizes.size72,
       ),
       iconTheme: IconThemeData(
-        size: AppSizes.spacingLg,
+        size: AppSpacing.lg,
         color: colorScheme.onSurface,
       ),
     );
@@ -89,7 +91,7 @@ class AppTheme {
       surfaceTintColor: colorScheme.surfaceTint,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
     );
   }

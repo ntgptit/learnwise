@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/theme/theme_context_extensions.dart';
 import '../../styles/app_sizes.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
-    required this.body, super.key,
+    required this.body,
+    super.key,
     this.title,
     this.actions = const <Widget>[],
     this.floatingActionButton,
@@ -35,7 +37,7 @@ class AppScaffold extends StatelessWidget {
         : content;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: context.colorScheme.surface,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: title == null
           ? null

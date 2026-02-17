@@ -1,83 +1,125 @@
-lib/app/config/app_config.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
+lib/app/config/app_config.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|42 lines
+lib/app/router/app_router.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|116 lines
 lib/app/router/redirects.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/app/router/redirects.dart
-lib/app/theme/app_theme.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
-lib/app/theme/app_theme.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
-lib/common/widgets/animation/flip_animation.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
+lib/app/theme/app_theme.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
+lib/app/theme/app_theme.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
+lib/common/widgets/animation/fade_in.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
+lib/common/widgets/animation/flip_animation.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|38 lines
+lib/common/widgets/animation/scale_in.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
 lib/common/widgets/app_dialog.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/common/widgets/app_dialog.dart
-lib/common/widgets/buttons/primary_button.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|39 lines
+lib/common/widgets/buttons/app_expandable_fab.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|33 lines
+lib/common/widgets/buttons/app_expandable_fab.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|67 lines
+lib/common/widgets/buttons/primary_button.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|44 lines
+lib/common/widgets/buttons/tonal_button.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|47 lines
+lib/common/widgets/card/app_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|50 lines
 lib/common/widgets/card/app_metric_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|42 lines
+lib/common/widgets/dialog/app_dialog.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
 lib/common/widgets/dialog/bottom_sheet_select.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
 lib/common/widgets/empty_state_widget.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/common/widgets/empty_state_widget.dart
 lib/common/widgets/error_state_widget.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/common/widgets/error_state_widget.dart
 lib/common/widgets/input/picker_field.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|34 lines
-lib/common/widgets/input/select_box.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|31 lines
+lib/common/widgets/input/select_box.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
 lib/common/widgets/input/tag_input.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
+lib/common/widgets/input/text_box.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|333 lines
+lib/common/widgets/input/text_box.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|123 lines
 lib/common/widgets/layout/section_title.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|39 lines
-lib/common/widgets/list/app_action_tile.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|41 lines
+lib/common/widgets/list/app_action_icon_row.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|44 lines
+lib/common/widgets/list/app_action_tile.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|39 lines
 lib/common/widgets/loading_state_widget.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/common/widgets/loading_state_widget.dart
 lib/common/widgets/primary_button.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/common/widgets/primary_button.dart
-lib/common/widgets/quiz/quiz_option_item.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|41 lines
+lib/common/widgets/quiz/quiz_option_item.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|57 lines
+lib/common/widgets/state/empty_state.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|31 lines
+lib/common/widgets/state/error_state.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
 lib/core/error/api_error_mapper.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|305 lines
-lib/core/error/api_error_mapper.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|403 lines
-lib/core/error/global_error_handler.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|56 lines
-lib/core/local/prefs_storage.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/core/local/prefs_storage.dart
+lib/core/error/global_error_handler.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|53 lines
+lib/core/network/auth_session.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
 lib/core/network/dio_provider.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|37 lines
+lib/features/auth/view/login_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|81 lines
+lib/features/auth/view/register_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|88 lines
 lib/features/dashboard/model/dashboard_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class DashboardRouteMap {
 lib/features/dashboard/repository/dashboard_service.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|55 lines
-lib/features/dashboard/view/dashboard_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|473 lines
+lib/features/dashboard/view/dashboard_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|485 lines
 lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|42 lines
 lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|42 lines
 lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|45 lines
 lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|46 lines
 lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|59 lines
-lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|70 lines
+lib/features/dashboard/view/dashboard_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|82 lines
 lib/features/dashboard/view/dashboard_screen.dart|Prefer lazy list/grid (builder/pagination) instead of children: for scalable performance.|child: ListView(
 lib/features/decks/view/widgets/deck_list_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|106 lines
-lib/features/decks/viewmodel/deck_viewmodel.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|351 lines
-lib/features/decks/viewmodel/deck_viewmodel.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|415 lines
-lib/features/decks/viewmodel/deck_viewmodel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
-lib/features/decks/viewmodel/deck_viewmodel.dart|View/ViewModel must not import network client directly. Route all I/O through repository layer.|import '../../../core/network/api_client.dart';
-lib/features/flashcards/view/flashcard_flip_study_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|441 lines
-lib/features/flashcards/view/flashcard_flip_study_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|139 lines
-lib/features/flashcards/view/flashcard_flip_study_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|59 lines
-lib/features/flashcards/view/flashcard_management_screen.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|779 lines
-lib/features/flashcards/view/flashcard_management_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|822 lines
-lib/features/flashcards/view/flashcard_management_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|230 lines
+lib/features/flashcards/view/flashcard_flip_study_screen.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|331 lines
+lib/features/flashcards/view/flashcard_flip_study_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|686 lines
+lib/features/flashcards/view/flashcard_flip_study_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|154 lines
+lib/features/flashcards/view/flashcard_flip_study_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|214 lines
+lib/features/flashcards/view/flashcard_flip_study_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|34 lines
+lib/features/flashcards/view/flashcard_management_screen.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|1034 lines
+lib/features/flashcards/view/flashcard_management_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|1225 lines
+lib/features/flashcards/view/flashcard_management_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|295 lines
+lib/features/flashcards/view/flashcard_management_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|34 lines
 lib/features/flashcards/view/flashcard_management_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|40 lines
-lib/features/flashcards/view/flashcard_management_screen.dart|Prefer lazy list/grid (builder/pagination) instead of children: for scalable performance.|child: ListView(
-lib/features/flashcards/view/widgets/flashcard_content_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|88 lines
+lib/features/flashcards/view/flashcard_management_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|70 lines
+lib/features/flashcards/view/widgets/flashcard_card_section_header.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|61 lines
+lib/features/flashcards/view/widgets/flashcard_content_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|121 lines
 lib/features/flashcards/view/widgets/flashcard_mock_banner.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
 lib/features/flashcards/view/widgets/flashcard_mock_banner.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/flashcards/view/widgets/flashcard_mock_banner.dart
-lib/features/flashcards/view/widgets/flashcard_preview_carousel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|119 lines
-lib/features/flashcards/view/widgets/flashcard_set_metadata_section.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|32 lines
-lib/features/flashcards/view/widgets/flashcard_set_metadata_section.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|41 lines
-lib/features/flashcards/view/widgets/flashcard_set_metadata_section.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|86 lines
-lib/features/flashcards/viewmodel/flashcard_viewmodel.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|347 lines
-lib/features/flashcards/viewmodel/flashcard_viewmodel.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|523 lines
-lib/features/flashcards/viewmodel/flashcard_viewmodel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|38 lines
-lib/features/flashcards/viewmodel/flashcard_viewmodel.dart|View/ViewModel must not import network client directly. Route all I/O through repository layer.|import '../../../core/network/api_client.dart';
+lib/features/flashcards/view/widgets/flashcard_preview_carousel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|124 lines
+lib/features/flashcards/view/widgets/flashcard_set_metadata_section.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|45 lines
 lib/features/folders/repository/folder_api_service.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|33 lines
 lib/features/folders/view/folder_open_flow.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/folders/view/folder_open_flow.dart
-lib/features/folders/view/folder_screen.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|837 lines
-lib/features/folders/view/folder_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|1024 lines
-lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|32 lines
-lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|322 lines
-lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|33 lines
-lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|37 lines
+lib/features/folders/view/folder_screen.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|884 lines
+lib/features/folders/view/folder_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|1058 lines
+lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|31 lines
+lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|321 lines
+lib/features/folders/view/folder_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|50 lines
 lib/features/folders/view/folder_screen.dart|Prefer lazy list/grid (builder/pagination) instead of children: for scalable performance.|child: ListView(
 lib/features/folders/view/widgets/folder_filter_section.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|78 lines
 lib/features/folders/view/widgets/folder_filter_section.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/folders/view/widgets/folder_filter_section.dart
 lib/features/folders/view/widgets/folder_hero_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|38 lines
 lib/features/folders/view/widgets/folder_hero_card.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/folders/view/widgets/folder_hero_card.dart
-lib/features/folders/view/widgets/folder_list_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|110 lines
-lib/features/folders/viewmodel/folder_viewmodel.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|405 lines
-lib/features/folders/viewmodel/folder_viewmodel.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|592 lines
-lib/features/folders/viewmodel/folder_viewmodel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|31 lines
-lib/features/folders/viewmodel/folder_viewmodel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|33 lines
-lib/features/folders/viewmodel/folder_viewmodel.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|36 lines
-lib/features/folders/viewmodel/folder_viewmodel.dart|View/ViewModel must not import network client directly. Route all I/O through repository layer.|import '../../../core/network/api_client.dart';
+lib/features/folders/view/widgets/folder_list_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|102 lines
 lib/features/learning/view/widgets/audio_waveform.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|32 lines
 lib/features/learning/view/widgets/audio_waveform.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/learning/view/widgets/audio_waveform.dart
 lib/features/learning/view/widgets/quiz_timer.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/learning/view/widgets/quiz_timer.dart
 lib/features/learning/view/widgets/swipeable_list_item.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/learning/view/widgets/swipeable_list_item.dart
+lib/features/profile/view/profile_screen.dart|Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.|698 lines
+lib/features/profile/view/profile_screen.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|747 lines
+lib/features/profile/view/profile_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|496 lines
+lib/features/study/engine/fill_study_engine.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/fill_study_engine.dart
+lib/features/study/engine/guess_study_engine.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/guess_study_engine.dart
+lib/features/study/engine/match_study_engine.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|37 lines
+lib/features/study/engine/match_study_engine.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/match_study_engine.dart
+lib/features/study/engine/recall_study_engine.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/recall_study_engine.dart
+lib/features/study/engine/review_study_engine.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/review_study_engine.dart
+lib/features/study/engine/study_engine.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/study_engine.dart
+lib/features/study/engine/study_engine_factory.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/study_engine_factory.dart
+lib/features/study/engine/study_engine_utils.dart|Potentially unused Dart file. Remove/merge or connect it to the import graph.|lib/features/study/engine/study_engine_utils.dart
+lib/features/study/model/study_session_models.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|525 lines
+lib/features/study/model/study_session_models.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|59 lines
+lib/features/study/model/study_session_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class StudyAttemptResultModel {
+lib/features/study/model/study_session_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class StudyMatchTileModel {
+lib/features/study/model/study_session_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class StudyReviewItemModel {
+lib/features/study/model/study_session_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class StudySessionEventRequest {
+lib/features/study/model/study_session_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class StudySessionResponseModel {
+lib/features/study/model/study_session_models.dart|Model class must be annotated with @immutable or @freezed for immutability coverage.|class StudySessionStartRequest {
+lib/features/study/view/screens/study_session/builders/mode_content/review_mode_content_builder.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|62 lines
+lib/features/study/view/screens/study_session/parts/study_completed_card.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|44 lines
+lib/features/study/view/screens/study_session/parts/study_cycle_mode_progress.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|38 lines
+lib/features/study/view/screens/study_session/parts/study_progress_header.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|47 lines
+lib/features/study/view/screens/study_session/parts/study_session_body.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|48 lines
+lib/features/study/view/screens/study_session/parts/study_session_screen_state.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|48 lines
+lib/features/study/view/screens/study_session/parts/study_unit_body.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|56 lines
+lib/features/study/view/widgets/fill_study_mode_view.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|514 lines
+lib/features/study/view/widgets/fill_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|33 lines
+lib/features/study/view/widgets/fill_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|53 lines
+lib/features/study/view/widgets/fill_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|68 lines
+lib/features/study/view/widgets/fill_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|85 lines
+lib/features/study/view/widgets/guess_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|49 lines
+lib/features/study/view/widgets/match_study_mode_view.dart|File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.|411 lines
+lib/features/study/view/widgets/match_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|121 lines
+lib/features/study/view/widgets/match_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|49 lines
+lib/features/study/view/widgets/recall_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|34 lines
+lib/features/study/view/widgets/recall_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|40 lines
+lib/features/study/view/widgets/review_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|35 lines
+lib/features/study/view/widgets/review_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|51 lines
+lib/features/study/view/widgets/review_study_mode_view.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|54 lines
 lib/features/tts/view/tts_screen.dart|Function length exceeds 30 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.|194 lines

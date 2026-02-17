@@ -56,171 +56,431 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final AppThemeModeController themeModeController = ref.read(
       appThemeModeControllerProvider.notifier,
     );
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: SafeArea(
         child: state.when(
           data: (profile) {
             _bindDisplayName(profile);
             _bindSettings(profile);
-            return ListView(
-              padding: const EdgeInsets.all(AppSizes.spacingMd),
-              children: <Widget>[
-                AppCard(
-                  variant: AppCardVariant.elevated,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        l10n.profilePersonalInformationTitle,
-                        style: Theme.of(context).textTheme.titleMedium,
+            return CustomScrollView(
+              slivers: <Widget>[
+                // Modern Header with Avatar
+                SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: <Color>[
+                          colorScheme.primaryContainer,
+                          colorScheme.secondaryContainer,
+                        ],
                       ),
-                      const SizedBox(height: AppSizes.spacingMd),
-                      Text(
-                        l10n.profileUserIdLabel(profile.userId),
-                        style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSizes.spacingMd,
+                          AppSizes.spacingMd,
+                          AppSizes.spacingMd,
+                          AppSizes.size32,
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  l10n.profileTitle,
+                                  style: textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: controller.signOut,
+                                  icon: Icon(
+                                    Icons.logout_rounded,
+                                    color: colorScheme.onPrimaryContainer,
+                                  ),
+                                  tooltip: l10n.profileSignOutLabel,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSizes.spacingLg),
+                            // Avatar
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: colorScheme.primary,
+                                border: Border.all(
+                                  color: colorScheme.surface,
+                                  width: 4,
+                                ),
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    color: colorScheme.shadow.withValues(alpha: 0.2),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.person_rounded,
+                                size: 48,
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.spacingMd),
+                            Text(
+                              profile.displayName,
+                              style: textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                            const SizedBox(height: AppSizes.spacingXs),
+                            Text(
+                              profile.email,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onPrimaryContainer
+                                    .withValues(alpha: 0.8),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: AppSizes.spacingXs),
-                      Text(
-                        l10n.profileEmailLabel(profile.email),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: AppSizes.spacingMd),
-                      AppTextField(
-                        controller: _displayNameController,
-                        label: l10n.profileDisplayNameLabel,
-                        hint: l10n.profileDisplayNameHint,
-                      ),
-                      const SizedBox(height: AppSizes.spacingMd),
-                      ValueListenableBuilder<TextEditingValue>(
-                        valueListenable: _displayNameController,
-                        builder: (context, value, _) {
-                          final String? normalizedInput =
-                              StringUtils.normalizeNullable(value.text);
-                          final String normalizedProfileName = StringUtils
-                              .normalize(profile.displayName);
-                          final bool isChanged =
-                              normalizedInput != null &&
-                              normalizedInput != normalizedProfileName;
-                          return PrimaryButton(
-                            label: l10n.profileSaveChangesLabel,
-                            onPressed: isChanged
-                                ? () => _submitProfileUpdate(controller)
-                                : null,
-                          );
-                        },
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: AppSizes.spacingMd),
-                AppCard(
-                  variant: AppCardVariant.elevated,
-                  child: ValueListenableBuilder<_ProfileSettingsDraft>(
-                    valueListenable: _settingsDraftNotifier,
-                    builder: (context, draft, _) {
-                      final bool isSettingsChanged = _isSettingsChanged(
-                        profile: profile,
-                        draft: draft,
-                      );
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            l10n.profileSettingsTitle,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: AppSizes.spacingMd),
-                          DropdownButtonFormField<UserThemeMode>(
-                            key: ValueKey<UserThemeMode>(draft.themeMode),
-                            initialValue: draft.themeMode,
-                            decoration: InputDecoration(
-                              labelText: l10n.profileThemeLabel,
-                            ),
-                            items: <DropdownMenuItem<UserThemeMode>>[
-                              DropdownMenuItem<UserThemeMode>(
-                                value: UserThemeMode.system,
-                                child: Text(l10n.profileThemeSystemOption),
+                // Content
+                SliverPadding(
+                  padding: const EdgeInsets.all(AppSizes.spacingMd),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate(
+                      <Widget>[
+                        // Personal Information Section
+                        _buildSectionHeader(
+                          context: context,
+                          icon: Icons.person_outline_rounded,
+                          title: l10n.profilePersonalInformationTitle,
+                        ),
+                        const SizedBox(height: AppSizes.spacingSm),
+                        AppCard(
+                          variant: AppCardVariant.elevated,
+                          child: Column(
+                            children: <Widget>[
+                              _buildInfoTile(
+                                context: context,
+                                icon: Icons.badge_outlined,
+                                label: 'User ID',
+                                value: profile.userId.toString(),
                               ),
-                              DropdownMenuItem<UserThemeMode>(
-                                value: UserThemeMode.light,
-                                child: Text(l10n.profileThemeLightOption),
+                              Divider(
+                                height: 1,
+                                color: colorScheme.outlineVariant,
                               ),
-                              DropdownMenuItem<UserThemeMode>(
-                                value: UserThemeMode.dark,
-                                child: Text(l10n.profileThemeDarkOption),
+                              _buildInfoTile(
+                                context: context,
+                                icon: Icons.email_outlined,
+                                label: 'Email',
+                                value: profile.email,
+                              ),
+                              Divider(
+                                height: 1,
+                                color: colorScheme.outlineVariant,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(AppSizes.spacingMd),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    AppTextField(
+                                      controller: _displayNameController,
+                                      label: l10n.profileDisplayNameLabel,
+                                      hint: l10n.profileDisplayNameHint,
+                                    ),
+                                    const SizedBox(height: AppSizes.spacingMd),
+                                    ValueListenableBuilder<TextEditingValue>(
+                                      valueListenable: _displayNameController,
+                                      builder: (context, value, _) {
+                                        final String? normalizedInput =
+                                            StringUtils.normalizeNullable(
+                                              value.text,
+                                            );
+                                        final String normalizedProfileName =
+                                            StringUtils.normalize(
+                                              profile.displayName,
+                                            );
+                                        final bool isChanged =
+                                            normalizedInput != null &&
+                                            normalizedInput !=
+                                                normalizedProfileName;
+                                        return PrimaryButton(
+                                          label: l10n.profileSaveChangesLabel,
+                                          onPressed: isChanged
+                                              ? () => _submitProfileUpdate(
+                                                  controller,
+                                                )
+                                              : null,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              _settingsDraftNotifier.value = draft.copyWith(
-                                themeMode: value,
-                              );
-                            },
                           ),
-                          const SizedBox(height: AppSizes.spacingMd),
-                          SwitchListTile.adaptive(
-                            value: draft.studyAutoPlayAudio,
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(l10n.profileStudyAutoPlayAudioLabel),
-                            onChanged: (value) {
-                              _settingsDraftNotifier.value = draft.copyWith(
-                                studyAutoPlayAudio: value,
-                              );
-                            },
-                          ),
-                          const SizedBox(height: AppSizes.spacingMd),
-                          DropdownButtonFormField<int>(
-                            key: ValueKey<int>(draft.studyCardsPerSession),
-                            initialValue: draft.studyCardsPerSession,
-                            decoration: InputDecoration(
-                              labelText: l10n.profileStudyCardsPerSessionLabel,
-                            ),
-                            items: _studyCardsPerSessionOptions
-                                .map(
-                                  (option) => DropdownMenuItem<int>(
-                                    value: option,
-                                    child: Text(
-                                      l10n.profileStudyCardsPerSessionOption(
-                                        option,
-                                      ),
+                        ),
+                        const SizedBox(height: AppSizes.spacingLg),
+                        // Preferences Section
+                        _buildSectionHeader(
+                          context: context,
+                          icon: Icons.tune_rounded,
+                          title: l10n.profileSettingsTitle,
+                        ),
+                        const SizedBox(height: AppSizes.spacingSm),
+                        ValueListenableBuilder<_ProfileSettingsDraft>(
+                          valueListenable: _settingsDraftNotifier,
+                          builder: (context, draft, _) {
+                            final bool isSettingsChanged = _isSettingsChanged(
+                              profile: profile,
+                              draft: draft,
+                            );
+                            return AppCard(
+                              variant: AppCardVariant.elevated,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  // Theme Mode with Segmented Button
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      AppSizes.spacingMd,
+                                      AppSizes.spacingMd,
+                                      AppSizes.spacingMd,
+                                      AppSizes.spacingSm,
+                                    ),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.palette_outlined,
+                                          size: 20,
+                                          color: colorScheme.primary,
+                                        ),
+                                        const SizedBox(width: AppSizes.spacingSm),
+                                        Text(
+                                          l10n.profileThemeLabel,
+                                          style: textTheme.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              _settingsDraftNotifier.value = draft.copyWith(
-                                studyCardsPerSession: value,
-                              );
-                            },
-                          ),
-                          const SizedBox(height: AppSizes.spacingMd),
-                          PrimaryButton(
-                            label: l10n.profileSaveSettingsLabel,
-                            onPressed: isSettingsChanged
-                                ? () => _submitSettingsUpdate(
-                                    controller: controller,
-                                    themeModeController: themeModeController,
-                                    draft: draft,
-                                  )
-                                : null,
-                          ),
-                        ],
-                      );
-                    },
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSizes.spacingMd,
+                                    ),
+                                    child: SegmentedButton<UserThemeMode>(
+                                      segments: <ButtonSegment<UserThemeMode>>[
+                                        ButtonSegment<UserThemeMode>(
+                                          value: UserThemeMode.system,
+                                          label: Text(
+                                            l10n.profileThemeSystemOption,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.brightness_auto_rounded,
+                                          ),
+                                        ),
+                                        ButtonSegment<UserThemeMode>(
+                                          value: UserThemeMode.light,
+                                          label: Text(
+                                            l10n.profileThemeLightOption,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.light_mode_rounded,
+                                          ),
+                                        ),
+                                        ButtonSegment<UserThemeMode>(
+                                          value: UserThemeMode.dark,
+                                          label: Text(
+                                            l10n.profileThemeDarkOption,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.dark_mode_rounded,
+                                          ),
+                                        ),
+                                      ],
+                                      selected: <UserThemeMode>{draft.themeMode},
+                                      onSelectionChanged: (newSelection) {
+                                        _settingsDraftNotifier.value =
+                                            draft.copyWith(
+                                          themeMode: newSelection.first,
+                                        );
+                                      },
+                                      showSelectedIcon: false,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSizes.spacingMd),
+                                  Divider(
+                                    height: 1,
+                                    color: colorScheme.outlineVariant,
+                                  ),
+                                  // Auto Play Audio Switch
+                                  ListTile(
+                                    leading: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.primaryContainer,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.volume_up_rounded,
+                                        size: 20,
+                                        color: colorScheme.onPrimaryContainer,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      l10n.profileStudyAutoPlayAudioLabel,
+                                      style: textTheme.bodyLarge,
+                                    ),
+                                    trailing: Switch.adaptive(
+                                      value: draft.studyAutoPlayAudio,
+                                      onChanged: (value) {
+                                        _settingsDraftNotifier.value =
+                                            draft.copyWith(
+                                          studyAutoPlayAudio: value,
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  Divider(
+                                    height: 1,
+                                    color: colorScheme.outlineVariant,
+                                  ),
+                                  // Cards Per Session with Slider
+                                  Padding(
+                                    padding: const EdgeInsets.all(
+                                      AppSizes.spacingMd,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          children: <Widget>[
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: colorScheme
+                                                    .secondaryContainer,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Icon(
+                                                Icons.collections_bookmark_rounded,
+                                                size: 20,
+                                                color: colorScheme
+                                                    .onSecondaryContainer,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: AppSizes.spacingSm,
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                l10n.profileStudyCardsPerSessionLabel,
+                                                style: textTheme.bodyLarge,
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets
+                                                  .symmetric(
+                                                horizontal: AppSizes.spacingSm,
+                                                vertical: AppSizes.spacingXs,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: colorScheme.primary,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                l10n.profileStudyCardsPerSessionOption(
+                                                  draft.studyCardsPerSession,
+                                                ),
+                                                style: textTheme.labelLarge
+                                                    ?.copyWith(
+                                                  color: colorScheme.onPrimary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: AppSizes.spacingSm),
+                                        Slider(
+                                          value: draft.studyCardsPerSession
+                                              .toDouble(),
+                                          min: _studyCardsPerSessionOptions
+                                              .first
+                                              .toDouble(),
+                                          max: _studyCardsPerSessionOptions
+                                              .last
+                                              .toDouble(),
+                                          divisions:
+                                              _studyCardsPerSessionOptions
+                                                      .length -
+                                                  1,
+                                          onChanged: (value) {
+                                            final int roundedValue =
+                                                value.round();
+                                            if (_studyCardsPerSessionOptions
+                                                .contains(roundedValue)) {
+                                              _settingsDraftNotifier.value =
+                                                  draft.copyWith(
+                                                studyCardsPerSession:
+                                                    roundedValue,
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      AppSizes.spacingMd,
+                                      0,
+                                      AppSizes.spacingMd,
+                                      AppSizes.spacingMd,
+                                    ),
+                                    child: PrimaryButton(
+                                      label: l10n.profileSaveSettingsLabel,
+                                      onPressed: isSettingsChanged
+                                          ? () => _submitSettingsUpdate(
+                                              controller: controller,
+                                              themeModeController:
+                                                  themeModeController,
+                                              draft: draft,
+                                            )
+                                          : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: AppSizes.spacingLg),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSizes.spacingMd),
-                OutlinedButton.icon(
-                  onPressed: controller.signOut,
-                  icon: const Icon(Icons.logout_rounded),
-                  label: Text(l10n.profileSignOutLabel),
                 ),
               ],
             );
@@ -274,6 +534,87 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             return;
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+  }) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      children: <Widget>[
+        Icon(
+          icon,
+          size: 20,
+          color: colorScheme.primary,
+        ),
+        const SizedBox(width: AppSizes.spacingSm),
+        Text(
+          title,
+          style: textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoTile({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.spacingMd,
+        vertical: AppSizes.spacingSm,
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: AppSizes.spacingMd),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  label,
+                  style: textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

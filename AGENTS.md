@@ -176,6 +176,17 @@ flutter analyze
 flutter test
 ```
 
+## Mandatory Post-Code Gate
+
+Required after any code delivery (not only before commit):
+
+- Must run full local gate equivalent to `.github/workflows/flutter_ci.yml` before returning final code.
+- Must run all verification scripts in `D:\workspace\learnwise\tool` (the `dart run tool/*` commands listed above).
+- Must run `tool/verify_code_quality_contract.dart` with strict mode enabled to match CI:
+  - `STRICT_QUALITY_CONTRACT=1 dart run tool/verify_code_quality_contract.dart` (bash)
+  - `$env:STRICT_QUALITY_CONTRACT='1'; dart run tool/verify_code_quality_contract.dart` (PowerShell)
+- If any step fails, must fix before delivery; if blocked by environment, must explicitly report which step failed and why.
+
 ## Automated Guards (tool/)
 
 - `tool/verify_riverpod_annotation.dart`

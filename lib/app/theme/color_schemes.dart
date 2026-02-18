@@ -20,23 +20,28 @@ const Color _darkSurfaceContainerHighest = Color(0xFF2A3134);
 const Color _darkOnSurfaceVariant = Color(0xFFBEC8CC);
 const Color _darkOutline = Color(0xFF879296);
 
-const ColorScheme lightColorScheme = ColorScheme(
-  brightness: Brightness.light,
-  primary: AppColors.primary,
-  onPrimary: AppColors.onPrimary,
-  secondary: AppColors.secondary,
-  onSecondary: AppColors.onSecondary,
-  error: AppColors.error,
-  onError: AppColors.onError,
-  surface: AppColors.surface,
-  onSurface: AppColors.onSurface,
-  surfaceContainerLowest: _lightSurfaceContainerLowest,
-  surfaceContainerLow: _lightSurfaceContainerLow,
-  surfaceContainer: _lightSurfaceContainer,
-  surfaceContainerHigh: _lightSurfaceContainerHigh,
-  surfaceContainerHighest: _lightSurfaceContainerHighest,
-);
+/// Material 3 light color scheme.
+///
+/// Must follow:
+/// - Generate via `ColorScheme.fromSeed`.
+/// - Keep overrides limited to documented surface ladder customizations.
+final ColorScheme lightColorScheme =
+    ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.light,
+    ).copyWith(
+      surfaceContainerLowest: _lightSurfaceContainerLowest,
+      surfaceContainerLow: _lightSurfaceContainerLow,
+      surfaceContainer: _lightSurfaceContainer,
+      surfaceContainerHigh: _lightSurfaceContainerHigh,
+      surfaceContainerHighest: _lightSurfaceContainerHighest,
+    );
 
+/// Material 3 dark color scheme.
+///
+/// Must follow:
+/// - Generate via `ColorScheme.fromSeed`.
+/// - Keep overrides limited to documented dark surface/outline adjustments.
 final ColorScheme darkColorScheme =
     ColorScheme.fromSeed(
       seedColor: AppColors.primary,

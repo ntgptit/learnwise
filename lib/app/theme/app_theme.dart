@@ -3,16 +3,31 @@
 import 'package:flutter/material.dart';
 
 import '../../common/styles/app_radius.dart';
-import '../../common/styles/app_spacing.dart';
 import '../../common/styles/app_sizes.dart';
 import 'color_schemes.dart';
 import 'typography.dart';
 
+/// Theme module entrypoint.
+///
+/// Scope:
+/// - Build app-wide [ThemeData] for light/dark mode.
+/// - Keep Material 3 configuration centralized.
+///
+/// Must follow:
+/// - Use `useMaterial3: true`.
+/// - Consume `ColorScheme` from `color_schemes.dart`.
+/// - Keep typography through `AppTypography`.
+/// - Keep component defaults (card/appbar/icon) here, not in feature widgets.
+///
+/// Forbidden:
+/// - Hardcoded widget-level colors/sizes in feature UI when Theme can provide.
+/// - Reintroducing legacy `primaryColor`-style theming.
+/// - Per-screen theme forks inside feature folders.
 class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    const ColorScheme colorScheme = lightColorScheme;
+    final ColorScheme colorScheme = lightColorScheme;
     final TextTheme textTheme =
         AppTypography.textTheme(colorScheme: colorScheme).apply(
           bodyColor: colorScheme.onSurface,
@@ -37,12 +52,12 @@ class AppTheme {
         foregroundColor: colorScheme.onSurface,
         iconTheme: IconThemeData(
           color: colorScheme.onSurface,
-          size: AppSpacing.lg,
+          size: AppSizes.size24,
         ),
         toolbarHeight: AppSizes.size72,
       ),
       iconTheme: IconThemeData(
-        size: AppSpacing.lg,
+        size: AppSizes.size24,
         color: colorScheme.onSurface,
       ),
     );
@@ -74,12 +89,12 @@ class AppTheme {
         foregroundColor: colorScheme.onSurface,
         iconTheme: IconThemeData(
           color: colorScheme.onSurface,
-          size: AppSpacing.lg,
+          size: AppSizes.size24,
         ),
         toolbarHeight: AppSizes.size72,
       ),
       iconTheme: IconThemeData(
-        size: AppSpacing.lg,
+        size: AppSizes.size24,
         color: colorScheme.onSurface,
       ),
     );

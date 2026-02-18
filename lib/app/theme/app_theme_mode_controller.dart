@@ -4,18 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/local/prefs_storage.dart';
-import '../../core/utils/string_utils.dart';
 
 part 'app_theme_mode_controller.g.dart';
 
-class AppThemeModeCode {
-  const AppThemeModeCode._();
+/// Stable persisted codes for [ThemeMode].
+enum AppThemeModeCode { system, light, dark }
 
-  static const String system = 'SYSTEM';
-  static const String light = 'LIGHT';
-  static const String dark = 'DARK';
-}
-
+/// Theme mode state controller.
+///
+/// Must follow:
+/// - Persist user-selected [ThemeMode] through [PrefsStorage].
+/// - Keep encode/decode centralized and backward-compatible.
+/// - Use Riverpod lifecycle safety (`ref.mounted`) for async hydration.
+///
+/// Forbidden:
+/// - UI-layer direct persistence access for theme mode.
+/// - Scattered encode/decode logic in widgets.
 @Riverpod(keepAlive: true)
 class AppThemeModeController extends _$AppThemeModeController {
   late final PrefsStorage _prefsStorage;
@@ -50,21 +54,50 @@ class AppThemeModeController extends _$AppThemeModeController {
   }
 
   ThemeMode _decodeThemeMode(String? rawValue) {
-    final String? normalizedValue = StringUtils.normalizeNullable(rawValue);
-    if (normalizedValue == null) {
+    if (rawValue == null) {
       return ThemeMode.system;
     }
-    final String uppercasedValue = StringUtils.toUpper(normalizedValue);
-    if (uppercasedValue == AppThemeModeCode.light) {
+
+    final AppThemeModeCode? legacyCode = _decodeLegacyThemeModeCode(rawValue);
+    if (legacyCode != null) {
+      return _toThemeMode(legacyCode);
+    }
+
+    final AppThemeModeCode code = AppThemeModeCode.values.firstWhere(
+      (value) => value.name == rawValue,
+      orElse: () => AppThemeModeCode.system,
+    );
+    return _toThemeMode(code);
+  }
+
+  AppThemeModeCode? _decodeLegacyThemeModeCode(String rawValue) {
+    if (rawValue == 'SYSTEM') {
+      return AppThemeModeCode.system;
+    }
+    if (rawValue == 'LIGHT') {
+      return AppThemeModeCode.light;
+    }
+    if (rawValue == 'DARK') {
+      return AppThemeModeCode.dark;
+    }
+    return null;
+  }
+
+  String _encodeThemeMode(ThemeMode themeMode) {
+    return _toThemeModeCode(themeMode).name;
+  }
+
+  ThemeMode _toThemeMode(AppThemeModeCode code) {
+    if (code == AppThemeModeCode.light) {
       return ThemeMode.light;
     }
-    if (uppercasedValue == AppThemeModeCode.dark) {
+    if (code == AppThemeModeCode.dark) {
       return ThemeMode.dark;
     }
     return ThemeMode.system;
   }
 
-  String _encodeThemeMode(ThemeMode themeMode) {
+  AppThemeModeCode _toThemeModeCode(ThemeMode themeMode) {
     if (themeMode == ThemeMode.light) {
       return AppThemeModeCode.light;
     }

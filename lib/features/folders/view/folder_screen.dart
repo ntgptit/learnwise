@@ -1073,24 +1073,27 @@ class _FolderToolbar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          PopupMenuButton<_FolderMenuAction>(
-            onSelected: onMenuActionSelected,
-            itemBuilder: onSortPressed,
-            tooltip: sortTooltip,
-            constraints: const BoxConstraints.tightFor(
-              width: AppSizes.size44,
-              height: AppSizes.size44,
-            ),
-            style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll<Color>(
-                colorScheme.surfaceContainerHighest,
+          SizedBox(
+            width: AppSizes.size44,
+            height: AppSizes.size44,
+            child: PopupMenuButton<_FolderMenuAction>(
+              onSelected: onMenuActionSelected,
+              itemBuilder: onSortPressed,
+              tooltip: sortTooltip,
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll<Color>(
+                  colorScheme.surfaceContainerHighest,
+                ),
+                shape: WidgetStatePropertyAll<OutlinedBorder>(
+                  RoundedRectangleBorder(borderRadius: buttonRadius),
+                ),
+                elevation: const WidgetStatePropertyAll<double>(0),
               ),
-              shape: WidgetStatePropertyAll<OutlinedBorder>(
-                RoundedRectangleBorder(borderRadius: buttonRadius),
+              icon: Icon(
+                Icons.tune_rounded,
+                color: colorScheme.onSurfaceVariant,
               ),
-              elevation: const WidgetStatePropertyAll<double>(0),
             ),
-            icon: Icon(Icons.tune_rounded, color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),

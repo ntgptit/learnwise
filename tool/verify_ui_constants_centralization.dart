@@ -1,5 +1,24 @@
 import 'dart:io';
 
+/// UI Constants Centralization Guard (v2)
+///
+/// Mục tiêu:
+/// - Cấm feature-level `_ui_const.dart`
+/// - Cấm magic UI number trong view layer
+/// - Cấm hard-coded spacing, radius, fontSize, elevation, opacity, duration
+/// - Bắt buộc sử dụng centralized tokens:
+///     - AppSizes
+///     - AppDurations
+///     - AppOpacities
+///     - AppScreenTokens
+///
+/// Phạm vi áp dụng:
+/// - lib/common/widgets/
+/// - lib/features/**/view/
+///
+/// Bỏ qua:
+/// - .g.dart
+/// - .freezed.dart
 class UiConstantsGuardConst {
   const UiConstantsGuardConst._();
 
@@ -13,10 +32,6 @@ class UiConstantsGuardConst {
   static const String featurePrefix = 'lib/features/';
   static const String featureViewMarker = '/view/';
   static const String featureUiConstSuffix = '_ui_const.dart';
-
-  static const String spacingImportMarker = 'styles/spacing.dart';
-  static const String radiusImportMarker = 'styles/radius.dart';
-  static const String featureUiConstImportMarker = '_ui_const.dart';
 }
 
 class UiGuardViolation {
@@ -33,25 +48,48 @@ class UiGuardViolation {
   final String lineContent;
 }
 
-final RegExp _stylePropertyNumericRegExp = RegExp(
-  r'\b(?:horizontal|vertical|padding|margin|spacing|runSpacing|width|height|radius|fontSize|strokeWidth|top|left|right|bottom)\s*:\s*(?:const\s+)?\d+(?:\.\d+)?\b',
+/// EdgeInsets literals
+final RegExp _edgeInsetsLiteralRegExp = RegExp(
+  r'\bEdgeInsets\.(?:all|symmetric|only)\(',
 );
+
+/// SizedBox / Container height/width
+final RegExp _sizedBoxLiteralRegExp = RegExp(r'\b(?:SizedBox|Container)\s*\(');
+
+/// TextStyle fontSize
+final RegExp _fontSizeLiteralRegExp = RegExp(
+  r'\bfontSize\s*:\s*(?:const\s+)?\d+(?:\.\d+)?',
+);
+
+/// BorderRadius
 final RegExp _borderRadiusLiteralRegExp = RegExp(
   r'\bBorderRadius\.circular\(\s*\d+(?:\.\d+)?\s*\)',
 );
+
+/// Radius
 final RegExp _radiusLiteralRegExp = RegExp(
   r'\bRadius\.circular\(\s*\d+(?:\.\d+)?\s*\)',
 );
-final RegExp _sizeFromHeightLiteralRegExp = RegExp(
-  r'\bSize\.fromHeight\(\s*\d+(?:\.\d+)?\s*\)',
-);
-final RegExp _durationMillisecondsLiteralRegExp = RegExp(
+
+/// Duration milliseconds
+final RegExp _durationLiteralRegExp = RegExp(
   r'\bDuration\(\s*milliseconds\s*:\s*\d+\s*\)',
 );
 
+/// Elevation literal
+final RegExp _elevationLiteralRegExp = RegExp(
+  r'\belevation\s*:\s*(?:const\s+)?\d+(?:\.\d+)?',
+);
+
+/// Opacity literal
+final RegExp _opacityLiteralRegExp = RegExp(
+  r'\bopacity\s*:\s*(?:const\s+)?0?\.\d+',
+);
+
 Future<void> main() async {
-  final Directory libDir = Directory(UiConstantsGuardConst.libDirectory);
-  if (!libDir.existsSync()) {
+  final Directory root = Directory(UiConstantsGuardConst.libDirectory);
+
+  if (!root.existsSync()) {
     stderr.writeln(
       'Missing `${UiConstantsGuardConst.libDirectory}` directory.',
     );
@@ -59,170 +97,123 @@ Future<void> main() async {
     return;
   }
 
-  final List<File> sourceFiles = _collectSourceFiles(libDir);
+  final List<File> sourceFiles = _collectSourceFiles(root);
   final List<UiGuardViolation> violations = <UiGuardViolation>[];
 
   for (final File file in sourceFiles) {
-    final String normalizedPath = file.path.replaceAll('\\', '/');
-    final bool isFeatureUiConstFile = _isFeatureUiConstFile(normalizedPath);
-    if (isFeatureUiConstFile) {
+    final String path = _normalizePath(file.path);
+
+    if (_isFeatureUiConstFile(path)) {
       violations.add(
         UiGuardViolation(
-          filePath: normalizedPath,
+          filePath: path,
           lineNumber: 1,
           reason:
-              'Feature-level UI const file is forbidden. Use centralized constants in lib/common/styles/.',
-          lineContent: normalizedPath,
+              'Feature-level _ui_const.dart is forbidden. Use centralized tokens.',
+          lineContent: path,
         ),
       );
     }
 
+    if (!_isUiLayerFile(path)) {
+      continue;
+    }
+
     final List<String> lines = await file.readAsLines();
+
     for (int index = 0; index < lines.length; index++) {
       final String rawLine = lines[index];
       final String sourceLine = _stripLineComment(rawLine).trim();
+
       if (sourceLine.isEmpty) {
         continue;
       }
 
-      final bool isBannedImport = _containsBannedImport(sourceLine);
-      if (isBannedImport) {
+      if (_containsMagicUiLiteral(sourceLine)) {
         violations.add(
           UiGuardViolation(
-            filePath: normalizedPath,
+            filePath: path,
             lineNumber: index + 1,
-            reason:
-                'Forbidden style import detected. Use centralized constants directly from lib/common/styles/.',
+            reason: 'Magic UI literal detected. Use centralized design tokens.',
             lineContent: rawLine.trim(),
           ),
         );
       }
-
-      final bool isUiFile = _isUiLayerFile(normalizedPath);
-      if (!isUiFile) {
-        continue;
-      }
-
-      final bool hasMagicUiNumber = _containsMagicUiNumber(sourceLine);
-      if (!hasMagicUiNumber) {
-        continue;
-      }
-
-      violations.add(
-        UiGuardViolation(
-          filePath: normalizedPath,
-          lineNumber: index + 1,
-          reason:
-              'Magic UI numeric value detected. Replace with centralized constants (AppSizes/AppDurations/AppOpacities/AppScreenTokens).',
-          lineContent: rawLine.trim(),
-        ),
-      );
     }
   }
 
   if (violations.isEmpty) {
-    stdout.writeln(
-      'UI constants centralization guard passed: no feature UI const files or magic UI literals found.',
-    );
+    stdout.writeln('UI constants guard v2 passed.');
     return;
   }
 
-  stderr.writeln('UI constants centralization guard failed.');
+  stderr.writeln('UI constants guard v2 failed.');
   for (final UiGuardViolation violation in violations) {
     stderr.writeln(
-      '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
+      '${violation.filePath}:${violation.lineNumber}: '
+      '${violation.reason} ${violation.lineContent}',
     );
   }
+
   exitCode = 1;
 }
 
 List<File> _collectSourceFiles(Directory root) {
   final List<File> files = <File>[];
-  for (final FileSystemEntity entity in root.listSync(recursive: true)) {
-    if (entity is! File) {
-      continue;
-    }
 
-    final String normalizedPath = entity.path.replaceAll('\\', '/');
-    if (!normalizedPath.endsWith(UiConstantsGuardConst.dartExtension)) {
-      continue;
-    }
-    if (normalizedPath.endsWith(UiConstantsGuardConst.generatedExtension)) {
-      continue;
-    }
-    if (normalizedPath.endsWith(UiConstantsGuardConst.freezedExtension)) {
-      continue;
-    }
+  for (final FileSystemEntity entity in root.listSync(recursive: true)) {
+    if (entity is! File) continue;
+
+    final String path = _normalizePath(entity.path);
+
+    if (!path.endsWith(UiConstantsGuardConst.dartExtension)) continue;
+    if (path.endsWith(UiConstantsGuardConst.generatedExtension)) continue;
+    if (path.endsWith(UiConstantsGuardConst.freezedExtension)) continue;
 
     files.add(entity);
   }
+
   return files;
 }
 
-String _stripLineComment(String sourceLine) {
-  final int commentIndex = sourceLine.indexOf(
-    UiConstantsGuardConst.lineCommentPrefix,
-  );
-  if (commentIndex < 0) {
-    return sourceLine;
-  }
-  return sourceLine.substring(0, commentIndex);
-}
-
 bool _isFeatureUiConstFile(String path) {
-  if (!path.startsWith(UiConstantsGuardConst.featurePrefix)) {
-    return false;
-  }
-  if (!path.endsWith(UiConstantsGuardConst.featureUiConstSuffix)) {
-    return false;
-  }
-  return true;
-}
-
-bool _containsBannedImport(String sourceLine) {
-  if (!sourceLine.startsWith('import ')) {
-    return false;
-  }
-  if (sourceLine.contains(UiConstantsGuardConst.spacingImportMarker)) {
-    return true;
-  }
-  if (sourceLine.contains(UiConstantsGuardConst.radiusImportMarker)) {
-    return true;
-  }
-  if (sourceLine.contains(UiConstantsGuardConst.featureUiConstImportMarker)) {
-    return true;
-  }
-  return false;
+  return path.startsWith(UiConstantsGuardConst.featurePrefix) &&
+      path.endsWith(UiConstantsGuardConst.featureUiConstSuffix);
 }
 
 bool _isUiLayerFile(String path) {
   if (path.startsWith(UiConstantsGuardConst.commonWidgetsPrefix)) {
     return true;
   }
+
   if (!path.startsWith(UiConstantsGuardConst.featurePrefix)) {
     return false;
   }
-  if (!path.contains(UiConstantsGuardConst.featureViewMarker)) {
-    return false;
-  }
-  return true;
+
+  return path.contains(UiConstantsGuardConst.featureViewMarker);
 }
 
-bool _containsMagicUiNumber(String sourceLine) {
-  if (_stylePropertyNumericRegExp.hasMatch(sourceLine)) {
+bool _containsMagicUiLiteral(String line) {
+  if (_edgeInsetsLiteralRegExp.hasMatch(line)) return true;
+  if (_sizedBoxLiteralRegExp.hasMatch(line) &&
+      RegExp(r'\b\d+(?:\.\d+)?\b').hasMatch(line))
     return true;
-  }
-  if (_borderRadiusLiteralRegExp.hasMatch(sourceLine)) {
-    return true;
-  }
-  if (_radiusLiteralRegExp.hasMatch(sourceLine)) {
-    return true;
-  }
-  if (_sizeFromHeightLiteralRegExp.hasMatch(sourceLine)) {
-    return true;
-  }
-  if (_durationMillisecondsLiteralRegExp.hasMatch(sourceLine)) {
-    return true;
-  }
+  if (_fontSizeLiteralRegExp.hasMatch(line)) return true;
+  if (_borderRadiusLiteralRegExp.hasMatch(line)) return true;
+  if (_radiusLiteralRegExp.hasMatch(line)) return true;
+  if (_durationLiteralRegExp.hasMatch(line)) return true;
+  if (_elevationLiteralRegExp.hasMatch(line)) return true;
+  if (_opacityLiteralRegExp.hasMatch(line)) return true;
+
   return false;
+}
+
+String _stripLineComment(String sourceLine) {
+  final int index = sourceLine.indexOf(UiConstantsGuardConst.lineCommentPrefix);
+  if (index < 0) return sourceLine;
+  return sourceLine.substring(0, index);
+}
+
+String _normalizePath(String path) {
+  return path.replaceAll('\\', '/');
 }

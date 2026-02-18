@@ -1,5 +1,20 @@
 import 'dart:io';
 
+/// ===============================================================
+/// State Management Contract Guard v2
+/// ===============================================================
+///
+/// Enforces architectural rules:
+///
+/// 1. No `setState()` usage (state must be managed via Riverpod).
+/// 2. No `else` / `else if` (guard clause + early return philosophy).
+/// 3. Max nesting depth = 1.
+/// 4. AsyncValue must use `.when()` / `.map()` (no hasValue/requireValue).
+/// 5. Riverpod controllers must have `@riverpod/@Riverpod`.
+///
+/// Switch-case is allowed.
+/// ===============================================================
+
 class StateContractConst {
   const StateContractConst._();
 
@@ -13,6 +28,7 @@ class StateContractConst {
   static const String commonWidgetsPrefix = 'lib/common/widgets/';
 }
 
+/// Represents a contract violation.
 class StateContractViolation {
   const StateContractViolation({
     required this.filePath,
@@ -28,11 +44,11 @@ class StateContractViolation {
 }
 
 final RegExp _setStateRegExp = RegExp(r'\bsetState\s*\(');
-final RegExp _elseRegExp = RegExp(r'\belse\b');
+final RegExp _elseRegExp = RegExp(r'^\s*else\b');
 final RegExp _asyncValueTypeRegExp = RegExp(r'\bAsyncValue\s*<');
 final RegExp _whenOrMapRegExp = RegExp(r'\.(?:when|map)\s*\(');
 final RegExp _forbiddenAsyncFlowRegExp = RegExp(
-  r'\b(?:state|[A-Za-z_][A-Za-z0-9_]*(?:State|AsyncValue|Async))\.(?:hasValue|hasError|requireValue)\b|\bmaybeWhen\s*\(|\bmaybeMap\s*\(',
+  r'\b(?:hasValue|hasError|requireValue|maybeWhen|maybeMap)\b',
 );
 final RegExp _riverpodAnnotationRegExp = RegExp(r'@\s*(?:riverpod|Riverpod)\b');
 final RegExp _generatedControllerClassRegExp = RegExp(
@@ -41,240 +57,222 @@ final RegExp _generatedControllerClassRegExp = RegExp(
 
 Future<void> main() async {
   final Directory libDirectory = Directory(StateContractConst.libDirectory);
+
   if (!libDirectory.existsSync()) {
     stderr.writeln('Missing `${StateContractConst.libDirectory}` directory.');
     exitCode = 1;
     return;
   }
 
-  final List<File> dartFiles = _collectSourceFiles(libDirectory);
-  final List<StateContractViolation> violations = <StateContractViolation>[];
+  final List<File> files = _collectSourceFiles(libDirectory);
+  final List<StateContractViolation> violations = [];
 
-  for (final File file in dartFiles) {
-    final String normalizedPath = _normalizePath(file.path);
-    final List<String> lines = await file.readAsLines();
+  for (final file in files) {
+    final path = _normalizePath(file.path);
+    final lines = await file.readAsLines();
 
-    final bool isUiFile = _isUiFile(normalizedPath);
-    final bool isStateFile = _isStateFile(normalizedPath);
+    final bool isUiFile = _isUiFile(path);
+    final bool isStateFile = _isStateFile(path);
+
     final bool hasRiverpodAnnotation = _fileHasRiverpodAnnotation(lines);
+
     if (isStateFile && !hasRiverpodAnnotation) {
       violations.add(
         StateContractViolation(
-          filePath: normalizedPath,
+          filePath: path,
           lineNumber: 1,
-          reason:
-              'State file must contain @riverpod/@Riverpod annotation for state declarations.',
-          lineContent: normalizedPath,
+          reason: 'State file must contain @riverpod/@Riverpod annotation.',
+          lineContent: path,
         ),
       );
     }
 
+    int nestingDepth = 0;
+    int maxNesting = 0;
+
     bool fileHasAsyncValue = false;
     bool fileHasWhenOrMap = false;
 
-    for (int index = 0; index < lines.length; index++) {
-      final String rawLine = lines[index];
-      final String sourceLine = _stripLineComment(rawLine).trim();
-      if (sourceLine.isEmpty) {
-        continue;
-      }
+    for (int i = 0; i < lines.length; i++) {
+      final rawLine = lines[i];
+      final line = _stripLineComment(rawLine).trim();
 
-      if (_setStateRegExp.hasMatch(sourceLine)) {
+      if (line.isEmpty) continue;
+
+      // Track nesting depth
+      nestingDepth += _countChar(line, '{');
+      maxNesting = nestingDepth > maxNesting ? nestingDepth : maxNesting;
+      nestingDepth -= _countChar(line, '}');
+
+      if (_setStateRegExp.hasMatch(line)) {
         violations.add(
-          StateContractViolation(
-            filePath: normalizedPath,
-            lineNumber: index + 1,
-            reason:
-                'setState is forbidden. Manage state through Riverpod annotation providers.',
-            lineContent: rawLine.trim(),
+          _violation(
+            path,
+            i,
+            rawLine,
+            'setState is forbidden. Use Riverpod state management.',
           ),
         );
       }
 
-      if (_elseRegExp.hasMatch(sourceLine)) {
+      if (_elseRegExp.hasMatch(line)) {
         violations.add(
-          StateContractViolation(
-            filePath: normalizedPath,
-            lineNumber: index + 1,
-            reason:
-                'else is forbidden. Use guard clauses and early return/fail-fast flow.',
-            lineContent: rawLine.trim(),
+          _violation(
+            path,
+            i,
+            rawLine,
+            'else / else if is forbidden. Use guard clauses + early return.',
           ),
         );
       }
 
-      if (_generatedControllerClassRegExp.hasMatch(sourceLine)) {
-        final bool classHasAnnotation = _hasNearbyRiverpodAnnotation(
-          lines: lines,
-          classLineIndex: index,
-        );
-        if (!classHasAnnotation) {
+      if (_generatedControllerClassRegExp.hasMatch(line)) {
+        if (!_hasNearbyRiverpodAnnotation(lines, i)) {
           violations.add(
-            StateContractViolation(
-              filePath: normalizedPath,
-              lineNumber: index + 1,
-              reason:
-                  'Generated Riverpod controller class must be preceded by @riverpod/@Riverpod annotation.',
-              lineContent: rawLine.trim(),
+            _violation(
+              path,
+              i,
+              rawLine,
+              'Generated Riverpod controller must be preceded by @riverpod.',
             ),
           );
         }
       }
 
-      if (!isUiFile) {
-        continue;
-      }
+      if (!isUiFile) continue;
 
-      if (_asyncValueTypeRegExp.hasMatch(sourceLine)) {
+      if (_asyncValueTypeRegExp.hasMatch(line)) {
         fileHasAsyncValue = true;
       }
-      if (_whenOrMapRegExp.hasMatch(sourceLine)) {
+
+      if (_whenOrMapRegExp.hasMatch(line)) {
         fileHasWhenOrMap = true;
       }
-      if (_forbiddenAsyncFlowRegExp.hasMatch(sourceLine)) {
+
+      if (_forbiddenAsyncFlowRegExp.hasMatch(line)) {
         violations.add(
-          StateContractViolation(
-            filePath: normalizedPath,
-            lineNumber: index + 1,
-            reason:
-                'Async state flow must use .when()/.map() instead of hasValue/hasError/isLoading/requireValue/maybeWhen/maybeMap.',
-            lineContent: rawLine.trim(),
+          _violation(
+            path,
+            i,
+            rawLine,
+            'AsyncValue must use .when()/.map() instead of hasValue/requireValue/maybeWhen.',
           ),
         );
       }
     }
 
-    if (!isUiFile) {
-      continue;
-    }
-    if (!fileHasAsyncValue) {
-      continue;
-    }
-    if (fileHasWhenOrMap) {
-      continue;
+    if (maxNesting > 1) {
+      violations.add(
+        StateContractViolation(
+          filePath: path,
+          lineNumber: 1,
+          reason:
+              'Max nesting depth exceeded (>${1}). Use guard clauses to flatten logic.',
+          lineContent: path,
+        ),
+      );
     }
 
-    violations.add(
-      StateContractViolation(
-        filePath: normalizedPath,
-        lineNumber: 1,
-        reason:
-            'UI file consumes AsyncValue but does not use .when()/.map() for state flow.',
-        lineContent: normalizedPath,
-      ),
-    );
+    if (isUiFile && fileHasAsyncValue && !fileHasWhenOrMap) {
+      violations.add(
+        StateContractViolation(
+          filePath: path,
+          lineNumber: 1,
+          reason:
+              'UI file consumes AsyncValue but does not use .when()/.map().',
+          lineContent: path,
+        ),
+      );
+    }
   }
 
   if (violations.isEmpty) {
-    stdout.writeln('State management contract guard passed.');
+    stdout.writeln('State contract guard v2 passed.');
     return;
   }
 
-  stderr.writeln('State management contract guard failed.');
-  for (final StateContractViolation violation in violations) {
+  stderr.writeln('State contract guard v2 failed.');
+  for (final v in violations) {
     stderr.writeln(
-      '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
+      '${v.filePath}:${v.lineNumber}: ${v.reason} ${v.lineContent}',
     );
   }
+
   exitCode = 1;
 }
 
 List<File> _collectSourceFiles(Directory root) {
-  final List<File> files = <File>[];
-  for (final FileSystemEntity entity in root.listSync(recursive: true)) {
-    if (entity is! File) {
-      continue;
-    }
+  final List<File> files = [];
 
-    final String path = _normalizePath(entity.path);
-    if (!path.endsWith(StateContractConst.dartExtension)) {
-      continue;
-    }
-    if (path.endsWith(StateContractConst.generatedExtension)) {
-      continue;
-    }
-    if (path.endsWith(StateContractConst.freezedExtension)) {
-      continue;
-    }
+  for (final entity in root.listSync(recursive: true)) {
+    if (entity is! File) continue;
+
+    final path = _normalizePath(entity.path);
+
+    if (!path.endsWith(StateContractConst.dartExtension)) continue;
+    if (path.endsWith(StateContractConst.generatedExtension)) continue;
+    if (path.endsWith(StateContractConst.freezedExtension)) continue;
 
     files.add(entity);
   }
+
   return files;
 }
 
 bool _isStateFile(String path) {
-  if (path.contains('/viewmodel/') && !path.endsWith('_state.dart')) {
-    return true;
-  }
-  if (path.endsWith('/providers.dart')) {
-    return true;
-  }
-  if (path.endsWith('_provider.dart')) {
-    return true;
-  }
-  if (path.endsWith('_providers.dart')) {
-    return true;
-  }
+  if (path.contains('/viewmodel/')) return true;
+  if (path.endsWith('_provider.dart')) return true;
+  if (path.endsWith('_providers.dart')) return true;
   return false;
 }
 
 bool _isUiFile(String path) {
-  if (path.startsWith(StateContractConst.commonWidgetsPrefix)) {
-    return true;
-  }
-  if (!path.contains(StateContractConst.viewFolderMarker)) {
-    return false;
-  }
-  return true;
+  if (path.startsWith(StateContractConst.commonWidgetsPrefix)) return true;
+  return path.contains(StateContractConst.viewFolderMarker);
 }
 
 bool _fileHasRiverpodAnnotation(List<String> lines) {
-  for (final String line in lines) {
-    final String sourceLine = _stripLineComment(line).trim();
-    if (sourceLine.isEmpty) {
-      continue;
-    }
-    if (_riverpodAnnotationRegExp.hasMatch(sourceLine)) {
+  for (final line in lines) {
+    if (_riverpodAnnotationRegExp.hasMatch(line)) {
       return true;
     }
   }
   return false;
 }
 
-bool _hasNearbyRiverpodAnnotation({
-  required List<String> lines,
-  required int classLineIndex,
-}) {
-  int steps = 0;
-  for (int index = classLineIndex - 1; index >= 0; index--) {
-    final String sourceLine = _stripLineComment(lines[index]).trim();
-    if (sourceLine.isEmpty) {
-      continue;
-    }
-    if (_riverpodAnnotationRegExp.hasMatch(sourceLine)) {
+bool _hasNearbyRiverpodAnnotation(List<String> lines, int classIndex) {
+  for (int i = classIndex - 1; i >= 0 && i >= classIndex - 3; i--) {
+    if (_riverpodAnnotationRegExp.hasMatch(lines[i])) {
       return true;
-    }
-    if (sourceLine.startsWith('class ')) {
-      return false;
-    }
-    steps++;
-    if (steps >= 3) {
-      return false;
     }
   }
   return false;
 }
 
-String _stripLineComment(String sourceLine) {
-  final int commentIndex = sourceLine.indexOf(
-    StateContractConst.lineCommentPrefix,
+StateContractViolation _violation(
+  String path,
+  int index,
+  String rawLine,
+  String reason,
+) {
+  return StateContractViolation(
+    filePath: path,
+    lineNumber: index + 1,
+    reason: reason,
+    lineContent: rawLine.trim(),
   );
-  if (commentIndex < 0) {
-    return sourceLine;
-  }
-  return sourceLine.substring(0, commentIndex);
+}
+
+String _stripLineComment(String line) {
+  final int index = line.indexOf(StateContractConst.lineCommentPrefix);
+  if (index < 0) return line;
+  return line.substring(0, index);
 }
 
 String _normalizePath(String path) {
   return path.replaceAll('\\', '/');
+}
+
+int _countChar(String line, String char) {
+  return char.allMatches(line).length;
 }

@@ -1,5 +1,13 @@
 import 'dart:io';
 
+/// Enforces centralized string manipulation policy.
+///
+/// All string normalization / validation / transformation
+/// must go through:
+///
+///     lib/core/utils/string_utils.dart
+///
+/// Direct string manipulation is forbidden elsewhere.
 class StringUtilsContractConst {
   const StringUtilsContractConst._();
 
@@ -8,7 +16,8 @@ class StringUtilsContractConst {
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
   static const String lineCommentPrefix = '//';
-  static const String allowedTrimFile = 'lib/core/utils/string_utils.dart';
+
+  static const String allowedFile = 'lib/core/utils/string_utils.dart';
 }
 
 class StringUtilsViolation {
@@ -25,10 +34,28 @@ class StringUtilsViolation {
   final String lineContent;
 }
 
-final RegExp _trimCallRegExp = RegExp(r'\.\s*trim\s*\(\s*\)');
+/// Forbidden string operations outside StringUtils.
+final List<RegExp> _forbiddenPatterns = <RegExp>[
+  RegExp(r'\.\s*trim\s*\(\s*\)'),
+  RegExp(r'\.\s*trimLeft\s*\(\s*\)'),
+  RegExp(r'\.\s*trimRight\s*\(\s*\)'),
+  RegExp(r'\.\s*toLowerCase\s*\(\s*\)'),
+  RegExp(r'\.\s*toUpperCase\s*\(\s*\)'),
+  RegExp(r'\.\s*isEmpty\b'),
+  RegExp(r'\.\s*isNotEmpty\b'),
+  RegExp(r'\.\s*replaceAll\s*\('),
+  RegExp(r'\.\s*split\s*\('),
+  RegExp(r'\.\s*substring\s*\('),
+];
+
+/// Detects common null + empty checks.
+final RegExp _nullEmptyCheckPattern = RegExp(
+  r'!=\s*null\s*&&\s*.*\.(?:isEmpty|isNotEmpty)',
+);
 
 Future<void> main() async {
   final Directory root = Directory(StringUtilsContractConst.libDirectory);
+
   if (!root.existsSync()) {
     stderr.writeln(
       'Missing `${StringUtilsContractConst.libDirectory}` directory.',
@@ -42,30 +69,45 @@ Future<void> main() async {
 
   for (final File file in sourceFiles) {
     final String path = _normalizePath(file.path);
-    if (path == StringUtilsContractConst.allowedTrimFile) {
+
+    // Allow only in string_utils.dart
+    if (path == StringUtilsContractConst.allowedFile) {
       continue;
     }
 
     final List<String> lines = await file.readAsLines();
+
     for (int index = 0; index < lines.length; index++) {
       final String rawLine = lines[index];
       final String sourceLine = _stripLineComment(rawLine).trim();
+
       if (sourceLine.isEmpty) {
         continue;
       }
-      if (!_trimCallRegExp.hasMatch(sourceLine)) {
+
+      if (_containsForbiddenPattern(sourceLine)) {
+        violations.add(
+          StringUtilsViolation(
+            filePath: path,
+            lineNumber: index + 1,
+            reason: 'Direct string manipulation is forbidden. Use StringUtils.',
+            lineContent: rawLine.trim(),
+          ),
+        );
         continue;
       }
 
-      violations.add(
-        StringUtilsViolation(
-          filePath: path,
-          lineNumber: index + 1,
-          reason:
-              'Direct trim() usage is forbidden. Use StringUtils.normalize/normalizeNullable/isBlank/isNotBlank.',
-          lineContent: rawLine.trim(),
-        ),
-      );
+      if (_nullEmptyCheckPattern.hasMatch(sourceLine)) {
+        violations.add(
+          StringUtilsViolation(
+            filePath: path,
+            lineNumber: index + 1,
+            reason:
+                'Null + empty check is forbidden. Use StringUtils.isBlank/isNotBlank.',
+            lineContent: rawLine.trim(),
+          ),
+        );
+      }
     }
   }
 
@@ -75,43 +117,66 @@ Future<void> main() async {
   }
 
   stderr.writeln('StringUtils contract guard failed.');
+  stderr.writeln(
+    'All string normalization and validation must go through StringUtils.',
+  );
+
   for (final StringUtilsViolation violation in violations) {
     stderr.writeln(
-      '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
+      '${violation.filePath}:${violation.lineNumber}: '
+      '${violation.reason} ${violation.lineContent}',
     );
   }
+
   exitCode = 1;
 }
 
 List<File> _collectSourceFiles(Directory root) {
   final List<File> files = <File>[];
+
   for (final FileSystemEntity entity in root.listSync(recursive: true)) {
     if (entity is! File) {
       continue;
     }
 
     final String path = _normalizePath(entity.path);
+
     if (!path.endsWith(StringUtilsContractConst.dartExtension)) {
       continue;
     }
+
     if (path.endsWith(StringUtilsContractConst.generatedExtension)) {
       continue;
     }
+
     if (path.endsWith(StringUtilsContractConst.freezedExtension)) {
       continue;
     }
+
     files.add(entity);
   }
+
   return files;
+}
+
+bool _containsForbiddenPattern(String line) {
+  for (final RegExp regExp in _forbiddenPatterns) {
+    if (regExp.hasMatch(line)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 String _stripLineComment(String sourceLine) {
   final int commentIndex = sourceLine.indexOf(
     StringUtilsContractConst.lineCommentPrefix,
   );
+
   if (commentIndex < 0) {
     return sourceLine;
   }
+
   return sourceLine.substring(0, commentIndex);
 }
 

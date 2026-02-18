@@ -111,7 +111,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       listing: listingSnapshot,
       deckListing: deckListingSnapshot,
     );
-    final List<FabAction> fabActions = _buildFabActions(
+    final List<_CreateActionItem> createActions = _buildCreateActions(
       l10n: l10n,
       showDeckButton: isDeckContext,
       canCreateFolder: canCreateFolderAtCurrentLevel,
@@ -231,39 +231,31 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       FolderScreenTokens.screenPadding,
                     ),
                     children: <Widget>[
-                      if (query.breadcrumbs.isNotEmpty) ...<Widget>[
-                        AppBreadcrumbs(
-                          rootLabel: l10n.foldersRootLabel,
-                          items: query.breadcrumbs
-                              .map(
-                                (item) => AppBreadcrumbItem(label: item.name),
-                              )
-                              .toList(),
-                          onRootPressed: _onRootPressed,
-                          onItemPressed: _onBreadcrumbPressed,
-                        ),
-                        const SizedBox(
-                          height: FolderScreenTokens.sectionSpacing,
-                        ),
-                      ],
-                      _SectionContainer(
-                        child: _FolderToolbar(
-                          searchController: _searchController,
-                          searchFocusNode: _searchFocusNode,
-                          searchHint: searchHint,
-                          sortTooltip: l10n.foldersSortByLabel,
-                          onSearchChanged: _onSearchChanged,
-                          onSearchSubmitted: _submitSearch,
-                          onClearSearch: _clearSearch,
-                          onSortPressed: (context) {
-                            return _buildMenuItems(
-                              l10n: l10n,
-                              query: query,
-                              includeRefresh: false,
-                            );
-                          },
-                          onMenuActionSelected: _onMenuActionSelected,
-                        ),
+                      AppBreadcrumbs(
+                        rootLabel: l10n.foldersRootLabel,
+                        items: query.breadcrumbs
+                            .map((item) => AppBreadcrumbItem(label: item.name))
+                            .toList(),
+                        onRootPressed: _onRootPressed,
+                        onItemPressed: _onBreadcrumbPressed,
+                      ),
+                      const SizedBox(height: FolderScreenTokens.sectionSpacing),
+                      _FolderToolbar(
+                        searchController: _searchController,
+                        searchFocusNode: _searchFocusNode,
+                        searchHint: searchHint,
+                        sortTooltip: l10n.foldersSortByLabel,
+                        onSearchChanged: _onSearchChanged,
+                        onSearchSubmitted: _submitSearch,
+                        onClearSearch: _clearSearch,
+                        onSortPressed: (context) {
+                          return _buildMenuItems(
+                            l10n: l10n,
+                            query: query,
+                            includeRefresh: false,
+                          );
+                        },
+                        onMenuActionSelected: _onMenuActionSelected,
                       ),
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
                       if (showFolderSearchEmptyState)
@@ -423,29 +415,31 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
         selectedIndex: FolderConstants.foldersNavIndex,
         onDestinationSelected: _onBottomNavSelected,
       ),
-      floatingActionButton: fabActions.isEmpty
+      floatingActionButton: createActions.isEmpty
           ? null
-          : AppExpandableFab(
-              icon: Icons.add_rounded,
+          : FloatingActionButton.small(
               tooltip: l10n.foldersCreateButton,
-              actions: fabActions,
+              onPressed: () => _showCreateActionSheet(actions: createActions),
+              child: const Icon(Icons.add_rounded),
             ),
     );
   }
 
-  List<FabAction> _buildFabActions({
+  List<_CreateActionItem> _buildCreateActions({
     required AppLocalizations l10n,
     required bool showDeckButton,
     required bool canCreateFolder,
     required bool canCreateDeck,
   }) {
-    final List<FabAction> actions = <FabAction>[];
+    final List<_CreateActionItem> actions = <_CreateActionItem>[];
     if (canCreateFolder) {
       actions.add(
-        FabAction(
+        _CreateActionItem(
           icon: Icons.create_new_folder_rounded,
           label: l10n.foldersCreateButton,
-          onPressed: _onCreatePressed,
+          onPressed: () {
+            unawaited(_onCreatePressed());
+          },
         ),
       );
     }
@@ -456,13 +450,43 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       return actions;
     }
     actions.add(
-      FabAction(
+      _CreateActionItem(
         icon: Icons.style_rounded,
         label: l10n.decksCreateButton,
-        onPressed: _onCreateDeckPressed,
+        onPressed: () {
+          unawaited(_onCreateDeckPressed());
+        },
       ),
     );
     return actions;
+  }
+
+  Future<void> _showCreateActionSheet({
+    required List<_CreateActionItem> actions,
+  }) async {
+    if (actions.isEmpty) {
+      return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (sheetContext) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: actions.map((action) {
+            return ListTile(
+              leading: Icon(action.icon),
+              title: Text(action.label),
+              onTap: () {
+                sheetContext.pop();
+                action.onPressed();
+              },
+            );
+          }).toList(),
+        );
+      },
+    );
   }
 
   void _onScroll() {
@@ -1030,58 +1054,58 @@ class _FolderToolbar extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final BorderRadius buttonRadius = BorderRadius.circular(AppSizes.radiusMd);
 
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: SearchField(
-            controller: searchController,
-            focusNode: searchFocusNode,
-            hint: searchHint,
-            onChanged: onSearchChanged,
-            onSubmitted: (_) => onSearchSubmitted(),
-            onClear: onClearSearch,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        PopupMenuButton<_FolderMenuAction>(
-          onSelected: onMenuActionSelected,
-          itemBuilder: onSortPressed,
-          tooltip: sortTooltip,
-          constraints: const BoxConstraints.tightFor(
-            width: AppSizes.size48,
-            height: AppSizes.size48,
-          ),
-          style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll<Color>(
-              colorScheme.surfaceContainerHigh,
-            ),
-            shape: WidgetStatePropertyAll<OutlinedBorder>(
-              RoundedRectangleBorder(borderRadius: buttonRadius),
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.spacingXs),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppSizes.size20),
+      ),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: SearchField(
+              controller: searchController,
+              focusNode: searchFocusNode,
+              hint: searchHint,
+              onChanged: onSearchChanged,
+              onSubmitted: (_) => onSearchSubmitted(),
+              onClear: onClearSearch,
             ),
           ),
-          icon: Icon(Icons.tune_rounded, color: colorScheme.onSurfaceVariant),
-        ),
-      ],
+          const SizedBox(width: AppSpacing.xs),
+          PopupMenuButton<_FolderMenuAction>(
+            onSelected: onMenuActionSelected,
+            itemBuilder: onSortPressed,
+            tooltip: sortTooltip,
+            constraints: const BoxConstraints.tightFor(
+              width: AppSizes.size44,
+              height: AppSizes.size44,
+            ),
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll<Color>(
+                colorScheme.surfaceContainerHighest,
+              ),
+              shape: WidgetStatePropertyAll<OutlinedBorder>(
+                RoundedRectangleBorder(borderRadius: buttonRadius),
+              ),
+              elevation: const WidgetStatePropertyAll<double>(0),
+            ),
+            icon: Icon(Icons.tune_rounded, color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _SectionContainer extends StatelessWidget {
-  const _SectionContainer({required this.child});
+class _CreateActionItem {
+  const _CreateActionItem({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
 
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSizes.spacingSm),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppSizes.size20),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: child,
-    );
-  }
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
 }

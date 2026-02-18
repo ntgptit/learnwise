@@ -117,7 +117,7 @@ class _AppBreadcrumbsState extends State<AppBreadcrumbs> {
       ),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+        borderRadius: BorderRadius.circular(_kBreadcrumbContainerRadius),
       ),
       child: SingleChildScrollView(
         controller: _scrollController,
@@ -166,6 +166,8 @@ const Duration _kScrollDuration = AppDurations.animationFast;
 const double _kSeparatorSize = 18;
 const double _kChipIconSize = 16;
 const double _kChipIconGap = 6;
+const double _kBreadcrumbContainerRadius = AppSizes.size20;
+const double _kBreadcrumbChipRadius = AppSizes.radiusMd;
 
 class _BreadcrumbChip extends StatelessWidget {
   const _BreadcrumbChip({
@@ -195,10 +197,10 @@ class _BreadcrumbChip extends StatelessWidget {
 
     return Material(
       color: isActive ? colorScheme.secondaryContainer : Colors.transparent,
-      borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+      borderRadius: BorderRadius.circular(_kBreadcrumbChipRadius),
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(AppSizes.radiusPill),
+        borderRadius: BorderRadius.circular(_kBreadcrumbChipRadius),
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSizes.spacingSm,

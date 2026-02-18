@@ -90,7 +90,10 @@ class _FlashcardStudySessionScreenState
     final StudySessionController controller = ref.read(provider.notifier);
     await controller.completeCurrentMode();
     final StudySessionArgs nextArgs = _buildNextCycleArgs(mode: mode);
-    router.pushReplacement(RouteNames.flashcardStudySession, extra: nextArgs);
+    router.pushReplacement(
+      FlashcardStudySessionRoute($extra: nextArgs).location,
+      extra: nextArgs,
+    );
   }
 
   Future<void> _onClosePressed({

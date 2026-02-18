@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'dart:math';
 
 import 'package:learnwise/features/flashcards/model/flashcard_models.dart';

@@ -10,6 +10,7 @@ import '../model/folder_constants.dart';
 import '../model/folder_models.dart';
 import '../repository/folder_repository.dart';
 import '../repository/folder_repository_provider.dart';
+import '../service/folder_input_service.dart';
 
 part 'folder_viewmodel.g.dart';
 
@@ -127,24 +128,14 @@ class FolderQueryController extends _$FolderQueryController {
 }
 
 class FolderUiState {
-  const FolderUiState({
-    required this.isSearchVisible,
-    required this.isTransitionInProgress,
-  });
+  const FolderUiState({required this.isTransitionInProgress});
 
-  const FolderUiState.initial()
-    : isSearchVisible = true,
-      isTransitionInProgress = false;
+  const FolderUiState.initial() : isTransitionInProgress = false;
 
-  final bool isSearchVisible;
   final bool isTransitionInProgress;
 
-  FolderUiState copyWith({
-    bool? isSearchVisible,
-    bool? isTransitionInProgress,
-  }) {
+  FolderUiState copyWith({bool? isTransitionInProgress}) {
     return FolderUiState(
-      isSearchVisible: isSearchVisible ?? this.isSearchVisible,
       isTransitionInProgress:
           isTransitionInProgress ?? this.isTransitionInProgress,
     );
@@ -156,10 +147,6 @@ class FolderUiController extends _$FolderUiController {
   @override
   FolderUiState build() {
     return const FolderUiState.initial();
-  }
-
-  void toggleSearchVisibility() {
-    state = state.copyWith(isSearchVisible: !state.isSearchVisible);
   }
 
   void setTransitionInProgress({required bool isInProgress}) {
@@ -186,6 +173,7 @@ class FolderSubmitResult {
 class FolderController extends _$FolderController {
   late final FolderRepository _repository;
   late final AppErrorAdvisor _errorAdvisor;
+  final FolderInputService _inputService = const FolderInputService();
   bool _isBootstrapCompleted = false;
   bool _isQueryListenerBound = false;
   int _queryRequestVersion = FolderConstants.defaultPage;
@@ -203,22 +191,6 @@ class FolderController extends _$FolderController {
     }
   }
 
-  void applySearch(String searchText) {
-    ref.read(folderQueryControllerProvider.notifier).setSearch(searchText);
-  }
-
-  void applySortBy(FolderSortBy value) {
-    ref.read(folderQueryControllerProvider.notifier).setSortBy(value);
-  }
-
-  void applySortDirection(FolderSortDirection value) {
-    ref.read(folderQueryControllerProvider.notifier).setSortDirection(value);
-  }
-
-  void enterFolder(FolderItem folder) {
-    ref.read(folderQueryControllerProvider.notifier).enterFolder(folder);
-  }
-
   Future<bool> hasDirectChildren(int parentFolderId) async {
     final FolderListQuery currentQuery = ref.read(
       folderQueryControllerProvider,
@@ -233,26 +205,11 @@ class FolderController extends _$FolderController {
         query: probeQuery,
         page: FolderConstants.defaultPage,
       );
-      if (probePage.items.isNotEmpty) {
-        return true;
-      }
-      return false;
+      return probePage.items.isNotEmpty;
     } catch (error) {
       _errorAdvisor.handle(error, fallback: AppErrorCode.folderLoadFailed);
       return true;
     }
-  }
-
-  void goToRoot() {
-    ref.read(folderQueryControllerProvider.notifier).goToRoot();
-  }
-
-  void goToParent() {
-    ref.read(folderQueryControllerProvider.notifier).goToParent();
-  }
-
-  void goToBreadcrumb(int index) {
-    ref.read(folderQueryControllerProvider.notifier).goToBreadcrumb(index);
   }
 
   Future<void> refresh() async {
@@ -297,17 +254,12 @@ class FolderController extends _$FolderController {
     }
   }
 
-  Future<bool> createFolder(FolderUpsertInput input) async {
-    final FolderSubmitResult result = await submitCreateFolder(input);
-    return result.isSuccess;
-  }
-
   Future<FolderSubmitResult> submitCreateFolder(FolderUpsertInput input) async {
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
-    final FolderUpsertInput normalized = _normalizeInput(
+    final FolderUpsertInput normalized = _inputService.normalize(
       input.copyWith(parentFolderId: query.parentFolderId),
     );
-    if (!_isInputValid(normalized)) {
+    if (!_inputService.isValid(normalized)) {
       _errorAdvisor.handle(
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
@@ -336,23 +288,12 @@ class FolderController extends _$FolderController {
     }
   }
 
-  Future<bool> updateFolder({
-    required int folderId,
-    required FolderUpsertInput input,
-  }) async {
-    final FolderSubmitResult result = await submitUpdateFolder(
-      folderId: folderId,
-      input: input,
-    );
-    return result.isSuccess;
-  }
-
   Future<FolderSubmitResult> submitUpdateFolder({
     required int folderId,
     required FolderUpsertInput input,
   }) async {
-    final FolderUpsertInput normalized = _normalizeInput(input);
-    if (!_isInputValid(normalized)) {
+    final FolderUpsertInput normalized = _inputService.normalize(input);
+    if (!_inputService.isValid(normalized)) {
       _errorAdvisor.handle(
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
@@ -529,34 +470,6 @@ class FolderController extends _$FolderController {
       return true;
     }
     return false;
-  }
-
-  FolderUpsertInput _normalizeInput(FolderUpsertInput input) {
-    final String name = StringUtils.normalize(input.name);
-    final String description = StringUtils.normalize(input.description);
-    final String colorHex = StringUtils.normalize(input.colorHex).toUpperCase();
-    return FolderUpsertInput(
-      name: name,
-      description: description,
-      colorHex: colorHex,
-      parentFolderId: input.parentFolderId,
-    );
-  }
-
-  bool _isInputValid(FolderUpsertInput input) {
-    if (input.name.length < FolderConstants.nameMinLength) {
-      return false;
-    }
-    if (input.name.length > FolderConstants.nameMaxLength) {
-      return false;
-    }
-    if (input.description.length > FolderConstants.descriptionMaxLength) {
-      return false;
-    }
-    if (!FolderConstants.colorHexPattern.hasMatch(input.colorHex)) {
-      return false;
-    }
-    return true;
   }
 
   FolderListingState? get _currentListing {

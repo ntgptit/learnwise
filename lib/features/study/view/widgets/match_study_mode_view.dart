@@ -1,3 +1,5 @@
+// quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 

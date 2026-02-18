@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase3 legacy backlog tracked for incremental extraction.
 import 'study_mode.dart';
 import 'study_session_args.dart';
 

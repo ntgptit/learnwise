@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:learnwise/app/router/route_names.dart';
+import 'package:learnwise/app/router/app_router.dart';
 import 'package:learnwise/app/theme/semantic_colors.dart';
 import 'package:learnwise/common/styles/app_screen_tokens.dart';
 import 'package:learnwise/common/widgets/widgets.dart';

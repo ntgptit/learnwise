@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import '../model/dashboard_constants.dart';
 import '../model/dashboard_models.dart';
 import 'dashboard_repository.dart';
@@ -30,18 +31,9 @@ class DashboardService implements DashboardRepository {
         ),
       ],
       quickActions: <DashboardQuickAction>[
-        DashboardQuickAction(
-          type: DashboardQuickActionType.learning,
-          routeName: DashboardRouteMap.learning,
-        ),
-        DashboardQuickAction(
-          type: DashboardQuickActionType.progress,
-          routeName: DashboardRouteMap.progress,
-        ),
-        DashboardQuickAction(
-          type: DashboardQuickActionType.tts,
-          routeName: DashboardRouteMap.tts,
-        ),
+        DashboardQuickAction(type: DashboardQuickActionType.learning),
+        DashboardQuickAction(type: DashboardQuickActionType.progress),
+        DashboardQuickAction(type: DashboardQuickActionType.tts),
       ],
       recentActivities: <DashboardRecentActivity>[
         DashboardRecentActivity(

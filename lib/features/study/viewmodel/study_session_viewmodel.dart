@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/utils/string_utils.dart';
@@ -18,57 +19,186 @@ import '../repository/study_session_repository.dart';
 import '../repository/study_session_repository_provider.dart';
 
 part 'study_session_viewmodel.g.dart';
+part 'study_session_viewmodel.freezed.dart';
 
-class StudySessionState {
-  const StudySessionState({
-    required this.mode,
-    required this.reviewUnits,
-    required this.currentUnit,
-    required this.currentIndex,
-    required this.totalCount,
-    required this.progressPercent,
-    required this.isFrontVisible,
-    required this.playingFlashcardId,
-    required this.correctCount,
-    required this.wrongCount,
-    required this.canGoPrevious,
-    required this.canGoNext,
-    required this.isCompleted,
-    required this.completedModeCount,
-    required this.requiredModeCount,
-    required this.isSessionCompleted,
-    required this.matchHiddenIds,
-    required this.matchSuccessFlashKeys,
-    required this.matchErrorFlashKeys,
-    required this.isMatchInteractionLocked,
-    required this.guessSuccessOptionIds,
-    required this.guessErrorOptionIds,
-    required this.isGuessInteractionLocked,
-  });
+@freezed
+sealed class StudySessionCompletion with _$StudySessionCompletion {
+  const StudySessionCompletion._();
 
-  final StudyMode mode;
-  final List<ReviewUnit> reviewUnits;
-  final StudyUnit? currentUnit;
-  final int currentIndex;
-  final int totalCount;
-  final double progressPercent;
-  final bool isFrontVisible;
-  final int? playingFlashcardId;
-  final int correctCount;
-  final int wrongCount;
-  final bool canGoPrevious;
-  final bool canGoNext;
-  final bool isCompleted;
-  final int completedModeCount;
-  final int requiredModeCount;
-  final bool isSessionCompleted;
-  final Set<int> matchHiddenIds;
-  final Set<String> matchSuccessFlashKeys;
-  final Set<String> matchErrorFlashKeys;
-  final bool isMatchInteractionLocked;
-  final Set<String> guessSuccessOptionIds;
-  final Set<String> guessErrorOptionIds;
-  final bool isGuessInteractionLocked;
+  const factory StudySessionCompletion({
+    required int completedModeCount,
+    required int requiredModeCount,
+    required bool isSessionCompleted,
+  }) = _StudySessionCompletion;
+}
+
+@freezed
+sealed class StudySessionMeta with _$StudySessionMeta {
+  const StudySessionMeta._();
+
+  const factory StudySessionMeta({
+    required StudyMode mode,
+    required List<ReviewUnit> reviewUnits,
+    required StudyUnit? currentUnit,
+    required StudySessionCompletion completion,
+  }) = _StudySessionMeta;
+
+  StudySessionMeta patch({
+    StudyMode? mode,
+    List<ReviewUnit>? reviewUnits,
+    StudyUnit? currentUnit,
+    bool clearCurrentUnit = false,
+    StudySessionCompletion? completion,
+  }) {
+    final StudyUnit? nextCurrentUnit = clearCurrentUnit
+        ? null
+        : (currentUnit ?? this.currentUnit);
+    return copyWith(
+      mode: mode ?? this.mode,
+      reviewUnits: reviewUnits ?? this.reviewUnits,
+      currentUnit: nextCurrentUnit,
+      completion: completion ?? this.completion,
+    );
+  }
+}
+
+@freezed
+sealed class StudySessionProgress with _$StudySessionProgress {
+  const StudySessionProgress._();
+
+  const factory StudySessionProgress({
+    required int currentIndex,
+    required int totalCount,
+    required double progressPercent,
+    required bool isCompleted,
+  }) = _StudySessionProgress;
+}
+
+@freezed
+sealed class StudySessionNavigation with _$StudySessionNavigation {
+  const StudySessionNavigation._();
+
+  const factory StudySessionNavigation({
+    required bool canGoPrevious,
+    required bool canGoNext,
+  }) = _StudySessionNavigation;
+}
+
+@freezed
+sealed class StudySessionStatistics with _$StudySessionStatistics {
+  const StudySessionStatistics._();
+
+  const factory StudySessionStatistics({
+    required int correctCount,
+    required int wrongCount,
+  }) = _StudySessionStatistics;
+}
+
+@freezed
+sealed class StudySessionRuntime with _$StudySessionRuntime {
+  const StudySessionRuntime._();
+
+  const factory StudySessionRuntime({
+    required StudySessionProgress progress,
+    required StudySessionNavigation navigation,
+    required StudySessionStatistics statistics,
+    required bool isFrontVisible,
+    required int? playingFlashcardId,
+  }) = _StudySessionRuntime;
+
+  StudySessionRuntime patch({
+    StudySessionProgress? progress,
+    StudySessionNavigation? navigation,
+    StudySessionStatistics? statistics,
+    bool? isFrontVisible,
+    int? playingFlashcardId,
+    bool clearPlayingFlashcardId = false,
+  }) {
+    final int? nextPlayingFlashcardId = clearPlayingFlashcardId
+        ? null
+        : (playingFlashcardId ?? this.playingFlashcardId);
+    return copyWith(
+      progress: progress ?? this.progress,
+      navigation: navigation ?? this.navigation,
+      statistics: statistics ?? this.statistics,
+      isFrontVisible: isFrontVisible ?? this.isFrontVisible,
+      playingFlashcardId: nextPlayingFlashcardId,
+    );
+  }
+}
+
+@freezed
+sealed class StudySessionGuessInteraction with _$StudySessionGuessInteraction {
+  const StudySessionGuessInteraction._();
+
+  const factory StudySessionGuessInteraction({
+    required Set<String> successOptionIds,
+    required Set<String> errorOptionIds,
+    required bool isLocked,
+  }) = _StudySessionGuessInteraction;
+}
+
+@freezed
+sealed class StudySessionMatchInteraction with _$StudySessionMatchInteraction {
+  const StudySessionMatchInteraction._();
+
+  const factory StudySessionMatchInteraction({
+    required Set<int> hiddenIds,
+    required Set<String> successFlashKeys,
+    required Set<String> errorFlashKeys,
+    required bool isLocked,
+  }) = _StudySessionMatchInteraction;
+}
+
+@freezed
+sealed class StudySessionInteractions with _$StudySessionInteractions {
+  const StudySessionInteractions._();
+
+  const factory StudySessionInteractions({
+    required StudySessionGuessInteraction guess,
+    required StudySessionMatchInteraction match,
+  }) = _StudySessionInteractions;
+}
+
+@Freezed(copyWith: false)
+sealed class StudySessionState with _$StudySessionState {
+  const StudySessionState._();
+
+  const factory StudySessionState({
+    required StudySessionMeta meta,
+    required StudySessionRuntime runtime,
+    required StudySessionInteractions interactions,
+  }) = _StudySessionState;
+
+  StudyMode get mode => meta.mode;
+  List<ReviewUnit> get reviewUnits => meta.reviewUnits;
+  StudyUnit? get currentUnit => meta.currentUnit;
+
+  int get currentIndex => runtime.progress.currentIndex;
+  int get totalCount => runtime.progress.totalCount;
+  double get progressPercent => runtime.progress.progressPercent;
+  bool get isCompleted => runtime.progress.isCompleted;
+
+  bool get canGoPrevious => runtime.navigation.canGoPrevious;
+  bool get canGoNext => runtime.navigation.canGoNext;
+
+  int get correctCount => runtime.statistics.correctCount;
+  int get wrongCount => runtime.statistics.wrongCount;
+  bool get isFrontVisible => runtime.isFrontVisible;
+  int? get playingFlashcardId => runtime.playingFlashcardId;
+
+  int get completedModeCount => meta.completion.completedModeCount;
+  int get requiredModeCount => meta.completion.requiredModeCount;
+  bool get isSessionCompleted => meta.completion.isSessionCompleted;
+
+  Set<int> get matchHiddenIds => interactions.match.hiddenIds;
+  Set<String> get matchSuccessFlashKeys => interactions.match.successFlashKeys;
+  Set<String> get matchErrorFlashKeys => interactions.match.errorFlashKeys;
+  bool get isMatchInteractionLocked => interactions.match.isLocked;
+
+  Set<String> get guessSuccessOptionIds => interactions.guess.successOptionIds;
+  Set<String> get guessErrorOptionIds => interactions.guess.errorOptionIds;
+  bool get isGuessInteractionLocked => interactions.guess.isLocked;
 
   StudyInteractionFeedbackState<String> get matchInteractionFeedback {
     return StudyInteractionFeedbackState<String>(
@@ -94,33 +224,51 @@ class StudySessionState {
     required int totalCount,
   }) {
     return StudySessionState(
-      mode: mode,
-      reviewUnits: List<ReviewUnit>.unmodifiable(reviewUnits),
-      currentUnit: currentUnit,
-      currentIndex: currentIndex,
-      totalCount: totalCount,
-      progressPercent: _resolveProgressPercent(
-        currentIndex: currentIndex,
-        totalCount: totalCount,
-        isCompleted: false,
+      meta: StudySessionMeta(
+        mode: mode,
+        reviewUnits: List<ReviewUnit>.unmodifiable(reviewUnits),
+        currentUnit: currentUnit,
+        completion: const StudySessionCompletion(
+          completedModeCount: StudyConstants.defaultIndex,
+          requiredModeCount: StudyConstants.requiredStudyModeCount,
+          isSessionCompleted: false,
+        ),
       ),
-      isFrontVisible: true,
-      playingFlashcardId: null,
-      correctCount: 0,
-      wrongCount: 0,
-      canGoPrevious: currentIndex > StudyConstants.defaultIndex,
-      canGoNext: totalCount > StudyConstants.defaultIndex,
-      isCompleted: false,
-      completedModeCount: StudyConstants.defaultIndex,
-      requiredModeCount: StudyConstants.requiredStudyModeCount,
-      isSessionCompleted: false,
-      matchHiddenIds: const <int>{},
-      matchSuccessFlashKeys: const <String>{},
-      matchErrorFlashKeys: const <String>{},
-      isMatchInteractionLocked: false,
-      guessSuccessOptionIds: const <String>{},
-      guessErrorOptionIds: const <String>{},
-      isGuessInteractionLocked: false,
+      runtime: StudySessionRuntime(
+        progress: StudySessionProgress(
+          currentIndex: currentIndex,
+          totalCount: totalCount,
+          progressPercent: _resolveProgressPercent(
+            currentIndex: currentIndex,
+            totalCount: totalCount,
+            isCompleted: false,
+          ),
+          isCompleted: false,
+        ),
+        navigation: StudySessionNavigation(
+          canGoPrevious: currentIndex > StudyConstants.defaultIndex,
+          canGoNext: totalCount > StudyConstants.defaultIndex,
+        ),
+        statistics: const StudySessionStatistics(
+          correctCount: 0,
+          wrongCount: 0,
+        ),
+        isFrontVisible: true,
+        playingFlashcardId: null,
+      ),
+      interactions: StudySessionInteractions(
+        guess: StudySessionGuessInteraction(
+          successOptionIds: const <String>{},
+          errorOptionIds: const <String>{},
+          isLocked: false,
+        ),
+        match: StudySessionMatchInteraction(
+          hiddenIds: const <int>{},
+          successFlashKeys: const <String>{},
+          errorFlashKeys: const <String>{},
+          isLocked: false,
+        ),
+      ),
     );
   }
 
@@ -151,50 +299,66 @@ class StudySessionState {
     Set<String>? guessErrorOptionIds,
     bool? isGuessInteractionLocked,
   }) {
-    final StudyUnit? nextCurrentUnit = clearCurrentUnit
-        ? null
-        : (currentUnit ?? this.currentUnit);
-    final int? nextPlayingFlashcardId = clearPlayingFlashcardId
-        ? null
-        : (playingFlashcardId ?? this.playingFlashcardId);
+    final StudySessionCompletion nextCompletion = meta.completion.copyWith(
+      completedModeCount:
+          completedModeCount ?? meta.completion.completedModeCount,
+      requiredModeCount: requiredModeCount ?? meta.completion.requiredModeCount,
+      isSessionCompleted:
+          isSessionCompleted ?? meta.completion.isSessionCompleted,
+    );
+    final StudySessionMeta nextMeta = meta.patch(
+      mode: mode,
+      reviewUnits: reviewUnits,
+      currentUnit: currentUnit,
+      clearCurrentUnit: clearCurrentUnit,
+      completion: nextCompletion,
+    );
+
+    final StudySessionProgress nextProgress = runtime.progress.copyWith(
+      currentIndex: currentIndex ?? runtime.progress.currentIndex,
+      totalCount: totalCount ?? runtime.progress.totalCount,
+      progressPercent: progressPercent ?? runtime.progress.progressPercent,
+      isCompleted: isCompleted ?? runtime.progress.isCompleted,
+    );
+    final StudySessionNavigation nextNavigation = runtime.navigation.copyWith(
+      canGoPrevious: canGoPrevious ?? runtime.navigation.canGoPrevious,
+      canGoNext: canGoNext ?? runtime.navigation.canGoNext,
+    );
+    final StudySessionStatistics nextStatistics = runtime.statistics.copyWith(
+      correctCount: correctCount ?? runtime.statistics.correctCount,
+      wrongCount: wrongCount ?? runtime.statistics.wrongCount,
+    );
+    final StudySessionRuntime nextRuntime = runtime.patch(
+      progress: nextProgress,
+      navigation: nextNavigation,
+      statistics: nextStatistics,
+      isFrontVisible: isFrontVisible,
+      playingFlashcardId: playingFlashcardId,
+      clearPlayingFlashcardId: clearPlayingFlashcardId,
+    );
+
+    final StudySessionGuessInteraction nextGuess = interactions.guess.copyWith(
+      successOptionIds:
+          guessSuccessOptionIds ?? interactions.guess.successOptionIds,
+      errorOptionIds: guessErrorOptionIds ?? interactions.guess.errorOptionIds,
+      isLocked: isGuessInteractionLocked ?? interactions.guess.isLocked,
+    );
+    final StudySessionMatchInteraction nextMatch = interactions.match.copyWith(
+      hiddenIds: matchHiddenIds ?? interactions.match.hiddenIds,
+      successFlashKeys:
+          matchSuccessFlashKeys ?? interactions.match.successFlashKeys,
+      errorFlashKeys: matchErrorFlashKeys ?? interactions.match.errorFlashKeys,
+      isLocked: isMatchInteractionLocked ?? interactions.match.isLocked,
+    );
+    final StudySessionInteractions nextInteractions = interactions.copyWith(
+      guess: nextGuess,
+      match: nextMatch,
+    );
+
     return StudySessionState(
-      mode: mode ?? this.mode,
-      reviewUnits: List<ReviewUnit>.unmodifiable(
-        reviewUnits ?? this.reviewUnits,
-      ),
-      currentUnit: nextCurrentUnit,
-      currentIndex: currentIndex ?? this.currentIndex,
-      totalCount: totalCount ?? this.totalCount,
-      progressPercent: progressPercent ?? this.progressPercent,
-      isFrontVisible: isFrontVisible ?? this.isFrontVisible,
-      playingFlashcardId: nextPlayingFlashcardId,
-      correctCount: correctCount ?? this.correctCount,
-      wrongCount: wrongCount ?? this.wrongCount,
-      canGoPrevious: canGoPrevious ?? this.canGoPrevious,
-      canGoNext: canGoNext ?? this.canGoNext,
-      isCompleted: isCompleted ?? this.isCompleted,
-      completedModeCount: completedModeCount ?? this.completedModeCount,
-      requiredModeCount: requiredModeCount ?? this.requiredModeCount,
-      isSessionCompleted: isSessionCompleted ?? this.isSessionCompleted,
-      matchHiddenIds: Set<int>.unmodifiable(
-        matchHiddenIds ?? this.matchHiddenIds,
-      ),
-      matchSuccessFlashKeys: Set<String>.unmodifiable(
-        matchSuccessFlashKeys ?? this.matchSuccessFlashKeys,
-      ),
-      matchErrorFlashKeys: Set<String>.unmodifiable(
-        matchErrorFlashKeys ?? this.matchErrorFlashKeys,
-      ),
-      isMatchInteractionLocked:
-          isMatchInteractionLocked ?? this.isMatchInteractionLocked,
-      guessSuccessOptionIds: Set<String>.unmodifiable(
-        guessSuccessOptionIds ?? this.guessSuccessOptionIds,
-      ),
-      guessErrorOptionIds: Set<String>.unmodifiable(
-        guessErrorOptionIds ?? this.guessErrorOptionIds,
-      ),
-      isGuessInteractionLocked:
-          isGuessInteractionLocked ?? this.isGuessInteractionLocked,
+      meta: nextMeta,
+      runtime: nextRuntime,
+      interactions: nextInteractions,
     );
   }
 
@@ -595,34 +759,6 @@ class StudySessionController extends _$StudySessionController {
   void playAudioFor(int flashcardId) {
     _startAudioPlayingIndicator(flashcardId);
     state = state.copyWith(playingFlashcardId: _playingFlashcardId);
-  }
-
-  void clearAudioPlaying() {
-    _clearAudioPlayingIndicator();
-    state = state.copyWith(clearPlayingFlashcardId: true);
-  }
-
-  Future<void> restart() async {
-    final int? sessionId = _sessionId;
-    if (sessionId == null) {
-      ref.invalidateSelf();
-      return;
-    }
-    try {
-      final StudySessionResponseModel response = await _repository.restartMode(
-        sessionId: sessionId,
-      );
-      if (!ref.mounted) {
-        return;
-      }
-      _lastResponse = response;
-      _syncFromSnapshot();
-    } catch (_) {
-      if (!ref.mounted) {
-        return;
-      }
-      ref.invalidateSelf();
-    }
   }
 
   Future<void> completeCurrentMode() async {
@@ -1223,40 +1359,58 @@ class StudySessionController extends _$StudySessionController {
       mode: response.mode,
     );
     return StudySessionState(
-      mode: response.mode,
-      reviewUnits: List<ReviewUnit>.unmodifiable(reviewUnits),
-      currentUnit: currentUnit,
-      currentIndex: currentIndex,
-      totalCount: totalCount,
-      progressPercent: _resolveProgressPercent(
-        currentIndex: currentIndex,
-        totalCount: totalCount,
-        isCompleted: isCompleted,
+      meta: StudySessionMeta(
+        mode: response.mode,
+        reviewUnits: List<ReviewUnit>.unmodifiable(reviewUnits),
+        currentUnit: currentUnit,
+        completion: StudySessionCompletion(
+          completedModeCount: response.completedModeCount,
+          requiredModeCount: response.requiredModeCount,
+          isSessionCompleted: response.sessionCompleted,
+        ),
       ),
-      isFrontVisible: _isFrontVisible,
-      playingFlashcardId: _playingFlashcardId,
-      correctCount: correctCount,
-      wrongCount: wrongCount,
-      canGoPrevious: _resolveCanGoPrevious(
-        currentIndex: currentIndex,
-        totalCount: totalCount,
-        isCompleted: isCompleted,
+      runtime: StudySessionRuntime(
+        progress: StudySessionProgress(
+          currentIndex: currentIndex,
+          totalCount: totalCount,
+          progressPercent: _resolveProgressPercent(
+            currentIndex: currentIndex,
+            totalCount: totalCount,
+            isCompleted: isCompleted,
+          ),
+          isCompleted: isCompleted,
+        ),
+        navigation: StudySessionNavigation(
+          canGoPrevious: _resolveCanGoPrevious(
+            currentIndex: currentIndex,
+            totalCount: totalCount,
+            isCompleted: isCompleted,
+          ),
+          canGoNext: _resolveCanGoNext(
+            totalCount: totalCount,
+            isCompleted: isCompleted,
+          ),
+        ),
+        statistics: StudySessionStatistics(
+          correctCount: correctCount,
+          wrongCount: wrongCount,
+        ),
+        isFrontVisible: _isFrontVisible,
+        playingFlashcardId: _playingFlashcardId,
       ),
-      canGoNext: _resolveCanGoNext(
-        totalCount: totalCount,
-        isCompleted: isCompleted,
+      interactions: StudySessionInteractions(
+        guess: StudySessionGuessInteraction(
+          successOptionIds: guessSuccessOptionIds,
+          errorOptionIds: guessErrorOptionIds,
+          isLocked: isGuessInteractionLocked,
+        ),
+        match: StudySessionMatchInteraction(
+          hiddenIds: const <int>{},
+          successFlashKeys: const <String>{},
+          errorFlashKeys: const <String>{},
+          isLocked: false,
+        ),
       ),
-      isCompleted: isCompleted,
-      completedModeCount: response.completedModeCount,
-      requiredModeCount: response.requiredModeCount,
-      isSessionCompleted: response.sessionCompleted,
-      matchHiddenIds: const <int>{},
-      matchSuccessFlashKeys: const <String>{},
-      matchErrorFlashKeys: const <String>{},
-      isMatchInteractionLocked: false,
-      guessSuccessOptionIds: guessSuccessOptionIds,
-      guessErrorOptionIds: guessErrorOptionIds,
-      isGuessInteractionLocked: isGuessInteractionLocked,
     );
   }
 
@@ -1306,43 +1460,61 @@ class StudySessionController extends _$StudySessionController {
     );
     final bool isCompleted = response.completed && !shouldDelayProgressUpdate;
     return StudySessionState(
-      mode: response.mode,
-      reviewUnits: const <ReviewUnit>[],
-      currentUnit: matchUnit,
-      currentIndex: _resolveCurrentIndex(
-        responseIndex: displayCurrentIndex,
-        totalCount: response.totalUnits,
+      meta: StudySessionMeta(
+        mode: response.mode,
+        reviewUnits: const <ReviewUnit>[],
+        currentUnit: matchUnit,
+        completion: StudySessionCompletion(
+          completedModeCount: response.completedModeCount,
+          requiredModeCount: response.requiredModeCount,
+          isSessionCompleted: response.sessionCompleted,
+        ),
       ),
-      totalCount: response.totalUnits,
-      progressPercent: _resolveProgressPercent(
-        currentIndex: displayCurrentIndex,
-        totalCount: response.totalUnits,
-        isCompleted: isCompleted,
+      runtime: StudySessionRuntime(
+        progress: StudySessionProgress(
+          currentIndex: _resolveCurrentIndex(
+            responseIndex: displayCurrentIndex,
+            totalCount: response.totalUnits,
+          ),
+          totalCount: response.totalUnits,
+          progressPercent: _resolveProgressPercent(
+            currentIndex: displayCurrentIndex,
+            totalCount: response.totalUnits,
+            isCompleted: isCompleted,
+          ),
+          isCompleted: isCompleted,
+        ),
+        navigation: StudySessionNavigation(
+          canGoPrevious: _resolveCanGoPrevious(
+            currentIndex: displayCurrentIndex,
+            totalCount: response.totalUnits,
+            isCompleted: isCompleted,
+          ),
+          canGoNext: _resolveCanGoNext(
+            totalCount: response.totalUnits,
+            isCompleted: isCompleted,
+          ),
+        ),
+        statistics: StudySessionStatistics(
+          correctCount: response.correctCount,
+          wrongCount: response.wrongCount,
+        ),
+        isFrontVisible: _isFrontVisible,
+        playingFlashcardId: _playingFlashcardId,
       ),
-      isFrontVisible: _isFrontVisible,
-      playingFlashcardId: _playingFlashcardId,
-      correctCount: response.correctCount,
-      wrongCount: response.wrongCount,
-      canGoPrevious: _resolveCanGoPrevious(
-        currentIndex: displayCurrentIndex,
-        totalCount: response.totalUnits,
-        isCompleted: isCompleted,
+      interactions: StudySessionInteractions(
+        guess: StudySessionGuessInteraction(
+          successOptionIds: const <String>{},
+          errorOptionIds: const <String>{},
+          isLocked: false,
+        ),
+        match: StudySessionMatchInteraction(
+          hiddenIds: hiddenIds,
+          successFlashKeys: successFlashKeys,
+          errorFlashKeys: errorFlashKeys,
+          isLocked: isInteractionLocked,
+        ),
       ),
-      canGoNext: _resolveCanGoNext(
-        totalCount: response.totalUnits,
-        isCompleted: isCompleted,
-      ),
-      isCompleted: isCompleted,
-      completedModeCount: response.completedModeCount,
-      requiredModeCount: response.requiredModeCount,
-      isSessionCompleted: response.sessionCompleted,
-      matchHiddenIds: hiddenIds,
-      matchSuccessFlashKeys: successFlashKeys,
-      matchErrorFlashKeys: errorFlashKeys,
-      isMatchInteractionLocked: isInteractionLocked,
-      guessSuccessOptionIds: const <String>{},
-      guessErrorOptionIds: const <String>{},
-      isGuessInteractionLocked: false,
     );
   }
 

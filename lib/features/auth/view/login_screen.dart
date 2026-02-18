@@ -1,8 +1,8 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../app/router/route_names.dart';
+import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/buttons/primary_button.dart';
 import '../../../common/widgets/card/app_card.dart';
@@ -39,7 +39,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<void> actionState = ref.watch(authActionControllerProvider);
+    final AsyncValue<void> actionState = ref.watch(
+      authActionControllerProvider,
+    );
     final bool isSubmitting = actionState.when(
       data: (_) => false,
       error: (_, stackTrace) => false,
@@ -95,7 +97,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: AppSizes.spacingMd),
                   Text(
                     errorMessage,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -109,7 +113,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 TextButton(
                   onPressed: isSubmitting
                       ? null
-                      : () => context.go(RouteNames.register),
+                      : () => const RegisterRoute().go(context),
                   child: const Text(_LoginText.registerAction),
                 ),
               ],

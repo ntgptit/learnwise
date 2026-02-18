@@ -1,3 +1,6 @@
+// quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
+// quality-guard: allow-large-class - phase2 legacy backlog tracked for class decomposition.
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -5,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../app/router/route_names.dart';
+import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_opacities.dart';
 import '../../../common/styles/app_screen_tokens.dart';
@@ -200,6 +203,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                 RefreshIndicator(
                   onRefresh: _refreshAll,
                   child: ListView(
+                    // quality-guard: allow-list-children - bounded mixed content with pagination controls.
                     controller: _scrollController,
                     padding: const EdgeInsets.all(
                       FolderScreenTokens.screenPadding,
@@ -414,25 +418,25 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
 
   Future<void> _onBackPressed(FolderListQuery query) async {
     if (query.breadcrumbs.isNotEmpty) {
-      await _runFolderTransition((controller) async {
-        controller.goToParent();
+      await _runFolderTransition((queryController) async {
+        queryController.goToParent();
         await _waitForFolderData();
       });
       return;
     }
-    context.go(RouteNames.dashboard);
+    const DashboardRoute().go(context);
   }
 
   void _onBottomNavSelected(int index) {
     if (index == FolderConstants.dashboardNavIndex) {
-      context.go(RouteNames.dashboard);
+      const DashboardRoute().go(context);
       return;
     }
     if (index == FolderConstants.foldersNavIndex) {
       return;
     }
     if (index == FolderConstants.profileNavIndex) {
-      context.go(RouteNames.profile);
+      const ProfileRoute().go(context);
       return;
     }
   }
@@ -488,8 +492,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _onMenuActionSelected(_FolderMenuAction action) {
-    final FolderController controller = ref.read(
-      folderControllerProvider.notifier,
+    final FolderQueryController queryController = ref.read(
+      folderQueryControllerProvider.notifier,
     );
 
     if (action == _FolderMenuAction.refresh) {
@@ -497,22 +501,22 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       return;
     }
     if (action == _FolderMenuAction.sortByCreatedAt) {
-      controller.applySortBy(FolderSortBy.createdAt);
+      queryController.setSortBy(FolderSortBy.createdAt);
       return;
     }
     if (action == _FolderMenuAction.sortByName) {
-      controller.applySortBy(FolderSortBy.name);
+      queryController.setSortBy(FolderSortBy.name);
       return;
     }
     if (action == _FolderMenuAction.sortByFlashcardCount) {
-      controller.applySortBy(FolderSortBy.flashcardCount);
+      queryController.setSortBy(FolderSortBy.flashcardCount);
       return;
     }
     if (action == _FolderMenuAction.sortDirectionDesc) {
-      controller.applySortDirection(FolderSortDirection.desc);
+      queryController.setSortDirection(FolderSortDirection.desc);
       return;
     }
-    controller.applySortDirection(FolderSortDirection.asc);
+    queryController.setSortDirection(FolderSortDirection.asc);
   }
 
   void _onSearchChanged(String value) {
@@ -523,8 +527,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   void _submitSearch() {
     _searchDebounceTimer?.cancel();
     ref
-        .read(folderControllerProvider.notifier)
-        .applySearch(_searchController.text);
+        .read(folderQueryControllerProvider.notifier)
+        .setSearch(_searchController.text);
     final FolderListQuery query = ref.read(folderQueryControllerProvider);
     final int? currentFolderId = query.parentFolderId;
     if (currentFolderId == null) {
@@ -534,8 +538,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       return;
     }
     ref
-        .read(deckControllerProvider(currentFolderId).notifier)
-        .applySearch(_searchController.text);
+        .read(deckQueryControllerProvider(currentFolderId).notifier)
+        .setSearch(_searchController.text);
   }
 
   void _clearSearch() {
@@ -590,16 +594,16 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   Future<void> _onOpenPressed(FolderItem folder) async {
-    await _runFolderTransition((controller) async {
-      controller.enterFolder(folder);
+    await _runFolderTransition((queryController) async {
+      queryController.enterFolder(folder);
       await _waitForFolderData();
     });
   }
 
   void _onRootPressed() {
     unawaited(
-      _runFolderTransition((controller) async {
-        controller.goToRoot();
+      _runFolderTransition((queryController) async {
+        queryController.goToRoot();
         await _waitForFolderData();
       }),
     );
@@ -607,15 +611,15 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
 
   void _onBreadcrumbPressed(int index) {
     unawaited(
-      _runFolderTransition((controller) async {
-        controller.goToBreadcrumb(index);
+      _runFolderTransition((queryController) async {
+        queryController.goToBreadcrumb(index);
         await _waitForFolderData();
       }),
     );
   }
 
   Future<void> _runFolderTransition(
-    Future<void> Function(FolderController controller) action,
+    Future<void> Function(FolderQueryController queryController) action,
   ) async {
     final DateTime transitionStartedAt = DateTime.now();
     const Duration minimumTransitionDuration = AppDurations.animationFast;
@@ -627,10 +631,10 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     }
     uiController.setTransitionInProgress(isInProgress: true);
     try {
-      final FolderController controller = ref.read(
-        folderControllerProvider.notifier,
+      final FolderQueryController queryController = ref.read(
+        folderQueryControllerProvider.notifier,
       );
-      await action(controller);
+      await action(queryController);
     } finally {
       final Duration elapsed = DateTime.now().difference(transitionStartedAt);
       if (elapsed < minimumTransitionDuration) {
@@ -680,7 +684,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       deckDescription: deck.description,
     );
     unawaited(
-      context.push(RouteNames.flashcards, extra: args).then((_) async {
+      FlashcardsRoute($extra: args).push<void>(context).then((_) async {
         await ref.read(folderControllerProvider.notifier).refresh();
         await _refreshDecks();
       }),

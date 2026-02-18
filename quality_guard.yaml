@@ -1,0 +1,15 @@
+maxFunctionLines: 35
+maxClassLines: 300
+maxFileLines: 400
+maxNestingDepth: 3
+maxConstructorParams: 5
+maxWidgetChildrenInline: 5
+maxViewModelPublicMethods: 12
+startupMaxAwaitBeforeRunApp: 1
+jsonDecodeWarnThreshold: 3
+jsonDecodeLoopWarnThreshold: 1
+unusedRoots:
+  - lib/main.dart
+ignoredUnusedPaths:
+  - /l10n/
+  - /generated/

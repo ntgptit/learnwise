@@ -1,7 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../app/router/route_names.dart';
-
 part 'dashboard_models.freezed.dart';
 part 'dashboard_models.g.dart';
 
@@ -32,10 +30,8 @@ sealed class DashboardMetric with _$DashboardMetric {
 @freezed
 sealed class DashboardQuickAction with _$DashboardQuickAction {
   @JsonSerializable(explicitToJson: true)
-  const factory DashboardQuickAction({
-    required DashboardQuickActionType type,
-    required String routeName,
-  }) = _DashboardQuickAction;
+  const factory DashboardQuickAction({required DashboardQuickActionType type}) =
+      _DashboardQuickAction;
 
   factory DashboardQuickAction.fromJson(Map<String, dynamic> json) =>
       _$DashboardQuickActionFromJson(json);
@@ -67,12 +63,4 @@ sealed class DashboardSnapshot with _$DashboardSnapshot {
 
   factory DashboardSnapshot.fromJson(Map<String, dynamic> json) =>
       _$DashboardSnapshotFromJson(json);
-}
-
-class DashboardRouteMap {
-  const DashboardRouteMap._();
-
-  static const String learning = RouteNames.learning;
-  static const String progress = RouteNames.progressDetail;
-  static const String tts = RouteNames.tts;
 }

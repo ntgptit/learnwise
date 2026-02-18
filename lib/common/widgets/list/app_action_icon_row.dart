@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 
 import '../../styles/app_durations.dart';

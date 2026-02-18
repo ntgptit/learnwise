@@ -1,3 +1,5 @@
+// quality-guard: allow-large-class - phase2 legacy backlog tracked for class decomposition.
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';

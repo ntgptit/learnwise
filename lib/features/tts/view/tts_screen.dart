@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
@@ -52,9 +53,11 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
 
     final TtsState state = ref.watch(ttsControllerProvider);
     final TtsController controller = ref.read(ttsControllerProvider.notifier);
-    final bool isReading = state.status.isReading;
-    final bool isLoadingVoices = state.status.isLoadingVoices;
-    final bool isInitializing = state.status.isInitializing;
+    final TtsConfig config = state.config;
+    final TtsEngineState engine = state.engine;
+    final bool isReading = engine.status.isReading;
+    final bool isLoadingVoices = engine.status.isLoadingVoices;
+    final bool isInitializing = engine.status.isInitializing;
     final List<TtsSampleText> samples = <TtsSampleText>[
       TtsSampleText(
         label: l10n.sampleLabelEn,
@@ -88,8 +91,8 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
               SectionTitle(title: l10n.inputSectionTitle),
               const SizedBox(height: TtsScreenTokens.sectionSpacing),
               DropdownButtonFormField<TtsLanguageMode>(
-                key: ValueKey<TtsLanguageMode>(state.languageMode),
-                initialValue: state.languageMode,
+                key: ValueKey<TtsLanguageMode>(config.languageMode),
+                initialValue: config.languageMode,
                 onChanged: isReading
                     ? null
                     : (value) {
@@ -127,11 +130,11 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                 ),
               ),
               const SizedBox(height: TtsScreenTokens.subsectionSpacing),
-              Text(l10n.koreanVoicesCount(state.voices.length)),
+              Text(l10n.koreanVoicesCount(engine.voices.length)),
               const SizedBox(height: TtsScreenTokens.subsectionSpacing),
               DropdownButtonFormField<String?>(
-                key: ValueKey<String?>(state.selectedVoiceId),
-                initialValue: state.selectedVoiceId,
+                key: ValueKey<String?>(config.selectedVoiceId),
+                initialValue: config.selectedVoiceId,
                 onChanged: isReading ? null : controller.selectVoice,
                 decoration: const InputDecoration(
                   border: TtsScreenTokens.formBorder,
@@ -141,9 +144,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                     value: null,
                     child: Text(l10n.systemDefaultVoice),
                   ),
-                  ...state.voices.asMap().entries.map((
-                    entry,
-                  ) {
+                  ...engine.voices.asMap().entries.map((entry) {
                     final int index = entry.key + 1;
                     final TtsVoiceOption voice = entry.value;
                     final String alias = l10n.koreanVoiceAlias(
@@ -181,21 +182,21 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
               const SizedBox(height: TtsScreenTokens.subsectionSpacing),
               _VoiceSlider(
                 label: l10n.speedLabel,
-                value: state.speechRate,
+                value: config.speechRate,
                 min: TtsConstants.speechRateMin,
                 max: TtsConstants.speechRateMax,
                 onChanged: isReading ? null : controller.setSpeechRate,
               ),
               _VoiceSlider(
                 label: l10n.pitchLabel,
-                value: state.pitch,
+                value: config.pitch,
                 min: TtsConstants.pitchMin,
                 max: TtsConstants.pitchMax,
                 onChanged: isReading ? null : controller.setPitch,
               ),
               _VoiceSlider(
                 label: l10n.volumeLabel,
-                value: state.volume,
+                value: config.volume,
                 min: TtsConstants.volumeMin,
                 max: TtsConstants.volumeMax,
                 onChanged: isReading ? null : controller.setVolume,

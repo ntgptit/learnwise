@@ -20,6 +20,7 @@ ApiClient apiClient(Ref ref) {
 }
 
 class ApiClient {
+  // quality-guard: allow-large-class - central HTTP gateway kept cohesive for request/response guardrails.
   ApiClient({required Dio dio, required AppErrorMapper errorMapper})
     : _dio = dio,
       _errorMapper = errorMapper;
@@ -225,23 +226,10 @@ class ApiClient {
       allowRetry: allowRetry,
       allowRawBodyLogging: allowRawBodyLogging,
     );
-
-    final dynamic rawData = response.data;
-    if (rawData is! List) {
-      throw UnexpectedResponseAppException(statusCode: response.statusCode);
-    }
-
-    final List<T> decoded = <T>[];
-    for (final dynamic item in rawData) {
-      decoded.add(
-        _decodeValue(
-          value: item,
-          decoder: itemDecoder,
-          statusCode: response.statusCode,
-        ),
-      );
-    }
-    return decoded;
+    return _decodeResponseListData(
+      response: response,
+      itemDecoder: itemDecoder,
+    );
   }
 
   T _decodeResponseData<T>({
@@ -257,6 +245,28 @@ class ApiClient {
       decoder: decoder,
       statusCode: response.statusCode,
     );
+  }
+
+  List<T> _decodeResponseListData<T>({
+    required Response<dynamic> response,
+    required ApiDataDecoder<T> itemDecoder,
+  }) {
+    final dynamic data = response.data;
+    if (data is! List) {
+      throw UnexpectedResponseAppException(statusCode: response.statusCode);
+    }
+
+    final List<T> decoded = <T>[];
+    for (final dynamic item in data) {
+      decoded.add(
+        _decodeValue(
+          value: item,
+          decoder: itemDecoder,
+          statusCode: response.statusCode,
+        ),
+      );
+    }
+    return decoded;
   }
 
   T _decodeValue<T>({

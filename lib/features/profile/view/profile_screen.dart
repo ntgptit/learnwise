@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../app/router/route_names.dart';
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_theme_mode_controller.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
@@ -61,98 +60,151 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
 
     return Scaffold(
-      body: SafeArea(
-        child: state.when(
-          data: (profile) {
-            _bindDisplayName(profile);
-            _bindSettings(profile);
-            return CustomScrollView(
-              slivers: <Widget>[
-                SliverToBoxAdapter(
-                  child: ProfileHeader(
-                    profile: profile,
-                    onSignOut: controller.signOut,
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.all(AppSizes.spacingMd),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate(
-                      <Widget>[
-                        PersonalInfoSection(
-                          profile: profile,
-                          displayNameController: _displayNameController,
-                          onSave: () => _submitProfileUpdate(controller),
-                        ),
-                        const SizedBox(height: AppSizes.spacingLg),
-                        SettingsSection(
-                          profile: profile,
-                          settingsDraftNotifier: _settingsDraftNotifier,
-                          onSave: (draft) => _submitSettingsUpdate(
-                            controller: controller,
-                            themeModeController: themeModeController,
-                            draft: draft,
-                          ),
-                        ),
-                        const SizedBox(height: AppSizes.spacingLg),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-          error: (error, stackTrace) {
-            final String message = _resolveErrorMessage(
-              error: error,
-              l10n: l10n,
-            );
-            return ErrorState(
-              title: l10n.profileLoadErrorTitle,
-              message: message,
-              retryLabel: l10n.profileRetryLabel,
-              onRetry: controller.refresh,
-            );
-          },
-          loading: () {
-            return LoadingState(message: l10n.profileLoadingLabel);
-          },
-        ),
+      body: _buildBody(
+        l10n: l10n,
+        state: state,
+        controller: controller,
+        themeModeController: themeModeController,
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        destinations: <AppBottomNavDestination>[
-          AppBottomNavDestination(
-            icon: Icons.dashboard_outlined,
-            selectedIcon: Icons.dashboard_rounded,
-            label: l10n.dashboardNavHome,
-          ),
-          AppBottomNavDestination(
-            icon: Icons.folder_open_outlined,
-            selectedIcon: Icons.folder_rounded,
-            label: l10n.dashboardNavFolders,
-          ),
-          AppBottomNavDestination(
-            icon: Icons.person_outline_rounded,
-            selectedIcon: Icons.person_rounded,
-            label: l10n.dashboardNavProfile,
-          ),
-        ],
-        selectedIndex: ProfileConstants.profileNavIndex,
-        onDestinationSelected: (index) {
-          if (index == ProfileConstants.dashboardNavIndex) {
-            context.go(RouteNames.dashboard);
-            return;
-          }
-          if (index == ProfileConstants.foldersNavIndex) {
-            context.go(RouteNames.folders);
-            return;
-          }
-          if (index == ProfileConstants.profileNavIndex) {
-            return;
-          }
+      bottomNavigationBar: _buildBottomNavigationBar(l10n: l10n),
+    );
+  }
+
+  Widget _buildBody({
+    required AppLocalizations l10n,
+    required AsyncValue<UserProfile> state,
+    required ProfileController controller,
+    required AppThemeModeController themeModeController,
+  }) {
+    return SafeArea(
+      child: state.when(
+        data: (profile) {
+          return _buildProfileData(
+            profile: profile,
+            controller: controller,
+            themeModeController: themeModeController,
+          );
         },
+        error: (error, stackTrace) {
+          return _buildErrorState(
+            error: error,
+            l10n: l10n,
+            controller: controller,
+          );
+        },
+        loading: () => LoadingState(message: l10n.profileLoadingLabel),
       ),
     );
+  }
+
+  Widget _buildProfileData({
+    required UserProfile profile,
+    required ProfileController controller,
+    required AppThemeModeController themeModeController,
+  }) {
+    _bindDisplayName(profile);
+    _bindSettings(profile);
+
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverToBoxAdapter(
+          child: ProfileHeader(profile: profile, onSignOut: controller.signOut),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(AppSizes.spacingMd),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate(
+              _buildSections(
+                profile: profile,
+                controller: controller,
+                themeModeController: themeModeController,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState({
+    required Object error,
+    required AppLocalizations l10n,
+    required ProfileController controller,
+  }) {
+    final String message = _resolveErrorMessage(error: error, l10n: l10n);
+    return ErrorState(
+      title: l10n.profileLoadErrorTitle,
+      message: message,
+      retryLabel: l10n.profileRetryLabel,
+      onRetry: controller.refresh,
+    );
+  }
+
+  List<Widget> _buildSections({
+    required UserProfile profile,
+    required ProfileController controller,
+    required AppThemeModeController themeModeController,
+  }) {
+    return <Widget>[
+      PersonalInfoSection(
+        profile: profile,
+        displayNameController: _displayNameController,
+        onSave: () => _submitProfileUpdate(controller),
+      ),
+      const SizedBox(height: AppSizes.spacingLg),
+      SettingsSection(
+        profile: profile,
+        settingsDraftNotifier: _settingsDraftNotifier,
+        onSave: (draft) => _submitSettingsUpdate(
+          controller: controller,
+          themeModeController: themeModeController,
+          draft: draft,
+        ),
+      ),
+      const SizedBox(height: AppSizes.spacingLg),
+    ];
+  }
+
+  Widget _buildBottomNavigationBar({required AppLocalizations l10n}) {
+    return AppBottomNavBar(
+      destinations: _buildNavDestinations(l10n),
+      selectedIndex: ProfileConstants.profileNavIndex,
+      onDestinationSelected: (index) => _onDestinationSelected(context, index),
+    );
+  }
+
+  List<AppBottomNavDestination> _buildNavDestinations(AppLocalizations l10n) {
+    return <AppBottomNavDestination>[
+      AppBottomNavDestination(
+        icon: Icons.dashboard_outlined,
+        selectedIcon: Icons.dashboard_rounded,
+        label: l10n.dashboardNavHome,
+      ),
+      AppBottomNavDestination(
+        icon: Icons.folder_open_outlined,
+        selectedIcon: Icons.folder_rounded,
+        label: l10n.dashboardNavFolders,
+      ),
+      AppBottomNavDestination(
+        icon: Icons.person_outline_rounded,
+        selectedIcon: Icons.person_rounded,
+        label: l10n.dashboardNavProfile,
+      ),
+    ];
+  }
+
+  void _onDestinationSelected(BuildContext context, int index) {
+    if (index == ProfileConstants.dashboardNavIndex) {
+      const DashboardRoute().go(context);
+      return;
+    }
+    if (index == ProfileConstants.foldersNavIndex) {
+      const FoldersRoute().go(context);
+      return;
+    }
+    if (index == ProfileConstants.profileNavIndex) {
+      return;
+    }
   }
 
   Future<void> _submitProfileUpdate(ProfileController controller) async {

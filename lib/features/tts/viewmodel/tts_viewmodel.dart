@@ -50,7 +50,7 @@ class TtsController extends _$TtsController {
   }
 
   Future<void> initialize() async {
-    if (state.status.isInitializing || state.isInitialized) {
+    if (state.engine.status.isInitializing || state.engine.isInitialized) {
       return;
     }
     await _runWithStatus(
@@ -58,16 +58,18 @@ class TtsController extends _$TtsController {
       onError: AppErrorCode.ttsInitFailed,
       operation: () async {
         await _ttsRepository.init();
-        state = state.copyWith(isInitialized: true);
+        state = state.copyWith(
+          engine: state.engine.copyWith(isInitialized: true),
+        );
         await _loadVoicesInternal();
       },
     );
   }
 
   Future<void> loadVoices() async {
-    if (state.status.isLoadingVoices ||
-        state.status.isInitializing ||
-        state.status.isReading) {
+    if (state.engine.status.isLoadingVoices ||
+        state.engine.status.isInitializing ||
+        state.engine.status.isReading) {
       return;
     }
     await _runWithStatus(
@@ -78,9 +80,9 @@ class TtsController extends _$TtsController {
   }
 
   Future<void> readText() async {
-    if (state.status.isReading ||
-        state.status.isInitializing ||
-        state.status.isLoadingVoices) {
+    if (state.engine.status.isReading ||
+        state.engine.status.isInitializing ||
+        state.engine.status.isLoadingVoices) {
       return;
     }
     final String message = StringUtils.normalize(state.inputText);
@@ -94,11 +96,11 @@ class TtsController extends _$TtsController {
       operation: () async {
         await _ttsRepository.speak(
           message,
-          mode: state.languageMode,
+          mode: state.config.languageMode,
           settings: TtsVoiceSettings(
-            speechRate: state.speechRate,
-            pitch: state.pitch,
-            volume: state.volume,
+            speechRate: state.config.speechRate,
+            pitch: state.config.pitch,
+            volume: state.config.volume,
           ),
           voice: _selectedVoice,
         );
@@ -119,32 +121,37 @@ class TtsController extends _$TtsController {
   }
 
   void setLanguageMode(TtsLanguageMode mode) {
-    state = state.copyWith(languageMode: mode);
+    state = state.copyWith(config: state.config.copyWith(languageMode: mode));
   }
 
   void setSample(TtsSampleText sample) {
-    state = state.copyWith(inputText: sample.text, languageMode: sample.mode);
+    state = state.copyWith(
+      inputText: sample.text,
+      config: state.config.copyWith(languageMode: sample.mode),
+    );
   }
 
   void setSpeechRate(double value) {
-    state = state.copyWith(speechRate: value);
+    state = state.copyWith(config: state.config.copyWith(speechRate: value));
   }
 
   void setPitch(double value) {
-    state = state.copyWith(pitch: value);
+    state = state.copyWith(config: state.config.copyWith(pitch: value));
   }
 
   void setVolume(double value) {
-    state = state.copyWith(volume: value);
+    state = state.copyWith(config: state.config.copyWith(volume: value));
   }
 
   void selectVoice(String? voiceId) {
-    state = state.copyWith(selectedVoiceId: voiceId);
+    state = state.copyWith(
+      config: state.config.copyWith(selectedVoiceId: voiceId),
+    );
   }
 
   TtsVoiceOption? get _selectedVoice {
-    for (final TtsVoiceOption voice in state.voices) {
-      if (voice.id == state.selectedVoiceId) {
+    for (final TtsVoiceOption voice in state.engine.voices) {
+      if (voice.id == state.config.selectedVoiceId) {
         return voice;
       }
     }
@@ -156,11 +163,13 @@ class TtsController extends _$TtsController {
       localePrefix: TtsConstants.koreanLocalePrefix,
     );
     final bool hasSelected =
-        state.selectedVoiceId != null &&
-        voices.any((voice) => voice.id == state.selectedVoiceId);
+        state.config.selectedVoiceId != null &&
+        voices.any((voice) => voice.id == state.config.selectedVoiceId);
     state = state.copyWith(
-      voices: voices,
-      selectedVoiceId: hasSelected ? state.selectedVoiceId : null,
+      engine: state.engine.copyWith(voices: voices),
+      config: state.config.copyWith(
+        selectedVoiceId: hasSelected ? state.config.selectedVoiceId : null,
+      ),
     );
   }
 
@@ -169,13 +178,15 @@ class TtsController extends _$TtsController {
     required Future<void> Function() operation,
     AppErrorCode onError = AppErrorCode.unknown,
   }) async {
-    state = state.copyWith(status: status);
+    state = state.copyWith(engine: state.engine.copyWith(status: status));
     try {
       await operation();
     } catch (error) {
       _errorAdvisor.handle(error, fallback: onError);
     } finally {
-      state = state.copyWith(status: const TtsStatus.idle());
+      state = state.copyWith(
+        engine: state.engine.copyWith(status: const TtsStatus.idle()),
+      );
     }
   }
 }

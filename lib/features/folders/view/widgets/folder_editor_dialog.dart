@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase3 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';

@@ -1,3 +1,7 @@
+// quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/utils/string_utils.dart';
 import 'study_constants.dart';
 import 'study_mode.dart';
@@ -77,6 +81,7 @@ extension StudySessionEventTypeApiX on StudySessionEventType {
   }
 }
 
+@immutable
 class StudySessionStartRequest {
   const StudySessionStartRequest({
     required this.mode,
@@ -100,6 +105,7 @@ class StudySessionStartRequest {
   }
 }
 
+@immutable
 class StudySessionEventRequest {
   const StudySessionEventRequest({
     required this.clientEventId,
@@ -131,6 +137,7 @@ class StudySessionEventRequest {
   }
 }
 
+@immutable
 class StudySessionResponseModel {
   const StudySessionResponseModel({
     required this.sessionId,
@@ -240,6 +247,7 @@ class StudySessionResponseModel {
   }
 }
 
+@immutable
 class StudyReviewItemModel {
   const StudyReviewItemModel({
     required this.sessionItemId,
@@ -266,6 +274,7 @@ class StudyReviewItemModel {
   }
 }
 
+@immutable
 class StudyMatchTileModel {
   const StudyMatchTileModel({
     required this.tileId,
@@ -311,6 +320,7 @@ class StudyMatchTileModel {
   }
 }
 
+@immutable
 class StudyAttemptResultModel {
   const StudyAttemptResultModel({
     required this.feedbackStatus,

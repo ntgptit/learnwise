@@ -17,29 +17,66 @@ sealed class TtsStatus with _$TtsStatus {
 sealed class TtsState with _$TtsState {
   const factory TtsState({
     required String inputText,
+    required TtsConfig config,
+    required TtsEngineState engine,
+  }) = _TtsState;
+
+  factory TtsState.initial() {
+    return TtsState(
+      inputText: '',
+      config: TtsConfig.initial(),
+      engine: TtsEngineState.initial(),
+    );
+  }
+}
+
+@freezed
+sealed class TtsConfig with _$TtsConfig {
+  const factory TtsConfig({
     required TtsLanguageMode languageMode,
     required double speechRate,
     required double pitch,
     required double volume,
-    required List<TtsVoiceOption> voices,
     required String? selectedVoiceId,
-    required TtsStatus status,
-    required bool isInitialized,
-  }) = _TtsState;
+  }) = _TtsConfig;
 
-  factory TtsState.initial() {
-    return const TtsState(
-      inputText: '',
+  factory TtsConfig.initial() {
+    return const TtsConfig(
       languageMode: TtsLanguageMode.auto,
       speechRate: TtsConstants.defaultSpeechRate,
       pitch: TtsConstants.defaultPitch,
       volume: TtsConstants.defaultVolume,
-      voices: <TtsVoiceOption>[],
       selectedVoiceId: null,
+    );
+  }
+}
+
+@freezed
+sealed class TtsEngineState with _$TtsEngineState {
+  const factory TtsEngineState({
+    required List<TtsVoiceOption> voices,
+    required TtsStatus status,
+    required bool isInitialized,
+  }) = _TtsEngineState;
+
+  factory TtsEngineState.initial() {
+    return const TtsEngineState(
+      voices: <TtsVoiceOption>[],
       status: TtsStatus.idle(),
       isInitialized: false,
     );
   }
+}
+
+extension TtsStateLegacyViewX on TtsState {
+  TtsLanguageMode get languageMode => config.languageMode;
+  double get speechRate => config.speechRate;
+  double get pitch => config.pitch;
+  double get volume => config.volume;
+  String? get selectedVoiceId => config.selectedVoiceId;
+  List<TtsVoiceOption> get voices => engine.voices;
+  TtsStatus get status => engine.status;
+  bool get isInitialized => engine.isInitialized;
 }
 
 extension TtsStatusX on TtsStatus {

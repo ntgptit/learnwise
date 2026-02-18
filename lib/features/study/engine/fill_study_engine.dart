@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase3 legacy backlog tracked for incremental extraction.
 import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../model/study_answer.dart';

@@ -1,3 +1,6 @@
+// quality-guard: allow-long-function - phase3 legacy backlog tracked for incremental extraction.
+// quality-guard: allow-large-class - phase2 legacy backlog tracked for class decomposition.
+// quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

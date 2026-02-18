@@ -10,6 +10,7 @@ import '../model/flashcard_constants.dart';
 import '../model/flashcard_models.dart';
 import '../repository/flashcard_repository.dart';
 import '../repository/flashcard_repository_provider.dart';
+import '../service/flashcard_input_service.dart';
 
 part 'flashcard_viewmodel.g.dart';
 
@@ -210,6 +211,7 @@ class FlashcardSubmitResult {
 class FlashcardController extends _$FlashcardController {
   late final FlashcardRepository _repository;
   late final AppErrorAdvisor _errorAdvisor;
+  final FlashcardInputService _inputService = const FlashcardInputService();
   bool _isBootstrapCompleted = false;
   bool _isQueryListenerBound = false;
   int _queryRequestVersion = FlashcardConstants.defaultPage;
@@ -227,24 +229,6 @@ class FlashcardController extends _$FlashcardController {
     } finally {
       _isBootstrapCompleted = true;
     }
-  }
-
-  void applySearch(String searchText) {
-    ref
-        .read(flashcardQueryControllerProvider(_deckId).notifier)
-        .setSearch(searchText);
-  }
-
-  void applySortBy(FlashcardSortBy value) {
-    ref
-        .read(flashcardQueryControllerProvider(_deckId).notifier)
-        .setSortBy(value);
-  }
-
-  void applySortDirection(FlashcardSortDirection value) {
-    ref
-        .read(flashcardQueryControllerProvider(_deckId).notifier)
-        .setSortDirection(value);
   }
 
   Future<void> refresh() async {
@@ -296,8 +280,8 @@ class FlashcardController extends _$FlashcardController {
   Future<FlashcardSubmitResult> submitCreateFlashcard(
     FlashcardUpsertInput input,
   ) async {
-    final FlashcardUpsertInput normalized = _normalizeInput(input);
-    if (!_isInputValid(normalized)) {
+    final FlashcardUpsertInput normalized = _inputService.normalize(input);
+    if (!_inputService.isValid(normalized)) {
       _errorAdvisor.handle(
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
@@ -325,8 +309,8 @@ class FlashcardController extends _$FlashcardController {
     required int flashcardId,
     required FlashcardUpsertInput input,
   }) async {
-    final FlashcardUpsertInput normalized = _normalizeInput(input);
-    if (!_isInputValid(normalized)) {
+    final FlashcardUpsertInput normalized = _inputService.normalize(input);
+    if (!_inputService.isValid(normalized)) {
       _errorAdvisor.handle(
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
@@ -506,29 +490,6 @@ class FlashcardController extends _$FlashcardController {
       return true;
     }
     return false;
-  }
-
-  FlashcardUpsertInput _normalizeInput(FlashcardUpsertInput input) {
-    return FlashcardUpsertInput(
-      frontText: StringUtils.normalize(input.frontText),
-      backText: StringUtils.normalize(input.backText),
-    );
-  }
-
-  bool _isInputValid(FlashcardUpsertInput input) {
-    if (input.frontText.length < FlashcardConstants.frontTextMinLength) {
-      return false;
-    }
-    if (input.frontText.length > FlashcardConstants.frontTextMaxLength) {
-      return false;
-    }
-    if (input.backText.length < FlashcardConstants.backTextMinLength) {
-      return false;
-    }
-    if (input.backText.length > FlashcardConstants.backTextMaxLength) {
-      return false;
-    }
-    return true;
   }
 
   FlashcardListingState? get _currentListing {

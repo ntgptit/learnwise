@@ -71,10 +71,10 @@ void main() {
       );
       await initialFuture;
 
-      final FolderController controller = container.read(
-        folderControllerProvider.notifier,
+      final FolderQueryController queryController = container.read(
+        folderQueryControllerProvider.notifier,
       );
-      controller.enterFolder(_item(42));
+      queryController.enterFolder(_item(42));
       await Future<void>.delayed(Duration.zero);
 
       expect(fakeRepository.getFoldersCalls, 2);

@@ -10,6 +10,7 @@ import '../model/deck_constants.dart';
 import '../model/deck_models.dart';
 import '../repository/deck_repository.dart';
 import '../repository/deck_repository_provider.dart';
+import '../service/deck_input_service.dart';
 
 part 'deck_viewmodel.g.dart';
 
@@ -63,6 +64,7 @@ class DeckSubmitResult {
 class DeckController extends _$DeckController {
   late final DeckRepository _repository;
   late final AppErrorAdvisor _errorAdvisor;
+  final DeckInputService _inputService = const DeckInputService();
   bool _isBootstrapCompleted = false;
   bool _isQueryListenerBound = false;
   int _queryRequestVersion = DeckConstants.defaultPage;
@@ -80,22 +82,6 @@ class DeckController extends _$DeckController {
     } finally {
       _isBootstrapCompleted = true;
     }
-  }
-
-  void applySearch(String searchText) {
-    ref
-        .read(deckQueryControllerProvider(_folderId).notifier)
-        .setSearch(searchText);
-  }
-
-  void applySortBy(DeckSortBy value) {
-    ref.read(deckQueryControllerProvider(_folderId).notifier).setSortBy(value);
-  }
-
-  void applySortDirection(DeckSortDirection value) {
-    ref
-        .read(deckQueryControllerProvider(_folderId).notifier)
-        .setSortDirection(value);
   }
 
   Future<void> refresh() async {
@@ -143,8 +129,8 @@ class DeckController extends _$DeckController {
   }
 
   Future<DeckSubmitResult> submitCreateDeck(DeckUpsertInput input) async {
-    final DeckUpsertInput normalized = _normalizeInput(input);
-    if (!_isInputValid(normalized)) {
+    final DeckUpsertInput normalized = _inputService.normalize(input);
+    if (!_inputService.isValid(normalized)) {
       _errorAdvisor.handle(
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
@@ -177,8 +163,8 @@ class DeckController extends _$DeckController {
     required int deckId,
     required DeckUpsertInput input,
   }) async {
-    final DeckUpsertInput normalized = _normalizeInput(input);
-    if (!_isInputValid(normalized)) {
+    final DeckUpsertInput normalized = _inputService.normalize(input);
+    if (!_inputService.isValid(normalized)) {
       _errorAdvisor.handle(
         const BadRequestAppException(),
         fallback: AppErrorCode.badRequest,
@@ -356,26 +342,6 @@ class DeckController extends _$DeckController {
       return true;
     }
     return false;
-  }
-
-  DeckUpsertInput _normalizeInput(DeckUpsertInput input) {
-    return DeckUpsertInput(
-      name: StringUtils.normalize(input.name),
-      description: StringUtils.normalize(input.description),
-    );
-  }
-
-  bool _isInputValid(DeckUpsertInput input) {
-    if (input.name.length < DeckConstants.nameMinLength) {
-      return false;
-    }
-    if (input.name.length > DeckConstants.nameMaxLength) {
-      return false;
-    }
-    if (input.description.length > DeckConstants.descriptionMaxLength) {
-      return false;
-    }
-    return true;
   }
 
   DeckListingState? get _currentListing {

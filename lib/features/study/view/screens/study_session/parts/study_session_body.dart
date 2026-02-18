@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 part of '../study_session_screen.dart';
 
 class _StudySessionBody extends ConsumerWidget {

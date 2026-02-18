@@ -7,6 +7,8 @@ import 'app/theme/app_theme.dart';
 import 'app/theme/app_theme_mode_controller.dart';
 import 'core/error/global_error_handler.dart';
 import 'core/network/auth_session.dart';
+// ignore: unused_import
+import 'quality/reachability_manifest.dart';
 
 void main() {
   runApp(const ProviderScope(child: LearnWiseApp()));

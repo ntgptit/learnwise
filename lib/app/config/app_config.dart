@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import '../../core/network/api_constants.dart';
 import '../../core/utils/string_utils.dart';
 import 'env.dart';

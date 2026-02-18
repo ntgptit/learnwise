@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - phase3 legacy backlog tracked for incremental extraction.
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../../core/utils/string_utils.dart';

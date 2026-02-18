@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/styles/app_opacities.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardHeroSection extends StatelessWidget {
@@ -171,9 +172,7 @@ class _HeroStatChip extends StatelessWidget {
 
   BoxDecoration _buildDecoration(ColorScheme colorScheme) {
     return BoxDecoration(
-      color: colorScheme.surface.withValues(
-        alpha: DashboardScreenTokens.softOpacity,
-      ),
+      color: colorScheme.surface.withValues(alpha: AppOpacities.soft15),
       borderRadius: BorderRadius.circular(DashboardScreenTokens.heroChipRadius),
     );
   }
@@ -198,9 +197,7 @@ class _HeroStatText extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: foregroundColor.withValues(
-              alpha: DashboardScreenTokens.dimOpacity,
-            ),
+            color: foregroundColor.withValues(alpha: AppOpacities.muted70),
           ),
         ),
         Text(

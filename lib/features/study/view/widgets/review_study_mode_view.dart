@@ -274,7 +274,6 @@ class _ReviewCardFace extends StatelessWidget {
     );
     return AppCard(
       variant: AppCardVariant.elevated,
-      elevation: FlashcardStudySessionTokens.cardElevation,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
         FlashcardStudySessionTokens.cardRadius,

@@ -4,7 +4,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../model/study_constants.dart';
 import '../../model/study_unit.dart';
@@ -151,7 +152,7 @@ class _RecallStudyModeViewState extends State<RecallStudyModeView> {
     if (isAnswerRevealed) {
       return 1;
     }
-    return FlashcardStudySessionTokens.recallAnswerOpacity;
+    return AppOpacities.muted55;
   }
 
   Widget _buildBottomActions({required bool isAnswerRevealed}) {
@@ -245,7 +246,6 @@ class _RecallCard extends StatelessWidget {
       opacity: opacity,
       child: AppCard(
         variant: AppCardVariant.elevated,
-        elevation: FlashcardStudySessionTokens.cardElevation,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(
           FlashcardStudySessionTokens.cardRadius,

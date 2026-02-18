@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_durations.dart';
+import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../../../../core/utils/string_utils.dart';
 import '../../model/study_constants.dart';
@@ -142,9 +144,9 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
 
   double _resolvePromptOpacity(bool isKeyboardVisible) {
     if (isKeyboardVisible) {
-      return FlashcardStudySessionTokens.fillPromptCardFocusedOpacity;
+      return AppOpacities.soft92;
     }
-    return FlashcardStudySessionTokens.fillPromptCardDefaultOpacity;
+    return AppOpacities.soft95;
   }
 
   void _onHelpPressed() {
@@ -248,10 +250,10 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
         ),
       ),
       disabledForegroundColor: colorScheme.onSurface.withValues(
-        alpha: FlashcardStudySessionTokens.fillCheckDisabledContentOpacity,
+        alpha: AppOpacities.disabled38,
       ),
       disabledBackgroundColor: colorScheme.onSurface.withValues(
-        alpha: FlashcardStudySessionTokens.fillCheckDisabledContainerOpacity,
+        alpha: AppOpacities.soft12,
       ),
     );
   }
@@ -268,7 +270,6 @@ class _FillPromptCard extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return AppCard(
       variant: AppCardVariant.elevated,
-      elevation: FlashcardStudySessionTokens.cardElevation,
       backgroundColor: colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
         FlashcardStudySessionTokens.cardRadius,
@@ -284,7 +285,7 @@ class _FillPromptCard extends StatelessWidget {
                 Icons.edit_outlined,
                 size: FlashcardStudySessionTokens.fillPromptIconSize,
                 color: colorScheme.onSurfaceVariant.withValues(
-                  alpha: FlashcardStudySessionTokens.fillPromptIconOpacity,
+                  alpha: AppOpacities.muted68,
                 ),
               ),
             ],
@@ -295,10 +296,7 @@ class _FillPromptCard extends StatelessWidget {
           Expanded(
             child: AnimatedOpacity(
               opacity: opacity,
-              duration: const Duration(
-                milliseconds:
-                    FlashcardStudySessionTokens.fillPromptOpacityAnimationMs,
-              ),
+              duration: AppDurations.animationSnappy,
               child: Center(
                 child: Text(
                   unit.prompt,
@@ -339,7 +337,6 @@ class _FillInputCard extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return AppCard(
       variant: AppCardVariant.elevated,
-      elevation: FlashcardStudySessionTokens.cardElevation,
       backgroundColor: colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
         FlashcardStudySessionTokens.cardRadius,
@@ -392,7 +389,7 @@ class _FillInputCard extends StatelessWidget {
                   ),
                   hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant.withValues(
-                      alpha: FlashcardStudySessionTokens.fillInputHintOpacity,
+                      alpha: AppOpacities.muted70,
                     ),
                   ),
                 ),

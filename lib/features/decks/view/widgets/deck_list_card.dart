@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../../model/deck_models.dart';
 
@@ -10,7 +11,11 @@ enum _DeckCardAction { open, edit, delete }
 
 class DeckListCard extends StatelessWidget {
   const DeckListCard({
-    required this.deck, required this.onOpenPressed, required this.onEditPressed, required this.onDeletePressed, super.key,
+    required this.deck,
+    required this.onOpenPressed,
+    required this.onEditPressed,
+    required this.onDeletePressed,
+    super.key,
   });
 
   final DeckItem deck;
@@ -36,9 +41,7 @@ class DeckListCard extends StatelessWidget {
         vertical: FolderScreenTokens.listItemVerticalPadding,
       ),
       border: Border.all(
-        color: colorScheme.outline.withValues(
-          alpha: FolderScreenTokens.outlineOpacity,
-        ),
+        color: colorScheme.outline.withValues(alpha: AppOpacities.outline26),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +52,7 @@ class DeckListCard extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(
-                alpha: FolderScreenTokens.surfaceSoftOpacity,
+                alpha: AppOpacities.soft20,
               ),
               borderRadius: BorderRadius.circular(
                 FolderScreenTokens.listItemLeadingRadius,
@@ -84,7 +87,7 @@ class DeckListCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(
-                      alpha: FolderScreenTokens.dimOpacity,
+                      alpha: AppOpacities.muted82,
                     ),
                   ),
                 ),

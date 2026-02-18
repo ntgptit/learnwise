@@ -11,6 +11,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_opacities.dart';
 import '../../../common/styles/app_screen_tokens.dart';
+import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
 import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
@@ -125,7 +126,7 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
           icon: Icon(
             Icons.close,
             color: colorScheme.onSurfaceVariant.withValues(
-              alpha: FlashcardFlipStudyTokens.topIconOpacity,
+              alpha: AppOpacities.muted82,
             ),
           ),
         ),
@@ -141,7 +142,7 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
             icon: Icon(
               Icons.settings_outlined,
               color: colorScheme.onSurfaceVariant.withValues(
-                alpha: FlashcardFlipStudyTokens.topIconOpacity,
+                alpha: AppOpacities.muted82,
               ),
             ),
           ),
@@ -458,6 +459,8 @@ class _StudyCardFaceState extends State<_StudyCardFace> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
+    final double defaultCardElevation =
+        theme.cardTheme.elevation ?? AppSizes.size1;
     final String? normalizedSecondary = StringUtils.normalizeNullable(
       widget.secondaryText,
     );
@@ -469,9 +472,7 @@ class _StudyCardFaceState extends State<_StudyCardFace> {
       valueListenable: _isPressedNotifier,
       builder: (context, isPressed, child) {
         return Card(
-          elevation: isPressed
-              ? FlashcardFlipStudyTokens.cardPressedElevation
-              : FlashcardFlipStudyTokens.cardElevation,
+          elevation: isPressed ? AppSizes.size2 : defaultCardElevation,
           shadowColor: colorScheme.shadow,
           margin: EdgeInsets.zero,
           color: colorScheme.surfaceContainerHigh,

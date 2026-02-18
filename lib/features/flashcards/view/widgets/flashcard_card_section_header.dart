@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 
 class FlashcardCardSectionHeader extends StatelessWidget {
   const FlashcardCardSectionHeader({
@@ -21,15 +22,11 @@ class FlashcardCardSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final TextStyle? titleStyle = theme.textTheme.headlineSmall?.copyWith(
-      fontSize: FlashcardScreenTokens.sectionHeaderTitleSize,
+    final TextStyle? titleStyle = theme.textTheme.titleLarge?.copyWith(
       fontWeight: FontWeight.w600,
     );
     final TextStyle? subtitleStyle = theme.textTheme.bodyMedium?.copyWith(
-      fontSize: FlashcardScreenTokens.sectionHeaderSubtitleSize,
-      color: colorScheme.onSurface.withValues(
-        alpha: FlashcardScreenTokens.sectionHeaderSubtitleOpacity,
-      ),
+      color: colorScheme.onSurface.withValues(alpha: AppOpacities.muted70),
     );
     final TextStyle? chipTextStyle = theme.textTheme.labelLarge?.copyWith(
       fontWeight: FontWeight.w600,

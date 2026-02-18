@@ -376,7 +376,7 @@ String _stripLineComment(String sourceLine) {
 }
 
 /// Find start line index for:
-///   static ThemeData <factoryName>() {
+///   `static ThemeData <factoryName>() {`
 int _findThemeFactoryStartIndex({
   required List<String> lines,
   required String factoryName,

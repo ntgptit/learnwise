@@ -5,6 +5,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_durations.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../../model/flashcard_constants.dart';
 import '../../model/flashcard_models.dart';
@@ -33,7 +34,7 @@ class FlashcardPreviewCarousel extends StatelessWidget {
     final Color cardBackgroundColor = colorScheme.surfaceContainerHigh;
     final Color activeDotColor = colorScheme.primary;
     final Color inactiveDotColor = colorScheme.onSurfaceVariant.withValues(
-      alpha: FlashcardScreenTokens.heroDotInactiveDarkModeOpacity,
+      alpha: AppOpacities.muted55,
     );
     final List<FlashcardItem> previewItems = items;
     final int dotCount = previewItems.isEmpty ? 1 : previewItems.length;
@@ -79,7 +80,6 @@ class FlashcardPreviewCarousel extends StatelessWidget {
                     onTap: handleExpandPressed,
                     child: AppCard(
                       variant: AppCardVariant.elevated,
-                      elevation: FlashcardScreenTokens.cardElevation,
                       borderRadius: BorderRadius.circular(
                         FlashcardScreenTokens.cardRadius,
                       ),
@@ -95,8 +95,6 @@ class FlashcardPreviewCarousel extends StatelessWidget {
                               child: Text(
                                 displayText,
                                 style: theme.textTheme.headlineSmall?.copyWith(
-                                  fontSize:
-                                      FlashcardScreenTokens.heroPreviewTextSize,
                                   fontWeight: FontWeight.w700,
                                 ),
                                 textAlign: TextAlign.center,

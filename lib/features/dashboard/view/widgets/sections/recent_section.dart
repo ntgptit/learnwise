@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/styles/app_opacities.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardRecentSection extends StatelessWidget {
@@ -49,9 +50,9 @@ class _RecentActivityCard extends StatelessWidget {
           DashboardScreenTokens.recentCardRadius,
         ),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(
-            alpha: DashboardScreenTokens.softOpacity,
-          ),
+          color: Theme.of(
+            context,
+          ).colorScheme.outline.withValues(alpha: AppOpacities.soft15),
         ),
       ),
       child: Column(

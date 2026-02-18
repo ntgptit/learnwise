@@ -101,7 +101,6 @@ class _GuessPromptCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       variant: AppCardVariant.elevated,
-      elevation: FlashcardStudySessionTokens.cardElevation,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
         FlashcardStudySessionTokens.cardRadius,
@@ -211,7 +210,6 @@ class _GuessOptionCard extends StatelessWidget {
     final VoidCallback? tapHandler = _resolveTapHandler();
     return AppCard(
       variant: AppCardVariant.elevated,
-      elevation: FlashcardStudySessionTokens.cardElevation,
       backgroundColor: backgroundColor,
       border: border,
       borderRadius: BorderRadius.circular(

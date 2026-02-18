@@ -1162,7 +1162,6 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
 
     return AppCard(
       variant: AppCardVariant.elevated,
-      elevation: FlashcardScreenTokens.cardElevation,
       borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
       backgroundColor: colorScheme.surfaceContainerHigh,
       padding: const EdgeInsets.all(FlashcardScreenTokens.cardPadding),

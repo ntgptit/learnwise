@@ -1,25 +1,22 @@
-/// ---------------------------------------------------------------------------
-/// Common Widget Guard
-/// ---------------------------------------------------------------------------
-///
-/// Purpose:
-/// Enforce architectural boundaries for `lib/common/widgets`.
-///
-/// Philosophy:
-/// - Common widgets must be render-only.
-/// - No navigation logic.
-/// - No business logic.
-/// - No repository/service imports.
-/// - StatefulWidget allowed only for UI-only widgets (animation/input/etc).
-///
-/// This tool is intended to be used in CI to prevent architectural erosion.
-///
-/// Exit code:
-/// - 0 => pass
-/// - 1 => violations found
-///
-/// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------
+// Common Widget Guard
+// ---------------------------------------------------------------------------
+//
+// Purpose:
+// Enforce architectural boundaries for `lib/common/widgets`.
+//
+// Philosophy:
+// - Common widgets must be render-only.
+// - No navigation logic.
+// - No business logic.
+// - No repository/service imports.
+// - StatefulWidget allowed only for UI-only widgets (animation/input/etc).
+//
+// This tool is intended to be used in CI to prevent architectural erosion.
+//
+// Exit code:
+// - 0 => pass
+// - 1 => violations found
 import 'dart:io';
 
 /// Central configuration constants for Common Widget Guard.

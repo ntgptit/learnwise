@@ -1,5 +1,19 @@
 import 'package:flutter/animation.dart';
 
+/// Centralized motion duration and curve tokens.
+///
+/// Rules:
+/// - Declaration:
+///   - Use semantic names by intent (`animationSnappy`, `debounceMedium`).
+/// - Value setting:
+///   - Store all reusable durations/curves here.
+///   - Do not declare per-screen duration constants.
+/// - Data flow:
+///   - Consumers read these values directly; no runtime override in style layer.
+/// - Material 3 constraints:
+///   - Duration ranges should remain compatible with M3 motion behavior.
+/// - Value source:
+///   - M3 motion guidance + project interaction latency requirements.
 class AppDurations {
   const AppDurations._();
 

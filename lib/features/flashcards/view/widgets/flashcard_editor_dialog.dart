@@ -156,6 +156,9 @@ Future<bool> showFlashcardEditorDialog({
                   onPressed: isSubmitting
                       ? null
                       : () async {
+                          final NavigatorState navigator = Navigator.of(
+                            dialogContext,
+                          );
                           if (!form.valid) {
                             form.markAllAsTouched();
                             return;
@@ -169,7 +172,7 @@ Future<bool> showFlashcardEditorDialog({
                           final FlashcardSubmitResult submitResult =
                               await onSubmit(input);
                           if (submitResult.isSuccess) {
-                            dialogContext.pop(true);
+                            navigator.pop(true);
                             return;
                           }
                           setDialogState(() {

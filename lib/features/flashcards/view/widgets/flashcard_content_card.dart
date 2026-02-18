@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_durations.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../model/flashcard_models.dart';
@@ -67,7 +68,6 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
         valueListenable: _isPressedNotifier,
         child: AppCard(
           variant: AppCardVariant.elevated,
-          elevation: FlashcardScreenTokens.cardElevation,
           borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
           backgroundColor: colorScheme.surfaceContainerHigh,
           padding: const EdgeInsets.all(FlashcardScreenTokens.cardPadding),
@@ -77,7 +77,6 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
               Text(
                 widget.item.frontText,
                 style: theme.textTheme.titleLarge?.copyWith(
-                  fontSize: FlashcardScreenTokens.cardPrimaryTextSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -87,7 +86,6 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
               Text(
                 widget.item.backText,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: FlashcardScreenTokens.cardSecondaryTextSize,
                   fontWeight: FontWeight.w500,
                 ),
                 maxLines: FlashcardScreenTokens.cardSecondaryMaxLines,
@@ -99,7 +97,7 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
                   pronunciationText,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(
-                      alpha: FlashcardScreenTokens.mutedTextOpacity,
+                      alpha: AppOpacities.muted82,
                     ),
                   ),
                 ),
@@ -109,9 +107,8 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
                 Text(
                   noteText,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: FlashcardScreenTokens.cardDescriptionTextSize,
                     color: colorScheme.onSurface.withValues(
-                      alpha: FlashcardScreenTokens.cardDescriptionOpacity,
+                      alpha: AppOpacities.muted82,
                     ),
                   ),
                   maxLines: FlashcardScreenTokens.cardDescriptionMaxLines,

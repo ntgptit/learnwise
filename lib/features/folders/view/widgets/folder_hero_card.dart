@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 
 class FolderHeroCard extends StatelessWidget {
   const FolderHeroCard({super.key});
@@ -37,9 +38,7 @@ class FolderHeroCard extends StatelessWidget {
           Text(
             l10n.foldersHeroDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: foregroundColor.withValues(
-                alpha: FolderScreenTokens.dimOpacity,
-              ),
+              color: foregroundColor.withValues(alpha: AppOpacities.muted82),
             ),
           ),
         ],

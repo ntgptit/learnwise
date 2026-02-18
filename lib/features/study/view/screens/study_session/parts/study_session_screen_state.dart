@@ -86,18 +86,23 @@ class _FlashcardStudySessionScreenState
     required StudySessionControllerProvider provider,
     required StudyMode mode,
   }) async {
+    final GoRouter router = GoRouter.of(context);
     final StudySessionController controller = ref.read(provider.notifier);
     await controller.completeCurrentMode();
     final StudySessionArgs nextArgs = _buildNextCycleArgs(mode: mode);
-    FlashcardStudySessionRoute($extra: nextArgs).pushReplacement(context);
+    final FlashcardStudySessionRoute route = FlashcardStudySessionRoute(
+      $extra: nextArgs,
+    );
+    router.pushReplacement(route.location, extra: route.$extra);
   }
 
   Future<void> _onClosePressed({
     required StudySessionControllerProvider provider,
   }) async {
+    final GoRouter router = GoRouter.of(context);
     final StudySessionController controller = ref.read(provider.notifier);
     await controller.completeCurrentMode();
-    context.pop(true);
+    router.pop(true);
   }
 
   StudySessionArgs _buildNextCycleArgs({required StudyMode mode}) {

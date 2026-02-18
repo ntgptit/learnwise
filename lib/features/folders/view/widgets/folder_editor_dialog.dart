@@ -180,6 +180,9 @@ Future<bool> showFolderEditorDialog({
                   onPressed: isSubmitting
                       ? null
                       : () async {
+                          final NavigatorState navigator = Navigator.of(
+                            dialogContext,
+                          );
                           final bool isFormValid = form.valid;
                           if (!isFormValid) {
                             form.markAllAsTouched();
@@ -198,7 +201,7 @@ Future<bool> showFolderEditorDialog({
                           final FolderSubmitResult submitResult =
                               await onSubmit(input);
                           if (submitResult.isSuccess) {
-                            dialogContext.pop(true);
+                            navigator.pop(true);
                             return;
                           }
                           setDialogState(() {

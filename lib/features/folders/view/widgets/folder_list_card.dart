@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../../model/folder_models.dart';
 import 'folder_color_resolver.dart';
@@ -45,9 +46,7 @@ class FolderListCard extends StatelessWidget {
         vertical: FolderScreenTokens.listItemVerticalPadding,
       ),
       border: Border.all(
-        color: colorScheme.outline.withValues(
-          alpha: FolderScreenTokens.outlineOpacity,
-        ),
+        color: colorScheme.outline.withValues(alpha: AppOpacities.outline26),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +57,7 @@ class FolderListCard extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(
-                alpha: FolderScreenTokens.surfaceSoftOpacity,
+                alpha: AppOpacities.soft20,
               ),
               borderRadius: BorderRadius.circular(
                 FolderScreenTokens.listItemLeadingRadius,
@@ -93,7 +92,7 @@ class FolderListCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(
-                      alpha: FolderScreenTokens.dimOpacity,
+                      alpha: AppOpacities.muted82,
                     ),
                   ),
                 ),

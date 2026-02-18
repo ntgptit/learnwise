@@ -287,7 +287,6 @@ class _MatchBoardTile extends StatelessWidget {
           opacity: _resolveOpacity(),
           child: AppCard(
             variant: AppCardVariant.elevated,
-            elevation: FlashcardStudySessionTokens.cardElevation,
             borderRadius: BorderRadius.circular(
               FlashcardStudySessionTokens.matchCardRadius,
             ),
@@ -375,28 +374,26 @@ class _MatchBoardTile extends StatelessWidget {
     required ThemeData theme,
     required ColorScheme colorScheme,
   }) {
-    final double labelFontSize = _resolveLabelFontSize();
-    final TextStyle? baseStyle = theme.textTheme.titleMedium?.copyWith(
-      fontWeight: FontWeight.normal,
-      fontSize: labelFontSize,
-    );
+    final TextStyle baseStyle = _resolveBaseLabelStyle(
+      theme,
+    ).copyWith(fontWeight: FontWeight.normal);
     final Color tileTextColor = colorScheme.onSurfaceVariant.withValues(
       alpha: AppOpacities.muted82,
     );
     if (isSelected) {
-      return baseStyle?.copyWith(color: colorScheme.onSurface);
+      return baseStyle.copyWith(color: colorScheme.onSurface);
     }
     if (isMatched) {
-      return baseStyle?.copyWith(color: tileTextColor);
+      return baseStyle.copyWith(color: tileTextColor);
     }
-    return baseStyle?.copyWith(color: tileTextColor);
+    return baseStyle.copyWith(color: tileTextColor);
   }
 
-  double _resolveLabelFontSize() {
+  TextStyle _resolveBaseLabelStyle(ThemeData theme) {
     if (isPromptTile) {
-      return FlashcardStudySessionTokens.matchPromptLabelFontSize;
+      return theme.textTheme.titleMedium ?? const TextStyle();
     }
-    return FlashcardStudySessionTokens.matchMeaningLabelFontSize;
+    return theme.textTheme.bodyLarge ?? const TextStyle();
   }
 
   double _resolveOpacity() {

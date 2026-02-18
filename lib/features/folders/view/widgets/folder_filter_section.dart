@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../model/folder_models.dart';
 
 class FolderFilterSection extends StatelessWidget {
@@ -32,9 +33,9 @@ class FolderFilterSection extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(FolderScreenTokens.cardRadius),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(
-            alpha: FolderScreenTokens.outlineOpacity,
-          ),
+          color: Theme.of(
+            context,
+          ).colorScheme.outline.withValues(alpha: AppOpacities.outline26),
         ),
       ),
       child: Column(

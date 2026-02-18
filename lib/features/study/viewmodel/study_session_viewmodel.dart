@@ -256,16 +256,16 @@ sealed class StudySessionState with _$StudySessionState {
         isFrontVisible: true,
         playingFlashcardId: null,
       ),
-      interactions: StudySessionInteractions(
+      interactions: const StudySessionInteractions(
         guess: StudySessionGuessInteraction(
-          successOptionIds: const <String>{},
-          errorOptionIds: const <String>{},
+          successOptionIds: <String>{},
+          errorOptionIds: <String>{},
           isLocked: false,
         ),
         match: StudySessionMatchInteraction(
-          hiddenIds: const <int>{},
-          successFlashKeys: const <String>{},
-          errorFlashKeys: const <String>{},
+          hiddenIds: <int>{},
+          successFlashKeys: <String>{},
+          errorFlashKeys: <String>{},
           isLocked: false,
         ),
       ),
@@ -1402,10 +1402,10 @@ class StudySessionController extends _$StudySessionController {
           errorOptionIds: guessErrorOptionIds,
           isLocked: isGuessInteractionLocked,
         ),
-        match: StudySessionMatchInteraction(
-          hiddenIds: const <int>{},
-          successFlashKeys: const <String>{},
-          errorFlashKeys: const <String>{},
+        match: const StudySessionMatchInteraction(
+          hiddenIds: <int>{},
+          successFlashKeys: <String>{},
+          errorFlashKeys: <String>{},
           isLocked: false,
         ),
       ),
@@ -1501,9 +1501,9 @@ class StudySessionController extends _$StudySessionController {
         playingFlashcardId: _playingFlashcardId,
       ),
       interactions: StudySessionInteractions(
-        guess: StudySessionGuessInteraction(
-          successOptionIds: const <String>{},
-          errorOptionIds: const <String>{},
+        guess: const StudySessionGuessInteraction(
+          successOptionIds: <String>{},
+          errorOptionIds: <String>{},
           isLocked: false,
         ),
         match: StudySessionMatchInteraction(

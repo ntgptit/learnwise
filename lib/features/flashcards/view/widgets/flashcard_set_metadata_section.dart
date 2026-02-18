@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 import '../../../../core/utils/string_utils.dart';
 
 const String _metadataSeparator = ' • ';
@@ -42,10 +43,8 @@ class FlashcardSetMetadataSection extends StatelessWidget {
       children: <Widget>[
         Text(
           title,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontSize: FlashcardScreenTokens.metadataTitleSize,
+          style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
-            height: FlashcardScreenTokens.metadataTitleLineHeight,
           ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -56,9 +55,8 @@ class FlashcardSetMetadataSection extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: FlashcardScreenTokens.metadataLineSize,
             color: theme.colorScheme.onSurface.withValues(
-              alpha: FlashcardScreenTokens.metadataLineOpacity,
+              alpha: AppOpacities.muted70,
             ),
           ),
         ),

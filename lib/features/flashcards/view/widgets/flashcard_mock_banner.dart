@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_opacities.dart';
 
 class FlashcardMockBanner extends StatelessWidget {
   const FlashcardMockBanner({required this.onInfoPressed, super.key});
@@ -19,7 +20,7 @@ class FlashcardMockBanner extends StatelessWidget {
       height: FlashcardScreenTokens.bannerHeight,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(
-          alpha: FlashcardScreenTokens.surfaceSoftOpacity,
+          alpha: AppOpacities.soft20,
         ),
         borderRadius: BorderRadius.circular(FlashcardScreenTokens.bannerRadius),
       ),

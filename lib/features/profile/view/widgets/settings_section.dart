@@ -66,6 +66,47 @@ class SettingsSection extends StatelessWidget {
   ) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final ButtonStyle segmentedStyle = ButtonStyle(
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.primary;
+        }
+        if (states.contains(WidgetState.focused)) {
+          return colorScheme.primaryContainer;
+        }
+        return colorScheme.surfaceContainer;
+      }),
+      foregroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.onPrimary;
+        }
+        if (states.contains(WidgetState.focused)) {
+          return colorScheme.onPrimaryContainer;
+        }
+        return colorScheme.onSurface;
+      }),
+      iconColor: WidgetStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return colorScheme.onPrimary;
+        }
+        if (states.contains(WidgetState.focused)) {
+          return colorScheme.onPrimaryContainer;
+        }
+        return colorScheme.onSurface;
+      }),
+      side: WidgetStateProperty.resolveWith<BorderSide?>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: colorScheme.primary);
+        }
+        if (states.contains(WidgetState.focused)) {
+          return BorderSide(color: colorScheme.primaryContainer);
+        }
+        return BorderSide(color: colorScheme.outlineVariant);
+      }),
+      textStyle: WidgetStateProperty.all(
+        textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,6 +145,7 @@ class SettingsSection extends StatelessWidget {
                 themeMode: newSelection.first,
               );
             },
+            style: segmentedStyle,
             showSelectedIcon: false,
           ),
         ),
@@ -158,13 +200,31 @@ class SettingsSection extends StatelessWidget {
         l10n.profileStudyAutoPlayAudioLabel,
         style: textTheme.bodyLarge,
       ),
-      trailing: Switch.adaptive(
-        value: draft.studyAutoPlayAudio,
-        onChanged: (value) {
-          settingsDraftNotifier.value = draft.copyWith(
-            studyAutoPlayAudio: value,
-          );
-        },
+      trailing: Theme(
+        data: Theme.of(context).copyWith(
+          switchTheme: SwitchThemeData(
+            thumbColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return colorScheme.primary;
+              }
+              return colorScheme.surface;
+            }),
+            trackColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return colorScheme.primaryContainer;
+              }
+              return colorScheme.outlineVariant;
+            }),
+          ),
+        ),
+        child: Switch.adaptive(
+          value: draft.studyAutoPlayAudio,
+          onChanged: (value) {
+            settingsDraftNotifier.value = draft.copyWith(
+              studyAutoPlayAudio: value,
+            );
+          },
+        ),
       ),
     );
   }
@@ -181,7 +241,7 @@ class SettingsSection extends StatelessWidget {
         children: <Widget>[
           _buildCardsPerSessionHeader(context, l10n, draft),
           const SizedBox(height: AppSizes.spacingSm),
-          _buildCardsPerSessionSlider(l10n, draft),
+          _buildCardsPerSessionSlider(context, l10n, draft),
         ],
       ),
     );
@@ -238,6 +298,7 @@ class SettingsSection extends StatelessWidget {
   }
 
   Widget _buildCardsPerSessionSlider(
+    BuildContext context,
     AppLocalizations l10n,
     ProfileSettingsDraft draft,
   ) {
@@ -245,21 +306,31 @@ class SettingsSection extends StatelessWidget {
         UserStudySettings.normalizeStudyCardsPerSession(
           draft.studyCardsPerSession,
         );
-    return Slider(
-      value: normalizedCardsPerSession.toDouble(),
-      min: UserStudySettings.minStudyCardsPerSession.toDouble(),
-      max: UserStudySettings.maxStudyCardsPerSession.toDouble(),
-      divisions:
-          UserStudySettings.maxStudyCardsPerSession -
-          UserStudySettings.minStudyCardsPerSession,
-      label: l10n.profileStudyCardsPerSessionOption(normalizedCardsPerSession),
-      onChanged: (value) {
-        final int nextCardsPerSession =
-            UserStudySettings.normalizeStudyCardsPerSession(value.round());
-        settingsDraftNotifier.value = draft.copyWith(
-          studyCardsPerSession: nextCardsPerSession,
-        );
-      },
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+        thumbColor: colorScheme.primary,
+        activeTrackColor: colorScheme.primary,
+        inactiveTrackColor: colorScheme.primaryContainer,
+      ),
+      child: Slider(
+        value: normalizedCardsPerSession.toDouble(),
+        min: UserStudySettings.minStudyCardsPerSession.toDouble(),
+        max: UserStudySettings.maxStudyCardsPerSession.toDouble(),
+        divisions:
+            UserStudySettings.maxStudyCardsPerSession -
+            UserStudySettings.minStudyCardsPerSession,
+        label: l10n.profileStudyCardsPerSessionOption(
+          normalizedCardsPerSession,
+        ),
+        onChanged: (value) {
+          final int nextCardsPerSession =
+              UserStudySettings.normalizeStudyCardsPerSession(value.round());
+          settingsDraftNotifier.value = draft.copyWith(
+            studyCardsPerSession: nextCardsPerSession,
+          );
+        },
+      ),
     );
   }
 

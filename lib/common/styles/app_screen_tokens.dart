@@ -55,7 +55,7 @@ class BaseListTokens {
 class DashboardScreenTokens {
   const DashboardScreenTokens._();
 
-  static const double headerBorderRadius = 28;
+  static const double headerBorderRadius = AppSizes.size36;
   static const double metricCardRadius = AppSizes.size24;
   static const double sectionSpacing = BaseScreenTokens.sectionSpacingLarge;
   static const double headerPadding = AppSizes.spacingLg;
@@ -71,6 +71,12 @@ class DashboardScreenTokens {
   static const double heroChipPadding = BaseCardTokens.spacingSm;
   static const double heroChipRadius = AppSizes.radiusLg;
   static const double heroChipSpacing = AppSizes.spacingXs;
+  static const double heroIconSize = AppSizes.size56;
+  static const double heroIconContainerSize = AppSizes.size72;
+  static const double heroShadowBlur = AppSizes.size24;
+  static const double heroShadowOffsetY = AppSizes.size8;
+  static const double heroIconShadowBlur = AppSizes.size16;
+  static const double heroIconShadowOffsetY = AppSizes.size4;
 
   static const double sectionTitleGap = BaseCardTokens.spacingSm;
   static const double metricColumns = 2;
@@ -79,6 +85,7 @@ class DashboardScreenTokens {
   static const double metricIconGap = AppSizes.spacingXs;
   static const double metricBodyGap = BaseListTokens.itemGapSm;
   static const double metricBodyGapSmall = BaseListTokens.itemMetaGap;
+  static const double metricProgressHeight = AppSizes.size8;
 
   static const double focusCardPadding = BaseCardTokens.paddingMd;
   static const double focusIconSize = 34;

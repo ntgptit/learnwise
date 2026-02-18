@@ -27,7 +27,7 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    final ColorScheme colorScheme = lightColorScheme;
+    final ColorScheme colorScheme = buildLightColorScheme();
     final TextTheme textTheme =
         AppTypography.textTheme(colorScheme: colorScheme).apply(
           bodyColor: colorScheme.onSurface,
@@ -39,6 +39,8 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       cardTheme: _buildCardTheme(colorScheme),
+      filledButtonTheme: _buildFilledButtonTheme(colorScheme),
+      outlinedButtonTheme: _buildOutlinedButtonTheme(colorScheme),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(
@@ -64,7 +66,7 @@ class AppTheme {
   }
 
   static ThemeData dark() {
-    final ColorScheme colorScheme = darkColorScheme;
+    final ColorScheme colorScheme = buildDarkColorScheme();
     final TextTheme textTheme =
         AppTypography.textTheme(colorScheme: colorScheme).apply(
           bodyColor: colorScheme.onSurface,
@@ -76,6 +78,8 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       cardTheme: _buildCardTheme(colorScheme),
+      filledButtonTheme: _buildFilledButtonTheme(colorScheme),
+      outlinedButtonTheme: _buildOutlinedButtonTheme(colorScheme),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(
@@ -101,14 +105,44 @@ class AppTheme {
   }
 
   static CardThemeData _buildCardTheme(ColorScheme colorScheme) {
+    final Color cardBackgroundColor = _resolveCardBackgroundColor(colorScheme);
     return CardThemeData(
-      color: colorScheme.surfaceContainerLow,
+      color: cardBackgroundColor,
       elevation: 0,
       shadowColor: colorScheme.shadow,
       surfaceTintColor: colorScheme.surfaceTint,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+    );
+  }
+
+  static Color _resolveCardBackgroundColor(ColorScheme colorScheme) {
+    if (colorScheme.brightness == Brightness.dark) {
+      return colorScheme.surfaceContainer;
+    }
+    return colorScheme.surfaceContainerLow;
+  }
+
+  static FilledButtonThemeData _buildFilledButtonTheme(
+    ColorScheme colorScheme,
+  ) {
+    return FilledButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(colorScheme.primary),
+        foregroundColor: WidgetStateProperty.all(colorScheme.onPrimary),
+      ),
+    );
+  }
+
+  static OutlinedButtonThemeData _buildOutlinedButtonTheme(
+    ColorScheme colorScheme,
+  ) {
+    return OutlinedButtonThemeData(
+      style: ButtonStyle(
+        foregroundColor: WidgetStateProperty.all(colorScheme.primary),
+        side: WidgetStateProperty.all(BorderSide(color: colorScheme.primary)),
       ),
     );
   }

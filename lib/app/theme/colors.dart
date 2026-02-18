@@ -14,5 +14,7 @@ class AppColors {
   const AppColors._();
 
   /// Material 3 seed color for generating [ColorScheme] via `fromSeed`.
-  static const Color primary = Color(0xFF0A7E8C);
+  static const Color primary = Color(0xFF7B1E4A);
+  static const Color secondary = Color(0xFFA33D6B);
+  static const Color tertiary = Color(0xFFC06C84);
 }

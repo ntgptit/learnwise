@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../styles/app_sizes.dart';
+
 /// Represents a single destination in the bottom navigation bar.
 ///
 /// Each destination has an [icon] and [label] for display, and an optional
@@ -62,7 +64,10 @@ class AppBottomNavDestination {
 ///  * [AppBreadcrumbs], for hierarchical navigation
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({
-    required this.destinations, required this.selectedIndex, required this.onDestinationSelected, super.key,
+    required this.destinations,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+    super.key,
   }) : assert(destinations.length > 0, 'destinations must not be empty.');
 
   /// The list of navigation destinations to display.
@@ -92,20 +97,48 @@ class AppBottomNavBar extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return NavigationBar(
-      selectedIndex: selectedIndex,
-      onDestinationSelected: onDestinationSelected,
-      destinations: destinations
-          .map(
-            (destination) => NavigationDestination(
-              icon: Icon(destination.icon),
-              selectedIcon: destination.selectedIcon == null
-                  ? null
-                  : Icon(destination.selectedIcon),
-              label: destination.label,
-            ),
-          )
-          .toList(),
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final NavigationBarThemeData navigationBarTheme = NavigationBarThemeData(
+      backgroundColor: colorScheme.surfaceContainerHigh,
+      indicatorColor: colorScheme.primaryContainer,
+      indicatorShape: const StadiumBorder(),
+      elevation: AppSizes.size2,
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return IconThemeData(color: colorScheme.primary);
+        }
+        return IconThemeData(color: colorScheme.onSurfaceVariant);
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: colorScheme.primary,
+            fontWeight: FontWeight.w700,
+          );
+        }
+        return Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant);
+      }),
+    );
+
+    return NavigationBarTheme(
+      data: navigationBarTheme,
+      child: NavigationBar(
+        selectedIndex: selectedIndex,
+        onDestinationSelected: onDestinationSelected,
+        destinations: destinations
+            .map(
+              (destination) => NavigationDestination(
+                icon: Icon(destination.icon),
+                selectedIcon: destination.selectedIcon == null
+                    ? null
+                    : Icon(destination.selectedIcon),
+                label: destination.label,
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 }

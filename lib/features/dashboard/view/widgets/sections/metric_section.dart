@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/styles/app_sizes.dart';
 import '../../../../../common/widgets/widgets.dart';
 import '../../../model/dashboard_models.dart';
 
@@ -33,6 +35,7 @@ class DashboardMetricSection extends StatelessWidget {
   Widget _buildGrid(AppLocalizations l10n) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final ColorScheme colorScheme = Theme.of(context).colorScheme;
         final double itemWidth =
             (constraints.maxWidth - DashboardScreenTokens.metricGridSpacing) /
             DashboardScreenTokens.metricColumns;
@@ -48,6 +51,16 @@ class DashboardMetricSection extends StatelessWidget {
                 value: _metricValueText(l10n, metric),
                 progress: metric.progress,
                 minHeight: DashboardScreenTokens.metricCardMinHeight,
+                elevation: AppSizes.size2,
+                backgroundColor: colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(
+                  DashboardScreenTokens.metricCardRadius,
+                ),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(
+                    alpha: AppOpacities.soft20,
+                  ),
+                ),
                 padding: const EdgeInsets.all(
                   DashboardScreenTokens.metricCardPadding,
                 ),

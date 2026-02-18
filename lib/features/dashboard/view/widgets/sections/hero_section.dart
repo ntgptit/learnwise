@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/styles/app_opacities.dart';
+import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardHeroSection extends StatelessWidget {
@@ -30,11 +30,7 @@ class DashboardHeroSection extends StatelessWidget {
             foregroundColor: foregroundColor,
           ),
           const SizedBox(height: DashboardScreenTokens.heroGapLarge),
-          _HeroStats(
-            l10n: l10n,
-            snapshot: snapshot,
-            foregroundColor: foregroundColor,
-          ),
+          _HeroStats(l10n: l10n, snapshot: snapshot),
         ],
       ),
     );
@@ -43,17 +39,20 @@ class DashboardHeroSection extends StatelessWidget {
   BoxDecoration _buildDecoration(ColorScheme colorScheme) {
     return BoxDecoration(
       gradient: LinearGradient(
-        colors: <Color>[
-          colorScheme.primary,
-          colorScheme.secondary,
-          colorScheme.tertiary,
-        ],
+        colors: <Color>[colorScheme.primary, colorScheme.secondary],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
       borderRadius: BorderRadius.circular(
         DashboardScreenTokens.headerBorderRadius,
       ),
+      boxShadow: <BoxShadow>[
+        BoxShadow(
+          color: colorScheme.shadow.withValues(alpha: AppOpacities.soft20),
+          blurRadius: DashboardScreenTokens.heroShadowBlur,
+          offset: const Offset(0, DashboardScreenTokens.heroShadowOffsetY),
+        ),
+      ],
     );
   }
 
@@ -80,20 +79,54 @@ class _HeroTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          greeting,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            color: foregroundColor,
-            fontWeight: FontWeight.w700,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                greeting,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: foregroundColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: DashboardScreenTokens.heroGapSmall),
+              Text(
+                headline,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: foregroundColor,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: DashboardScreenTokens.heroGapSmall),
-        Text(
-          headline,
-          style: theme.textTheme.titleMedium?.copyWith(color: foregroundColor),
+        Container(
+          width: DashboardScreenTokens.heroIconContainerSize,
+          height: DashboardScreenTokens.heroIconContainerSize,
+          decoration: BoxDecoration(
+            color: foregroundColor.withValues(alpha: AppOpacities.soft20),
+            shape: BoxShape.circle,
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Theme.of(
+                  context,
+                ).colorScheme.shadow.withValues(alpha: AppOpacities.soft15),
+                blurRadius: DashboardScreenTokens.heroIconShadowBlur,
+                offset: const Offset(
+                  0,
+                  DashboardScreenTokens.heroIconShadowOffsetY,
+                ),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.local_fire_department_rounded,
+            size: DashboardScreenTokens.heroIconSize,
+            color: foregroundColor,
+          ),
         ),
       ],
     );
@@ -101,15 +134,10 @@ class _HeroTitle extends StatelessWidget {
 }
 
 class _HeroStats extends StatelessWidget {
-  const _HeroStats({
-    required this.l10n,
-    required this.snapshot,
-    required this.foregroundColor,
-  });
+  const _HeroStats({required this.l10n, required this.snapshot});
 
   final AppLocalizations l10n;
   final DashboardSnapshot snapshot;
-  final Color foregroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -119,14 +147,16 @@ class _HeroStats extends StatelessWidget {
           icon: Icons.local_fire_department_outlined,
           label: l10n.dashboardStreakLabel,
           value: l10n.dashboardStreakValue(snapshot.streakDays),
-          foregroundColor: foregroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
         ),
         const SizedBox(width: DashboardScreenTokens.heroChipSpacing),
         _HeroStatChip(
           icon: Icons.flag_outlined,
           label: l10n.dashboardGoalProgressLabel,
           value: l10n.dashboardFocusCountLabel(snapshot.focusCardCount),
-          foregroundColor: foregroundColor,
+          foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
         ),
       ],
     );
@@ -139,12 +169,14 @@ class _HeroStatChip extends StatelessWidget {
     required this.label,
     required this.value,
     required this.foregroundColor,
+    required this.backgroundColor,
   });
 
   final IconData icon;
   final String label;
   final String value;
   final Color foregroundColor;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +204,7 @@ class _HeroStatChip extends StatelessWidget {
 
   BoxDecoration _buildDecoration(ColorScheme colorScheme) {
     return BoxDecoration(
-      color: colorScheme.surface.withValues(alpha: AppOpacities.soft15),
+      color: backgroundColor,
       borderRadius: BorderRadius.circular(DashboardScreenTokens.heroChipRadius),
     );
   }

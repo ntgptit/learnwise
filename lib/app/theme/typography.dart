@@ -32,7 +32,7 @@ class AppTypography {
       ),
       titleLarge: base.titleLarge?.copyWith(
         fontFamily: fontFamily,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       ),
       titleMedium: base.titleMedium?.copyWith(
         fontFamily: fontFamily,

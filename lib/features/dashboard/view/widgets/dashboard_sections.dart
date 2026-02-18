@@ -15,9 +15,9 @@ List<Widget> buildDashboardSectionItems({
   return <Widget>[
     DashboardHeroSection(snapshot: snapshot),
     const DashboardSectionGap(),
-    DashboardMetricSection(snapshot: snapshot),
-    const DashboardSectionGap(),
     DashboardQuickActionSection(snapshot: snapshot),
+    const DashboardSectionGap(),
+    DashboardMetricSection(snapshot: snapshot),
     const DashboardSectionGap(),
     DashboardFocusSection(snapshot: snapshot),
     const DashboardSectionGap(),

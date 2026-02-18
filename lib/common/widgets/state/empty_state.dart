@@ -53,6 +53,8 @@ class EmptyState extends StatelessWidget {
     final String semanticsLabel = subtitle != null
         ? '$title. $subtitle'
         : title;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       label: semanticsLabel,
@@ -63,12 +65,22 @@ class EmptyState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Icon(icon, size: AppSizes.spacingLg),
-              const SizedBox(height: AppSizes.spacingSm),
-              Text(title, textAlign: TextAlign.center),
+              Icon(icon, size: AppSizes.size72, color: colorScheme.onSurfaceVariant),
+              const SizedBox(height: AppSizes.spacingMd),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
+              ),
               if (subtitle != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingXs),
-                Text(subtitle!, textAlign: TextAlign.center),
+                Text(
+                  subtitle!,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
               if (action != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingMd),

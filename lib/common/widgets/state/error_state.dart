@@ -1,7 +1,6 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 
-import '../../styles/icons.dart';
 import '../../styles/app_sizes.dart';
 import '../buttons/primary_button.dart';
 
@@ -58,6 +57,8 @@ class ErrorState extends StatelessWidget {
     final String semanticsLabel = message != null
         ? 'Error: $title. $message'
         : 'Error: $title';
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       label: semanticsLabel,
@@ -68,12 +69,26 @@ class ErrorState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Icon(AppIcons.refresh, size: AppSizes.spacingLg),
-              const SizedBox(height: AppSizes.spacingSm),
-              Text(title, textAlign: TextAlign.center),
+              Icon(
+                Icons.error_outline_rounded,
+                size: AppSizes.size72,
+                color: colorScheme.error,
+              ),
+              const SizedBox(height: AppSizes.spacingMd),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
+              ),
               if (message != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingXs),
-                Text(message!, textAlign: TextAlign.center),
+                Text(
+                  message!,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
               if (onRetry != null && retryLabel != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingMd),

@@ -13,7 +13,7 @@ class AppMetricCard extends StatelessWidget {
     super.key,
     this.progress,
     this.minHeight = AppSizes.size72,
-    this.padding = const EdgeInsets.all(AppSizes.spacingSm),
+    this.padding = const EdgeInsets.all(AppSizes.spacingMd),
     this.elevation = AppSizes.size1,
     this.backgroundColor,
     this.borderRadius,

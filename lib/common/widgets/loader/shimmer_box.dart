@@ -67,7 +67,7 @@ class _ShimmerBoxState extends State<ShimmerBox>
               begin: Alignment(-1 + dx, -1),
               end: Alignment(1 + dx, 1),
               colors: <Color>[base, highlight, base],
-              stops: const <double>[0.1, 0.3, 0.4],
+              stops: const <double>[0.0, 0.5, 1.0],
               transform: const GradientRotation(pi / 16),
             ),
           ),

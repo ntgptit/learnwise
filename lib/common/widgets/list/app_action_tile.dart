@@ -53,7 +53,7 @@ class AppActionTile extends StatelessWidget {
             ),
           ),
           if (onPressed != null)
-            Icon(Icons.chevron_right, color: colorScheme.onSurface),
+            Icon(Icons.chevron_right_rounded, color: colorScheme.onSurfaceVariant),
         ],
       ),
     );

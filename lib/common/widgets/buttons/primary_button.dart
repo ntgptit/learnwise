@@ -86,10 +86,13 @@ class PrimaryButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         if (isLoading)
-          const SizedBox(
+          SizedBox(
             width: AppSizes.spacingMd,
             height: AppSizes.spacingMd,
-            child: CircularProgressIndicator(strokeWidth: AppSizes.size2),
+            child: CircularProgressIndicator(
+              strokeWidth: AppSizes.size2,
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
+            ),
           ),
         if (!isLoading && leading != null) leading!,
         if (isLoading || leading != null)

@@ -7,7 +7,9 @@
       "Bash(flutter pub run:*)",
       "Bash(STRICT_QUALITY_CONTRACT=1 dart run:*)",
       "Bash(dart tool/verify_ui_constants_centralization.dart:*)",
-      "Bash(dart tool/verify_ui_design_guard.dart:*)"
+      "Bash(dart tool/verify_ui_design_guard.dart:*)",
+      "Bash(wc -l:*)",
+      "Bash(git stash:*)"
     ]
   }
 }

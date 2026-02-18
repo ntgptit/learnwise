@@ -2,6 +2,7 @@
 // theme-guard: allow-no-dynamic-color - static palette is intentionally used.
 import 'package:flutter/material.dart';
 
+import '../../common/styles/app_opacities.dart';
 import '../../common/styles/app_radius.dart';
 import '../../common/styles/app_sizes.dart';
 import 'color_schemes.dart';
@@ -41,11 +42,15 @@ class AppTheme {
       cardTheme: _buildCardTheme(colorScheme),
       filledButtonTheme: _buildFilledButtonTheme(colorScheme),
       outlinedButtonTheme: _buildOutlinedButtonTheme(colorScheme),
+      inputDecorationTheme: _buildInputDecorationTheme(colorScheme),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
+        thickness: AppSizes.size1,
+        space: AppSizes.spacingXs,
+      ),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
-      snackBarTheme: const SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-      ),
+      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -80,11 +85,15 @@ class AppTheme {
       cardTheme: _buildCardTheme(colorScheme),
       filledButtonTheme: _buildFilledButtonTheme(colorScheme),
       outlinedButtonTheme: _buildOutlinedButtonTheme(colorScheme),
+      inputDecorationTheme: _buildInputDecorationTheme(colorScheme),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
+        thickness: AppSizes.size1,
+        space: AppSizes.spacingXs,
+      ),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
-      snackBarTheme: const SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-      ),
+      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -130,8 +139,18 @@ class AppTheme {
   ) {
     return FilledButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(colorScheme.primary),
-        foregroundColor: WidgetStateProperty.all(colorScheme.onPrimary),
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return colorScheme.onSurface.withValues(alpha: AppOpacities.soft12);
+          }
+          return colorScheme.primary;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return colorScheme.onSurface.withValues(alpha: AppOpacities.disabled38);
+          }
+          return colorScheme.onPrimary;
+        }),
       ),
     );
   }
@@ -141,8 +160,47 @@ class AppTheme {
   ) {
     return OutlinedButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all(colorScheme.primary),
-        side: WidgetStateProperty.all(BorderSide(color: colorScheme.primary)),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return colorScheme.onSurface.withValues(alpha: AppOpacities.disabled38);
+          }
+          return colorScheme.primary;
+        }),
+        side: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return BorderSide(
+              color: colorScheme.onSurface.withValues(alpha: AppOpacities.soft12),
+            );
+          }
+          return BorderSide(color: colorScheme.primary);
+        }),
+      ),
+    );
+  }
+
+  static InputDecorationTheme _buildInputDecorationTheme(
+    ColorScheme colorScheme,
+  ) {
+    final OutlineInputBorder base = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide(color: colorScheme.outline),
+    );
+    return InputDecorationTheme(
+      border: base,
+      enabledBorder: base,
+      focusedBorder: base.copyWith(
+        borderSide: BorderSide(color: colorScheme.primary, width: AppSizes.size2),
+      ),
+      errorBorder: base.copyWith(
+        borderSide: BorderSide(color: colorScheme.error),
+      ),
+      focusedErrorBorder: base.copyWith(
+        borderSide: BorderSide(color: colorScheme.error, width: AppSizes.size2),
+      ),
+      disabledBorder: base.copyWith(
+        borderSide: BorderSide(
+          color: colorScheme.outline.withValues(alpha: AppOpacities.muted55),
+        ),
       ),
     );
   }

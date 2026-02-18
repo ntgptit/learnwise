@@ -30,6 +30,11 @@ class AppTypography {
         fontWeight: FontWeight.w700,
         letterSpacing: -0.3,
       ),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.2,
+      ),
       titleLarge: base.titleLarge?.copyWith(
         fontFamily: fontFamily,
         fontWeight: FontWeight.w700,
@@ -38,8 +43,16 @@ class AppTypography {
         fontFamily: fontFamily,
         fontWeight: FontWeight.w600,
       ),
+      titleSmall: base.titleSmall?.copyWith(
+        fontFamily: fontFamily,
+        fontWeight: FontWeight.w600,
+      ),
       bodyLarge: base.bodyLarge?.copyWith(fontFamily: fontFamily, height: 1.4),
       bodyMedium: base.bodyMedium?.copyWith(
+        fontFamily: fontFamily,
+        height: 1.4,
+      ),
+      bodySmall: base.bodySmall?.copyWith(
         fontFamily: fontFamily,
         height: 1.4,
       ),

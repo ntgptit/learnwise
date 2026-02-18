@@ -15,7 +15,7 @@ class DashboardHeroSection extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final Color foregroundColor = _resolveForegroundColor(colorScheme);
+    final Color foregroundColor = colorScheme.onPrimaryContainer;
 
     return Container(
       padding: const EdgeInsets.all(DashboardScreenTokens.headerPadding),
@@ -39,7 +39,10 @@ class DashboardHeroSection extends StatelessWidget {
   BoxDecoration _buildDecoration(ColorScheme colorScheme) {
     return BoxDecoration(
       gradient: LinearGradient(
-        colors: <Color>[colorScheme.primary, colorScheme.secondary],
+        colors: <Color>[
+          colorScheme.primaryContainer,
+          colorScheme.secondaryContainer,
+        ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
@@ -54,13 +57,6 @@ class DashboardHeroSection extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Color _resolveForegroundColor(ColorScheme colorScheme) {
-    if (colorScheme.brightness == Brightness.dark) {
-      return colorScheme.onSurface;
-    }
-    return colorScheme.onPrimary;
   }
 }
 

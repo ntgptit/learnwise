@@ -103,8 +103,8 @@ class _AnimatedProgressBar extends StatelessWidget {
           builder: (context, value, _) {
             return LinearProgressIndicator(
               value: value,
-              color: colorScheme.primary,
-              backgroundColor: colorScheme.primaryContainer,
+              color: colorScheme.secondary,
+              backgroundColor: colorScheme.secondaryContainer,
             );
           },
         ),

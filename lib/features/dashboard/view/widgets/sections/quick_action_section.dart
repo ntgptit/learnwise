@@ -149,24 +149,24 @@ ButtonStyle _resolveFilledStyle({required BuildContext context}) {
 ButtonStyle _resolveTonalStyle({required BuildContext context}) {
   final ColorScheme colorScheme = Theme.of(context).colorScheme;
   return FilledButton.styleFrom(
-    backgroundColor: colorScheme.primaryContainer,
-    foregroundColor: colorScheme.onPrimaryContainer,
+    backgroundColor: colorScheme.secondaryContainer,
+    foregroundColor: colorScheme.onSecondaryContainer,
     minimumSize: const Size(double.infinity, AppSizes.size52),
     shape: const StadiumBorder(),
   ).copyWith(
     overlayColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.pressed)) {
-        return colorScheme.onPrimaryContainer.withValues(
+        return colorScheme.onSecondaryContainer.withValues(
           alpha: AppOpacities.soft12,
         );
       }
       if (states.contains(WidgetState.hovered)) {
-        return colorScheme.onPrimaryContainer.withValues(
+        return colorScheme.onSecondaryContainer.withValues(
           alpha: AppOpacities.soft08,
         );
       }
       if (states.contains(WidgetState.focused)) {
-        return colorScheme.onPrimaryContainer.withValues(
+        return colorScheme.onSecondaryContainer.withValues(
           alpha: AppOpacities.soft08,
         );
       }
@@ -178,20 +178,20 @@ ButtonStyle _resolveTonalStyle({required BuildContext context}) {
 ButtonStyle _resolveOutlinedStyle({required BuildContext context}) {
   final ColorScheme colorScheme = Theme.of(context).colorScheme;
   return OutlinedButton.styleFrom(
-    foregroundColor: colorScheme.secondary,
-    side: BorderSide(color: colorScheme.secondary),
+    foregroundColor: colorScheme.primary,
+    side: BorderSide(color: colorScheme.primary),
     minimumSize: const Size(double.infinity, AppSizes.size52),
     shape: const StadiumBorder(),
   ).copyWith(
     overlayColor: WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.pressed)) {
-        return colorScheme.secondary.withValues(alpha: AppOpacities.soft12);
+        return colorScheme.primary.withValues(alpha: AppOpacities.soft12);
       }
       if (states.contains(WidgetState.hovered)) {
-        return colorScheme.secondary.withValues(alpha: AppOpacities.soft08);
+        return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
       }
       if (states.contains(WidgetState.focused)) {
-        return colorScheme.secondary.withValues(alpha: AppOpacities.soft08);
+        return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
       }
       return null;
     }),

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 
 // Material 3 surface ladder for light theme.
-const Color _lightSurface = Color(0xFFFFF7FA);
-const Color _lightSurfaceContainerLowest = Color(0xFFFFFCFD);
-const Color _lightSurfaceContainerLow = Color(0xFFFAF1F6);
-const Color _lightSurfaceContainer = Color(0xFFF4E9F0);
-const Color _lightSurfaceContainerHigh = Color(0xFFEEDFE8);
-const Color _lightSurfaceContainerHighest = Color(0xFFE7D4DF);
+const Color _lightSurface = Color(0xFFFFF8F3);
+const Color _lightSurfaceContainerLowest = Color(0xFFFFFCF8);
+const Color _lightSurfaceContainerLow = Color(0xFFFFF1E8);
+const Color _lightSurfaceContainer = Color(0xFFFCE6D9);
+const Color _lightSurfaceContainerHigh = Color(0xFFF8DCCB);
+const Color _lightSurfaceContainerHighest = Color(0xFFF2CEB6);
 
 // Material 3 surface ladder for dark theme.
 const Color _darkSurface = Color(0xFF121212);
@@ -20,12 +20,12 @@ const Color _darkSurfaceContainerHigh = Color(0xFF262626);
 const Color _darkSurfaceContainerHighest = Color(0xFF2E2E2E);
 const Color _darkOnSurfaceVariant = Color(0xFFD1D1D1);
 const Color _darkOutline = Color(0xFF8A8A8A);
-const Color _darkPrimary = Color(0xFF8F2F5B);
-const Color _darkOnPrimary = Color(0xFFFFFFFF);
-const Color _darkPrimaryContainer = Color(0xFFB85682);
-const Color _darkOnPrimaryContainer = Color(0xFFFFE6F0);
-const Color _darkSecondary = Color(0xFFD37FA3);
-const Color _darkTertiary = Color(0xFFE7A1BA);
+const Color _darkPrimary = Color(0xFFFF6B6B);
+const Color _darkOnPrimary = Color(0xFF000000);
+const Color _darkPrimaryContainer = Color(0xFF8C3C1E);
+const Color _darkOnPrimaryContainer = Color(0xFFFFDAD1);
+const Color _darkSecondary = Color(0xFFF7B267);
+const Color _darkTertiary = Color(0xFFFFD166);
 
 /// Builds Material 3 light color scheme.
 ///

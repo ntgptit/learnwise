@@ -36,6 +36,10 @@ class DashboardMetricSection extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final ColorScheme colorScheme = Theme.of(context).colorScheme;
+        final bool isDark = colorScheme.brightness == Brightness.dark;
+        final Color backgroundColor = isDark
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.surface;
         final double itemWidth =
             (constraints.maxWidth - DashboardScreenTokens.metricGridSpacing) /
             DashboardScreenTokens.metricColumns;
@@ -51,14 +55,14 @@ class DashboardMetricSection extends StatelessWidget {
                 value: _metricValueText(l10n, metric),
                 progress: metric.progress,
                 minHeight: DashboardScreenTokens.metricCardMinHeight,
-                elevation: AppSizes.size2,
-                backgroundColor: colorScheme.surfaceContainerHigh,
+                elevation: AppSizes.size4,
+                backgroundColor: backgroundColor,
                 borderRadius: BorderRadius.circular(
                   DashboardScreenTokens.metricCardRadius,
                 ),
                 border: Border.all(
                   color: colorScheme.outlineVariant.withValues(
-                    alpha: AppOpacities.soft20,
+                    alpha: AppOpacities.soft35,
                   ),
                 ),
                 padding: const EdgeInsets.all(

@@ -984,7 +984,7 @@ class _FlashcardManagementScreenState
         borderRadius: BorderRadius.circular(AppSizes.radiusMd),
       ),
       tileColor: tileBackground,
-      title: Text(label),
+      title: Text(label, style: Theme.of(context).textTheme.bodyMedium),
       textColor: tileForeground,
       iconColor: tileForeground,
       trailing: isSelected

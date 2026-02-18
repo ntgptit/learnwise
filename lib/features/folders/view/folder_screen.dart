@@ -11,7 +11,6 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_durations.dart';
-import '../../../common/styles/app_opacities.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
@@ -1013,49 +1012,24 @@ class _FolderToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
       children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: SearchField(
-                controller: searchController,
-                focusNode: searchFocusNode,
-                hint: searchHint,
-                onChanged: onSearchChanged,
-                onSubmitted: (_) => onSearchSubmitted(),
-                onClear: onClearSearch,
-              ),
-            ),
-            const SizedBox(width: AppSizes.spacingSm),
-            PopupMenuButton<_FolderMenuAction>(
-              onSelected: onMenuActionSelected,
-              itemBuilder: onSortPressed,
-              tooltip: sortTooltip,
-              child: Container(
-                height: AppSizes.size48,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSizes.spacingMd,
-                ),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(
-                    alpha: AppOpacities.soft20,
-                  ),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusPill),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(
-                      Icons.sort_rounded,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        Expanded(
+          child: SearchField(
+            controller: searchController,
+            focusNode: searchFocusNode,
+            hint: searchHint,
+            onChanged: onSearchChanged,
+            onSubmitted: (_) => onSearchSubmitted(),
+            onClear: onClearSearch,
+          ),
+        ),
+        const SizedBox(width: AppSizes.spacingXs),
+        PopupMenuButton<_FolderMenuAction>(
+          onSelected: onMenuActionSelected,
+          itemBuilder: onSortPressed,
+          tooltip: sortTooltip,
+          icon: Icon(Icons.sort_rounded, color: colorScheme.onSurfaceVariant),
         ),
       ],
     );

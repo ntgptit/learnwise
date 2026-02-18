@@ -45,26 +45,18 @@ class FolderListCard extends StatelessWidget {
         horizontal: FolderScreenTokens.listItemHorizontalPadding,
         vertical: FolderScreenTokens.listItemVerticalPadding,
       ),
-      border: Border.all(
-        color: colorScheme.outline.withValues(alpha: AppOpacities.outline26),
-      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
             width: FolderScreenTokens.listItemLeadingSize,
             height: FolderScreenTokens.listItemLeadingSize,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(
-                alpha: AppOpacities.soft20,
-              ),
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(
                 FolderScreenTokens.listItemLeadingRadius,
               ),
-            ),
-            margin: const EdgeInsets.only(
-              top: FolderScreenTokens.colorDotTopMargin,
             ),
             child: Icon(
               Icons.folder_outlined,

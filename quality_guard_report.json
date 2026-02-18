@@ -1,0 +1,50 @@
+[
+  {
+    "file": "lib/common/widgets/navigation/bottom_nav_bar.dart",
+    "line": 88,
+    "severity": "WARN",
+    "rule": "ClassAndFunctionLengthRule",
+    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
+    "content": "56 lines"
+  },
+  {
+    "file": "lib/features/dashboard/view/widgets/sections/hero_section.dart",
+    "line": 76,
+    "severity": "WARN",
+    "rule": "ClassAndFunctionLengthRule",
+    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
+    "content": "54 lines"
+  },
+  {
+    "file": "lib/features/dashboard/view/widgets/sections/metric_section.dart",
+    "line": 35,
+    "severity": "WARN",
+    "rule": "ClassAndFunctionLengthRule",
+    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
+    "content": "43 lines"
+  },
+  {
+    "file": "lib/features/dashboard/view/widgets/sections/quick_action_section.dart",
+    "line": 18,
+    "severity": "WARN",
+    "rule": "ClassAndFunctionLengthRule",
+    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
+    "content": "55 lines"
+  },
+  {
+    "file": "lib/features/profile/view/widgets/settings_section.dart",
+    "line": 1,
+    "severity": "WARN",
+    "rule": "FileLengthRule",
+    "reason": "File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.",
+    "content": "418 lines"
+  },
+  {
+    "file": "lib/common/styles/app_spacing.dart",
+    "line": 1,
+    "severity": "INFO",
+    "rule": "UnusedFilesRule",
+    "reason": "Potentially unused Dart file. Remove/merge or connect it to the import graph.",
+    "content": "lib/common/styles/app_spacing.dart"
+  }
+]

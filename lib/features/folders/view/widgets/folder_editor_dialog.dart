@@ -220,7 +220,7 @@ Future<bool> showFolderEditorDialog({
                           });
                         },
                   child: isSubmitting
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: FolderScreenTokens
                               .editorDialogSubmitIndicatorSize,
                           height: FolderScreenTokens
@@ -228,6 +228,9 @@ Future<bool> showFolderEditorDialog({
                           child: CircularProgressIndicator(
                             strokeWidth: FolderScreenTokens
                                 .editorDialogSubmitIndicatorStrokeWidth,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
                         )
                       : Text(

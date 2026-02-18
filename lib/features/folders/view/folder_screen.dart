@@ -73,6 +73,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final FolderListQuery query = ref.watch(folderQueryControllerProvider);
     final FolderUiState uiState = ref.watch(folderUiControllerProvider);
     final AsyncValue<FolderListingState> state = ref.watch(
@@ -122,17 +123,33 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        foregroundColor: colorScheme.onSurface,
         leading: IconButton(
           onPressed: uiState.isTransitionInProgress
               ? null
               : () => _onBackPressed(query),
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(
+            isInsideFolder
+                ? Icons.arrow_back_rounded
+                : Icons.home_rounded,
+          ),
           tooltip: l10n.foldersBackToParentTooltip,
+        ),
+        title: Text(
+          isInsideFolder
+              ? query.breadcrumbs.last.name
+              : l10n.foldersRootLabel,
         ),
         actions: <Widget>[
           PopupMenuButton<_FolderMenuAction>(
             onSelected: _onMenuActionSelected,
             tooltip: l10n.foldersRefreshTooltip,
+            icon: Icon(
+              Icons.more_vert_rounded,
+              color: colorScheme.onSurfaceVariant,
+            ),
             itemBuilder: (context) {
               return _buildMenuItems(
                 l10n: l10n,
@@ -202,6 +219,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
               children: <Widget>[
                 RefreshIndicator(
                   onRefresh: _refreshAll,
+                  color: colorScheme.primary,
+                  backgroundColor: colorScheme.surfaceContainerHigh,
                   child: ListView(
                     // quality-guard: allow-list-children - bounded mixed content with pagination controls.
                     controller: _scrollController,
@@ -283,18 +302,26 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           );
                         }),
                       if (listing.isLoadingMore)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
                             vertical: FolderScreenTokens.sectionSpacing,
                           ),
-                          child: Center(child: CircularProgressIndicator()),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: colorScheme.primary,
+                            ),
+                          ),
                         ),
                       if (showDeckLoading)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
                             vertical: FolderScreenTokens.sectionSpacing,
                           ),
-                          child: Center(child: CircularProgressIndicator()),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: colorScheme.primary,
+                            ),
+                          ),
                         ),
                       if (showDeckError)
                         ErrorState(
@@ -333,11 +360,15 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           );
                         }),
                       if (deckListingSnapshot?.isLoadingMore == true)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
                             vertical: FolderScreenTokens.sectionSpacing,
                           ),
-                          child: Center(child: CircularProgressIndicator()),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: colorScheme.primary,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -350,7 +381,13 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                     child: AnimatedOpacity(
                       opacity: showInlineLoading ? 1 : 0,
                       duration: AppDurations.animationFast,
-                      child: const LinearProgressIndicator(),
+                      child: LinearProgressIndicator(
+                        borderRadius: BorderRadius.circular(
+                          AppSizes.radiusPill,
+                        ),
+                        color: colorScheme.primary,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                      ),
                     ),
                   ),
                 ),
@@ -959,24 +996,12 @@ class _FolderActionBar extends StatelessWidget {
           onPressed: canCreateFolder ? onCreateFolder : null,
           icon: const Icon(Icons.create_new_folder_rounded),
           label: Text(createFolderLabel),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSizes.spacingMd,
-              vertical: AppSizes.spacingSm,
-            ),
-          ),
         ),
         if (showDeckButton)
           FilledButton.tonalIcon(
             onPressed: canCreateDeck ? onCreateDeck : null,
             icon: const Icon(Icons.style_rounded),
             label: Text(createDeckLabel),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.spacingMd,
-                vertical: AppSizes.spacingSm,
-              ),
-            ),
           ),
       ],
     );
@@ -1029,6 +1054,16 @@ class _FolderToolbar extends StatelessWidget {
           onSelected: onMenuActionSelected,
           itemBuilder: onSortPressed,
           tooltip: sortTooltip,
+          style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll<Color>(
+              colorScheme.surfaceContainerHighest,
+            ),
+            shape: WidgetStatePropertyAll<OutlinedBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+              ),
+            ),
+          ),
           icon: Icon(Icons.sort_rounded, color: colorScheme.onSurfaceVariant),
         ),
       ],

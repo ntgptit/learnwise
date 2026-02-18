@@ -94,7 +94,7 @@ class FlashcardPreviewCarousel extends StatelessWidget {
                               ),
                               child: Text(
                                 displayText,
-                                style: theme.textTheme.headlineSmall?.copyWith(
+                                style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.w700,
                                 ),
                                 textAlign: TextAlign.center,

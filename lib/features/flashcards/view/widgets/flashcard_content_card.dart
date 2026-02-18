@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_durations.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
+import '../../../../common/styles/app_sizes.dart';
 import '../../../../common/styles/app_opacities.dart';
 import '../../../../common/widgets/widgets.dart';
 import '../../../../core/utils/string_utils.dart';
@@ -70,22 +71,19 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
           variant: AppCardVariant.elevated,
           borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
           backgroundColor: colorScheme.surfaceContainerHigh,
-          padding: const EdgeInsets.all(FlashcardScreenTokens.cardPadding),
+          padding: const EdgeInsets.all(
+            FlashcardScreenTokens.cardPadding + AppSizes.spacing2Xs,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                widget.item.frontText,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Text(widget.item.frontText, style: theme.textTheme.titleLarge),
               const SizedBox(
                 height: FlashcardScreenTokens.cardPrimarySecondaryGap,
               ),
               Text(
                 widget.item.backText,
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
                 maxLines: FlashcardScreenTokens.cardSecondaryMaxLines,

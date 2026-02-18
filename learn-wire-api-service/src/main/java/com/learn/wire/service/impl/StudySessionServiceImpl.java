@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.learn.wire.constant.AuthConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.constant.StudyConst;
 import com.learn.wire.dto.study.query.StudyMode;
 import com.learn.wire.dto.study.query.StudySessionEventCommand;
@@ -68,7 +69,7 @@ public class StudySessionServiceImpl implements StudySessionService {
         final var currentActor = this.currentUserAccessor.getCurrentActor();
         final var command = StudySessionStartCommand.fromRequest(deckId, request);
         log.debug(
-                "Start study session with deckId={}, mode={}, seed={}",
+                LogConst.STUDY_SERVICE_START_SESSION,
                 command.deckId(),
                 command.mode().value(),
                 command.seed());

@@ -20,10 +20,6 @@ class QualityContractConst {
   static const String listChildrenMarker = 'quality-guard: allow-list-children';
   static const String cachePolicyMarker =
       'quality-guard: allow-unbounded-cache';
-  static const String strictEnvKey = 'STRICT_QUALITY_CONTRACT';
-  static const String baselinePath = 'tool/quality_contract_baseline.txt';
-  static const String snapshotBaselineEnvKey =
-      'QUALITY_CONTRACT_SNAPSHOT_BASELINE';
 }
 
 class QualityViolation {
@@ -91,7 +87,6 @@ Future<void> main() async {
   }
 
   final List<File> sourceFiles = _collectSourceFiles(libDirectory);
-  final Set<String> baselineKeys = await _loadBaselineKeys();
   final Set<String> allPaths = sourceFiles
       .map((file) => _normalizePath(file.path))
       .toSet();
@@ -183,175 +178,18 @@ Future<void> main() async {
     violations: violations,
   );
 
-  final bool shouldSnapshotBaseline =
-      Platform.environment[QualityContractConst.snapshotBaselineEnvKey] == '1';
-  if (shouldSnapshotBaseline) {
-    await _writeBaseline(violations);
-    stdout.writeln(
-      'Wrote ${violations.length} baseline entries to `${QualityContractConst.baselinePath}`.',
-    );
-    return;
-  }
-
-  final List<QualityViolation> effectiveViolations = _filterBaselineViolations(
-    violations: violations,
-    baselineKeys: baselineKeys,
-  );
-  final int suppressedByBaselineCount =
-      violations.length - effectiveViolations.length;
-
-  if (effectiveViolations.isEmpty) {
-    if (suppressedByBaselineCount > 0) {
-      stdout.writeln(
-        'Code quality contract guard passed with baseline suppression: '
-        '$suppressedByBaselineCount violation(s) were ignored from `${QualityContractConst.baselinePath}`.',
-      );
-      return;
-    }
+  if (violations.isEmpty) {
     stdout.writeln('Code quality contract guard passed.');
     return;
   }
 
-  final bool isStrictMode =
-      Platform.environment[QualityContractConst.strictEnvKey] == '1';
-  if (isStrictMode) {
-    stderr.writeln('Code quality contract guard failed (strict mode enabled).');
-    if (suppressedByBaselineCount > 0) {
-      stderr.writeln(
-        'Suppressed by baseline: $suppressedByBaselineCount violation(s).',
-      );
-    }
-    for (final QualityViolation violation in effectiveViolations) {
-      stderr.writeln(
-        '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
-      );
-    }
-    exitCode = 1;
-    return;
-  }
-
-  stdout.writeln(
-    'Code quality contract reported findings (non-blocking). Set `${QualityContractConst.strictEnvKey}=1` to fail on violations.',
-  );
-  if (suppressedByBaselineCount > 0) {
-    stdout.writeln(
-      'Suppressed by baseline: $suppressedByBaselineCount violation(s).',
-    );
-  }
-  for (final QualityViolation violation in effectiveViolations) {
-    stdout.writeln(
+  stderr.writeln('Code quality contract guard failed.');
+  for (final QualityViolation violation in violations) {
+    stderr.writeln(
       '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
     );
   }
-}
-
-Future<Set<String>> _loadBaselineKeys() async {
-  final File baselineFile = File(QualityContractConst.baselinePath);
-  if (!baselineFile.existsSync()) {
-    return <String>{};
-  }
-
-  final List<String> rawLines = await baselineFile.readAsLines();
-  final Set<String> keys = <String>{};
-  for (final String rawLine in rawLines) {
-    final String line = rawLine.trim();
-    if (line.isEmpty) {
-      continue;
-    }
-    if (line.startsWith('#')) {
-      continue;
-    }
-    keys.add(line);
-  }
-  return keys;
-}
-
-Future<void> _writeBaseline(List<QualityViolation> violations) async {
-  final File baselineFile = File(QualityContractConst.baselinePath);
-  if (!baselineFile.parent.existsSync()) {
-    baselineFile.parent.createSync(recursive: true);
-  }
-
-  final List<String> keys = violations.map(_violationKey).toList()..sort();
-  await baselineFile.writeAsString('${keys.join('\n')}\n');
-}
-
-List<QualityViolation> _filterBaselineViolations({
-  required List<QualityViolation> violations,
-  required Set<String> baselineKeys,
-}) {
-  if (baselineKeys.isEmpty) {
-    return violations;
-  }
-
-  final List<QualityViolation> effective = <QualityViolation>[];
-  for (final QualityViolation violation in violations) {
-    if (_isStateScopedPath(violation.filePath)) {
-      effective.add(violation);
-      continue;
-    }
-
-    final String key = _violationKey(violation);
-    if (_isCoveredByBaseline(key: key, baselineKeys: baselineKeys)) {
-      continue;
-    }
-    effective.add(violation);
-  }
-  return effective;
-}
-
-String _violationKey(QualityViolation violation) {
-  return '${violation.filePath}|${violation.reason}|${violation.lineContent}';
-}
-
-bool _isCoveredByBaseline({
-  required String key,
-  required Set<String> baselineKeys,
-}) {
-  if (baselineKeys.contains(key)) {
-    return true;
-  }
-
-  final int secondSeparator = key.indexOf('|', key.indexOf('|') + 1);
-  if (secondSeparator < 0) {
-    return false;
-  }
-  final String relaxedPrefix = key.substring(0, secondSeparator + 1);
-
-  for (final String baselineKey in baselineKeys) {
-    if (!baselineKey.startsWith(relaxedPrefix)) {
-      continue;
-    }
-    return true;
-  }
-  return false;
-}
-
-bool _isStateScopedPath(String path) {
-  if (path.contains('/viewmodel/')) {
-    return true;
-  }
-  final bool isStateEligibleRoot =
-      path.startsWith('lib/features/') || path.startsWith('lib/app/');
-  if (!isStateEligibleRoot) {
-    return false;
-  }
-  if (path.contains('/providers/')) {
-    return true;
-  }
-  if (path.endsWith('/providers.dart')) {
-    return true;
-  }
-  if (path.endsWith('_provider.dart')) {
-    return true;
-  }
-  if (path.endsWith('_providers.dart')) {
-    return true;
-  }
-  if (path.endsWith('_state.dart')) {
-    return true;
-  }
-  return false;
+  exitCode = 1;
 }
 
 List<File> _collectSourceFiles(Directory root) {

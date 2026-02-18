@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.learn.wire.constant.FlashcardConst;
 import com.learn.wire.constant.FolderConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.flashcard.query.FlashcardListQuery;
 import com.learn.wire.dto.flashcard.query.FlashcardSortField;
@@ -55,7 +56,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     public PageResponse<FlashcardResponse> getFlashcards(FlashcardListQuery query) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug(
-                "Get flashcards with deckId={}, page={}, size={}, sortBy={}, sortDirection={}",
+                LogConst.FLASHCARD_SERVICE_GET_LIST,
                 query.deckId(),
                 query.page(),
                 query.size(),
@@ -97,7 +98,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override
     public FlashcardResponse createFlashcard(Long deckId, FlashcardCreateRequest request) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Create flashcard in deckId={}", deckId);
+        log.info(LogConst.FLASHCARD_SERVICE_CREATE, deckId);
         final var normalizedFrontText = normalizeText(request.frontText());
         final var normalizedBackText = normalizeText(request.backText());
         validateRequest(normalizedFrontText, normalizedBackText);
@@ -115,14 +116,14 @@ public class FlashcardServiceImpl implements FlashcardService {
         final var folderById = toFolderById(activeFolders);
         applyFlashcardDelta(deck.getFolderId(), 1, folderById, currentActor);
         this.folderRepository.saveAll(activeFolders);
-        log.info("Created flashcard id={} in deckId={}", created.getId(), deckId);
+        log.info(LogConst.FLASHCARD_SERVICE_CREATED, created.getId(), deckId);
         return toResponse(created);
     }
 
     @Override
     public FlashcardResponse updateFlashcard(Long deckId, Long flashcardId, FlashcardUpdateRequest request) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Update flashcard id={} in deckId={}", flashcardId, deckId);
+        log.info(LogConst.FLASHCARD_SERVICE_UPDATE, flashcardId, deckId);
         final var normalizedFrontText = normalizeText(request.frontText());
         final var normalizedBackText = normalizeText(request.backText());
         validateRequest(normalizedFrontText, normalizedBackText);
@@ -139,7 +140,7 @@ public class FlashcardServiceImpl implements FlashcardService {
     @Override
     public void deleteFlashcard(Long deckId, Long flashcardId) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Delete flashcard id={} in deckId={}", flashcardId, deckId);
+        log.info(LogConst.FLASHCARD_SERVICE_DELETE, flashcardId, deckId);
         final var entity = getActiveFlashcardEntity(deckId, flashcardId, currentActor);
         final var deck = getActiveDeckEntity(deckId, currentActor);
         final var deletedAt = Instant.now();

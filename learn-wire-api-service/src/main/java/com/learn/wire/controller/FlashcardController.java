@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.learn.wire.constant.ApiConst;
+import com.learn.wire.constant.ApiDocConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.flashcard.query.FlashcardListQuery;
 import com.learn.wire.dto.flashcard.request.FlashcardCreateRequest;
@@ -28,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Tag(name = "Flashcards")
+@Tag(name = ApiDocConst.TAG_FLASHCARDS)
 @RequestMapping(ApiConst.DECK_FLASHCARDS_PATH)
 @Slf4j
 @RequiredArgsConstructor
@@ -37,13 +39,13 @@ public class FlashcardController {
     private final FlashcardService flashcardService;
 
     @GetMapping
-    @Operation(summary = "Get flashcard list by deck")
+    @Operation(summary = ApiDocConst.FLASHCARD_OPERATION_GET_LIST_BY_DECK)
     ResponseEntity<PageResponse<FlashcardResponse>> getFlashcards(
             @PathVariable Long deckId,
             @ModelAttribute FlashcardListRequest request) {
         final var query = FlashcardListQuery.fromRequest(deckId, request);
         log.debug(
-                "Get flashcards with deckId={}, page={}, size={}",
+                LogConst.FLASHCARD_CONTROLLER_GET_LIST,
                 deckId,
                 query.page(),
                 query.size());
@@ -51,29 +53,29 @@ public class FlashcardController {
     }
 
     @PostMapping
-    @Operation(summary = "Create flashcard in deck")
+    @Operation(summary = ApiDocConst.FLASHCARD_OPERATION_CREATE_IN_DECK)
     ResponseEntity<FlashcardResponse> createFlashcard(
             @PathVariable Long deckId,
             @Valid @RequestBody FlashcardCreateRequest request) {
         final var response = this.flashcardService.createFlashcard(deckId, request);
-        log.info("Created flashcard with id={} in deckId={}", response.id(), deckId);
+        log.info(LogConst.FLASHCARD_CONTROLLER_CREATED, response.id(), deckId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{flashcardId}")
-    @Operation(summary = "Update flashcard")
+    @PutMapping(ApiConst.FLASHCARD_ID_SUB_PATH)
+    @Operation(summary = ApiDocConst.FLASHCARD_OPERATION_UPDATE)
     ResponseEntity<FlashcardResponse> updateFlashcard(
             @PathVariable Long deckId,
             @PathVariable Long flashcardId,
             @Valid @RequestBody FlashcardUpdateRequest request) {
-        log.info("Update flashcard id={} in deckId={}", flashcardId, deckId);
+        log.info(LogConst.FLASHCARD_CONTROLLER_UPDATED, flashcardId, deckId);
         return ResponseEntity.ok(this.flashcardService.updateFlashcard(deckId, flashcardId, request));
     }
 
-    @DeleteMapping("/{flashcardId}")
-    @Operation(summary = "Delete flashcard")
+    @DeleteMapping(ApiConst.FLASHCARD_ID_SUB_PATH)
+    @Operation(summary = ApiDocConst.FLASHCARD_OPERATION_DELETE)
     ResponseEntity<Void> deleteFlashcard(@PathVariable Long deckId, @PathVariable Long flashcardId) {
-        log.info("Delete flashcard id={} in deckId={}", flashcardId, deckId);
+        log.info(LogConst.FLASHCARD_CONTROLLER_DELETED, flashcardId, deckId);
         this.flashcardService.deleteFlashcard(deckId, flashcardId);
         return ResponseEntity.noContent().build();
     }

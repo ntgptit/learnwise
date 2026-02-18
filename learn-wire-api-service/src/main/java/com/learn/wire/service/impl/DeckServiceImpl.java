@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.learn.wire.constant.DeckConst;
 import com.learn.wire.constant.FolderConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.deck.query.DeckListQuery;
 import com.learn.wire.dto.deck.request.DeckCreateRequest;
@@ -58,7 +59,7 @@ public class DeckServiceImpl implements DeckService {
     public PageResponse<DeckResponse> getDecks(DeckListQuery query) {
         final var currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug(
-                "Get decks with folderId={}, page={}, size={}, sortBy={}, sortDirection={}",
+                LogConst.DECK_SERVICE_GET_LIST,
                 query.folderId(),
                 query.page(),
                 query.size(),
@@ -101,7 +102,7 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public DeckResponse createDeck(Long folderId, DeckCreateRequest request) {
         final var currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Create deck in folderId={}", folderId);
+        log.info(LogConst.DECK_SERVICE_CREATE, folderId);
         getActiveFolderEntity(folderId, currentActor);
         validateRequest(request.name(), request.description());
         validateFolderAllowsDeckCreation(folderId, currentActor);
@@ -124,7 +125,7 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public DeckResponse updateDeck(Long folderId, Long deckId, DeckUpdateRequest request) {
         final var currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Update deck id={} in folderId={}", deckId, folderId);
+        log.info(LogConst.DECK_SERVICE_UPDATE, deckId, folderId);
         validateRequest(request.name(), request.description());
         final var normalizedName = normalizeName(request.name());
         final var normalizedNameForIndex = normalizeNameForIndex(normalizedName);
@@ -145,7 +146,7 @@ public class DeckServiceImpl implements DeckService {
     @Override
     public void deleteDeck(Long folderId, Long deckId) {
         final var currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Delete deck id={} in folderId={}", deckId, folderId);
+        log.info(LogConst.DECK_SERVICE_DELETE, deckId, folderId);
         final var deck = getActiveDeckEntity(folderId, deckId, currentActor);
         final var activeFlashcards = this.flashcardRepository
                 .findByDeckIdAndCreatedByAndDeletedAtIsNull(
@@ -302,7 +303,7 @@ public class DeckServiceImpl implements DeckService {
             return this.deckRepository.save(deck);
         } catch (final DataIntegrityViolationException exception) {
             log.warn(
-                    "Duplicate active deck name with folderId={} and name={}",
+                    LogConst.DECK_SERVICE_DUPLICATE_ACTIVE_NAME,
                     deck.getFolderId(),
                     deck.getName());
             throw new BusinessException(DeckConst.DUPLICATE_NAME_KEY);

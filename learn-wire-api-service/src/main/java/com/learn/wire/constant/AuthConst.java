@@ -25,6 +25,11 @@ public final class AuthConst {
     public static final boolean STUDY_AUTO_PLAY_AUDIO_DEFAULT = false;
 
     public static final int REFRESH_TOKEN_RANDOM_BYTE_SIZE = 48;
+    public static final String HASH_ALGORITHM_SHA_256 = "SHA-256";
+    public static final String HASH_ALGORITHM_UNAVAILABLE_MESSAGE = "SHA-256 algorithm is unavailable";
+    public static final char EMAIL_ADDRESS_SEPARATOR = '@';
+    public static final int HEX_UNSIGNED_BYTE_MASK = 0xff;
+    public static final char HEX_LEADING_ZERO_CHAR = '0';
 
     public static final String EMAIL_REQUIRED_KEY = ErrorMessageConst.AUTH_VALIDATION_EMAIL_REQUIRED;
     public static final String EMAIL_INVALID_KEY = ErrorMessageConst.AUTH_VALIDATION_EMAIL_INVALID;

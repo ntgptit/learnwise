@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.learn.wire.constant.ApiConst;
 import com.learn.wire.constant.ErrorMessageConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.ApiErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,7 +49,7 @@ public class GlobalExceptionHandler {
         final FieldError fieldError = exception.getBindingResult().getFieldError();
         final String message = resolveFieldErrorMessage(fieldError);
         final String detail = resolveFieldDetail(fieldError);
-        log.warn("Validation failure at path {} with detail {}", request.getRequestURI(), detail);
+        log.warn(LogConst.EXCEPTION_VALIDATION_FAILURE, request.getRequestURI(), detail);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ApiErrorResponse.of(
                         ApiConst.ERROR_CODE_BAD_REQUEST,
@@ -62,7 +63,7 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException exception,
             HttpServletRequest request) {
         final String message = resolveMessage(ErrorMessageConst.COMMON_ERROR_INVALID_REQUEST);
-        log.warn("Unreadable payload at path {}", request.getRequestURI(), exception);
+        log.warn(LogConst.EXCEPTION_UNREADABLE_PAYLOAD, request.getRequestURI(), exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 ApiErrorResponse.of(
                         ApiConst.ERROR_CODE_BAD_REQUEST,
@@ -76,7 +77,7 @@ public class GlobalExceptionHandler {
             RuntimeException exception,
             HttpServletRequest request) {
         final String message = resolveMessage(ErrorMessageConst.COMMON_ERROR_RUNTIME);
-        log.error("Unhandled runtime exception at path {}", request.getRequestURI(), exception);
+        log.error(LogConst.EXCEPTION_UNHANDLED_RUNTIME, request.getRequestURI(), exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ApiErrorResponse.of(
                         ApiConst.ERROR_CODE_INTERNAL_ERROR,
@@ -118,14 +119,14 @@ public class GlobalExceptionHandler {
     private void logByStatus(HttpStatus status, ApiException exception, String path) {
         if (status.is4xxClientError()) {
             log.warn(
-                    "ApiException at path {} with status {} and code {}",
+                    LogConst.EXCEPTION_API_EXCEPTION,
                     path,
                     status.value(),
                     exception.getCode());
             return;
         }
         log.error(
-                "ApiException at path {} with status {} and code {}",
+                LogConst.EXCEPTION_API_EXCEPTION,
                 path,
                 status.value(),
                 exception.getCode(),

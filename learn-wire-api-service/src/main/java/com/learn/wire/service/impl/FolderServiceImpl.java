@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.learn.wire.constant.FolderConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.folder.query.FolderListQuery;
 import com.learn.wire.dto.folder.request.FolderCreateRequest;
@@ -54,7 +55,7 @@ public class FolderServiceImpl implements FolderService {
     public PageResponse<FolderResponse> getFolders(FolderListQuery query) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
         log.debug(
-                "Get folders with page={}, size={}, parentFolderId={}, sortBy={}, sortDirection={}",
+                LogConst.FOLDER_SERVICE_GET_LIST,
                 query.page(),
                 query.size(),
                 query.parentFolderId(),
@@ -85,7 +86,7 @@ public class FolderServiceImpl implements FolderService {
     @Transactional(readOnly = true)
     public FolderResponse getFolder(Long folderId) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.debug("Get folder id={}", folderId);
+        log.debug(LogConst.FOLDER_SERVICE_GET_BY_ID, folderId);
         final var entity = getActiveFolderEntity(folderId, currentActor);
         final var childFolderCount = resolveChildFolderCount(folderId, currentActor);
         final var directDeckCount = resolveDirectDeckCount(folderId, currentActor);
@@ -95,7 +96,7 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public FolderResponse createFolder(FolderCreateRequest request) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Create folder with parentFolderId={}", request.parentFolderId());
+        log.info(LogConst.FOLDER_SERVICE_CREATE, request.parentFolderId());
         validateRequest(request.name(), request.description(), request.colorHex());
         validateParentAllowsSubfolderCreation(request.parentFolderId(), currentActor);
         final var normalizedName = normalizeName(request.name());
@@ -112,14 +113,14 @@ public class FolderServiceImpl implements FolderService {
         entity.setUpdatedBy(currentActor);
 
         final var created = this.repository.save(entity);
-        log.info("Created folder id={}", created.getId());
+        log.info(LogConst.FOLDER_SERVICE_CREATED, created.getId());
         return toResponse(created, FolderConst.MIN_PAGE, FolderConst.MIN_PAGE);
     }
 
     @Override
     public FolderResponse updateFolder(Long folderId, FolderUpdateRequest request) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Update folder id={} with new parent={}", folderId, request.parentFolderId());
+        log.info(LogConst.FOLDER_SERVICE_UPDATE, folderId, request.parentFolderId());
         validateRequest(request.name(), request.description(), request.colorHex());
         final var normalizedName = normalizeName(request.name());
 
@@ -148,7 +149,7 @@ public class FolderServiceImpl implements FolderService {
         entity.setUpdatedBy(currentActor);
 
         final var updated = this.repository.save(entity);
-        log.info("Updated folder id={}", updated.getId());
+        log.info(LogConst.FOLDER_SERVICE_UPDATED, updated.getId());
         final var childFolderCount = resolveChildFolderCount(updated.getId(), currentActor);
         final var directDeckCount = resolveDirectDeckCount(updated.getId(), currentActor);
         return toResponse(updated, childFolderCount, directDeckCount);
@@ -157,7 +158,7 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public void deleteFolder(Long folderId) {
         final String currentActor = this.currentUserAccessor.getCurrentActor();
-        log.info("Delete folder id={}", folderId);
+        log.info(LogConst.FOLDER_SERVICE_DELETE, folderId);
         final var target = getActiveFolderEntity(folderId, currentActor);
         final var subtreeAggregate = target.getAggregateFlashcardCount();
 
@@ -174,7 +175,7 @@ public class FolderServiceImpl implements FolderService {
             entity.setUpdatedBy(currentActor);
         }
         this.repository.saveAll(toDelete);
-        log.info("Soft deleted subtree rootId={} affectedCount={}", folderId, toDelete.size());
+        log.info(LogConst.FOLDER_SERVICE_SOFT_DELETED, folderId, toDelete.size());
     }
 
     private Page<FolderEntity> findPageSortedByDatabase(FolderListQuery query, String currentActor) {

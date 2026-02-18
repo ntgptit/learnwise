@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.learn.wire.constant.AuthConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.constant.SecurityConst;
 import com.learn.wire.dto.auth.request.AuthLoginRequest;
 import com.learn.wire.dto.auth.request.AuthRefreshRequest;
@@ -68,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
         user.setDisplayName(resolveDisplayName(request.displayName(), normalizedEmail));
         applyDefaultSettings(user);
         final var createdUser = this.appUserRepository.save(user);
-        log.info("Registered new user id={} email={}", createdUser.getId(), createdUser.getEmail());
+        log.info(LogConst.AUTH_SERVICE_REGISTERED_NEW_USER, createdUser.getId(), createdUser.getEmail());
         return issueTokenResponse(createdUser);
     }
 
@@ -227,7 +228,7 @@ public class AuthServiceImpl implements AuthService {
         if (!normalizedDisplayName.isEmpty()) {
             return normalizedDisplayName;
         }
-        final var separatorIndex = normalizedEmail.indexOf('@');
+        final var separatorIndex = normalizedEmail.indexOf(AuthConst.EMAIL_ADDRESS_SEPARATOR);
         if (separatorIndex > 0) {
             return normalizedEmail.substring(0, separatorIndex);
         }
@@ -265,9 +266,9 @@ public class AuthServiceImpl implements AuthService {
     private String hashRefreshToken(String rawToken) {
         final MessageDigest digest;
         try {
-            digest = MessageDigest.getInstance("SHA-256");
+            digest = MessageDigest.getInstance(AuthConst.HASH_ALGORITHM_SHA_256);
         } catch (final NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 algorithm is unavailable", exception);
+            throw new IllegalStateException(AuthConst.HASH_ALGORITHM_UNAVAILABLE_MESSAGE, exception);
         }
         final var encodedHash = digest.digest(rawToken.getBytes(StandardCharsets.UTF_8));
         return toHex(encodedHash);
@@ -276,9 +277,9 @@ public class AuthServiceImpl implements AuthService {
     private String toHex(byte[] bytes) {
         final var builder = new StringBuilder();
         for (final byte value : bytes) {
-            final var hex = Integer.toHexString(0xff & value);
+            final var hex = Integer.toHexString(AuthConst.HEX_UNSIGNED_BYTE_MASK & value);
             if (hex.length() == 1) {
-                builder.append('0');
+                builder.append(AuthConst.HEX_LEADING_ZERO_CHAR);
             }
             builder.append(hex);
         }

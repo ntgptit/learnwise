@@ -1,6 +1,8 @@
 package com.learn.wire.controller;
 
 import com.learn.wire.constant.ApiConst;
+import com.learn.wire.constant.ApiDocConst;
+import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.folder.query.FolderListQuery;
 import com.learn.wire.dto.folder.request.FolderCreateRequest;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "Folders")
+@Tag(name = ApiDocConst.TAG_FOLDERS)
 @RequestMapping(ApiConst.FOLDERS_PATH)
 @Slf4j
 @RequiredArgsConstructor
@@ -36,44 +38,44 @@ public class FolderController {
 	private final FolderService folderService;
 
 	@GetMapping
-	@Operation(summary = "Get folder list")
+	@Operation(summary = ApiDocConst.FOLDER_OPERATION_GET_LIST)
 	ResponseEntity<PageResponse<FolderResponse>> getFolders(@ModelAttribute FolderListRequest request) {
 		FolderListQuery query = FolderListQuery.fromRequest(request);
-		log.debug("Get folders with page={}, size={}, parentFolderId={}", query.page(), query.size(), query.parentFolderId());
+		log.debug(LogConst.FOLDER_CONTROLLER_GET_LIST, query.page(), query.size(), query.parentFolderId());
 		return ResponseEntity.ok(folderService.getFolders(query));
 	}
 
-	@GetMapping("/{folderId}")
-	@Operation(summary = "Get folder by id")
+	@GetMapping(ApiConst.FOLDER_ID_SUB_PATH)
+	@Operation(summary = ApiDocConst.FOLDER_OPERATION_GET_BY_ID)
 	ResponseEntity<FolderResponse> getFolder(@PathVariable Long folderId) {
-		log.debug("Get folder by id={}", folderId);
+		log.debug(LogConst.FOLDER_CONTROLLER_GET_BY_ID, folderId);
 		return ResponseEntity.ok(folderService.getFolder(folderId));
 	}
 
 	@PostMapping
-	@Operation(summary = "Create folder")
+	@Operation(summary = ApiDocConst.FOLDER_OPERATION_CREATE)
 	ResponseEntity<FolderResponse> createFolder(
 		@Valid @RequestBody FolderCreateRequest request
 	) {
 		FolderResponse response = folderService.createFolder(request);
-		log.info("Created folder with id={}", response.id());
+		log.info(LogConst.FOLDER_CONTROLLER_CREATED, response.id());
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	@PutMapping("/{folderId}")
-	@Operation(summary = "Update folder")
+	@PutMapping(ApiConst.FOLDER_ID_SUB_PATH)
+	@Operation(summary = ApiDocConst.FOLDER_OPERATION_UPDATE)
 	ResponseEntity<FolderResponse> updateFolder(
 		@PathVariable Long folderId,
 		@Valid @RequestBody FolderUpdateRequest request
 	) {
-		log.info("Update folder id={}", folderId);
+		log.info(LogConst.FOLDER_CONTROLLER_UPDATED, folderId);
 		return ResponseEntity.ok(folderService.updateFolder(folderId, request));
 	}
 
-	@DeleteMapping("/{folderId}")
-	@Operation(summary = "Delete folder")
+	@DeleteMapping(ApiConst.FOLDER_ID_SUB_PATH)
+	@Operation(summary = ApiDocConst.FOLDER_OPERATION_DELETE)
 	ResponseEntity<Void> deleteFolder(@PathVariable Long folderId) {
-		log.info("Delete folder id={}", folderId);
+		log.info(LogConst.FOLDER_CONTROLLER_DELETED, folderId);
 		folderService.deleteFolder(folderId);
 		return ResponseEntity.noContent().build();
 	}

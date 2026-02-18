@@ -54,7 +54,7 @@ class AppThemeModeController extends _$AppThemeModeController {
     if (normalizedValue == null) {
       return ThemeMode.system;
     }
-    final String uppercasedValue = normalizedValue.toUpperCase();
+    final String uppercasedValue = StringUtils.toUpper(normalizedValue);
     if (uppercasedValue == AppThemeModeCode.light) {
       return ThemeMode.light;
     }

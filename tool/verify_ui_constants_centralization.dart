@@ -48,13 +48,15 @@ class UiGuardViolation {
   final String lineContent;
 }
 
-/// EdgeInsets literals
+/// EdgeInsets numeric literals
 final RegExp _edgeInsetsLiteralRegExp = RegExp(
-  r'\bEdgeInsets\.(?:all|symmetric|only)\(',
+  r'\bEdgeInsets\.(?:all|symmetric|only)\([^)]*\b\d+(?:\.\d+)?\b',
 );
 
-/// SizedBox / Container height/width
-final RegExp _sizedBoxLiteralRegExp = RegExp(r'\b(?:SizedBox|Container)\s*\(');
+/// Width/height numeric literal (in widget declarations)
+final RegExp _widthHeightLiteralRegExp = RegExp(
+  r'\b(?:width|height)\s*:\s*(?:const\s+)?\d+(?:\.\d+)?\b',
+);
 
 /// TextStyle fontSize
 final RegExp _fontSizeLiteralRegExp = RegExp(
@@ -195,9 +197,7 @@ bool _isUiLayerFile(String path) {
 
 bool _containsMagicUiLiteral(String line) {
   if (_edgeInsetsLiteralRegExp.hasMatch(line)) return true;
-  if (_sizedBoxLiteralRegExp.hasMatch(line) &&
-      RegExp(r'\b\d+(?:\.\d+)?\b').hasMatch(line))
-    return true;
+  if (_widthHeightLiteralRegExp.hasMatch(line)) return true;
   if (_fontSizeLiteralRegExp.hasMatch(line)) return true;
   if (_borderRadiusLiteralRegExp.hasMatch(line)) return true;
   if (_radiusLiteralRegExp.hasMatch(line)) return true;

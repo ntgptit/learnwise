@@ -23,7 +23,7 @@ extension StudyModeApiX on StudyMode {
   }
 
   static StudyMode fromApiValue(String rawValue) {
-    final String normalized = StringUtils.normalize(rawValue).toLowerCase();
+    final String normalized = StringUtils.normalizeLower(rawValue);
     if (normalized == StudyConstants.modeReview) {
       return StudyMode.review;
     }

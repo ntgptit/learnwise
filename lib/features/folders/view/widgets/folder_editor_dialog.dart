@@ -180,7 +180,6 @@ Future<bool> showFolderEditorDialog({
                   onPressed: isSubmitting
                       ? null
                       : () async {
-                          final GoRouter router = GoRouter.of(dialogContext);
                           final bool isFormValid = form.valid;
                           if (!isFormValid) {
                             form.markAllAsTouched();
@@ -199,7 +198,7 @@ Future<bool> showFolderEditorDialog({
                           final FolderSubmitResult submitResult =
                               await onSubmit(input);
                           if (submitResult.isSuccess) {
-                            router.pop(true);
+                            dialogContext.pop(true);
                             return;
                           }
                           setDialogState(() {

@@ -41,6 +41,10 @@ class UiStateScalabilityConst {
   static const String allowSpinnerMarker = 'ui-state-guard: allow-spinner-list';
   static const String allowMissingWhenStateMarker =
       'ui-state-guard: allow-missing-when-state';
+  static const String legacyAllowListChildrenMarker =
+      'quality-guard: allow-list-children';
+  static const String legacyAllowSpinnerMarker =
+      'quality-guard: allow-spinner-list';
 
   /// Max number of lines to scan forward from a ListView/GridView anchor line
   /// to detect `children:` usage.
@@ -97,16 +101,19 @@ Future<void> main() async {
     }
 
     final List<String> rawLines = await file.readAsLines();
+    final String rawSource = rawLines.join('\n');
     final List<String> lines = rawLines.map(_stripLineComment).toList();
     final String source = lines.join('\n');
 
-    final bool allowListChildren = source.contains(
-      UiStateScalabilityConst.allowListChildrenMarker,
-    );
-    final bool allowSpinner = source.contains(
-      UiStateScalabilityConst.allowSpinnerMarker,
-    );
-    final bool allowMissingWhenState = source.contains(
+    final bool allowListChildren =
+        rawSource.contains(UiStateScalabilityConst.allowListChildrenMarker) ||
+        rawSource.contains(
+          UiStateScalabilityConst.legacyAllowListChildrenMarker,
+        );
+    final bool allowSpinner =
+        rawSource.contains(UiStateScalabilityConst.allowSpinnerMarker) ||
+        rawSource.contains(UiStateScalabilityConst.legacyAllowSpinnerMarker);
+    final bool allowMissingWhenState = rawSource.contains(
       UiStateScalabilityConst.allowMissingWhenStateMarker,
     );
 

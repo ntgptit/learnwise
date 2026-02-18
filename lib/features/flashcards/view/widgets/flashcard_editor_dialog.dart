@@ -156,7 +156,6 @@ Future<bool> showFlashcardEditorDialog({
                   onPressed: isSubmitting
                       ? null
                       : () async {
-                          final GoRouter router = GoRouter.of(dialogContext);
                           if (!form.valid) {
                             form.markAllAsTouched();
                             return;
@@ -170,7 +169,7 @@ Future<bool> showFlashcardEditorDialog({
                           final FlashcardSubmitResult submitResult =
                               await onSubmit(input);
                           if (submitResult.isSuccess) {
-                            router.pop(true);
+                            dialogContext.pop(true);
                             return;
                           }
                           setDialogState(() {

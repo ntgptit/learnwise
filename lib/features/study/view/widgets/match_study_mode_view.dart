@@ -7,6 +7,7 @@ import '../../../../../common/styles/app_durations.dart';
 import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/widgets/widgets.dart';
+import '../../../../../core/utils/string_utils.dart';
 import '../../model/study_unit.dart';
 import '../../viewmodel/study_session_viewmodel.dart';
 import 'study_feedback_tile_style.dart';
@@ -316,7 +317,11 @@ class _MatchBoardTile extends StatelessWidget {
     if (rawLabel.length <= maxLength) {
       return rawLabel;
     }
-    final String shortenedLabel = rawLabel.substring(0, maxLength);
+    final String shortenedLabel = StringUtils.slice(
+      rawLabel,
+      start: 0,
+      end: maxLength,
+    );
     return '$shortenedLabel$_truncatedSemanticsSuffix';
   }
 

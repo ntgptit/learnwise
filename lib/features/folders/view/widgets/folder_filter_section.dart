@@ -7,7 +7,13 @@ import '../../model/folder_models.dart';
 
 class FolderFilterSection extends StatelessWidget {
   const FolderFilterSection({
-    required this.query, required this.searchController, required this.onSearchChanged, required this.onSearchSubmitted, required this.onSortByChanged, required this.onSortDirectionChanged, super.key,
+    required this.query,
+    required this.searchController,
+    required this.onSearchChanged,
+    required this.onSearchSubmitted,
+    required this.onSortByChanged,
+    required this.onSortDirectionChanged,
+    super.key,
   });
 
   final FolderListQuery query;
@@ -43,6 +49,7 @@ class FolderFilterSection extends StatelessWidget {
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: IconButton(
                 onPressed: onSearchSubmitted,
+                tooltip: l10n.foldersSearchHint,
                 icon: const Icon(Icons.arrow_forward_rounded),
               ),
             ),

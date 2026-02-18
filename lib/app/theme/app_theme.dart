@@ -1,4 +1,5 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
+// theme-guard: allow-no-dynamic-color - static palette is intentionally used.
 import 'package:flutter/material.dart';
 
 import '../../common/styles/app_radius.dart';

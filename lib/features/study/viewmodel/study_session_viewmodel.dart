@@ -1100,10 +1100,8 @@ class StudySessionController extends _$StudySessionController {
     required String actual,
     required String expected,
   }) {
-    final String normalizedActual = StringUtils.normalize(actual).toLowerCase();
-    final String normalizedExpected = StringUtils.normalize(
-      expected,
-    ).toLowerCase();
+    final String normalizedActual = StringUtils.normalizeLower(actual);
+    final String normalizedExpected = StringUtils.normalizeLower(expected);
     if (normalizedActual.isEmpty) {
       return false;
     }

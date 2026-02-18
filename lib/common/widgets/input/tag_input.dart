@@ -5,7 +5,14 @@ import '../../styles/app_sizes.dart';
 
 class TagInput extends StatelessWidget {
   const TagInput({
-    required this.controller, required this.tags, required this.onAddRequested, required this.onSubmitted, required this.onRemoveRequested, required this.label, required this.hint, super.key,
+    required this.controller,
+    required this.tags,
+    required this.onAddRequested,
+    required this.onSubmitted,
+    required this.onRemoveRequested,
+    required this.label,
+    required this.hint,
+    super.key,
   });
 
   final TextEditingController controller;
@@ -29,6 +36,7 @@ class TagInput extends StatelessWidget {
             hintText: hint,
             suffixIcon: IconButton(
               onPressed: onAddRequested,
+              tooltip: label,
               icon: const Icon(Icons.add),
             ),
           ),

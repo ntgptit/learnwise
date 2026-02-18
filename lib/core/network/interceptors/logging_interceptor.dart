@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 
 import '../api_constants.dart';
+import '../../utils/string_utils.dart';
 
 class HttpLogConstants {
   const HttpLogConstants._();
@@ -114,7 +115,7 @@ class LoggingInterceptor extends Interceptor {
   Map<String, dynamic> _redactHeaders(Map<String, dynamic> headers) {
     final Map<String, dynamic> result = <String, dynamic>{};
     for (final MapEntry<String, dynamic> entry in headers.entries) {
-      final String normalizedKey = entry.key.toLowerCase();
+      final String normalizedKey = StringUtils.toLower(entry.key);
       if (_shouldRedactHeader(normalizedKey)) {
         result[entry.key] = HttpLogConstants.redactedValue;
         continue;

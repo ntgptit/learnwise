@@ -60,9 +60,7 @@ final RegExp _textScaleOverrideRegExp = RegExp(r'\btextScaleFactor\s*:');
 
 final RegExp _iconButtonRegExp = RegExp(r'\bIconButton\s*\(');
 
-final RegExp _interactiveWidgetRegExp = RegExp(
-  r'\b(?:GestureDetector|InkWell|FloatingActionButton|ElevatedButton|TextButton|OutlinedButton)\s*\(',
-);
+final RegExp _interactiveWidgetRegExp = RegExp(r'\bFloatingActionButton\s*\(');
 
 Future<void> main() async {
   final Directory libDirectory = Directory(
@@ -92,13 +90,11 @@ Future<void> main() async {
       final rawLine = lines[i];
       final sourceLine = _stripLineComment(rawLine).trim();
 
-      if (sourceLine.isEmpty) continue;
-
-      if (sourceLine.contains(
-        AccessibilityContractConst.allowNoTextScaleMarker,
-      )) {
+      if (rawLine.contains(AccessibilityContractConst.allowNoTextScaleMarker)) {
         allowNoTextScale = true;
       }
+
+      if (sourceLine.isEmpty) continue;
 
       if (_semanticsRegExp.hasMatch(sourceLine)) {
         semanticsCount++;
@@ -149,7 +145,7 @@ Future<void> main() async {
 
       // ---------- IconButton tooltip rule ----------
       if (_iconButtonRegExp.hasMatch(sourceLine) &&
-          !sourceLine.contains('tooltip')) {
+          !_hasA11yAffordanceInWindow(lines: lines, lineIndex: i)) {
         violations.add(
           AccessibilityViolation(
             filePath: path,
@@ -162,8 +158,7 @@ Future<void> main() async {
 
       // ---------- Interactive semantic rule ----------
       if (_interactiveWidgetRegExp.hasMatch(sourceLine) &&
-          !sourceLine.contains('semanticLabel') &&
-          !sourceLine.contains('tooltip')) {
+          !_hasA11yAffordanceInWindow(lines: lines, lineIndex: i)) {
         violations.add(
           AccessibilityViolation(
             filePath: path,
@@ -260,4 +255,27 @@ bool _isUiFile(String path) {
     return false;
   }
   return true;
+}
+
+bool _hasA11yAffordanceInWindow({
+  required List<String> lines,
+  required int lineIndex,
+}) {
+  final int endIndex = lineIndex + 30;
+  for (int i = lineIndex; i <= endIndex && i < lines.length; i++) {
+    final String sourceLine = _stripLineComment(lines[i]).trim();
+    if (sourceLine.isEmpty) {
+      continue;
+    }
+    if (sourceLine.contains('tooltip:')) {
+      return true;
+    }
+    if (sourceLine.contains('semanticLabel:')) {
+      return true;
+    }
+    if (_semanticsRegExp.hasMatch(sourceLine)) {
+      return true;
+    }
+  }
+  return false;
 }

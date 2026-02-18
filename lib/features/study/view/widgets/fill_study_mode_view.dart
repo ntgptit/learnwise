@@ -194,10 +194,8 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
     required String actual,
     required String expected,
   }) {
-    final String normalizedActual = StringUtils.normalize(actual).toLowerCase();
-    final String normalizedExpected = StringUtils.normalize(
-      expected,
-    ).toLowerCase();
+    final String normalizedActual = StringUtils.normalizeLower(actual);
+    final String normalizedExpected = StringUtils.normalizeLower(expected);
     if (normalizedActual.isEmpty) {
       return false;
     }
@@ -456,8 +454,8 @@ class _FillWrongAnswerHighlightedText extends StatelessWidget {
   }) {
     final String normalizedActual = StringUtils.normalize(actual);
     final String normalizedExpected = StringUtils.normalize(expected);
-    final String actualLower = normalizedActual.toLowerCase();
-    final String expectedLower = normalizedExpected.toLowerCase();
+    final String actualLower = StringUtils.toLower(normalizedActual);
+    final String expectedLower = StringUtils.toLower(normalizedExpected);
 
     int minLength = actualLower.length;
     if (expectedLower.length < minLength) {
@@ -480,22 +478,27 @@ class _FillWrongAnswerHighlightedText extends StatelessWidget {
     }
 
     final List<InlineSpan> spans = <InlineSpan>[];
-    final String correctPrefix = normalizedActual.substring(
-      StudyConstants.defaultIndex,
-      mismatchIndex,
+    final String correctPrefix = StringUtils.slice(
+      normalizedActual,
+      start: StudyConstants.defaultIndex,
+      end: mismatchIndex,
     );
     if (correctPrefix.isNotEmpty) {
       spans.add(TextSpan(text: correctPrefix, style: baseStyle));
     }
 
-    final String wrongSuffix = normalizedActual.substring(mismatchIndex);
+    final String wrongSuffix = StringUtils.slice(
+      normalizedActual,
+      start: mismatchIndex,
+    );
     if (wrongSuffix.isNotEmpty) {
       spans.add(TextSpan(text: wrongSuffix, style: errorStyle));
     }
 
     if (normalizedExpected.length > normalizedActual.length) {
-      final String missingSuffix = normalizedExpected.substring(
-        normalizedActual.length,
+      final String missingSuffix = StringUtils.slice(
+        normalizedExpected,
+        start: normalizedActual.length,
       );
       if (missingSuffix.isNotEmpty) {
         spans.add(TextSpan(text: missingSuffix, style: missingStyle));

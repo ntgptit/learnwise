@@ -143,7 +143,7 @@ class SettingsSection extends StatelessWidget {
 
     return ListTile(
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(AppSizes.spacingSm),
         decoration: BoxDecoration(
           color: colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(AppSizes.radiusSm),
@@ -198,7 +198,7 @@ class SettingsSection extends StatelessWidget {
     return Row(
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(AppSizes.spacingSm),
           decoration: BoxDecoration(
             color: colorScheme.secondaryContainer,
             borderRadius: BorderRadius.circular(AppSizes.radiusSm),

@@ -316,7 +316,7 @@ class StudyMatchTileModel {
   }
 
   bool get isLeftTile {
-    return side.toUpperCase() == StudyConstants.matchTileSideLeft;
+    return StringUtils.toUpper(side) == StudyConstants.matchTileSideLeft;
   }
 }
 
@@ -362,7 +362,8 @@ class StudyAttemptResultModel {
     if (normalizedStatus == null) {
       return false;
     }
-    return normalizedStatus.toUpperCase() == StudyConstants.feedbackSuccess;
+    return StringUtils.toUpper(normalizedStatus) ==
+        StudyConstants.feedbackSuccess;
   }
 
   bool get isError {
@@ -372,7 +373,8 @@ class StudyAttemptResultModel {
     if (normalizedStatus == null) {
       return false;
     }
-    return normalizedStatus.toUpperCase() == StudyConstants.feedbackError;
+    return StringUtils.toUpper(normalizedStatus) ==
+        StudyConstants.feedbackError;
   }
 }
 

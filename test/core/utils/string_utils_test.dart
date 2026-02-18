@@ -33,6 +33,36 @@ void main() {
     });
   });
 
+  group('StringUtils empty checks', () {
+    test('isEmpty and isNotEmpty follow null-safe behavior', () {
+      expect(StringUtils.isEmpty(null), isTrue);
+      expect(StringUtils.isEmpty(''), isTrue);
+      expect(StringUtils.isEmpty('x'), isFalse);
+      expect(StringUtils.isNotEmpty('x'), isTrue);
+    });
+  });
+
+  group('StringUtils comparisons', () {
+    test('startsWithIgnoreCase handles null-safe comparison', () {
+      expect(
+        StringUtils.startsWithIgnoreCase(value: 'Prefix', prefix: 'pre'),
+        isTrue,
+      );
+      expect(
+        StringUtils.startsWithIgnoreCase(value: null, prefix: 'pre'),
+        isFalse,
+      );
+    });
+  });
+
+  group('StringUtils slicing helpers', () {
+    test('slice handles positive and negative boundaries', () {
+      expect(StringUtils.slice('abcdef', start: 1, end: 4), 'bcd');
+      expect(StringUtils.slice('abcdef', start: -2), 'ef');
+      expect(StringUtils.slice('abcdef', start: 4, end: 2), isEmpty);
+    });
+  });
+
   group('NullableStringUtilsX', () {
     test('normalizedOrNull works for nullable string', () {
       const String value = '  hello  ';

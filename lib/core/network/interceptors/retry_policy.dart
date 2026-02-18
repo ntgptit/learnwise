@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 
 import '../api_constants.dart';
+import '../../utils/string_utils.dart';
 
 typedef RandomFraction = double Function();
 
@@ -76,7 +77,7 @@ class RetryPolicy {
   }
 
   bool _isIdempotentMethod(String method) {
-    final String normalizedMethod = method.toUpperCase();
+    final String normalizedMethod = StringUtils.toUpper(method);
     if (normalizedMethod == ApiConstants.methodGet) {
       return true;
     }

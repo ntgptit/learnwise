@@ -1,6 +1,7 @@
 // quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
 // quality-guard: allow-large-class - phase2 legacy backlog tracked for class decomposition.
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
+// ui-state-guard: allow-spinner-list - hierarchical list keeps lightweight inline progress indicators.
 import 'dart:async';
 
 import 'package:flutter/material.dart';

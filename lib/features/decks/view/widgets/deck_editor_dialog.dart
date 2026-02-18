@@ -123,7 +123,6 @@ Future<bool> showDeckEditorDialog({
                   onPressed: isSubmitting
                       ? null
                       : () async {
-                          final GoRouter router = GoRouter.of(dialogContext);
                           final bool isFormValid = form.valid;
                           if (!isFormValid) {
                             form.markAllAsTouched();
@@ -139,7 +138,7 @@ Future<bool> showDeckEditorDialog({
                             input,
                           );
                           if (submitResult.isSuccess) {
-                            router.pop(true);
+                            dialogContext.pop(true);
                             return;
                           }
                           setDialogState(() {

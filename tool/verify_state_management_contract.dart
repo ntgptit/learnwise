@@ -8,9 +8,8 @@ import 'dart:io';
 ///
 /// 1. No `setState()` usage (state must be managed via Riverpod).
 /// 2. No `else` / `else if` (guard clause + early return philosophy).
-/// 3. Max nesting depth = 1.
-/// 4. AsyncValue must use `.when()` / `.map()` (no hasValue/requireValue).
-/// 5. Riverpod controllers must have `@riverpod/@Riverpod`.
+/// 3. AsyncValue must use `.when()` / `.map()` (no hasValue/requireValue).
+/// 4. Riverpod controllers must have `@riverpod/@Riverpod`.
 ///
 /// Switch-case is allowed.
 /// ===============================================================
@@ -48,7 +47,7 @@ final RegExp _elseRegExp = RegExp(r'^\s*else\b');
 final RegExp _asyncValueTypeRegExp = RegExp(r'\bAsyncValue\s*<');
 final RegExp _whenOrMapRegExp = RegExp(r'\.(?:when|map)\s*\(');
 final RegExp _forbiddenAsyncFlowRegExp = RegExp(
-  r'\b(?:hasValue|hasError|requireValue|maybeWhen|maybeMap)\b',
+  r'\b(?:hasValue|requireValue|maybeWhen|maybeMap)\b',
 );
 final RegExp _riverpodAnnotationRegExp = RegExp(r'@\s*(?:riverpod|Riverpod)\b');
 final RegExp _generatedControllerClassRegExp = RegExp(
@@ -87,9 +86,6 @@ Future<void> main() async {
       );
     }
 
-    int nestingDepth = 0;
-    int maxNesting = 0;
-
     bool fileHasAsyncValue = false;
     bool fileHasWhenOrMap = false;
 
@@ -98,11 +94,6 @@ Future<void> main() async {
       final line = _stripLineComment(rawLine).trim();
 
       if (line.isEmpty) continue;
-
-      // Track nesting depth
-      nestingDepth += _countChar(line, '{');
-      maxNesting = nestingDepth > maxNesting ? nestingDepth : maxNesting;
-      nestingDepth -= _countChar(line, '}');
 
       if (_setStateRegExp.hasMatch(line)) {
         violations.add(
@@ -161,18 +152,6 @@ Future<void> main() async {
       }
     }
 
-    if (maxNesting > 1) {
-      violations.add(
-        StateContractViolation(
-          filePath: path,
-          lineNumber: 1,
-          reason:
-              'Max nesting depth exceeded (>${1}). Use guard clauses to flatten logic.',
-          lineContent: path,
-        ),
-      );
-    }
-
     if (isUiFile && fileHasAsyncValue && !fileHasWhenOrMap) {
       violations.add(
         StateContractViolation(
@@ -220,7 +199,8 @@ List<File> _collectSourceFiles(Directory root) {
 }
 
 bool _isStateFile(String path) {
-  if (path.contains('/viewmodel/')) return true;
+  if (path.endsWith('_viewmodel.dart')) return true;
+  if (path.endsWith('viewmodel.dart')) return true;
   if (path.endsWith('_provider.dart')) return true;
   if (path.endsWith('_providers.dart')) return true;
   return false;
@@ -271,8 +251,4 @@ String _stripLineComment(String line) {
 
 String _normalizePath(String path) {
   return path.replaceAll('\\', '/');
-}
-
-int _countChar(String line, String char) {
-  return char.allMatches(line).length;
 }

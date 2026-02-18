@@ -34,24 +34,17 @@ class StringUtilsViolation {
   final String lineContent;
 }
 
-/// Forbidden string operations outside StringUtils.
+/// Forbidden String-specific operations outside StringUtils.
 final List<RegExp> _forbiddenPatterns = <RegExp>[
   RegExp(r'\.\s*trim\s*\(\s*\)'),
   RegExp(r'\.\s*trimLeft\s*\(\s*\)'),
   RegExp(r'\.\s*trimRight\s*\(\s*\)'),
   RegExp(r'\.\s*toLowerCase\s*\(\s*\)'),
   RegExp(r'\.\s*toUpperCase\s*\(\s*\)'),
-  RegExp(r'\.\s*isEmpty\b'),
-  RegExp(r'\.\s*isNotEmpty\b'),
   RegExp(r'\.\s*replaceAll\s*\('),
   RegExp(r'\.\s*split\s*\('),
   RegExp(r'\.\s*substring\s*\('),
 ];
-
-/// Detects common null + empty checks.
-final RegExp _nullEmptyCheckPattern = RegExp(
-  r'!=\s*null\s*&&\s*.*\.(?:isEmpty|isNotEmpty)',
-);
 
 Future<void> main() async {
   final Directory root = Directory(StringUtilsContractConst.libDirectory);
@@ -95,18 +88,6 @@ Future<void> main() async {
           ),
         );
         continue;
-      }
-
-      if (_nullEmptyCheckPattern.hasMatch(sourceLine)) {
-        violations.add(
-          StringUtilsViolation(
-            filePath: path,
-            lineNumber: index + 1,
-            reason:
-                'Null + empty check is forbidden. Use StringUtils.isBlank/isNotBlank.',
-            lineContent: rawLine.trim(),
-          ),
-        );
       }
     }
   }

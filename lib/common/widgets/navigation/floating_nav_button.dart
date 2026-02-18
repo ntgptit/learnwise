@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class FloatingNavButton extends StatelessWidget {
   const FloatingNavButton({
-    required this.icon, super.key,
+    required this.icon,
+    super.key,
     this.label,
     this.onPressed,
   });
@@ -13,12 +14,18 @@ class FloatingNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String tooltip = label ?? 'Navigation';
     if (label == null) {
-      return FloatingActionButton(onPressed: onPressed, child: Icon(icon));
+      return FloatingActionButton(
+        onPressed: onPressed,
+        tooltip: tooltip,
+        child: Icon(icon),
+      );
     }
 
     return FloatingActionButton.extended(
       onPressed: onPressed,
+      tooltip: tooltip,
       icon: Icon(icon),
       label: Text(label!),
     );

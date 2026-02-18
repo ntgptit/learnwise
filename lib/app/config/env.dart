@@ -15,7 +15,7 @@ enum AppEnv {
   }
 
   static AppEnv fromValue(String value) {
-    switch (StringUtils.normalize(value).toUpperCase()) {
+    switch (StringUtils.normalizeUpper(value)) {
       case 'PROD':
       case 'PRODUCTION':
         return AppEnv.prod;

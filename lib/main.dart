@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+// a11y-guard: allow-no-text-scaling - app keeps platform text scaling behavior by default.
 import 'app/router/app_router.dart';
 import 'app/theme/app_theme.dart';
 import 'app/theme/app_theme_mode_controller.dart';

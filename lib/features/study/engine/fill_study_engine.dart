@@ -151,7 +151,7 @@ class FillStudyEngine implements StudyEngine {
   }
 
   String _normalizeForCompare(String value) {
-    return StringUtils.normalize(value).toLowerCase();
+    return StringUtils.normalizeLower(value);
   }
 
   int _levenshteinDistance({required String left, required String right}) {

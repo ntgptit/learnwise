@@ -8,7 +8,7 @@ class FolderInputService {
   FolderUpsertInput normalize(FolderUpsertInput input) {
     final String name = StringUtils.normalize(input.name);
     final String description = StringUtils.normalize(input.description);
-    final String colorHex = StringUtils.normalize(input.colorHex).toUpperCase();
+    final String colorHex = StringUtils.normalizeUpper(input.colorHex);
     return FolderUpsertInput(
       name: name,
       description: description,

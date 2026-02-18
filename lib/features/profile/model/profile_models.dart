@@ -23,7 +23,7 @@ enum UserThemeMode {
     if (normalizedRawValue == null) {
       return UserThemeMode.system;
     }
-    final String normalizedValue = normalizedRawValue.toUpperCase();
+    final String normalizedValue = StringUtils.toUpper(normalizedRawValue);
     if (normalizedValue == 'LIGHT') {
       return UserThemeMode.light;
     }

@@ -22,18 +22,7 @@ class _StudyUnitBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final StudySessionState state = ref.watch(provider);
     final StudySessionController controller = ref.read(provider.notifier);
-    final int displayedCompletedModeCount = resolveDisplayedCompletedModeCount(
-      args: studyArgs,
-      completedModeCount: state.completedModeCount,
-      requiredModeCount: state.requiredModeCount,
-      isModeCompleted: state.isCompleted,
-      isSessionCompleted: state.isSessionCompleted,
-      currentMode: state.mode,
-    );
     if (state.isCompleted) {
-      final List<StudyMode> cycleModes = resolveStudyCycleModes(
-        args: studyArgs,
-      );
       final StudyMode? nextMode = resolveNextCycleMode(
         args: studyArgs,
         currentMode: state.mode,
@@ -47,9 +36,6 @@ class _StudyUnitBody extends ConsumerWidget {
         nextMode: nextMode,
       );
       return _StudyCompletedCard(
-        state: state,
-        displayedCompletedModeCount: displayedCompletedModeCount,
-        cycleModes: cycleModes,
         l10n: l10n,
         onNextModePressed: nextMode == null
             ? null

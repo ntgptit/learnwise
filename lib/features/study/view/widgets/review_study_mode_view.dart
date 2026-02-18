@@ -269,6 +269,7 @@ class _ReviewCardFace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextStyle? resolvedTextStyle = textStyle?.copyWith(
       fontWeight: FontWeight.normal,
     );
@@ -291,6 +292,32 @@ class _ReviewCardFace extends StatelessWidget {
                 onPressed: onActionPressed,
                 tooltip: tooltip,
                 iconSize: FlashcardStudySessionTokens.iconSize,
+                style:
+                    IconButton.styleFrom(
+                      minimumSize: const Size(
+                        FlashcardStudySessionTokens.reviewAppBarIconTapTarget,
+                        FlashcardStudySessionTokens.reviewAppBarIconTapTarget,
+                      ),
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                      foregroundColor: colorScheme.onSurfaceVariant,
+                    ).copyWith(
+                      backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                        states,
+                      ) {
+                        if (states.contains(WidgetState.selected)) {
+                          return colorScheme.primaryContainer;
+                        }
+                        return colorScheme.surfaceContainerHighest;
+                      }),
+                      foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+                        states,
+                      ) {
+                        if (states.contains(WidgetState.selected)) {
+                          return colorScheme.onPrimaryContainer;
+                        }
+                        return colorScheme.onSurfaceVariant;
+                      }),
+                    ),
                 constraints: const BoxConstraints(
                   minWidth:
                       FlashcardStudySessionTokens.reviewAppBarIconTapTarget,

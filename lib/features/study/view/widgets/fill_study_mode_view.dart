@@ -99,11 +99,11 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
                         child: SizedBox(
                           height: FlashcardStudySessionTokens
                               .fillActionButtonHeight,
-                          child: FilledButton(
+                          child: OutlinedButton(
                             onPressed: _resolveHelpButtonHandler(
                               isAwaitingConfirm: isAwaitingConfirm,
                             ),
-                            style: _resolveActionButtonStyle(context),
+                            style: _resolveSecondaryActionButtonStyle(context),
                             child: Text(
                               widget.l10n.flashcardsStudyFillHelpLabel,
                             ),
@@ -122,7 +122,7 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
                               canSubmit: canSubmit,
                               isAwaitingConfirm: isAwaitingConfirm,
                             ),
-                            style: _resolveCheckButtonStyle(context),
+                            style: _resolvePrimaryActionButtonStyle(context),
                             child: Text(
                               _resolveCheckButtonLabel(
                                 isAwaitingConfirm: isAwaitingConfirm,
@@ -231,8 +231,8 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
     return widget.l10n.flashcardsStudyFillCheckLabel;
   }
 
-  ButtonStyle _resolveActionButtonStyle(BuildContext context) {
-    return FilledButton.styleFrom(
+  ButtonStyle _resolveSecondaryActionButtonStyle(BuildContext context) {
+    return OutlinedButton.styleFrom(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
           FlashcardStudySessionTokens.fillActionButtonRadius,
@@ -241,7 +241,7 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
     );
   }
 
-  ButtonStyle _resolveCheckButtonStyle(BuildContext context) {
+  ButtonStyle _resolvePrimaryActionButtonStyle(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return FilledButton.styleFrom(
       shape: RoundedRectangleBorder(
@@ -303,7 +303,7 @@ class _FillPromptCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.normal,
                   ),
@@ -362,7 +362,7 @@ class _FillInputCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: FlashcardStudySessionTokens.fillPromptMaxLines,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: colorScheme.onSurface,
                       fontWeight: FontWeight.normal,
                     ),
@@ -383,7 +383,7 @@ class _FillInputCard extends StatelessWidget {
                   )!.flashcardsStudyFillInputHint,
                   variant: InputFieldVariant.filled,
                   fillColor: colorScheme.surfaceContainerHigh,
-                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.normal,
                   ),
@@ -412,7 +412,7 @@ class _FillWrongAnswerHighlightedText extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final TextStyle baseStyle =
-        theme.textTheme.titleMedium?.copyWith(
+        theme.textTheme.titleLarge?.copyWith(
           color: colorScheme.onSurface,
           fontWeight: FontWeight.normal,
         ) ??

@@ -28,11 +28,8 @@ class DeckListCard extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final String description = deck.description.isEmpty
-        ? l10n.decksNoDescriptionLabel
-        : deck.description;
     final String metadata =
-        '$description · ${l10n.decksFlashcardCountLabel(deck.flashcardCount)} · ${l10n.foldersAuditLabel(deck.updatedBy)}';
+        '${l10n.decksFlashcardCountLabel(deck.flashcardCount)} · ${l10n.foldersAuditLabel(deck.updatedBy)}';
 
     return AppCard(
       onTap: onOpenPressed,

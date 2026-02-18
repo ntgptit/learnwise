@@ -33,11 +33,8 @@ class FolderListCard extends StatelessWidget {
       folder.colorHex,
       colorScheme.primary,
     );
-    final String description = folder.description.isEmpty
-        ? l10n.foldersNoDescriptionLabel
-        : folder.description;
     final String metadata =
-        '$description \u00b7 ${l10n.foldersDeckCountLabel(folder.directDeckCount)} \u00b7 ${l10n.foldersFlashcardCountLabel(folder.flashcardCount)} \u00b7 ${l10n.foldersAuditLabel(folder.updatedBy)}';
+        '${l10n.foldersDeckCountLabel(folder.directDeckCount)} \u00b7 ${l10n.foldersFlashcardCountLabel(folder.flashcardCount)} \u00b7 ${l10n.foldersAuditLabel(folder.updatedBy)}';
 
     return AppCard(
       onTap: onOpenPressed,

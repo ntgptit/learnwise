@@ -65,6 +65,7 @@ class _StudyProgressHeader extends ConsumerWidget {
     required BuildContext context,
     required double progressPercent,
   }) {
+    final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final String progressLabel = '${(progressPercent * 100).round()}%';
     return Row(
@@ -85,9 +86,10 @@ class _StudyProgressHeader extends ConsumerWidget {
         const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
         Text(
           progressLabel,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(color: colorScheme.primary),
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );

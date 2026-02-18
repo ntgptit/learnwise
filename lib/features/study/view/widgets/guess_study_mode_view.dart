@@ -168,13 +168,16 @@ class _GuessPromptActionIcon extends StatelessWidget {
             borderRadius: BorderRadius.circular(
               FlashcardStudySessionTokens.guessPromptActionRadius,
             ),
-            border: Border.all(color: colorScheme.outlineVariant),
           ),
           child: Padding(
             padding: const EdgeInsets.all(
               FlashcardStudySessionTokens.guessPromptActionInnerPadding,
             ),
-            child: Icon(iconData, size: FlashcardStudySessionTokens.iconSize),
+            child: Icon(
+              iconData,
+              size: FlashcardStudySessionTokens.iconSize,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ),

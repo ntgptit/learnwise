@@ -3,18 +3,12 @@ part of '../study_session_screen.dart';
 
 class _StudyCompletedCard extends StatelessWidget {
   const _StudyCompletedCard({
-    required this.state,
-    required this.displayedCompletedModeCount,
-    required this.cycleModes,
     required this.l10n,
     required this.onClosePressed,
     this.onNextModePressed,
     this.nextModeLabel,
   });
 
-  final StudySessionState state;
-  final int displayedCompletedModeCount;
-  final List<StudyMode> cycleModes;
   final AppLocalizations l10n;
   final VoidCallback onClosePressed;
   final VoidCallback? onNextModePressed;
@@ -22,6 +16,7 @@ class _StudyCompletedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: AppCard(
         variant: AppCardVariant.filled,
@@ -32,17 +27,33 @@ class _StudyCompletedCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Icon(Icons.emoji_events_outlined),
+            Container(
+              width: FlashcardStudySessionTokens.cycleProgressItemHeight,
+              height: FlashcardStudySessionTokens.cycleProgressItemHeight,
+              alignment: Alignment.center,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(
+                    FlashcardStudySessionTokens.cycleProgressItemRadius,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(
+                    FlashcardStudySessionTokens.answerSpacing,
+                  ),
+                  child: Icon(
+                    Icons.emoji_events_rounded,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
             Text(
               l10n.flashcardsStudyCompletedTitle,
               style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: FlashcardStudySessionTokens.answerSpacing),
-            _StudyCycleModeProgress(
-              cycleModes: cycleModes,
-              completedModeCount: displayedCompletedModeCount,
-              l10n: l10n,
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: FlashcardStudySessionTokens.sectionSpacing),
             if (onNextModePressed != null && nextModeLabel != null)

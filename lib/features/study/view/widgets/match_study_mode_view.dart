@@ -393,7 +393,7 @@ class _MatchBoardTile extends StatelessWidget {
     if (isPromptTile) {
       return theme.textTheme.titleMedium ?? const TextStyle();
     }
-    return theme.textTheme.bodyLarge ?? const TextStyle();
+    return theme.textTheme.bodyMedium ?? const TextStyle();
   }
 
   double _resolveOpacity() {

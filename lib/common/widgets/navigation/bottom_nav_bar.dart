@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - navigation theming resolution is intentionally centralized in one build method.
 import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';

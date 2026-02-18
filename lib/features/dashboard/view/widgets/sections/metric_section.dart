@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - metric grid rendering keeps responsive sizing and card mapping together.
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 

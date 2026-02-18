@@ -1,3 +1,4 @@
+// quality-guard: allow-long-function - hero composition keeps gradient/title/chips in one coherent render block.
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 

@@ -11,6 +11,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_durations.dart';
+import '../../../common/styles/app_spacing.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
@@ -110,6 +111,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       listing: listingSnapshot,
       deckListing: deckListingSnapshot,
     );
+    final List<FabAction> fabActions = _buildFabActions(
+      l10n: l10n,
+      showDeckButton: isDeckContext,
+      canCreateFolder: canCreateFolderAtCurrentLevel,
+      canCreateDeck: canCreateDeckAtCurrentLevel,
+    );
     final String searchHint = isDeckContext
         ? l10n.decksSearchHint
         : l10n.foldersSearchHint;
@@ -131,16 +138,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
               ? null
               : () => _onBackPressed(query),
           icon: Icon(
-            isInsideFolder
-                ? Icons.arrow_back_rounded
-                : Icons.home_rounded,
+            isInsideFolder ? Icons.arrow_back_rounded : Icons.home_rounded,
           ),
           tooltip: l10n.foldersBackToParentTooltip,
         ),
         title: Text(
-          isInsideFolder
-              ? query.breadcrumbs.last.name
-              : l10n.foldersRootLabel,
+          isInsideFolder ? query.breadcrumbs.last.name : l10n.foldersRootLabel,
         ),
         actions: <Widget>[
           PopupMenuButton<_FolderMenuAction>(
@@ -243,32 +246,24 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           height: FolderScreenTokens.sectionSpacing,
                         ),
                       ],
-                      _FolderActionBar(
-                        canCreateFolder: canCreateFolderAtCurrentLevel,
-                        canCreateDeck: canCreateDeckAtCurrentLevel,
-                        showDeckButton: isDeckContext,
-                        createFolderLabel: l10n.foldersCreateButton,
-                        createDeckLabel: l10n.decksCreateButton,
-                        onCreateFolder: _onCreatePressed,
-                        onCreateDeck: _onCreateDeckPressed,
-                      ),
-                      const SizedBox(height: FolderScreenTokens.sectionSpacing),
-                      _FolderToolbar(
-                        searchController: _searchController,
-                        searchFocusNode: _searchFocusNode,
-                        searchHint: searchHint,
-                        sortTooltip: l10n.foldersSortByLabel,
-                        onSearchChanged: _onSearchChanged,
-                        onSearchSubmitted: _submitSearch,
-                        onClearSearch: _clearSearch,
-                        onSortPressed: (context) {
-                          return _buildMenuItems(
-                            l10n: l10n,
-                            query: query,
-                            includeRefresh: false,
-                          );
-                        },
-                        onMenuActionSelected: _onMenuActionSelected,
+                      _SectionContainer(
+                        child: _FolderToolbar(
+                          searchController: _searchController,
+                          searchFocusNode: _searchFocusNode,
+                          searchHint: searchHint,
+                          sortTooltip: l10n.foldersSortByLabel,
+                          onSearchChanged: _onSearchChanged,
+                          onSearchSubmitted: _submitSearch,
+                          onClearSearch: _clearSearch,
+                          onSortPressed: (context) {
+                            return _buildMenuItems(
+                              l10n: l10n,
+                              query: query,
+                              includeRefresh: false,
+                            );
+                          },
+                          onMenuActionSelected: _onMenuActionSelected,
+                        ),
                       ),
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
                       if (showFolderSearchEmptyState)
@@ -428,7 +423,46 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
         selectedIndex: FolderConstants.foldersNavIndex,
         onDestinationSelected: _onBottomNavSelected,
       ),
+      floatingActionButton: fabActions.isEmpty
+          ? null
+          : AppExpandableFab(
+              icon: Icons.add_rounded,
+              tooltip: l10n.foldersCreateButton,
+              actions: fabActions,
+            ),
     );
+  }
+
+  List<FabAction> _buildFabActions({
+    required AppLocalizations l10n,
+    required bool showDeckButton,
+    required bool canCreateFolder,
+    required bool canCreateDeck,
+  }) {
+    final List<FabAction> actions = <FabAction>[];
+    if (canCreateFolder) {
+      actions.add(
+        FabAction(
+          icon: Icons.create_new_folder_rounded,
+          label: l10n.foldersCreateButton,
+          onPressed: _onCreatePressed,
+        ),
+      );
+    }
+    if (!showDeckButton) {
+      return actions;
+    }
+    if (!canCreateDeck) {
+      return actions;
+    }
+    actions.add(
+      FabAction(
+        icon: Icons.style_rounded,
+        label: l10n.decksCreateButton,
+        onPressed: _onCreateDeckPressed,
+      ),
+    );
+    return actions;
   }
 
   void _onScroll() {
@@ -966,48 +1000,6 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 }
 
-/// Modern action bar with create buttons
-class _FolderActionBar extends StatelessWidget {
-  const _FolderActionBar({
-    required this.canCreateFolder,
-    required this.canCreateDeck,
-    required this.showDeckButton,
-    required this.createFolderLabel,
-    required this.createDeckLabel,
-    required this.onCreateFolder,
-    required this.onCreateDeck,
-  });
-
-  final bool canCreateFolder;
-  final bool canCreateDeck;
-  final bool showDeckButton;
-  final String createFolderLabel;
-  final String createDeckLabel;
-  final VoidCallback? onCreateFolder;
-  final VoidCallback? onCreateDeck;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSizes.spacingSm,
-      runSpacing: AppSizes.spacingXs,
-      children: <Widget>[
-        FilledButton.icon(
-          onPressed: canCreateFolder ? onCreateFolder : null,
-          icon: const Icon(Icons.create_new_folder_rounded),
-          label: Text(createFolderLabel),
-        ),
-        if (showDeckButton)
-          FilledButton.tonalIcon(
-            onPressed: canCreateDeck ? onCreateDeck : null,
-            icon: const Icon(Icons.style_rounded),
-            label: Text(createDeckLabel),
-          ),
-      ],
-    );
-  }
-}
-
 /// Modern toolbar combining search and sort controls
 class _FolderToolbar extends StatelessWidget {
   const _FolderToolbar({
@@ -1036,6 +1028,7 @@ class _FolderToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final BorderRadius buttonRadius = BorderRadius.circular(AppSizes.radiusMd);
 
     return Row(
       children: <Widget>[
@@ -1049,24 +1042,46 @@ class _FolderToolbar extends StatelessWidget {
             onClear: onClearSearch,
           ),
         ),
-        const SizedBox(width: AppSizes.spacingXs),
+        const SizedBox(width: AppSpacing.xs),
         PopupMenuButton<_FolderMenuAction>(
           onSelected: onMenuActionSelected,
           itemBuilder: onSortPressed,
           tooltip: sortTooltip,
+          constraints: const BoxConstraints.tightFor(
+            width: AppSizes.size48,
+            height: AppSizes.size48,
+          ),
           style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll<Color>(
-              colorScheme.surfaceContainerHighest,
+              colorScheme.surfaceContainerHigh,
             ),
             shape: WidgetStatePropertyAll<OutlinedBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-              ),
+              RoundedRectangleBorder(borderRadius: buttonRadius),
             ),
           ),
-          icon: Icon(Icons.sort_rounded, color: colorScheme.onSurfaceVariant),
+          icon: Icon(Icons.tune_rounded, color: colorScheme.onSurfaceVariant),
         ),
       ],
+    );
+  }
+}
+
+class _SectionContainer extends StatelessWidget {
+  const _SectionContainer({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.spacingSm),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppSizes.size20),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: child,
     );
   }
 }

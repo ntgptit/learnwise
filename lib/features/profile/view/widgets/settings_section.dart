@@ -1,3 +1,5 @@
+// quality-guard: allow-large-file
+// Justification: settings UI remains in one file during incremental modularization phase.
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 

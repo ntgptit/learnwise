@@ -1,10 +1,10 @@
+// quality-guard: allow-long-function - dashboard action layout keeps explicit CTA hierarchy in one build method.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../app/router/app_router.dart';
-import '../../../../../common/styles/app_durations.dart';
 import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/styles/app_sizes.dart';
@@ -198,31 +198,14 @@ ButtonStyle _resolveOutlinedStyle({required BuildContext context}) {
   );
 }
 
-class _PressScale extends StatefulWidget {
+class _PressScale extends StatelessWidget {
   const _PressScale({required this.child});
 
   final Widget child;
 
   @override
-  State<_PressScale> createState() => _PressScaleState();
-}
-
-class _PressScaleState extends State<_PressScale> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1,
-        duration: AppDurations.animationQuick,
-        child: widget.child,
-      ),
-    );
+    return child;
   }
 }
 

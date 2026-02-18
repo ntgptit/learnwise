@@ -204,7 +204,7 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             applySuccessFeedback(modeState, state, leftTile, rightTile, attempt);
             return;
         }
-        applyErrorFeedback(modeState, state, leftTile, rightTile, attempt);
+        applyErrorFeedback(state, leftTile, rightTile, attempt);
     }
 
     private void applySuccessFeedback(
@@ -213,22 +213,27 @@ public class MatchStudyModeEngine extends AbstractStudyModeEngine {
             MatchSessionTileEntity leftTile,
             MatchSessionTileEntity rightTile,
             StudyAttemptEntity attempt) {
+
         leftTile.setMatched(true);
         rightTile.setMatched(true);
+
         this.matchSessionTileRepository.saveAll(List.of(leftTile, rightTile));
+
         final var nextMatchedCount = modeState.getCurrentIndex() + 1;
         modeState.setCurrentIndex(nextMatchedCount);
         attempt.setIsCorrect(true);
+
         applyFeedbackState(state, StudyConst.FEEDBACK_SUCCESS, leftTile.getId(), rightTile.getId());
+
         if (nextMatchedCount < modeState.getTotalUnits()) {
             return;
         }
+
         modeState.setStatus(StudyConst.SESSION_STATUS_COMPLETED);
         modeState.setCompletedAt(Instant.now());
     }
 
     private void applyErrorFeedback(
-            StudySessionModeStateEntity modeState,
             MatchSessionStateEntity state,
             MatchSessionTileEntity leftTile,
             MatchSessionTileEntity rightTile,

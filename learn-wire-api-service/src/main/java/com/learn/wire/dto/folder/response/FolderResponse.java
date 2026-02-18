@@ -14,6 +14,8 @@ public record FolderResponse(
         int directDeckCount,
         String createdBy,
         String updatedBy,
+        String createdByDisplayName,
+        String updatedByDisplayName,
         Instant createdAt,
         Instant updatedAt) {
 }

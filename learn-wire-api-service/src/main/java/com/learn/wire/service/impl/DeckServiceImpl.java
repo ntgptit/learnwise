@@ -3,9 +3,11 @@ package com.learn.wire.service.impl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import com.learn.wire.dto.deck.query.DeckListQuery;
 import com.learn.wire.dto.deck.request.DeckCreateRequest;
 import com.learn.wire.dto.deck.request.DeckUpdateRequest;
 import com.learn.wire.dto.deck.response.DeckResponse;
+import com.learn.wire.entity.AppUserEntity;
 import com.learn.wire.entity.DeckEntity;
 import com.learn.wire.entity.FlashcardEntity;
 import com.learn.wire.entity.FolderEntity;
@@ -32,6 +35,7 @@ import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.DeckNotFoundException;
 import com.learn.wire.exception.FolderNotFoundException;
 import com.learn.wire.mapper.DeckMapper;
+import com.learn.wire.repository.AppUserRepository;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.FlashcardRepository.DeckFlashcardCountProjection;
@@ -49,6 +53,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DeckServiceImpl implements DeckService {
 
     private final DeckRepository deckRepository;
+    private final AppUserRepository appUserRepository;
     private final FolderRepository folderRepository;
     private final FlashcardRepository flashcardRepository;
     private final DeckMapper deckMapper;
@@ -74,7 +79,8 @@ public class DeckServiceImpl implements DeckService {
                 query.search(),
                 pageable);
         final var flashcardCountByDeck = resolveFlashcardCountByDeck(page.getContent(), currentActor);
-        final var items = toResponses(page.getContent(), flashcardCountByDeck);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(page.getContent());
+        final var items = toResponses(page.getContent(), flashcardCountByDeck, actorDisplayNameByActor);
         return new PageResponse<>(
                 items,
                 page.getNumber(),
@@ -96,7 +102,8 @@ public class DeckServiceImpl implements DeckService {
         final var flashcardCount = this.flashcardRepository.countByDeckIdAndCreatedByAndDeletedAtIsNull(
                 deckId,
                 currentActor);
-        return toResponse(deck, flashcardCount);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(deck));
+        return toResponse(deck, flashcardCount, actorDisplayNameByActor);
     }
 
     @Override
@@ -119,7 +126,8 @@ public class DeckServiceImpl implements DeckService {
         entity.setUpdatedBy(currentActor);
 
         final var created = persistDeckWithDuplicateNameGuard(entity);
-        return toResponse(created, 0L);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(created));
+        return toResponse(created, 0L, actorDisplayNameByActor);
     }
 
     @Override
@@ -140,7 +148,8 @@ public class DeckServiceImpl implements DeckService {
         final var flashcardCount = this.flashcardRepository.countByDeckIdAndCreatedByAndDeletedAtIsNull(
                 deckId,
                 currentActor);
-        return toResponse(updated, flashcardCount);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(updated));
+        return toResponse(updated, flashcardCount, actorDisplayNameByActor);
     }
 
     @Override
@@ -177,16 +186,20 @@ public class DeckServiceImpl implements DeckService {
 
     private List<DeckResponse> toResponses(
             List<DeckEntity> entities,
-            Map<Long, Long> flashcardCountByDeck) {
+            Map<Long, Long> flashcardCountByDeck,
+            Map<String, String> actorDisplayNameByActor) {
         final List<DeckResponse> responses = new ArrayList<>();
         for (final DeckEntity entity : entities) {
             final long flashcardCount = flashcardCountByDeck.getOrDefault(entity.getId(), 0L);
-            responses.add(toResponse(entity, flashcardCount));
+            responses.add(toResponse(entity, flashcardCount, actorDisplayNameByActor));
         }
         return responses;
     }
 
-    private DeckResponse toResponse(DeckEntity entity, long flashcardCount) {
+    private DeckResponse toResponse(
+            DeckEntity entity,
+            long flashcardCount,
+            Map<String, String> actorDisplayNameByActor) {
         return new DeckResponse(
                 entity.getId(),
                 entity.getFolderId(),
@@ -195,8 +208,54 @@ public class DeckServiceImpl implements DeckService {
                 flashcardCount,
                 entity.getCreatedBy(),
                 entity.getUpdatedBy(),
+                resolveActorDisplayName(entity.getCreatedBy(), actorDisplayNameByActor),
+                resolveActorDisplayName(entity.getUpdatedBy(), actorDisplayNameByActor),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
+    }
+
+    private String resolveActorDisplayName(String actor, Map<String, String> actorDisplayNameByActor) {
+        return actorDisplayNameByActor.getOrDefault(actor, actor);
+    }
+
+    private Map<String, String> resolveActorDisplayNameByActor(List<DeckEntity> entities) {
+        final Set<String> actors = new HashSet<>();
+        for (final DeckEntity entity : entities) {
+            actors.add(entity.getCreatedBy());
+            actors.add(entity.getUpdatedBy());
+        }
+        if (actors.isEmpty()) {
+            return Map.of();
+        }
+        final Set<Long> actorIds = new HashSet<>();
+        for (final String actor : actors) {
+            final Long actorId = parseActorId(actor);
+            if (actorId == null) {
+                continue;
+            }
+            actorIds.add(actorId);
+        }
+        if (actorIds.isEmpty()) {
+            return Map.of();
+        }
+        final Map<String, String> actorDisplayNameByActor = new HashMap<>();
+        final List<AppUserEntity> users = this.appUserRepository.findAllById(actorIds);
+        for (final AppUserEntity user : users) {
+            actorDisplayNameByActor.put(String.valueOf(user.getId()), user.getDisplayName());
+        }
+        return actorDisplayNameByActor;
+    }
+
+    private Long parseActorId(String actor) {
+        final String normalized = StringUtils.trimToEmpty(actor);
+        if (normalized.isEmpty()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(normalized);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
     }
 
     private Map<Long, Long> resolveFlashcardCountByDeck(List<DeckEntity> decks, String currentActor) {

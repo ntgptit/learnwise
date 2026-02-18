@@ -9,6 +9,8 @@ public record FlashcardResponse(
         String backText,
         String createdBy,
         String updatedBy,
+        String createdByDisplayName,
+        String updatedByDisplayName,
         Instant createdAt,
         Instant updatedAt) {
 }

@@ -3,8 +3,10 @@ package com.learn.wire.service.impl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,7 @@ import com.learn.wire.dto.flashcard.query.FlashcardSortField;
 import com.learn.wire.dto.flashcard.request.FlashcardCreateRequest;
 import com.learn.wire.dto.flashcard.request.FlashcardUpdateRequest;
 import com.learn.wire.dto.flashcard.response.FlashcardResponse;
+import com.learn.wire.entity.AppUserEntity;
 import com.learn.wire.entity.DeckEntity;
 import com.learn.wire.entity.FlashcardEntity;
 import com.learn.wire.entity.FolderEntity;
@@ -30,6 +33,7 @@ import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.DeckNotFoundException;
 import com.learn.wire.exception.FlashcardNotFoundException;
 import com.learn.wire.mapper.FlashcardMapper;
+import com.learn.wire.repository.AppUserRepository;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.FolderRepository;
@@ -46,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FlashcardServiceImpl implements FlashcardService {
 
     private final FlashcardRepository flashcardRepository;
+    private final AppUserRepository appUserRepository;
     private final DeckRepository deckRepository;
     private final FolderRepository folderRepository;
     private final FlashcardMapper flashcardMapper;
@@ -70,7 +75,8 @@ public class FlashcardServiceImpl implements FlashcardService {
                 currentActor,
                 query.search(),
                 pageable);
-        final var items = toResponses(page.getContent());
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(page.getContent());
+        final var items = toResponses(page.getContent(), actorDisplayNameByActor);
         return new PageResponse<>(
                 items,
                 page.getNumber(),
@@ -117,7 +123,8 @@ public class FlashcardServiceImpl implements FlashcardService {
         applyFlashcardDelta(deck.getFolderId(), 1, folderById, currentActor);
         this.folderRepository.saveAll(activeFolders);
         log.info(LogConst.FLASHCARD_SERVICE_CREATED, created.getId(), deckId);
-        return toResponse(created);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(created));
+        return toResponse(created, actorDisplayNameByActor);
     }
 
     @Override
@@ -134,7 +141,8 @@ public class FlashcardServiceImpl implements FlashcardService {
         entity.setBackText(normalizedBackText);
         entity.setUpdatedBy(currentActor);
         final var updated = this.flashcardRepository.save(entity);
-        return toResponse(updated);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(updated));
+        return toResponse(updated, actorDisplayNameByActor);
     }
 
     @Override
@@ -155,15 +163,19 @@ public class FlashcardServiceImpl implements FlashcardService {
         this.folderRepository.saveAll(activeFolders);
     }
 
-    private List<FlashcardResponse> toResponses(List<FlashcardEntity> entities) {
+    private List<FlashcardResponse> toResponses(
+            List<FlashcardEntity> entities,
+            Map<String, String> actorDisplayNameByActor) {
         final List<FlashcardResponse> responses = new ArrayList<>();
         for (final FlashcardEntity entity : entities) {
-            responses.add(toResponse(entity));
+            responses.add(toResponse(entity, actorDisplayNameByActor));
         }
         return responses;
     }
 
-    private FlashcardResponse toResponse(FlashcardEntity entity) {
+    private FlashcardResponse toResponse(
+            FlashcardEntity entity,
+            Map<String, String> actorDisplayNameByActor) {
         return new FlashcardResponse(
                 entity.getId(),
                 entity.getDeckId(),
@@ -171,8 +183,54 @@ public class FlashcardServiceImpl implements FlashcardService {
                 entity.getBackText(),
                 entity.getCreatedBy(),
                 entity.getUpdatedBy(),
+                resolveActorDisplayName(entity.getCreatedBy(), actorDisplayNameByActor),
+                resolveActorDisplayName(entity.getUpdatedBy(), actorDisplayNameByActor),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
+    }
+
+    private String resolveActorDisplayName(String actor, Map<String, String> actorDisplayNameByActor) {
+        return actorDisplayNameByActor.getOrDefault(actor, actor);
+    }
+
+    private Map<String, String> resolveActorDisplayNameByActor(List<FlashcardEntity> entities) {
+        final Set<String> actors = new HashSet<>();
+        for (final FlashcardEntity entity : entities) {
+            actors.add(entity.getCreatedBy());
+            actors.add(entity.getUpdatedBy());
+        }
+        if (actors.isEmpty()) {
+            return Map.of();
+        }
+        final Set<Long> actorIds = new HashSet<>();
+        for (final String actor : actors) {
+            final Long actorId = parseActorId(actor);
+            if (actorId == null) {
+                continue;
+            }
+            actorIds.add(actorId);
+        }
+        if (actorIds.isEmpty()) {
+            return Map.of();
+        }
+        final Map<String, String> actorDisplayNameByActor = new HashMap<>();
+        final List<AppUserEntity> users = this.appUserRepository.findAllById(actorIds);
+        for (final AppUserEntity user : users) {
+            actorDisplayNameByActor.put(String.valueOf(user.getId()), user.getDisplayName());
+        }
+        return actorDisplayNameByActor;
+    }
+
+    private Long parseActorId(String actor) {
+        final String normalized = StringUtils.trimToEmpty(actor);
+        if (normalized.isEmpty()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(normalized);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
     }
 
     private void applyFlashcardDelta(Long folderId, int delta, Map<Long, FolderEntity> folderById,

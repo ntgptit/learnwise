@@ -4,9 +4,11 @@ import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,11 +26,13 @@ import com.learn.wire.dto.folder.query.FolderListQuery;
 import com.learn.wire.dto.folder.request.FolderCreateRequest;
 import com.learn.wire.dto.folder.request.FolderUpdateRequest;
 import com.learn.wire.dto.folder.response.FolderResponse;
+import com.learn.wire.entity.AppUserEntity;
 import com.learn.wire.entity.FolderEntity;
 import com.learn.wire.exception.BadRequestException;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.FolderNotFoundException;
 import com.learn.wire.mapper.FolderMapper;
+import com.learn.wire.repository.AppUserRepository;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.DeckRepository.FolderDeckCountProjection;
 import com.learn.wire.repository.FolderRepository;
@@ -47,6 +51,7 @@ public class FolderServiceImpl implements FolderService {
 
     private final FolderRepository repository;
     private final DeckRepository deckRepository;
+    private final AppUserRepository appUserRepository;
     private final FolderMapper mapper;
     private final CurrentUserAccessor currentUserAccessor;
 
@@ -67,7 +72,12 @@ public class FolderServiceImpl implements FolderService {
         final var childCountByParent = resolveChildCountByParent(page.getContent(), currentActor);
         final var directDeckCountByFolder = resolveDirectDeckCountByFolder(page.getContent(),
                 currentActor);
-        final var items = toResponses(page.getContent(), childCountByParent, directDeckCountByFolder);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(page.getContent());
+        final var items = toResponses(
+                page.getContent(),
+                childCountByParent,
+                directDeckCountByFolder,
+                actorDisplayNameByActor);
 
         return new PageResponse<>(
                 items,
@@ -90,7 +100,8 @@ public class FolderServiceImpl implements FolderService {
         final var entity = getActiveFolderEntity(folderId, currentActor);
         final var childFolderCount = resolveChildFolderCount(folderId, currentActor);
         final var directDeckCount = resolveDirectDeckCount(folderId, currentActor);
-        return toResponse(entity, childFolderCount, directDeckCount);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(entity));
+        return toResponse(entity, childFolderCount, directDeckCount, actorDisplayNameByActor);
     }
 
     @Override
@@ -114,7 +125,12 @@ public class FolderServiceImpl implements FolderService {
 
         final var created = this.repository.save(entity);
         log.info(LogConst.FOLDER_SERVICE_CREATED, created.getId());
-        return toResponse(created, FolderConst.MIN_PAGE, FolderConst.MIN_PAGE);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(created));
+        return toResponse(
+                created,
+                FolderConst.MIN_PAGE,
+                FolderConst.MIN_PAGE,
+                actorDisplayNameByActor);
     }
 
     @Override
@@ -152,7 +168,8 @@ public class FolderServiceImpl implements FolderService {
         log.info(LogConst.FOLDER_SERVICE_UPDATED, updated.getId());
         final var childFolderCount = resolveChildFolderCount(updated.getId(), currentActor);
         final var directDeckCount = resolveDirectDeckCount(updated.getId(), currentActor);
-        return toResponse(updated, childFolderCount, directDeckCount);
+        final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(updated));
+        return toResponse(updated, childFolderCount, directDeckCount, actorDisplayNameByActor);
     }
 
     @Override
@@ -190,17 +207,22 @@ public class FolderServiceImpl implements FolderService {
     private List<FolderResponse> toResponses(
             List<FolderEntity> entities,
             Map<Long, Integer> childCountByParent,
-            Map<Long, Integer> directDeckCountByFolder) {
+            Map<Long, Integer> directDeckCountByFolder,
+            Map<String, String> actorDisplayNameByActor) {
         final List<FolderResponse> responses = new ArrayList<>();
         for (final FolderEntity entity : entities) {
             final int childFolderCount = childCountByParent.getOrDefault(entity.getId(), FolderConst.MIN_PAGE);
             final int directDeckCount = directDeckCountByFolder.getOrDefault(entity.getId(), FolderConst.MIN_PAGE);
-            responses.add(toResponse(entity, childFolderCount, directDeckCount));
+            responses.add(toResponse(entity, childFolderCount, directDeckCount, actorDisplayNameByActor));
         }
         return responses;
     }
 
-    private FolderResponse toResponse(FolderEntity entity, int childFolderCount, int directDeckCount) {
+    private FolderResponse toResponse(
+            FolderEntity entity,
+            int childFolderCount,
+            int directDeckCount,
+            Map<String, String> actorDisplayNameByActor) {
         return new FolderResponse(
                 entity.getId(),
                 entity.getName(),
@@ -213,8 +235,54 @@ public class FolderServiceImpl implements FolderService {
                 directDeckCount,
                 entity.getCreatedBy(),
                 entity.getUpdatedBy(),
+                resolveActorDisplayName(entity.getCreatedBy(), actorDisplayNameByActor),
+                resolveActorDisplayName(entity.getUpdatedBy(), actorDisplayNameByActor),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
+    }
+
+    private String resolveActorDisplayName(String actor, Map<String, String> actorDisplayNameByActor) {
+        return actorDisplayNameByActor.getOrDefault(actor, actor);
+    }
+
+    private Map<String, String> resolveActorDisplayNameByActor(List<FolderEntity> entities) {
+        final Set<String> actors = new HashSet<>();
+        for (final FolderEntity entity : entities) {
+            actors.add(entity.getCreatedBy());
+            actors.add(entity.getUpdatedBy());
+        }
+        if (actors.isEmpty()) {
+            return Map.of();
+        }
+        final Map<String, String> actorDisplayNameByActor = new HashMap<>();
+        final Set<Long> actorIds = new HashSet<>();
+        for (final String actor : actors) {
+            final Long actorId = parseActorId(actor);
+            if (actorId == null) {
+                continue;
+            }
+            actorIds.add(actorId);
+        }
+        if (actorIds.isEmpty()) {
+            return Map.of();
+        }
+        final List<AppUserEntity> users = this.appUserRepository.findAllById(actorIds);
+        for (final AppUserEntity user : users) {
+            actorDisplayNameByActor.put(String.valueOf(user.getId()), user.getDisplayName());
+        }
+        return actorDisplayNameByActor;
+    }
+
+    private Long parseActorId(String actor) {
+        final String normalized = StringUtils.trimToEmpty(actor);
+        if (normalized.isEmpty()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(normalized);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
     }
 
     private Map<Long, Integer> resolveDirectDeckCountByFolder(List<FolderEntity> folders, String currentActor) {

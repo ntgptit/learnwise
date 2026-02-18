@@ -10,6 +10,8 @@ public record DeckResponse(
         long flashcardCount,
         String createdBy,
         String updatedBy,
+        String createdByDisplayName,
+        String updatedByDisplayName,
         Instant createdAt,
         Instant updatedAt) {
 }

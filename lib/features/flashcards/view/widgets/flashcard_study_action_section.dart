@@ -26,19 +26,23 @@ class FlashcardStudyActionSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      children: actions.map((action) {
-        return Padding(
-          padding: const EdgeInsets.only(
-            bottom: FlashcardScreenTokens.actionTileSpacing,
-          ),
-          child: AppActionTile(
-            label: action.label,
-            icon: action.icon,
-            onPressed: action.onPressed,
-          ),
-        );
-      }).toList(),
-    );
+    final List<Widget> children = <Widget>[];
+    for (int index = 0; index < actions.length; index++) {
+      final FlashcardStudyAction action = actions[index];
+      children.add(
+        AppActionTile(
+          label: action.label,
+          icon: action.icon,
+          onPressed: action.onPressed,
+        ),
+      );
+      if (index == actions.length - 1) {
+        continue;
+      }
+      children.add(
+        const SizedBox(height: FlashcardScreenTokens.actionTileSpacing),
+      );
+    }
+    return Column(children: children);
   }
 }

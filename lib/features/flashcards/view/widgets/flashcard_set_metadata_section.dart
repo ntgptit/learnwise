@@ -43,7 +43,7 @@ class FlashcardSetMetadataSection extends StatelessWidget {
       children: <Widget>[
         Text(
           title,
-          style: theme.textTheme.titleLarge?.copyWith(
+          style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
           maxLines: 1,
@@ -54,7 +54,7 @@ class FlashcardSetMetadataSection extends StatelessWidget {
           metadataLine,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodyMedium?.copyWith(
+          style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withValues(
               alpha: AppOpacities.muted70,
             ),

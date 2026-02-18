@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/styles/app_opacities.dart';
+import '../../../../common/styles/app_sizes.dart';
 
 class FlashcardCardSectionHeader extends StatelessWidget {
   const FlashcardCardSectionHeader({
@@ -58,19 +59,12 @@ class FlashcardCardSectionHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: FlashcardScreenTokens.sectionHeaderActionGap),
-        ActionChip(
+        OutlinedButton.icon(
           onPressed: onSortPressed,
-          label: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(sortLabel, style: chipTextStyle),
-              const Icon(Icons.keyboard_arrow_down_rounded),
-            ],
-          ),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: const VisualDensity(
-            horizontal: VisualDensity.minimumDensity,
-            vertical: VisualDensity.minimumDensity,
+          icon: const Icon(Icons.tune_rounded),
+          label: Text(sortLabel, style: chipTextStyle),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(0, AppSizes.size48),
           ),
         ),
       ],

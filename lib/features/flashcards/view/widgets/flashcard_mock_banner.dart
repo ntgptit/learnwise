@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/styles/app_opacities.dart';
+import '../../../../common/widgets/widgets.dart';
 
 class FlashcardMockBanner extends StatelessWidget {
   const FlashcardMockBanner({required this.onInfoPressed, super.key});
@@ -16,14 +17,13 @@ class FlashcardMockBanner extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    return Container(
-      height: FlashcardScreenTokens.bannerHeight,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(
-          alpha: AppOpacities.soft20,
-        ),
-        borderRadius: BorderRadius.circular(FlashcardScreenTokens.bannerRadius),
+    return AppCard(
+      variant: AppCardVariant.elevated,
+      borderRadius: BorderRadius.circular(FlashcardScreenTokens.bannerRadius),
+      backgroundColor: colorScheme.surfaceContainerHigh.withValues(
+        alpha: AppOpacities.soft95,
       ),
+      padding: EdgeInsets.zero,
       child: Row(
         children: <Widget>[
           const SizedBox(width: FlashcardScreenTokens.bannerInnerGap),

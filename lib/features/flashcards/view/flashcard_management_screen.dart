@@ -11,6 +11,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
+import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
 import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
@@ -967,10 +968,28 @@ class _FlashcardManagementScreenState
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color tileBackground = isSelected
+        ? colorScheme.secondaryContainer
+        : colorScheme.surfaceContainerLow;
+    final Color tileForeground = isSelected
+        ? colorScheme.onSecondaryContainer
+        : colorScheme.onSurface;
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.spacingSm,
+      ),
+      minVerticalPadding: AppSizes.spacingXs,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+      ),
+      tileColor: tileBackground,
       title: Text(label),
-      trailing: isSelected ? const Icon(Icons.check_rounded) : null,
+      textColor: tileForeground,
+      iconColor: tileForeground,
+      trailing: isSelected
+          ? Icon(Icons.check_rounded, color: tileForeground)
+          : null,
       onTap: onTap,
     );
   }

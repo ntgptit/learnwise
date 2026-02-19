@@ -1,4 +1,3 @@
-// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 // theme-guard: allow-no-dynamic-color - static palette is intentionally used.
 import 'package:flutter/material.dart';
 
@@ -28,55 +27,15 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    final ColorScheme colorScheme = buildLightColorScheme();
-    final TextTheme textTheme =
-        AppTypography.textTheme(colorScheme: colorScheme).apply(
-          bodyColor: colorScheme.onSurface,
-          displayColor: colorScheme.onSurface,
-        );
-
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      textTheme: textTheme,
-      cardTheme: _buildCardTheme(colorScheme),
-      filledButtonTheme: _buildFilledButtonTheme(colorScheme),
-      outlinedButtonTheme: _buildOutlinedButtonTheme(colorScheme),
-      inputDecorationTheme: _buildInputDecorationTheme(colorScheme),
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: AppSizes.size1,
-        space: AppSizes.spacingXs,
-      ),
-      scaffoldBackgroundColor: colorScheme.surface,
-      canvasColor: colorScheme.surface,
-      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
-      appBarTheme: AppBarTheme(
-        centerTitle: false,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: AppSizes.size24,
-        ),
-        toolbarHeight: AppSizes.size72,
-      ),
-      iconTheme: IconThemeData(
-        size: AppSizes.size24,
-        color: colorScheme.onSurface,
-      ),
-    );
+    return _buildThemeData(buildLightColorScheme()).copyWith(useMaterial3: true);
   }
 
   static ThemeData dark() {
-    final ColorScheme colorScheme = buildDarkColorScheme();
-    final TextTheme textTheme =
-        AppTypography.textTheme(colorScheme: colorScheme).apply(
-          bodyColor: colorScheme.onSurface,
-          displayColor: colorScheme.onSurface,
-        );
+    return _buildThemeData(buildDarkColorScheme()).copyWith(useMaterial3: true);
+  }
+
+  static ThemeData _buildThemeData(ColorScheme colorScheme) {
+    final TextTheme textTheme = _buildTextTheme(colorScheme);
 
     return ThemeData(
       useMaterial3: true,
@@ -86,30 +45,39 @@ class AppTheme {
       filledButtonTheme: _buildFilledButtonTheme(colorScheme),
       outlinedButtonTheme: _buildOutlinedButtonTheme(colorScheme),
       inputDecorationTheme: _buildInputDecorationTheme(colorScheme),
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: AppSizes.size1,
-        space: AppSizes.spacingXs,
-      ),
+      dividerTheme: _buildDividerTheme(colorScheme),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
       snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
-      appBarTheme: AppBarTheme(
-        centerTitle: false,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: AppSizes.size24,
-        ),
-        toolbarHeight: AppSizes.size72,
-      ),
-      iconTheme: IconThemeData(
-        size: AppSizes.size24,
-        color: colorScheme.onSurface,
-      ),
+      appBarTheme: _buildAppBarTheme(colorScheme),
+      iconTheme: IconThemeData(size: AppSizes.size24, color: colorScheme.onSurface),
+    );
+  }
+
+  static TextTheme _buildTextTheme(ColorScheme colorScheme) {
+    return AppTypography.textTheme(colorScheme: colorScheme).apply(
+      bodyColor: colorScheme.onSurface,
+      displayColor: colorScheme.onSurface,
+    );
+  }
+
+  static DividerThemeData _buildDividerTheme(ColorScheme colorScheme) {
+    return DividerThemeData(
+      color: colorScheme.outlineVariant,
+      thickness: AppSizes.size1,
+      space: AppSizes.spacingXs,
+    );
+  }
+
+  static AppBarTheme _buildAppBarTheme(ColorScheme colorScheme) {
+    return AppBarTheme(
+      centerTitle: false,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
+      iconTheme: IconThemeData(color: colorScheme.onSurface, size: AppSizes.size24),
+      toolbarHeight: AppSizes.size72,
     );
   }
 
@@ -134,9 +102,7 @@ class AppTheme {
     return colorScheme.surfaceContainerLow;
   }
 
-  static FilledButtonThemeData _buildFilledButtonTheme(
-    ColorScheme colorScheme,
-  ) {
+  static FilledButtonThemeData _buildFilledButtonTheme(ColorScheme colorScheme) {
     return FilledButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -185,15 +151,14 @@ class AppTheme {
       borderRadius: BorderRadius.circular(AppRadius.md),
       borderSide: BorderSide(color: colorScheme.outline),
     );
+
     return InputDecorationTheme(
       border: base,
       enabledBorder: base,
       focusedBorder: base.copyWith(
         borderSide: BorderSide(color: colorScheme.primary, width: AppSizes.size2),
       ),
-      errorBorder: base.copyWith(
-        borderSide: BorderSide(color: colorScheme.error),
-      ),
+      errorBorder: base.copyWith(borderSide: BorderSide(color: colorScheme.error)),
       focusedErrorBorder: base.copyWith(
         borderSide: BorderSide(color: colorScheme.error, width: AppSizes.size2),
       ),

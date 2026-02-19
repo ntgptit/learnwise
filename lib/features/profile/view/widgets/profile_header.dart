@@ -4,8 +4,6 @@ import 'package:learnwise/l10n/app_localizations.dart';
 import '../../../../common/styles/app_sizes.dart';
 import '../../model/profile_models.dart';
 
-// quality-guard: allow-long-function
-// Justification: Header composition is intentionally in one build tree for visual coherence.
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     required this.profile,
@@ -19,57 +17,100 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            colorScheme.primaryContainer,
-            colorScheme.secondaryContainer,
-          ],
-        ),
-      ),
+      decoration: BoxDecoration(gradient: _buildGradient(context)),
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSizes.spacingMd,
-            AppSizes.spacingMd,
-            AppSizes.spacingMd,
-            AppSizes.size32,
-          ),
-          child: Column(
-            children: <Widget>[
-              _buildHeaderRow(context, l10n, colorScheme, textTheme),
-              const SizedBox(height: AppSizes.spacingLg),
-              _buildAvatar(colorScheme),
-              const SizedBox(height: AppSizes.spacingMd),
-              _buildDisplayName(textTheme, colorScheme),
-              const SizedBox(height: AppSizes.spacingXs),
-            _buildEmail(textTheme, colorScheme),
-            _buildUsername(textTheme, colorScheme),
-            ],
-          ),
+        child: _HeaderBody(
+          profile: profile,
+          title: l10n.profileTitle,
+          signOutTooltip: l10n.profileSignOutLabel,
+          onSignOut: onSignOut,
         ),
       ),
     );
   }
 
-  Widget _buildHeaderRow(
-    BuildContext context,
-    AppLocalizations l10n,
-    ColorScheme colorScheme,
-    TextTheme textTheme,
-  ) {
+  LinearGradient _buildGradient(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: <Color>[
+        colorScheme.primaryContainer,
+        colorScheme.secondaryContainer,
+      ],
+    );
+  }
+}
+
+class _HeaderBody extends StatelessWidget {
+  const _HeaderBody({
+    required this.profile,
+    required this.title,
+    required this.signOutTooltip,
+    required this.onSignOut,
+  });
+
+  final UserProfile profile;
+  final String title;
+  final String signOutTooltip;
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSizes.spacingMd,
+        AppSizes.spacingMd,
+        AppSizes.spacingMd,
+        AppSizes.size32,
+      ),
+      child: Column(
+        children: <Widget>[
+          _HeaderTopRow(
+            title: title,
+            signOutTooltip: signOutTooltip,
+            onSignOut: onSignOut,
+          ),
+          const SizedBox(height: AppSizes.spacingLg),
+          _HeaderAvatar(colorScheme: colorScheme),
+          const SizedBox(height: AppSizes.spacingMd),
+          _HeaderDisplayName(textTheme: textTheme, profile: profile),
+          const SizedBox(height: AppSizes.spacingXs),
+          _HeaderEmail(textTheme: textTheme, profile: profile),
+          _HeaderUsername(textTheme: textTheme, profile: profile),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderTopRow extends StatelessWidget {
+  const _HeaderTopRow({
+    required this.title,
+    required this.signOutTooltip,
+    required this.onSignOut,
+  });
+
+  final String title;
+  final String signOutTooltip;
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Text(
-          l10n.profileTitle,
+          title,
           style: textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: colorScheme.onPrimaryContainer,
@@ -81,13 +122,20 @@ class ProfileHeader extends StatelessWidget {
             Icons.logout_rounded,
             color: colorScheme.onPrimaryContainer,
           ),
-          tooltip: l10n.profileSignOutLabel,
+          tooltip: signOutTooltip,
         ),
       ],
     );
   }
+}
 
-  Widget _buildAvatar(ColorScheme colorScheme) {
+class _HeaderAvatar extends StatelessWidget {
+  const _HeaderAvatar({required this.colorScheme});
+
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: AppSizes.size72,
       height: AppSizes.size72,
@@ -110,8 +158,18 @@ class ProfileHeader extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildDisplayName(TextTheme textTheme, ColorScheme colorScheme) {
+class _HeaderDisplayName extends StatelessWidget {
+  const _HeaderDisplayName({required this.textTheme, required this.profile});
+
+  final TextTheme textTheme;
+  final UserProfile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Text(
       profile.displayName,
       style: textTheme.titleLarge?.copyWith(
@@ -120,8 +178,18 @@ class ProfileHeader extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildEmail(TextTheme textTheme, ColorScheme colorScheme) {
+class _HeaderEmail extends StatelessWidget {
+  const _HeaderEmail({required this.textTheme, required this.profile});
+
+  final TextTheme textTheme;
+  final UserProfile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Text(
       profile.email,
       style: textTheme.bodyMedium?.copyWith(
@@ -129,12 +197,22 @@ class ProfileHeader extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildUsername(TextTheme textTheme, ColorScheme colorScheme) {
+class _HeaderUsername extends StatelessWidget {
+  const _HeaderUsername({required this.textTheme, required this.profile});
+
+  final TextTheme textTheme;
+  final UserProfile profile;
+
+  @override
+  Widget build(BuildContext context) {
     final String? username = profile.username;
     if (username == null || username.isEmpty) {
       return const SizedBox.shrink();
     }
+
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Text(
       '@$username',
       style: textTheme.bodyMedium?.copyWith(

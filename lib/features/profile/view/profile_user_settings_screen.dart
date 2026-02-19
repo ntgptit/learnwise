@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../app/router/app_router.dart';
 import '../../../app/theme/app_theme_mode_controller.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
 import '../../../core/error/app_exception.dart';
 import '../model/profile_models.dart';
 import '../viewmodel/profile_viewmodel.dart';
+import 'widgets/profile_settings_draft.dart';
 import 'widgets/settings_section.dart';
 
 class ProfileUserSettingsScreen extends ConsumerStatefulWidget {
@@ -54,7 +56,14 @@ class _ProfileUserSettingsScreenState
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.profileSettingsTitle)),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: 'Back',
+          onPressed: () => const ProfileRoute().go(context),
+        ),
+        title: Text(l10n.profileSettingsTitle),
+      ),
       body: _buildBody(
         l10n: l10n,
         state: state,
@@ -90,8 +99,14 @@ class _ProfileUserSettingsScreenState
     required AppThemeModeController themeModeController,
   }) {
     _bindSettings(profile);
+    final double bottomSafeArea = MediaQuery.paddingOf(context).bottom;
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSizes.spacingMd),
+      padding: EdgeInsets.fromLTRB(
+        AppSizes.spacingLg,
+        AppSizes.spacingLg,
+        AppSizes.spacingLg,
+        AppSizes.spacing2Xl + bottomSafeArea,
+      ),
       child: SettingsSection(
         profile: profile,
         settingsDraftNotifier: _settingsDraftNotifier,

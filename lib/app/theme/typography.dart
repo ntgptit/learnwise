@@ -1,4 +1,3 @@
-// quality-guard: allow-long-function - phase3 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 
 /// Typography builder aligned with Material 3 type scale.
@@ -18,12 +17,33 @@ class AppTypography {
     required ColorScheme colorScheme,
     String? fontFamily,
   }) {
-    final Typography typography = Typography.material2021(
-      colorScheme: colorScheme,
+    final TextTheme base = _baseTextTheme(colorScheme);
+    return _applySemanticOverrides(base: base, fontFamily: fontFamily);
+  }
+
+  static TextTheme _baseTextTheme(ColorScheme colorScheme) {
+    final Typography typography = Typography.material2021(colorScheme: colorScheme);
+    if (colorScheme.brightness == Brightness.dark) {
+      return typography.white;
+    }
+    return typography.black;
+  }
+
+  static TextTheme _applySemanticOverrides({
+    required TextTheme base,
+    required String? fontFamily,
+  }) {
+    final TextTheme headlineTheme = _applyHeadlineStyles(
+      base: base,
+      fontFamily: fontFamily,
     );
-    final TextTheme base = colorScheme.brightness == Brightness.dark
-        ? typography.white
-        : typography.black;
+    return _applyBodyAndLabelStyles(base: headlineTheme, fontFamily: fontFamily);
+  }
+
+  static TextTheme _applyHeadlineStyles({
+    required TextTheme base,
+    required String? fontFamily,
+  }) {
     return base.copyWith(
       headlineLarge: base.headlineLarge?.copyWith(
         fontFamily: fontFamily,
@@ -47,15 +67,17 @@ class AppTypography {
         fontFamily: fontFamily,
         fontWeight: FontWeight.w600,
       ),
+    );
+  }
+
+  static TextTheme _applyBodyAndLabelStyles({
+    required TextTheme base,
+    required String? fontFamily,
+  }) {
+    return base.copyWith(
       bodyLarge: base.bodyLarge?.copyWith(fontFamily: fontFamily, height: 1.4),
-      bodyMedium: base.bodyMedium?.copyWith(
-        fontFamily: fontFamily,
-        height: 1.4,
-      ),
-      bodySmall: base.bodySmall?.copyWith(
-        fontFamily: fontFamily,
-        height: 1.4,
-      ),
+      bodyMedium: base.bodyMedium?.copyWith(fontFamily: fontFamily, height: 1.4),
+      bodySmall: base.bodySmall?.copyWith(fontFamily: fontFamily, height: 1.4),
       labelLarge: base.labelLarge?.copyWith(
         fontFamily: fontFamily,
         fontWeight: FontWeight.w600,

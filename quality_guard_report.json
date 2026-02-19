@@ -1,10 +1,10 @@
 [
   {
-    "file": "lib/features/profile/view/profile_user_settings_screen.dart",
-    "line": 45,
+    "file": "lib/features/profile/view/widgets/personal_info_section.dart",
+    "line": 57,
     "severity": "WARN",
     "rule": "ClassAndFunctionLengthRule",
     "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "40 lines"
+    "content": "36 lines"
   }
 ]

@@ -6,8 +6,6 @@ import '../../../../common/widgets/widgets.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../model/profile_models.dart';
 
-// quality-guard: allow-long-function
-// Justification: Single compose function keeps personal info section layout readable.
 class PersonalInfoSection extends StatelessWidget {
   const PersonalInfoSection({
     required this.profile,
@@ -23,60 +21,90 @@ class PersonalInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _buildSectionHeader(
-          context: context,
+        _SectionHeader(
           icon: Icons.person_outline_rounded,
           title: l10n.profilePersonalInformationTitle,
         ),
         const SizedBox(height: AppSizes.spacingSm),
-        AppCard(
-          variant: AppCardVariant.elevated,
-          child: Column(
-            children: <Widget>[
-              _buildInfoTile(
-                context: context,
-                icon: Icons.badge_outlined,
-                label: 'User ID',
-                value: profile.userId.toString(),
-              ),
-              Divider(
-                height: AppSizes.size1,
-                color: colorScheme.outlineVariant,
-              ),
-              _buildInfoTile(
-                context: context,
-                icon: Icons.email_outlined,
-                label: 'Email',
-                value: profile.email,
-              ),
-              Divider(
-                height: AppSizes.size1,
-                color: colorScheme.outlineVariant,
-              ),
-              _buildInfoTile(
-                context: context,
-                icon: Icons.alternate_email_rounded,
-                label: 'Username',
-                value: profile.username ?? 'Not set',
-              ),
-              Divider(
-                height: AppSizes.size1,
-                color: colorScheme.outlineVariant,
-              ),
-              _buildEditSection(context, l10n),
-            ],
-          ),
+        _PersonalInfoCard(
+          profile: profile,
+          displayNameController: displayNameController,
+          onSave: onSave,
+          l10n: l10n,
         ),
       ],
     );
   }
+}
 
-  Widget _buildEditSection(BuildContext context, AppLocalizations l10n) {
+class _PersonalInfoCard extends StatelessWidget {
+  const _PersonalInfoCard({
+    required this.profile,
+    required this.displayNameController,
+    required this.onSave,
+    required this.l10n,
+  });
+
+  final UserProfile profile;
+  final TextEditingController displayNameController;
+  final VoidCallback onSave;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return AppCard(
+      variant: AppCardVariant.elevated,
+      child: Column(children: _buildInfoChildren(colorScheme)),
+    );
+  }
+
+  List<Widget> _buildInfoChildren(ColorScheme colorScheme) {
+    return <Widget>[
+      _InfoTile(
+        icon: Icons.badge_outlined,
+        label: 'User ID',
+        value: profile.userId.toString(),
+      ),
+      _InfoDivider(colorScheme: colorScheme),
+      _InfoTile(icon: Icons.email_outlined, label: 'Email', value: profile.email),
+      _InfoDivider(colorScheme: colorScheme),
+      _InfoTile(
+        icon: Icons.alternate_email_rounded,
+        label: 'Username',
+        value: profile.username ?? 'Not set',
+      ),
+      _InfoDivider(colorScheme: colorScheme),
+      _EditSection(
+        profile: profile,
+        displayNameController: displayNameController,
+        onSave: onSave,
+        l10n: l10n,
+      ),
+    ];
+  }
+}
+
+class _EditSection extends StatelessWidget {
+  const _EditSection({
+    required this.profile,
+    required this.displayNameController,
+    required this.onSave,
+    required this.l10n,
+  });
+
+  final UserProfile profile;
+  final TextEditingController displayNameController;
+  final VoidCallback onSave;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(AppSizes.spacingMd),
       child: Column(
@@ -91,7 +119,10 @@ class PersonalInfoSection extends StatelessWidget {
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: displayNameController,
             builder: (context, value, _) {
-              final bool isChanged = _isDisplayNameChanged(value.text);
+              final bool isChanged = _isDisplayNameChanged(
+                value.text,
+                profile.displayName,
+              );
               return PrimaryButton(
                 label: l10n.profileSaveChangesLabel,
                 onPressed: isChanged ? onSave : null,
@@ -103,19 +134,21 @@ class PersonalInfoSection extends StatelessWidget {
     );
   }
 
-  bool _isDisplayNameChanged(String text) {
+  bool _isDisplayNameChanged(String text, String currentDisplayName) {
     final String? normalizedInput = StringUtils.normalizeNullable(text);
-    final String normalizedProfileName = StringUtils.normalize(
-      profile.displayName,
-    );
+    final String normalizedProfileName = StringUtils.normalize(currentDisplayName);
     return normalizedInput != null && normalizedInput != normalizedProfileName;
   }
+}
 
-  Widget _buildSectionHeader({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-  }) {
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
@@ -133,16 +166,21 @@ class PersonalInfoSection extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildInfoTile({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
+class _InfoTile extends StatelessWidget {
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSizes.spacingMd,
@@ -150,41 +188,78 @@ class PersonalInfoSection extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(AppSizes.spacingXs),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(AppSizes.radiusSm),
-            ),
-            child: Icon(
-              icon,
-              size: AppSizes.size24,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
+          _InfoLeadingIcon(icon: icon),
           const SizedBox(width: AppSizes.spacingMd),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  label,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: AppSizes.size2),
-                Text(
-                  value,
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: _InfoTextContent(label: label, value: value)),
         ],
       ),
     );
+  }
+}
+
+class _InfoLeadingIcon extends StatelessWidget {
+  const _InfoLeadingIcon({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.spacingXs),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+      ),
+      child: Icon(
+        icon,
+        size: AppSizes.size24,
+        color: colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+class _InfoTextContent extends StatelessWidget {
+  const _InfoTextContent({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: textTheme.labelSmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSizes.size2),
+        Text(
+          value,
+          style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoDivider extends StatelessWidget {
+  const _InfoDivider({required this.colorScheme});
+
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(height: AppSizes.size1, color: colorScheme.outlineVariant);
   }
 }

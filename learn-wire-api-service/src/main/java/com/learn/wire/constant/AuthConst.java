@@ -19,6 +19,15 @@ public final class AuthConst {
     public static final int STUDY_CARDS_PER_SESSION_MIN = 5;
     public static final int STUDY_CARDS_PER_SESSION_MAX = 20;
     public static final int STUDY_CARDS_PER_SESSION_DEFAULT = 10;
+    public static final double TTS_SPEECH_RATE_MIN = 0.2;
+    public static final double TTS_SPEECH_RATE_MAX = 1.0;
+    public static final double TTS_SPEECH_RATE_DEFAULT = 0.48;
+    public static final double TTS_PITCH_MIN = 0.5;
+    public static final double TTS_PITCH_MAX = 2.0;
+    public static final double TTS_PITCH_DEFAULT = 1.0;
+    public static final double TTS_VOLUME_MIN = 0.0;
+    public static final double TTS_VOLUME_MAX = 1.0;
+    public static final double TTS_VOLUME_DEFAULT = 1.0;
 
     public static final String THEME_MODE_SYSTEM = "SYSTEM";
     public static final String THEME_MODE_LIGHT = "LIGHT";

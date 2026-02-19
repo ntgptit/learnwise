@@ -2,7 +2,9 @@ class DeckConstants {
   const DeckConstants._();
 
   static const String foldersResourcePath = '/folders';
+  static const String decksResourcePath = '/decks';
   static const String decksPathSegment = 'decks';
+  static const String settingsPathSegment = 'settings';
   static const String queryPageKey = 'page';
   static const String querySizeKey = 'size';
   static const String querySearchKey = 'search';

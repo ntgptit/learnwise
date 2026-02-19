@@ -1,0 +1,6 @@
+minPublicMethodCoveragePercent: 40
+scopedPathMarkers:
+  - /repository/
+  - /service/
+  - /viewmodel/
+  - /engine/

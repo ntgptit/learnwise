@@ -27,11 +27,11 @@ class AppTheme {
   const AppTheme._();
 
   static ThemeData light() {
-    return _buildThemeData(buildLightColorScheme()).copyWith(useMaterial3: true);
+    return _buildThemeData(buildLightColorScheme());
   }
 
   static ThemeData dark() {
-    return _buildThemeData(buildDarkColorScheme()).copyWith(useMaterial3: true);
+    return _buildThemeData(buildDarkColorScheme());
   }
 
   static ThemeData _buildThemeData(ColorScheme colorScheme) {
@@ -48,9 +48,14 @@ class AppTheme {
       dividerTheme: _buildDividerTheme(colorScheme),
       scaffoldBackgroundColor: colorScheme.surface,
       canvasColor: colorScheme.surface,
-      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+      ),
       appBarTheme: _buildAppBarTheme(colorScheme),
-      iconTheme: IconThemeData(size: AppSizes.size24, color: colorScheme.onSurface),
+      iconTheme: IconThemeData(
+        size: AppSizes.size24,
+        color: colorScheme.onSurface,
+      ),
     );
   }
 
@@ -76,7 +81,10 @@ class AppTheme {
       scrolledUnderElevation: 0,
       backgroundColor: colorScheme.surface,
       foregroundColor: colorScheme.onSurface,
-      iconTheme: IconThemeData(color: colorScheme.onSurface, size: AppSizes.size24),
+      iconTheme: IconThemeData(
+        color: colorScheme.onSurface,
+        size: AppSizes.size24,
+      ),
       toolbarHeight: AppSizes.size72,
     );
   }
@@ -102,7 +110,9 @@ class AppTheme {
     return colorScheme.surfaceContainerLow;
   }
 
-  static FilledButtonThemeData _buildFilledButtonTheme(ColorScheme colorScheme) {
+  static FilledButtonThemeData _buildFilledButtonTheme(
+    ColorScheme colorScheme,
+  ) {
     return FilledButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -113,7 +123,9 @@ class AppTheme {
         }),
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
-            return colorScheme.onSurface.withValues(alpha: AppOpacities.disabled38);
+            return colorScheme.onSurface.withValues(
+              alpha: AppOpacities.disabled38,
+            );
           }
           return colorScheme.onPrimary;
         }),
@@ -128,14 +140,18 @@ class AppTheme {
       style: ButtonStyle(
         foregroundColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
-            return colorScheme.onSurface.withValues(alpha: AppOpacities.disabled38);
+            return colorScheme.onSurface.withValues(
+              alpha: AppOpacities.disabled38,
+            );
           }
           return colorScheme.primary;
         }),
         side: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) {
             return BorderSide(
-              color: colorScheme.onSurface.withValues(alpha: AppOpacities.soft12),
+              color: colorScheme.onSurface.withValues(
+                alpha: AppOpacities.soft12,
+              ),
             );
           }
           return BorderSide(color: colorScheme.primary);
@@ -156,9 +172,14 @@ class AppTheme {
       border: base,
       enabledBorder: base,
       focusedBorder: base.copyWith(
-        borderSide: BorderSide(color: colorScheme.primary, width: AppSizes.size2),
+        borderSide: BorderSide(
+          color: colorScheme.primary,
+          width: AppSizes.size2,
+        ),
       ),
-      errorBorder: base.copyWith(borderSide: BorderSide(color: colorScheme.error)),
+      errorBorder: base.copyWith(
+        borderSide: BorderSide(color: colorScheme.error),
+      ),
       focusedErrorBorder: base.copyWith(
         borderSide: BorderSide(color: colorScheme.error, width: AppSizes.size2),
       ),

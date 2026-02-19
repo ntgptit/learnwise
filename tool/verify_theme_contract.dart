@@ -67,6 +67,8 @@ final RegExp _darkThemeFactoryRegExp = RegExp(
 );
 
 final RegExp _useMaterial3RegExp = RegExp(r'\buseMaterial3\s*:\s*true\b');
+final RegExp _themeDataInvocationRegExp = RegExp(r'\bThemeData\s*\(');
+final RegExp _sharedThemeBuilderCallRegExp = RegExp(r'\b_buildThemeData\s*\(');
 
 final RegExp _themeModeRegExp = RegExp(r'\bthemeMode\s*:');
 
@@ -256,6 +258,17 @@ void _checkUseMaterial3InFactory({
     return;
   }
 
+  if (_factoryDelegatesToSharedThemeBuilder(blockSource)) {
+    final String appThemeSource = _joinWithoutLineComments(appThemeLines);
+    final bool hasThemeDataConstruction = _themeDataInvocationRegExp.hasMatch(
+      appThemeSource,
+    );
+    final bool hasMaterial3 = _useMaterial3RegExp.hasMatch(appThemeSource);
+    if (hasThemeDataConstruction && hasMaterial3) {
+      return;
+    }
+  }
+
   violations.add(
     ThemeViolation(
       filePath: ThemeContractConst.appThemePath,
@@ -265,6 +278,10 @@ void _checkUseMaterial3InFactory({
       lineContent: 'useMaterial3: true',
     ),
   );
+}
+
+bool _factoryDelegatesToSharedThemeBuilder(String blockSource) {
+  return _sharedThemeBuilderCallRegExp.hasMatch(blockSource);
 }
 
 /// Check color schemes contract:

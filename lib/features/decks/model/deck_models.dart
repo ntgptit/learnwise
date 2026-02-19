@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/model/audit_metadata.dart';
 import '../../../core/model/auditable_model.dart';
@@ -174,5 +175,88 @@ sealed class DeckListingState with _$DeckListingState {
       hasNext: nextPage.hasNext,
       isLoadingMore: false,
     );
+  }
+}
+
+@immutable
+class DeckAudioSettings {
+  const DeckAudioSettings({
+    required this.deckId,
+    required this.autoPlayAudioOverride,
+    required this.cardsPerSessionOverride,
+    required this.ttsVoiceIdOverride,
+    required this.ttsSpeechRateOverride,
+    required this.ttsPitchOverride,
+    required this.ttsVolumeOverride,
+    required this.autoPlayAudio,
+    required this.cardsPerSession,
+    required this.ttsVoiceId,
+    required this.ttsSpeechRate,
+    required this.ttsPitch,
+    required this.ttsVolume,
+  });
+
+  final int deckId;
+  final bool? autoPlayAudioOverride;
+  final int? cardsPerSessionOverride;
+  final String? ttsVoiceIdOverride;
+  final double? ttsSpeechRateOverride;
+  final double? ttsPitchOverride;
+  final double? ttsVolumeOverride;
+  final bool autoPlayAudio;
+  final int cardsPerSession;
+  final String? ttsVoiceId;
+  final double ttsSpeechRate;
+  final double ttsPitch;
+  final double ttsVolume;
+
+  factory DeckAudioSettings.fromJson(Map<String, dynamic> json) {
+    return DeckAudioSettings(
+      deckId: (json['deckId'] as num).toInt(),
+      autoPlayAudioOverride: json['autoPlayAudioOverride'] as bool?,
+      cardsPerSessionOverride: (json['cardsPerSessionOverride'] as num?)
+          ?.toInt(),
+      ttsVoiceIdOverride: json['ttsVoiceIdOverride'] as String?,
+      ttsSpeechRateOverride: (json['ttsSpeechRateOverride'] as num?)
+          ?.toDouble(),
+      ttsPitchOverride: (json['ttsPitchOverride'] as num?)?.toDouble(),
+      ttsVolumeOverride: (json['ttsVolumeOverride'] as num?)?.toDouble(),
+      autoPlayAudio: json['autoPlayAudio'] as bool? ?? false,
+      cardsPerSession: (json['cardsPerSession'] as num?)?.toInt() ?? 10,
+      ttsVoiceId: json['ttsVoiceId'] as String?,
+      ttsSpeechRate: (json['ttsSpeechRate'] as num?)?.toDouble() ?? 0.48,
+      ttsPitch: (json['ttsPitch'] as num?)?.toDouble() ?? 1.0,
+      ttsVolume: (json['ttsVolume'] as num?)?.toDouble() ?? 1.0,
+    );
+  }
+}
+
+@immutable
+class DeckAudioSettingsUpdateInput {
+  const DeckAudioSettingsUpdateInput({
+    required this.autoPlayAudioOverride,
+    required this.cardsPerSessionOverride,
+    required this.ttsVoiceIdOverride,
+    required this.ttsSpeechRateOverride,
+    required this.ttsPitchOverride,
+    required this.ttsVolumeOverride,
+  });
+
+  final bool? autoPlayAudioOverride;
+  final int? cardsPerSessionOverride;
+  final String? ttsVoiceIdOverride;
+  final double? ttsSpeechRateOverride;
+  final double? ttsPitchOverride;
+  final double? ttsVolumeOverride;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'autoPlayAudioOverride': autoPlayAudioOverride,
+      'cardsPerSessionOverride': cardsPerSessionOverride,
+      'ttsVoiceIdOverride': ttsVoiceIdOverride,
+      'ttsSpeechRateOverride': ttsSpeechRateOverride,
+      'ttsPitchOverride': ttsPitchOverride,
+      'ttsVolumeOverride': ttsVolumeOverride,
+    };
   }
 }

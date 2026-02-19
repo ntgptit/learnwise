@@ -31,6 +31,18 @@ class DeckApiService implements DeckRepository {
       'DeckApiService.updateDeck response';
   static const String _updateErrorLogPrefix =
       'DeckApiService.updateDeck parseError';
+  static const String _getAudioSettingsRequestLogPrefix =
+      'DeckApiService.getDeckAudioSettings request';
+  static const String _getAudioSettingsResponseLogPrefix =
+      'DeckApiService.getDeckAudioSettings response';
+  static const String _getAudioSettingsErrorLogPrefix =
+      'DeckApiService.getDeckAudioSettings parseError';
+  static const String _updateAudioSettingsRequestLogPrefix =
+      'DeckApiService.updateDeckAudioSettings request';
+  static const String _updateAudioSettingsResponseLogPrefix =
+      'DeckApiService.updateDeckAudioSettings response';
+  static const String _updateAudioSettingsErrorLogPrefix =
+      'DeckApiService.updateDeckAudioSettings parseError';
 
   @override
   Future<DeckPageResult> getDecks({
@@ -145,12 +157,81 @@ class DeckApiService implements DeckRepository {
   }
 
   @override
+  Future<DeckAudioSettings> getDeckAudioSettings({required int deckId}) async {
+    if (kDebugMode) {
+      log('$_getAudioSettingsRequestLogPrefix deckId=$deckId', name: _logName);
+    }
+    final dynamic response = await _apiClient.get<dynamic>(
+      _buildDeckSettingsPath(deckId),
+    );
+    try {
+      final Map<String, dynamic> json = _extractResponseData(response.data);
+      final DeckAudioSettings settings = DeckAudioSettings.fromJson(json);
+      if (kDebugMode) {
+        log(
+          '$_getAudioSettingsResponseLogPrefix deckId=${settings.deckId}',
+          name: _logName,
+        );
+      }
+      return settings;
+    } catch (_) {
+      if (kDebugMode) {
+        log(
+          '$_getAudioSettingsErrorLogPrefix deckId=$deckId',
+          name: _logName,
+        );
+      }
+      throw const UnexpectedResponseAppException();
+    }
+  }
+
+  @override
+  Future<DeckAudioSettings> updateDeckAudioSettings({
+    required int deckId,
+    required DeckAudioSettingsUpdateInput input,
+  }) async {
+    if (kDebugMode) {
+      log(
+        '$_updateAudioSettingsRequestLogPrefix deckId=$deckId body=${input.toJson()}',
+        name: _logName,
+      );
+    }
+    final dynamic response = await _apiClient.patch<dynamic>(
+      _buildDeckSettingsPath(deckId),
+      data: input.toJson(),
+    );
+    try {
+      final Map<String, dynamic> json = _extractResponseData(response.data);
+      final DeckAudioSettings settings = DeckAudioSettings.fromJson(json);
+      if (kDebugMode) {
+        log(
+          '$_updateAudioSettingsResponseLogPrefix deckId=${settings.deckId}',
+          name: _logName,
+        );
+      }
+      return settings;
+    } catch (_) {
+      if (kDebugMode) {
+        log(
+          '$_updateAudioSettingsErrorLogPrefix deckId=$deckId',
+          name: _logName,
+        );
+      }
+      throw const UnexpectedResponseAppException();
+    }
+  }
+
+  @override
   Future<void> deleteDeck({required int folderId, required int deckId}) async {
     await _apiClient.delete<dynamic>('${_buildResourcePath(folderId)}/$deckId');
   }
 
   String _buildResourcePath(int folderId) {
     return '${DeckConstants.foldersResourcePath}/$folderId/${DeckConstants.decksPathSegment}';
+  }
+
+  String _buildDeckSettingsPath(int deckId) {
+    return '${DeckConstants.decksResourcePath}/$deckId/${DeckConstants.settingsPathSegment}';
   }
 
   Map<String, dynamic> _extractResponseData(dynamic data) {

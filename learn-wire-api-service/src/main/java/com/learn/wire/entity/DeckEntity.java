@@ -41,4 +41,21 @@ public class DeckEntity extends AuditableSoftDeleteEntity {
     @Column(name = "term_lang_code", length = 10)
     private String termLangCode;
 
+    @Column(name = "setting_auto_play_audio_override")
+    private Boolean settingAutoPlayAudioOverride;
+
+    @Column(name = "setting_cards_per_session_override")
+    private Integer settingCardsPerSessionOverride;
+
+    @Column(name = "setting_tts_voice_id_override", length = 255)
+    private String settingTtsVoiceIdOverride;
+
+    @Column(name = "setting_tts_speech_rate_override")
+    private Double settingTtsSpeechRateOverride;
+
+    @Column(name = "setting_tts_pitch_override")
+    private Double settingTtsPitchOverride;
+
+    @Column(name = "setting_tts_volume_override")
+    private Double settingTtsVolumeOverride;
 }

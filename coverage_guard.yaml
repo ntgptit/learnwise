@@ -1,0 +1,7 @@
+minGlobalLineCoveragePercent: 20
+minLayerCoveragePercent:
+  app: 40
+  core: 25
+  common: 3
+  features: 23
+  other: 5

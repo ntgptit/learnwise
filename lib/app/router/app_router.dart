@@ -145,6 +145,7 @@ class FlashcardFlipStudyRoute extends GoRouteData
     final FlashcardFlipStudyArgs args =
         $extra ?? const FlashcardFlipStudyArgs.fallback();
     return FlashcardFlipStudyScreen(
+      deckId: args.deckId,
       items: args.items,
       initialIndex: args.initialIndex,
       title: args.title,

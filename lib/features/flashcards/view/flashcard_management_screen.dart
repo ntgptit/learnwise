@@ -637,6 +637,7 @@ class _FlashcardManagementScreenState
     unawaited(
       FlashcardFlipStudyRoute(
         $extra: FlashcardFlipStudyArgs(
+          deckId: widget.args.deckId,
           items: listing.items,
           initialIndex: safeInitialIndex,
           title: title,
@@ -779,7 +780,9 @@ class _FlashcardManagementScreenState
   }
 
   String? _deriveTermLangCode() {
-    return ref.read(flashcardControllerProvider(widget.args.deckId)).when(
+    return ref
+        .read(flashcardControllerProvider(widget.args.deckId))
+        .when(
           data: (listing) {
             for (final FlashcardItem item in listing.items) {
               if (item.frontLangCode != null) {

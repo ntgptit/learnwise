@@ -7,5 +7,9 @@ public record AuthMeResponse(
         String displayName,
         String themeMode,
         Boolean studyAutoPlayAudio,
-        Integer studyCardsPerSession) {
+        Integer studyCardsPerSession,
+        String ttsVoiceId,
+        Double ttsSpeechRate,
+        Double ttsPitch,
+        Double ttsVolume) {
 }

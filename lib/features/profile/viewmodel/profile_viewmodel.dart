@@ -11,6 +11,40 @@ import '../repository/profile_repository_provider.dart';
 part 'profile_viewmodel.g.dart';
 
 @Riverpod(keepAlive: true)
+bool studyAutoPlayPronunciationEnabled(Ref ref) {
+  final UserStudySettings settings = ref.watch(userStudySettingsProvider);
+  return settings.studyAutoPlayAudio;
+}
+
+@Riverpod(keepAlive: true)
+UserStudySettings userStudySettings(Ref ref) {
+  final AsyncValue<UserProfile> profileState = ref.watch(
+    profileControllerProvider,
+  );
+  return profileState.when(
+    data: (profile) => profile.settings,
+    loading: () => const UserStudySettings(
+      themeMode: UserThemeMode.system,
+      studyAutoPlayAudio: UserStudySettings.defaultStudyAutoPlayAudio,
+      studyCardsPerSession: UserStudySettings.defaultStudyCardsPerSession,
+      ttsVoiceId: null,
+      ttsSpeechRate: UserStudySettings.defaultTtsSpeechRate,
+      ttsPitch: UserStudySettings.defaultTtsPitch,
+      ttsVolume: UserStudySettings.defaultTtsVolume,
+    ),
+    error: (_, stackTrace) => const UserStudySettings(
+      themeMode: UserThemeMode.system,
+      studyAutoPlayAudio: UserStudySettings.defaultStudyAutoPlayAudio,
+      studyCardsPerSession: UserStudySettings.defaultStudyCardsPerSession,
+      ttsVoiceId: null,
+      ttsSpeechRate: UserStudySettings.defaultTtsSpeechRate,
+      ttsPitch: UserStudySettings.defaultTtsPitch,
+      ttsVolume: UserStudySettings.defaultTtsVolume,
+    ),
+  );
+}
+
+@Riverpod(keepAlive: true)
 class ProfileController extends _$ProfileController {
   late final ProfileRepository _repository;
   late final AppErrorAdvisor _errorAdvisor;

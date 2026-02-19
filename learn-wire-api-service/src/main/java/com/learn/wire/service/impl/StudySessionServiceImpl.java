@@ -248,7 +248,7 @@ public class StudySessionServiceImpl implements StudySessionService {
             throw new BusinessException(StudyConst.DECK_HAS_NO_FLASHCARDS_KEY, session.getDeckId());
         }
         final var shuffledFlashcards = shuffleFlashcards(deckFlashcards, session.getSeed());
-        final var cardsPerSession = resolveCardsPerSession(currentUserId);
+        final var cardsPerSession = resolveCardsPerSession(currentUserId, session.getDeckId(), currentActor);
         final var snapshotFlashcards = limitFlashcardsByCardsPerSession(shuffledFlashcards, cardsPerSession);
         final var snapshotItems = mapFlashcardsToSnapshotItems(
                 session.getId(),
@@ -256,7 +256,15 @@ public class StudySessionServiceImpl implements StudySessionService {
         return this.studySessionSnapshotItemRepository.saveAll(snapshotItems);
     }
 
-    private int resolveCardsPerSession(Long userId) {
+    private int resolveCardsPerSession(Long userId, Long deckId, String currentActor) {
+        final Integer deckOverride = this.deckRepository
+                .findByIdAndCreatedByAndDeletedAtIsNull(deckId, currentActor)
+                .map(DeckEntity::getSettingCardsPerSessionOverride)
+                .map(this::normalizeCardsPerSession)
+                .orElse(null);
+        if (deckOverride != null) {
+            return deckOverride;
+        }
         return this.appUserSettingRepository
                 .findByUserId(userId)
                 .map(setting -> normalizeCardsPerSession(setting.getStudyCardsPerSession()))

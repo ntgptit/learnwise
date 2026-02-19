@@ -43,6 +43,18 @@ public class AppUserSettingEntity {
     @Column(name = "study_cards_per_session", nullable = false)
     private Integer studyCardsPerSession;
 
+    @Column(name = "tts_voice_id", length = 255)
+    private String ttsVoiceId;
+
+    @Column(name = "tts_speech_rate", nullable = false)
+    private Double ttsSpeechRate;
+
+    @Column(name = "tts_pitch", nullable = false)
+    private Double ttsPitch;
+
+    @Column(name = "tts_volume", nullable = false)
+    private Double ttsVolume;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

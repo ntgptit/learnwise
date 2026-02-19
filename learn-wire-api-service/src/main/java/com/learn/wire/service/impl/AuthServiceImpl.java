@@ -181,6 +181,10 @@ public class AuthServiceImpl implements AuthService {
         userSetting.setThemeMode(normalizedThemeMode);
         userSetting.setStudyAutoPlayAudio(request.studyAutoPlayAudio());
         userSetting.setStudyCardsPerSession(request.studyCardsPerSession());
+        userSetting.setTtsVoiceId(StringUtils.trimToNull(request.ttsVoiceId()));
+        userSetting.setTtsSpeechRate(normalizeTtsSpeechRate(request.ttsSpeechRate()));
+        userSetting.setTtsPitch(normalizeTtsPitch(request.ttsPitch()));
+        userSetting.setTtsVolume(normalizeTtsVolume(request.ttsVolume()));
         this.appUserSettingRepository.save(userSetting);
 
         return toMeResponse(user);
@@ -267,6 +271,10 @@ public class AuthServiceImpl implements AuthService {
         userSetting.setThemeMode(AuthConst.THEME_MODE_DEFAULT);
         userSetting.setStudyAutoPlayAudio(AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT);
         userSetting.setStudyCardsPerSession(AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT);
+        userSetting.setTtsVoiceId(null);
+        userSetting.setTtsSpeechRate(AuthConst.TTS_SPEECH_RATE_DEFAULT);
+        userSetting.setTtsPitch(AuthConst.TTS_PITCH_DEFAULT);
+        userSetting.setTtsVolume(AuthConst.TTS_VOLUME_DEFAULT);
         return userSetting;
     }
 
@@ -333,7 +341,66 @@ public class AuthServiceImpl implements AuthService {
                 user.getDisplayName(),
                 resolveThemeMode(userSetting.getThemeMode()),
                 resolveStudyAutoPlayAudio(userSetting.getStudyAutoPlayAudio()),
-                resolveStudyCardsPerSession(userSetting.getStudyCardsPerSession()));
+                resolveStudyCardsPerSession(userSetting.getStudyCardsPerSession()),
+                resolveTtsVoiceId(userSetting.getTtsVoiceId()),
+                resolveTtsSpeechRate(userSetting.getTtsSpeechRate()),
+                resolveTtsPitch(userSetting.getTtsPitch()),
+                resolveTtsVolume(userSetting.getTtsVolume()));
+    }
+
+    private String resolveTtsVoiceId(String value) {
+        return StringUtils.trimToNull(value);
+    }
+
+    private Double resolveTtsSpeechRate(Double value) {
+        if (value == null) {
+            return AuthConst.TTS_SPEECH_RATE_DEFAULT;
+        }
+        return normalizeTtsSpeechRate(value);
+    }
+
+    private Double resolveTtsPitch(Double value) {
+        if (value == null) {
+            return AuthConst.TTS_PITCH_DEFAULT;
+        }
+        return normalizeTtsPitch(value);
+    }
+
+    private Double resolveTtsVolume(Double value) {
+        if (value == null) {
+            return AuthConst.TTS_VOLUME_DEFAULT;
+        }
+        return normalizeTtsVolume(value);
+    }
+
+    private Double normalizeTtsSpeechRate(Double value) {
+        if (value < AuthConst.TTS_SPEECH_RATE_MIN) {
+            return AuthConst.TTS_SPEECH_RATE_MIN;
+        }
+        if (value > AuthConst.TTS_SPEECH_RATE_MAX) {
+            return AuthConst.TTS_SPEECH_RATE_MAX;
+        }
+        return value;
+    }
+
+    private Double normalizeTtsPitch(Double value) {
+        if (value < AuthConst.TTS_PITCH_MIN) {
+            return AuthConst.TTS_PITCH_MIN;
+        }
+        if (value > AuthConst.TTS_PITCH_MAX) {
+            return AuthConst.TTS_PITCH_MAX;
+        }
+        return value;
+    }
+
+    private Double normalizeTtsVolume(Double value) {
+        if (value < AuthConst.TTS_VOLUME_MIN) {
+            return AuthConst.TTS_VOLUME_MIN;
+        }
+        if (value > AuthConst.TTS_VOLUME_MAX) {
+            return AuthConst.TTS_VOLUME_MAX;
+        }
+        return value;
     }
 
     private record RefreshTokenMaterial(

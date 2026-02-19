@@ -167,13 +167,20 @@ dart run tool/verify_riverpod_annotation.dart
 dart run tool/verify_state_management_contract.dart
 dart run tool/verify_navigation_go_router_contract.dart
 dart run tool/verify_common_widget_boundaries.dart
+dart run tool/verify_ci_guard_parity.dart
 dart run tool/verify_ui_constants_centralization.dart
 dart run tool/verify_string_utils_contract.dart
+dart run tool/verify_theme_contract.dart
+dart run tool/verify_accessibility_contract.dart
 dart run tool/verify_ui_design_guard.dart
+dart run tool/verify_ui_state_scalability_contract.dart
+dart run tool/verify_public_api_test_contract.dart
+dart run tool/verify_test_pyramid_contract.dart
 dart run tool/verify_code_quality_contract.dart
 dart run custom_lint
 flutter analyze
-flutter test
+flutter test --coverage
+dart run tool/verify_coverage_budget.dart
 ```
 
 ## Mandatory Post-Code Gate
@@ -182,9 +189,7 @@ Required after any code delivery (not only before commit):
 
 - Must run full local gate equivalent to `.github/workflows/flutter_ci.yml` before returning final code.
 - Must run all verification scripts in `D:\workspace\learnwise\tool` (the `dart run tool/*` commands listed above).
-- Must run `tool/verify_code_quality_contract.dart` with strict mode enabled to match CI:
-  - `STRICT_QUALITY_CONTRACT=1 dart run tool/verify_code_quality_contract.dart` (bash)
-  - `$env:STRICT_QUALITY_CONTRACT='1'; dart run tool/verify_code_quality_contract.dart` (PowerShell)
+- Must run `tool/verify_code_quality_contract.dart` in strict default mode (warnings/errors must pass).
 - If any step fails, must fix before delivery; if blocked by environment, must explicitly report which step failed and why.
 
 ## Automated Guards (tool/)
@@ -220,7 +225,19 @@ Required after any code delivery (not only before commit):
   - Enforce UI list scalability heuristics (`children:` vs builder).
   - Enforce basic cache policy heuristics.
   - Detect potentially unused Dart files via import graph reachability.
-  - Default non-blocking report; set `STRICT_QUALITY_CONTRACT=1` to make violations fail.
+  - Strict blocking by default: warning/error violations fail and must be fixed (split file/function when exceeding limits).
+- `tool/verify_ci_guard_parity.dart`
+  - Enforce every `tool/verify*.dart` script is wired into `.github/workflows/flutter_ci.yml`.
+  - Block missing or orphan CI guard entries.
+- `tool/verify_public_api_test_contract.dart`
+  - Enforce coverage budget for public methods in `repository/service/viewmodel/engine`.
+  - Support ratchet baseline (`tool/public_api_test_baseline.txt`) to block new untested public methods.
+- `tool/verify_test_pyramid_contract.dart`
+  - Enforce minimum test pyramid per feature (viewmodel/domain/view) plus integration smoke floor.
+  - Support ratchet baseline (`tool/test_pyramid_baseline.txt`) for incremental adoption.
+- `tool/verify_coverage_budget.dart`
+  - Enforce global and layer-based line coverage thresholds from `coverage_guard.yaml`.
+  - Block coverage regressions below defined budgets.
 
 ## SonarQube (BE + FE)
 

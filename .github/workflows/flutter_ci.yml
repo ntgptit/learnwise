@@ -25,6 +25,9 @@ jobs:
       - name: Generate code
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
+      - name: Enforce CI Guard Parity
+        run: dart run tool/verify_ci_guard_parity.dart
+
       - name: Enforce Riverpod Annotation DI
         run: dart run tool/verify_riverpod_annotation.dart
 
@@ -43,12 +46,25 @@ jobs:
       - name: Enforce StringUtils Contract
         run: dart run tool/verify_string_utils_contract.dart
 
+      - name: Enforce Theme Contract
+        run: dart run tool/verify_theme_contract.dart
+
+      - name: Enforce Accessibility Contract
+        run: dart run tool/verify_accessibility_contract.dart
+
       - name: Enforce UI Design Guard
         run: dart run tool/verify_ui_design_guard.dart
 
+      - name: Enforce UI State Scalability Contract
+        run: dart run tool/verify_ui_state_scalability_contract.dart
+
+      - name: Enforce Public API Test Contract
+        run: dart run tool/verify_public_api_test_contract.dart
+
+      - name: Enforce Test Pyramid Contract
+        run: dart run tool/verify_test_pyramid_contract.dart
+
       - name: Enforce Code Quality Contract
-        env:
-          STRICT_QUALITY_CONTRACT: '1'
         run: dart run tool/verify_code_quality_contract.dart
 
       - name: Run custom_lint gate
@@ -57,5 +73,8 @@ jobs:
       - name: Analyze
         run: flutter analyze
 
-      - name: Test
-        run: flutter test
+      - name: Test With Coverage
+        run: flutter test --coverage
+
+      - name: Enforce Coverage Budget
+        run: dart run tool/verify_coverage_budget.dart

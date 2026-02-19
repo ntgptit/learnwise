@@ -84,6 +84,32 @@ dart run tool/verify_string_utils_contract.dart
 
 This guard fails when direct `.trim()` usage appears in `lib/**` (except `lib/core/utils/string_utils.dart`).
 
+## Advanced Quality Guards
+
+Additional ratchet guards are available for scaling the codebase:
+
+- CI parity guard: `dart run tool/verify_ci_guard_parity.dart`
+- Public API test contract: `dart run tool/verify_public_api_test_contract.dart`
+- Test pyramid contract: `dart run tool/verify_test_pyramid_contract.dart`
+- Coverage budget: `dart run tool/verify_coverage_budget.dart`
+
+Public API test contract supports explicit test markers:
+
+```dart
+// test-guard: covers ClassName.methodName
+```
+
+Optional allow marker for exceptional cases:
+
+```dart
+// test-guard: allow-untested-public-method ClassName.methodName
+```
+
+Ratchet baselines:
+
+- `tool/public_api_test_baseline.txt`
+- `tool/test_pyramid_baseline.txt`
+
 ## SonarQube (BE + FE)
 
 SonarQube is configured for both backend and frontend:

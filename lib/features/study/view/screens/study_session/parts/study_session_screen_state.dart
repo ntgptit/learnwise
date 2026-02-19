@@ -5,15 +5,17 @@ class _FlashcardStudySessionScreenState
     extends ConsumerState<FlashcardStudySessionScreen> {
   late final TextEditingController _fillController;
   late final ProviderSubscription<int> _indexSubscription;
+  late final ProviderSubscription<StudySessionState> _autoPlaySubscription;
+  String? _lastAutoPlaySignature;
 
   @override
   void initState() {
     super.initState();
+    final StudySessionControllerProvider provider =
+        studySessionControllerProvider(widget.args);
     _fillController = TextEditingController();
     _indexSubscription = ref.listenManual<int>(
-      studySessionControllerProvider(
-        widget.args,
-      ).select((value) => value.currentIndex),
+      provider.select((value) => value.currentIndex),
       (previous, next) {
         if (previous == next) {
           return;
@@ -23,11 +25,25 @@ class _FlashcardStudySessionScreenState
         });
       },
     );
+    _autoPlaySubscription = ref.listenManual<StudySessionState>(provider, (
+      previous,
+      next,
+    ) {
+      unawaited(_onStudyStateChanged(previous: previous, next: next));
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final StudySessionState initialState = ref.read(provider);
+      unawaited(_attemptAutoPlay(state: initialState));
+    });
   }
 
   @override
   void dispose() {
     _indexSubscription.close();
+    _autoPlaySubscription.close();
     _fillController.dispose();
     super.dispose();
   }
@@ -142,5 +158,121 @@ class _FlashcardStudySessionScreenState
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _onStudyStateChanged({
+    required StudySessionState? previous,
+    required StudySessionState next,
+  }) async {
+    if (_isManualAudioRequested(previous: previous, next: next)) {
+      await _speakCurrentUnit(state: next, bypassDedup: true);
+      return;
+    }
+    await _attemptAutoPlay(state: next);
+  }
+
+  bool _isManualAudioRequested({
+    required StudySessionState? previous,
+    required StudySessionState next,
+  }) {
+    final int? nextPlayingFlashcardId = next.playingFlashcardId;
+    if (nextPlayingFlashcardId == null) {
+      return false;
+    }
+    final int? previousPlayingFlashcardId = previous?.playingFlashcardId;
+    if (previousPlayingFlashcardId == nextPlayingFlashcardId) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _attemptAutoPlay({required StudySessionState state}) async {
+    if (!_isStudyAutoPlayEnabled()) {
+      _lastAutoPlaySignature = null;
+      return;
+    }
+    await _speakCurrentUnit(state: state, bypassDedup: false);
+  }
+
+  Future<void> _speakCurrentUnit({
+    required StudySessionState state,
+    required bool bypassDedup,
+  }) async {
+    final String text = _resolvePronunciationText(state.currentUnit);
+    if (text.isEmpty) {
+      return;
+    }
+    final String signature = _buildAutoPlaySignature(state: state, text: text);
+    if (!bypassDedup && _lastAutoPlaySignature == signature) {
+      return;
+    }
+    _lastAutoPlaySignature = signature;
+    final TtsController ttsController = ref.read(
+      ttsControllerProvider.notifier,
+    );
+    _applyTtsSettings(ttsController);
+    await ttsController.initialize();
+    ttsController.setInputText(text);
+    await ttsController.readText();
+  }
+
+  bool _isStudyAutoPlayEnabled() {
+    final UserStudySettings settings = ref.read(
+      effectiveStudySettingsForDeckProvider(widget.args.deckId),
+    );
+    return settings.studyAutoPlayAudio;
+  }
+
+  void _applyTtsSettings(TtsController ttsController) {
+    final UserStudySettings settings = ref.read(
+      effectiveStudySettingsForDeckProvider(widget.args.deckId),
+    );
+    ttsController.selectVoice(settings.ttsVoiceId);
+    ttsController.setSpeechRate(settings.ttsSpeechRate);
+    ttsController.setPitch(settings.ttsPitch);
+    ttsController.setVolume(settings.ttsVolume);
+  }
+
+  String _buildAutoPlaySignature({
+    required StudySessionState state,
+    required String text,
+  }) {
+    final StudyUnit? unit = state.currentUnit;
+    final String unitId = unit?.unitId ?? '';
+    final String modeName = state.mode.name;
+    final int index = state.currentIndex;
+    return '$modeName|$index|$unitId|$text';
+  }
+
+  String _resolvePronunciationText(StudyUnit? unit) {
+    if (unit == null) {
+      return '';
+    }
+    if (unit is ReviewUnit) {
+      return StringUtils.normalize(unit.frontText);
+    }
+    if (unit is GuessUnit) {
+      return StringUtils.normalize(unit.prompt);
+    }
+    if (unit is RecallUnit) {
+      return StringUtils.normalize(unit.prompt);
+    }
+    if (unit is FillUnit) {
+      return StringUtils.normalize(unit.expectedAnswer);
+    }
+    if (unit is MatchUnit) {
+      return _resolveMatchPronunciationText(unit);
+    }
+    return '';
+  }
+
+  String _resolveMatchPronunciationText(MatchUnit unit) {
+    for (final MatchEntry entry in unit.leftEntries) {
+      if (unit.matchedIds.contains(entry.id)) {
+        continue;
+      }
+      return StringUtils.normalize(entry.label);
+    }
+    return '';
   }
 }

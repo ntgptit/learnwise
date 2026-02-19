@@ -325,7 +325,10 @@ Future<void> main() async {
     return;
   }
 
-  stderr.writeln('Code quality contract guard failed.');
+  final List<QualityViolation> blockingViolations = _collectBlockingViolations(
+    violations: ctx.violations,
+  );
+  stderr.writeln('Code quality contract guard report (strict mode).');
   for (final QualityViolation v in ctx.violations) {
     stderr.writeln(v.toConsoleLine());
   }
@@ -338,7 +341,35 @@ Future<void> main() async {
     ).convert(ctx.violations.map((v) => v.toJson()).toList()),
   );
 
+  if (blockingViolations.isEmpty) {
+    stdout.writeln(
+      'No blocking violations in strict mode. '
+      'Error count: ${_countBySeverity(ctx.violations, Severity.error)}, '
+      'warning count: ${_countBySeverity(ctx.violations, Severity.warning)}, '
+      'info count: ${_countBySeverity(ctx.violations, Severity.info)}.',
+    );
+    return;
+  }
+
+  stderr.writeln(
+    'Blocking violations: ${blockingViolations.length}. '
+    'Mode: strict.',
+  );
   exitCode = 1;
+}
+
+List<QualityViolation> _collectBlockingViolations({
+  required List<QualityViolation> violations,
+}) {
+  return violations
+      .where(
+        (v) => v.severity == Severity.warning || v.severity == Severity.error,
+      )
+      .toList(growable: false);
+}
+
+int _countBySeverity(List<QualityViolation> violations, Severity severity) {
+  return violations.where((v) => v.severity == severity).length;
 }
 
 List<File> _collectSourceFiles(Directory root) {

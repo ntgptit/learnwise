@@ -12,5 +12,9 @@ public record AuthUpdateSettingsRequest(
         @NotNull(message = AuthConst.STUDY_AUTO_PLAY_AUDIO_REQUIRED_MESSAGE) Boolean studyAutoPlayAudio,
         @NotNull(message = AuthConst.STUDY_CARDS_PER_SESSION_REQUIRED_MESSAGE)
         @Min(value = AuthConst.STUDY_CARDS_PER_SESSION_MIN, message = AuthConst.STUDY_CARDS_PER_SESSION_MIN_MESSAGE)
-        @Max(value = AuthConst.STUDY_CARDS_PER_SESSION_MAX, message = AuthConst.STUDY_CARDS_PER_SESSION_MAX_MESSAGE) Integer studyCardsPerSession) {
+        @Max(value = AuthConst.STUDY_CARDS_PER_SESSION_MAX, message = AuthConst.STUDY_CARDS_PER_SESSION_MAX_MESSAGE) Integer studyCardsPerSession,
+        String ttsVoiceId,
+        @NotNull Double ttsSpeechRate,
+        @NotNull Double ttsPitch,
+        @NotNull Double ttsVolume) {
 }

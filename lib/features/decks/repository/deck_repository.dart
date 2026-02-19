@@ -17,5 +17,12 @@ abstract class DeckRepository {
     required DeckUpsertInput input,
   });
 
+  Future<DeckAudioSettings> getDeckAudioSettings({required int deckId});
+
+  Future<DeckAudioSettings> updateDeckAudioSettings({
+    required int deckId,
+    required DeckAudioSettingsUpdateInput input,
+  });
+
   Future<void> deleteDeck({required int folderId, required int deckId});
 }

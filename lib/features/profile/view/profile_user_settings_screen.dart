@@ -10,6 +10,7 @@ import '../../../core/error/app_exception.dart';
 import '../model/profile_models.dart';
 import '../viewmodel/profile_viewmodel.dart';
 import 'widgets/profile_settings_draft.dart';
+import 'widgets/profile_tts_voice_settings_section.dart';
 import 'widgets/settings_section.dart';
 
 class ProfileUserSettingsScreen extends ConsumerStatefulWidget {
@@ -107,14 +108,22 @@ class _ProfileUserSettingsScreenState
         AppSizes.spacingLg,
         AppSizes.spacing2Xl + bottomSafeArea,
       ),
-      child: SettingsSection(
-        profile: profile,
-        settingsDraftNotifier: _settingsDraftNotifier,
-        onSave: (draft) => _submitSettingsUpdate(
-          controller: controller,
-          themeModeController: themeModeController,
-          draft: draft,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          SettingsSection(
+            profile: profile,
+            settingsDraftNotifier: _settingsDraftNotifier,
+            onSave: (draft) => _submitSettingsUpdate(
+              controller: controller,
+              themeModeController: themeModeController,
+              draft: draft,
+              baseSettings: profile.settings,
+            ),
+          ),
+          const SizedBox(height: AppSizes.spacingLg),
+          const ProfileTtsVoiceSettingsSection(),
+        ],
       ),
     );
   }
@@ -137,11 +146,16 @@ class _ProfileUserSettingsScreenState
     required ProfileController controller,
     required AppThemeModeController themeModeController,
     required ProfileSettingsDraft draft,
+    required UserStudySettings baseSettings,
   }) async {
     final UserStudySettings updatedSettings = UserStudySettings(
       themeMode: draft.themeMode,
       studyAutoPlayAudio: draft.studyAutoPlayAudio,
       studyCardsPerSession: draft.studyCardsPerSession,
+      ttsVoiceId: baseSettings.ttsVoiceId,
+      ttsSpeechRate: baseSettings.ttsSpeechRate,
+      ttsPitch: baseSettings.ttsPitch,
+      ttsVolume: baseSettings.ttsVolume,
     );
     final bool updated = await controller.updateSettings(updatedSettings);
     if (!updated) {

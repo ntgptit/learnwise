@@ -23,10 +23,13 @@ import com.learn.wire.constant.FolderConst;
 import com.learn.wire.constant.LogConst;
 import com.learn.wire.dto.common.response.PageResponse;
 import com.learn.wire.dto.deck.query.DeckListQuery;
+import com.learn.wire.dto.deck.request.DeckAudioSettingsUpdateRequest;
 import com.learn.wire.dto.deck.request.DeckCreateRequest;
 import com.learn.wire.dto.deck.request.DeckUpdateRequest;
+import com.learn.wire.dto.deck.response.DeckAudioSettingsResponse;
 import com.learn.wire.dto.deck.response.DeckResponse;
 import com.learn.wire.entity.AppUserEntity;
+import com.learn.wire.entity.AppUserSettingEntity;
 import com.learn.wire.entity.DeckEntity;
 import com.learn.wire.entity.FlashcardEntity;
 import com.learn.wire.entity.FolderEntity;
@@ -36,6 +39,7 @@ import com.learn.wire.exception.DeckNotFoundException;
 import com.learn.wire.exception.FolderNotFoundException;
 import com.learn.wire.mapper.DeckMapper;
 import com.learn.wire.repository.AppUserRepository;
+import com.learn.wire.repository.AppUserSettingRepository;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.FlashcardRepository.DeckFlashcardCountProjection;
@@ -54,6 +58,7 @@ public class DeckServiceImpl implements DeckService {
 
     private final DeckRepository deckRepository;
     private final AppUserRepository appUserRepository;
+    private final AppUserSettingRepository appUserSettingRepository;
     private final FolderRepository folderRepository;
     private final FlashcardRepository flashcardRepository;
     private final DeckMapper deckMapper;
@@ -150,6 +155,31 @@ public class DeckServiceImpl implements DeckService {
                 currentActor);
         final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(updated));
         return toResponse(updated, flashcardCount, actorDisplayNameByActor);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DeckAudioSettingsResponse getDeckAudioSettings(Long deckId) {
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
+        final var currentUserId = this.currentUserAccessor.getCurrentUserId();
+        final DeckEntity deck = this.deckRepository
+                .findByIdAndCreatedByAndDeletedAtIsNull(deckId, currentActor)
+                .orElseThrow(() -> new DeckNotFoundException(deckId));
+        final AppUserSettingEntity userSetting = resolveOrCreateUserSetting(currentUserId);
+        return toDeckAudioSettingsResponse(deck, userSetting);
+    }
+
+    @Override
+    public DeckAudioSettingsResponse updateDeckAudioSettings(Long deckId, DeckAudioSettingsUpdateRequest request) {
+        final var currentActor = this.currentUserAccessor.getCurrentActor();
+        final var currentUserId = this.currentUserAccessor.getCurrentUserId();
+        final DeckEntity deck = this.deckRepository
+                .findByIdAndCreatedByAndDeletedAtIsNull(deckId, currentActor)
+                .orElseThrow(() -> new DeckNotFoundException(deckId));
+        applyDeckAudioSettings(deck, request);
+        final DeckEntity updatedDeck = this.deckRepository.save(deck);
+        final AppUserSettingEntity userSetting = resolveOrCreateUserSetting(currentUserId);
+        return toDeckAudioSettingsResponse(updatedDeck, userSetting);
     }
 
     @Override
@@ -410,5 +440,186 @@ public class DeckServiceImpl implements DeckService {
 
     private String normalizeDescription(String value) {
         return StringUtils.trimToEmpty(value);
+    }
+
+    private DeckAudioSettingsResponse toDeckAudioSettingsResponse(
+            DeckEntity deck,
+            AppUserSettingEntity userSetting) {
+        final Boolean effectiveAutoPlayAudio = resolveEffectiveAutoPlayAudio(deck, userSetting);
+        final Integer effectiveCardsPerSession = resolveEffectiveCardsPerSession(deck, userSetting);
+        final String effectiveTtsVoiceId = resolveEffectiveTtsVoiceId(deck, userSetting);
+        final Double effectiveTtsSpeechRate = resolveEffectiveTtsSpeechRate(deck, userSetting);
+        final Double effectiveTtsPitch = resolveEffectiveTtsPitch(deck, userSetting);
+        final Double effectiveTtsVolume = resolveEffectiveTtsVolume(deck, userSetting);
+        return new DeckAudioSettingsResponse(
+                deck.getId(),
+                deck.getSettingAutoPlayAudioOverride(),
+                deck.getSettingCardsPerSessionOverride(),
+                StringUtils.trimToNull(deck.getSettingTtsVoiceIdOverride()),
+                deck.getSettingTtsSpeechRateOverride(),
+                deck.getSettingTtsPitchOverride(),
+                deck.getSettingTtsVolumeOverride(),
+                effectiveAutoPlayAudio,
+                effectiveCardsPerSession,
+                effectiveTtsVoiceId,
+                effectiveTtsSpeechRate,
+                effectiveTtsPitch,
+                effectiveTtsVolume);
+    }
+
+    private void applyDeckAudioSettings(DeckEntity deck, DeckAudioSettingsUpdateRequest request) {
+        deck.setSettingAutoPlayAudioOverride(request.autoPlayAudioOverride());
+        deck.setSettingCardsPerSessionOverride(normalizeCardsPerSessionOverride(request.cardsPerSessionOverride()));
+        deck.setSettingTtsVoiceIdOverride(StringUtils.trimToNull(request.ttsVoiceIdOverride()));
+        deck.setSettingTtsSpeechRateOverride(normalizeTtsSpeechRateOverride(request.ttsSpeechRateOverride()));
+        deck.setSettingTtsPitchOverride(normalizeTtsPitchOverride(request.ttsPitchOverride()));
+        deck.setSettingTtsVolumeOverride(normalizeTtsVolumeOverride(request.ttsVolumeOverride()));
+    }
+
+    private AppUserSettingEntity resolveOrCreateUserSetting(Long userId) {
+        final var existingSetting = this.appUserSettingRepository.findByUserId(userId);
+        if (existingSetting.isPresent()) {
+            return existingSetting.get();
+        }
+        final var userSetting = new AppUserSettingEntity();
+        userSetting.setUserId(userId);
+        userSetting.setThemeMode(com.learn.wire.constant.AuthConst.THEME_MODE_DEFAULT);
+        userSetting.setStudyAutoPlayAudio(com.learn.wire.constant.AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT);
+        userSetting.setStudyCardsPerSession(com.learn.wire.constant.AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT);
+        userSetting.setTtsVoiceId(null);
+        userSetting.setTtsSpeechRate(com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_DEFAULT);
+        userSetting.setTtsPitch(com.learn.wire.constant.AuthConst.TTS_PITCH_DEFAULT);
+        userSetting.setTtsVolume(com.learn.wire.constant.AuthConst.TTS_VOLUME_DEFAULT);
+        return this.appUserSettingRepository.save(userSetting);
+    }
+
+    private Boolean resolveEffectiveAutoPlayAudio(DeckEntity deck, AppUserSettingEntity userSetting) {
+        if (deck.getSettingAutoPlayAudioOverride() != null) {
+            return deck.getSettingAutoPlayAudioOverride();
+        }
+        if (userSetting.getStudyAutoPlayAudio() != null) {
+            return userSetting.getStudyAutoPlayAudio();
+        }
+        return com.learn.wire.constant.AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT;
+    }
+
+    private Integer resolveEffectiveCardsPerSession(DeckEntity deck, AppUserSettingEntity userSetting) {
+        final Integer deckValue = normalizeCardsPerSessionOverride(deck.getSettingCardsPerSessionOverride());
+        if (deckValue != null) {
+            return deckValue;
+        }
+        final Integer globalValue = userSetting.getStudyCardsPerSession();
+        if (globalValue == null) {
+            return com.learn.wire.constant.AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT;
+        }
+        return normalizeCardsPerSessionOverride(globalValue);
+    }
+
+    private String resolveEffectiveTtsVoiceId(DeckEntity deck, AppUserSettingEntity userSetting) {
+        final String deckValue = StringUtils.trimToNull(deck.getSettingTtsVoiceIdOverride());
+        if (deckValue != null) {
+            return deckValue;
+        }
+        return StringUtils.trimToNull(userSetting.getTtsVoiceId());
+    }
+
+    private Double resolveEffectiveTtsSpeechRate(DeckEntity deck, AppUserSettingEntity userSetting) {
+        final Double deckValue = normalizeTtsSpeechRateOverride(deck.getSettingTtsSpeechRateOverride());
+        if (deckValue != null) {
+            return deckValue;
+        }
+        final Double globalValue = userSetting.getTtsSpeechRate();
+        if (globalValue == null) {
+            return com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_DEFAULT;
+        }
+        final Double normalizedGlobalValue = normalizeTtsSpeechRateOverride(globalValue);
+        if (normalizedGlobalValue == null) {
+            return com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_DEFAULT;
+        }
+        return normalizedGlobalValue;
+    }
+
+    private Double resolveEffectiveTtsPitch(DeckEntity deck, AppUserSettingEntity userSetting) {
+        final Double deckValue = normalizeTtsPitchOverride(deck.getSettingTtsPitchOverride());
+        if (deckValue != null) {
+            return deckValue;
+        }
+        final Double globalValue = userSetting.getTtsPitch();
+        if (globalValue == null) {
+            return com.learn.wire.constant.AuthConst.TTS_PITCH_DEFAULT;
+        }
+        final Double normalizedGlobalValue = normalizeTtsPitchOverride(globalValue);
+        if (normalizedGlobalValue == null) {
+            return com.learn.wire.constant.AuthConst.TTS_PITCH_DEFAULT;
+        }
+        return normalizedGlobalValue;
+    }
+
+    private Double resolveEffectiveTtsVolume(DeckEntity deck, AppUserSettingEntity userSetting) {
+        final Double deckValue = normalizeTtsVolumeOverride(deck.getSettingTtsVolumeOverride());
+        if (deckValue != null) {
+            return deckValue;
+        }
+        final Double globalValue = userSetting.getTtsVolume();
+        if (globalValue == null) {
+            return com.learn.wire.constant.AuthConst.TTS_VOLUME_DEFAULT;
+        }
+        final Double normalizedGlobalValue = normalizeTtsVolumeOverride(globalValue);
+        if (normalizedGlobalValue == null) {
+            return com.learn.wire.constant.AuthConst.TTS_VOLUME_DEFAULT;
+        }
+        return normalizedGlobalValue;
+    }
+
+    private Integer normalizeCardsPerSessionOverride(Integer value) {
+        if (value == null) {
+            return null;
+        }
+        if (value < com.learn.wire.constant.AuthConst.STUDY_CARDS_PER_SESSION_MIN) {
+            return com.learn.wire.constant.AuthConst.STUDY_CARDS_PER_SESSION_MIN;
+        }
+        if (value > com.learn.wire.constant.AuthConst.STUDY_CARDS_PER_SESSION_MAX) {
+            return com.learn.wire.constant.AuthConst.STUDY_CARDS_PER_SESSION_MAX;
+        }
+        return value;
+    }
+
+    private Double normalizeTtsSpeechRateOverride(Double value) {
+        if (value == null) {
+            return null;
+        }
+        if (value < com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_MIN) {
+            return com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_MIN;
+        }
+        if (value > com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_MAX) {
+            return com.learn.wire.constant.AuthConst.TTS_SPEECH_RATE_MAX;
+        }
+        return value;
+    }
+
+    private Double normalizeTtsPitchOverride(Double value) {
+        if (value == null) {
+            return null;
+        }
+        if (value < com.learn.wire.constant.AuthConst.TTS_PITCH_MIN) {
+            return com.learn.wire.constant.AuthConst.TTS_PITCH_MIN;
+        }
+        if (value > com.learn.wire.constant.AuthConst.TTS_PITCH_MAX) {
+            return com.learn.wire.constant.AuthConst.TTS_PITCH_MAX;
+        }
+        return value;
+    }
+
+    private Double normalizeTtsVolumeOverride(Double value) {
+        if (value == null) {
+            return null;
+        }
+        if (value < com.learn.wire.constant.AuthConst.TTS_VOLUME_MIN) {
+            return com.learn.wire.constant.AuthConst.TTS_VOLUME_MIN;
+        }
+        if (value > com.learn.wire.constant.AuthConst.TTS_VOLUME_MAX) {
+            return com.learn.wire.constant.AuthConst.TTS_VOLUME_MAX;
+        }
+        return value;
     }
 }

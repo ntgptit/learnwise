@@ -1,0 +1,5 @@
+minViewModelTestsPerFeature: 1
+minDomainTestsPerFeature: 1
+minViewTestsPerFeature: 1
+requireIntegrationTest: true
+minIntegrationTests: 1

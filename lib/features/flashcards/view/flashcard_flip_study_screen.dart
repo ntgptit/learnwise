@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
@@ -14,50 +15,60 @@ import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
 import '../../../core/utils/string_utils.dart';
+import '../../decks/viewmodel/deck_audio_settings_viewmodel.dart';
+import '../../profile/model/profile_models.dart';
+import '../../tts/viewmodel/tts_viewmodel.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_models.dart';
 
-class FlashcardFlipStudyScreen extends StatefulWidget {
+class FlashcardFlipStudyScreen extends ConsumerStatefulWidget {
   const FlashcardFlipStudyScreen({
+    required this.deckId,
     required this.items,
     required this.initialIndex,
     required this.title,
     super.key,
   });
 
+  final int deckId;
   final List<FlashcardItem> items;
   final int initialIndex;
   final String title;
 
   @override
-  State<FlashcardFlipStudyScreen> createState() =>
+  ConsumerState<FlashcardFlipStudyScreen> createState() =>
       _FlashcardFlipStudyScreenState();
 }
 
 class FlashcardFlipStudyArgs {
   const FlashcardFlipStudyArgs({
+    required this.deckId,
     required this.items,
     required this.initialIndex,
     required this.title,
   });
 
   const FlashcardFlipStudyArgs.fallback()
-    : items = const <FlashcardItem>[],
+    : deckId = 0,
+      items = const <FlashcardItem>[],
       initialIndex = FlashcardConstants.defaultPage,
       title = '';
 
+  final int deckId;
   final List<FlashcardItem> items;
   final int initialIndex;
   final String title;
 }
 
-class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
+class _FlashcardFlipStudyScreenState
+    extends ConsumerState<FlashcardFlipStudyScreen> {
   late final PageController _pageController;
   late final ValueNotifier<int> _currentIndexNotifier;
   late final ValueNotifier<bool> _isFlippedNotifier;
   late final ValueNotifier<Set<int>> _starToggleIdsNotifier;
   late final ValueNotifier<int?> _playingFlashcardIdNotifier;
   Timer? _audioPlayingIndicatorTimer;
+  int? _lastAutoPlayFlashcardId;
 
   @override
   void initState() {
@@ -68,6 +79,9 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
     _isFlippedNotifier = ValueNotifier<bool>(false);
     _starToggleIdsNotifier = ValueNotifier<Set<int>>(<int>{});
     _playingFlashcardIdNotifier = ValueNotifier<int?>(null);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_attemptAutoPlayCurrentCard());
+    });
   }
 
   @override
@@ -216,7 +230,7 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
                                 isAudioPlaying: isAudioPlaying,
                                 onFlipPressed: _toggleStudyCardFlipped,
                                 onAudioPressed: () {
-                                  _startAudioPlayingIndicator(item.id);
+                                  _playPronunciationFor(item: item);
                                   _showToast(
                                     l10n.flashcardsAudioPlayToast(
                                       item.frontText,
@@ -243,7 +257,7 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
                                 isAudioPlaying: isAudioPlaying,
                                 onFlipPressed: _toggleStudyCardFlipped,
                                 onAudioPressed: () {
-                                  _startAudioPlayingIndicator(item.id);
+                                  _playPronunciationFor(item: item);
                                   _showToast(
                                     l10n.flashcardsAudioPlayToast(
                                       item.frontText,
@@ -305,6 +319,7 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
     _isFlippedNotifier.value = false;
     _clearAudioPlayingIndicator();
     unawaited(HapticFeedback.selectionClick());
+    unawaited(_attemptAutoPlayCurrentCard());
   }
 
   int _resolveSafeIndex(int value) {
@@ -321,6 +336,62 @@ class _FlashcardFlipStudyScreenState extends State<FlashcardFlipStudyScreen> {
       return !isToggled;
     }
     return isToggled;
+  }
+
+  void _playPronunciationFor({required FlashcardItem item}) {
+    _startAudioPlayingIndicator(item.id);
+    final String text = StringUtils.normalize(item.frontText);
+    if (text.isEmpty) {
+      return;
+    }
+    unawaited(_speakText(text));
+  }
+
+  Future<void> _attemptAutoPlayCurrentCard() async {
+    if (!_isAutoPlayEnabled()) {
+      _lastAutoPlayFlashcardId = null;
+      return;
+    }
+    if (widget.items.isEmpty) {
+      return;
+    }
+    final int index = _currentIndexNotifier.value;
+    if (index < 0 || index >= widget.items.length) {
+      return;
+    }
+    final FlashcardItem currentItem = widget.items[index];
+    if (_lastAutoPlayFlashcardId == currentItem.id) {
+      return;
+    }
+    _lastAutoPlayFlashcardId = currentItem.id;
+    _playPronunciationFor(item: currentItem);
+  }
+
+  bool _isAutoPlayEnabled() {
+    final UserStudySettings settings = ref.read(
+      effectiveStudySettingsForDeckProvider(widget.deckId),
+    );
+    return settings.studyAutoPlayAudio;
+  }
+
+  Future<void> _speakText(String text) async {
+    final TtsController ttsController = ref.read(
+      ttsControllerProvider.notifier,
+    );
+    _applyTtsSettings(ttsController);
+    await ttsController.initialize();
+    ttsController.setInputText(text);
+    await ttsController.readText();
+  }
+
+  void _applyTtsSettings(TtsController ttsController) {
+    final UserStudySettings settings = ref.read(
+      effectiveStudySettingsForDeckProvider(widget.deckId),
+    );
+    ttsController.selectVoice(settings.ttsVoiceId);
+    ttsController.setSpeechRate(settings.ttsSpeechRate);
+    ttsController.setPitch(settings.ttsPitch);
+    ttsController.setVolume(settings.ttsVolume);
   }
 
   void _toggleStudyCardFlipped() {

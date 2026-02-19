@@ -137,6 +137,7 @@ class SelectBox<T> extends StatelessWidget {
       enabled: enabled,
       child: DropdownButtonFormField<T>(
         initialValue: value,
+        isExpanded: true,
         onChanged: enabled ? onChanged : null,
         validator: validator,
         decoration: InputDecoration(

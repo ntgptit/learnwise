@@ -798,12 +798,9 @@ class _FlashcardManagementScreenState
       flashcardControllerProvider(widget.args.deckId).notifier,
     );
     final String? termLangCode = _deriveTermLangCode();
-    List<LanguageItem> languages;
-    try {
-      languages = await ref.read(languagesControllerProvider.future);
-    } catch (_) {
-      languages = const <LanguageItem>[];
-    }
+    final List<LanguageItem> languages = await ref.read(
+      languagesControllerProvider.future,
+    );
     if (!mounted) {
       return;
     }
@@ -821,12 +818,9 @@ class _FlashcardManagementScreenState
       flashcardControllerProvider(widget.args.deckId).notifier,
     );
     final String? termLangCode = _deriveTermLangCode();
-    List<LanguageItem> languages;
-    try {
-      languages = await ref.read(languagesControllerProvider.future);
-    } catch (_) {
-      languages = const <LanguageItem>[];
-    }
+    final List<LanguageItem> languages = await ref.read(
+      languagesControllerProvider.future,
+    );
     if (!mounted) {
       return;
     }

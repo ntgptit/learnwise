@@ -151,9 +151,7 @@ Future<void> main(List<String> args) async {
 
   final Map<String, FeatureTestShape> featureTestShapes =
       _collectFeatureTestShapes(
-        featureNames: features
-            .map((FeatureShape feature) => feature.name)
-            .toList(),
+        featureNames: features.map((feature) => feature.name).toList(),
       );
   final int integrationTests = _countIntegrationTests();
 
@@ -209,7 +207,7 @@ List<FeatureShape> _collectFeatureShapes(Directory featuresDirectory) {
   final List<FileSystemEntity> children = featuresDirectory.listSync();
   final List<Directory> featureDirectories =
       children.whereType<Directory>().toList()
-        ..sort((Directory a, Directory b) => a.path.compareTo(b.path));
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   for (final Directory featureDirectory in featureDirectories) {
     final String featureName = featureDirectory
@@ -221,17 +219,15 @@ List<FeatureShape> _collectFeatureShapes(Directory featuresDirectory) {
     }
 
     final bool hasViewModel = filePaths.any(
-      (String path) => path.contains('/viewmodel/'),
+      (path) => path.contains('/viewmodel/'),
     );
     final bool hasDomainLogic = filePaths.any(
-      (String path) =>
+      (path) =>
           path.contains('/repository/') ||
           path.contains('/service/') ||
           path.contains('/engine/'),
     );
-    final bool hasView = filePaths.any(
-      (String path) => path.contains('/view/'),
-    );
+    final bool hasView = filePaths.any((path) => path.contains('/view/'));
 
     features.add(
       FeatureShape(
@@ -264,9 +260,9 @@ Map<String, FeatureTestShape> _collectFeatureTestShapes({
       continue;
     }
 
-    final List<String> testPaths = _collectDartPaths(featureTestDirectory)
-        .where((String path) => path.endsWith('_test.dart'))
-        .toList(growable: false);
+    final List<String> testPaths = _collectDartPaths(
+      featureTestDirectory,
+    ).where((path) => path.endsWith('_test.dart')).toList(growable: false);
 
     int viewModelTests = 0;
     int domainTests = 0;
@@ -330,7 +326,7 @@ int _countIntegrationTests() {
 
   final List<String> integrationPaths = _collectDartPaths(integrationDirectory);
   final int count = integrationPaths
-      .where((String path) => path.endsWith('_test.dart'))
+      .where((path) => path.endsWith('_test.dart'))
       .length;
   return count;
 }
@@ -387,9 +383,7 @@ List<TestPyramidViolation> _collectPyramidViolations({
     }
   }
 
-  final bool hasViewFeature = features.any(
-    (FeatureShape feature) => feature.hasView,
-  );
+  final bool hasViewFeature = features.any((feature) => feature.hasView);
   if (!config.requireIntegrationTest) {
     return violations;
   }
@@ -436,11 +430,7 @@ Set<String> _loadBaseline() {
 void _writeBaseline(List<TestPyramidViolation> violations) {
   final File baselineFile = File(TestPyramidGuardConst.baselinePath);
   final List<String> sortedIds =
-      violations
-          .map((TestPyramidViolation violation) => violation.id)
-          .toSet()
-          .toList()
-        ..sort();
+      violations.map((violation) => violation.id).toSet().toList()..sort();
   baselineFile.writeAsStringSync('${sortedIds.join('\n')}\n');
 }
 
@@ -463,7 +453,7 @@ Set<String> _collectStaleBaselineIds({
   required Set<String> baselineIds,
 }) {
   final Set<String> violationIds = allViolations
-      .map((TestPyramidViolation violation) => violation.id)
+      .map((violation) => violation.id)
       .toSet();
 
   final Set<String> staleIds = <String>{};

@@ -1,26 +1,10 @@
 [
   {
-    "file": "lib/features/profile/model/profile_models.dart",
-    "line": 71,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "50 lines"
-  },
-  {
-    "file": "lib/features/profile/model/profile_models.dart",
-    "line": 221,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "41 lines"
-  },
-  {
     "file": "lib/features/profile/view/widgets/profile_tts_voice_settings_section.dart",
-    "line": 58,
+    "line": 28,
     "severity": "WARN",
     "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "105 lines"
+    "reason": "Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.",
+    "content": "307 lines"
   }
 ]

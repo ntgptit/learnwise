@@ -573,11 +573,7 @@ void _writeBaseline({
   required List<PublicApiTarget> uncoveredTargets,
 }) {
   final List<String> sortedTargetIds =
-      uncoveredTargets
-          .map((PublicApiTarget target) => target.id)
-          .toSet()
-          .toList()
-        ..sort();
+      uncoveredTargets.map((target) => target.id).toSet().toList()..sort();
 
   final String content = sortedTargetIds.join('\n');
   baselineFile.writeAsStringSync('$content\n');
@@ -602,7 +598,7 @@ Set<String> _collectStaleBaselineIds({
   required Set<String> baselineIds,
 }) {
   final Set<String> uncoveredIds = uncoveredTargets
-      .map((PublicApiTarget target) => target.id)
+      .map((target) => target.id)
       .toSet();
   final Set<String> stale = <String>{};
   for (final String baselineId in baselineIds) {

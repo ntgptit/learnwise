@@ -102,8 +102,8 @@ class CoverageBudgetViolation {
   final String reason;
 }
 
-class CoverageBudgetReport {
-  const CoverageBudgetReport({
+class _CoverageBudgetReport {
+  const _CoverageBudgetReport({
     required this.globalCounter,
     required this.layerCounters,
   });
@@ -125,7 +125,7 @@ Future<void> main() async {
     return;
   }
 
-  final CoverageBudgetReport report = await _parseCoverage(coverageFile);
+  final _CoverageBudgetReport report = await _parseCoverage(coverageFile);
   final List<CoverageBudgetViolation> violations = <CoverageBudgetViolation>[];
 
   _collectGlobalViolation(
@@ -152,7 +152,7 @@ Future<void> main() async {
   exitCode = 1;
 }
 
-Future<CoverageBudgetReport> _parseCoverage(File coverageFile) async {
+Future<_CoverageBudgetReport> _parseCoverage(File coverageFile) async {
   final List<String> lines = await coverageFile.readAsLines();
 
   final _CoverageCounter globalCounter = _CoverageCounter(
@@ -191,7 +191,7 @@ Future<CoverageBudgetReport> _parseCoverage(File coverageFile) async {
     _accumulate(layerCounter, hitCount);
   }
 
-  return CoverageBudgetReport(
+  return _CoverageBudgetReport(
     globalCounter: globalCounter,
     layerCounters: layerCounters,
   );
@@ -232,7 +232,7 @@ String _resolveLayer(String sourcePath) {
 }
 
 void _collectGlobalViolation({
-  required CoverageBudgetReport report,
+  required _CoverageBudgetReport report,
   required CoverageBudgetConfig config,
   required List<CoverageBudgetViolation> violations,
 }) {
@@ -252,7 +252,7 @@ void _collectGlobalViolation({
 }
 
 void _collectLayerViolations({
-  required CoverageBudgetReport report,
+  required _CoverageBudgetReport report,
   required CoverageBudgetConfig config,
   required List<CoverageBudgetViolation> violations,
 }) {
@@ -280,7 +280,7 @@ void _collectLayerViolations({
   }
 }
 
-void _printSummary(CoverageBudgetReport report) {
+void _printSummary(_CoverageBudgetReport report) {
   stdout.writeln(
     'Global line coverage: '
     '${report.globalCounter.coveredLines}/${report.globalCounter.totalLines} '

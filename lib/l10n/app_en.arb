@@ -1288,6 +1288,46 @@
   "@voiceSettingsSectionTitle": {
     "description": "Section title above voice setting sliders."
   },
+  "profileVoiceTestModeLabel": "Voice test text",
+  "@profileVoiceTestModeLabel": {
+    "description": "Label for selecting default/custom text mode when testing voice."
+  },
+  "profileVoiceTestUseDefaultLabel": "Default sentence",
+  "@profileVoiceTestUseDefaultLabel": {
+    "description": "Option label to use built-in sample sentence for voice test."
+  },
+  "profileVoiceTestUseCustomLabel": "Custom text",
+  "@profileVoiceTestUseCustomLabel": {
+    "description": "Option label to use user input text for voice test."
+  },
+  "profileVoiceTestInputLabel": "Custom test text",
+  "@profileVoiceTestInputLabel": {
+    "description": "Input label for custom voice test text."
+  },
+  "profileVoiceTestHint": "Enter your own sentence to test pronunciation",
+  "@profileVoiceTestHint": {
+    "description": "Hint for custom voice test text input."
+  },
+  "profileVoiceTestButtonLabel": "Test voice",
+  "@profileVoiceTestButtonLabel": {
+    "description": "Button label to preview current voice settings."
+  },
+  "profileVoiceTestDefaultTextEn": "Today we are testing pronunciation quality across pace, pitch, and volume settings so you can hear clarity, natural rhythm, and comfort before saving this voice for daily flashcard study sessions.",
+  "@profileVoiceTestDefaultTextEn": {
+    "description": "Default English sentence used for voice preview in profile settings."
+  },
+  "profileVoiceTestDefaultTextVi": "Hôm nay chúng ta kiểm tra chất lượng phát âm với tốc độ, cao độ và âm lượng để bạn nghe rõ độ tự nhiên, nhịp điệu và sự dễ chịu trước khi lưu giọng này cho các buổi học flashcard hằng ngày.",
+  "@profileVoiceTestDefaultTextVi": {
+    "description": "Default Vietnamese sentence used for voice preview in profile settings."
+  },
+  "profileVoiceTestDefaultTextKo": "오늘은 발음 품질을 점검합니다. 속도, 음높이, 음량을 조절해 보며 저장 전에 발음의 선명도, 리듬, 자연스러움을 확인하고 학습에 가장 편한 목소리를 선택해 보세요.",
+  "@profileVoiceTestDefaultTextKo": {
+    "description": "Default Korean sentence used for voice preview in profile settings."
+  },
+  "profileVoiceTestDefaultTextJa": "本日は発音の品質を確認します。速度、ピッチ、音量を調整しながら、保存前に明瞭さ、リズム、自然さを聞き比べ、学習に最適な声を選んでください。",
+  "@profileVoiceTestDefaultTextJa": {
+    "description": "Default Japanese sentence used for voice preview in profile settings."
+  },
   "speedLabel": "Speed",
   "@speedLabel": {
     "description": "Label for speech speed slider."

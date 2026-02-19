@@ -471,18 +471,19 @@ class _VoiceTestSection extends StatelessWidget {
               showSelectedIcon: false,
             ),
             const SizedBox(height: AppSizes.spacingSm),
-            TextField(
-              controller: testTextController,
-              enabled: canEditInput,
-              maxLines: 3,
-              minLines: 2,
-              decoration: InputDecoration(
-                labelText: l10n.profileVoiceTestInputLabel,
-                hintText: l10n.profileVoiceTestHint,
+            if (!useDefaultText)
+              TextField(
+                controller: testTextController,
+                enabled: canEditInput,
+                maxLines: 3,
+                minLines: 2,
+                decoration: InputDecoration(
+                  labelText: l10n.profileVoiceTestInputLabel,
+                  hintText: l10n.profileVoiceTestHint,
+                ),
               ),
-            ),
             if (useDefaultText) ...<Widget>[
-              const SizedBox(height: AppSizes.spacingSm),
+              const SizedBox(height: AppSizes.spacingXs),
               Text(
                 defaultTestText,
                 style: Theme.of(context).textTheme.bodySmall,

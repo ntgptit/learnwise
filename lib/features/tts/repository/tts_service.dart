@@ -120,8 +120,7 @@ class TtsService implements TtsRepository {
           rawVoice,
           TtsConstants.voiceLocaleKeys,
         );
-        final String dedupeKey =
-            '${StringUtils.toLower(id)}|${StringUtils.toLower(locale)}';
+        final String dedupeKey = StringUtils.toLower(id);
 
         if (id.isEmpty || seen.contains(dedupeKey)) {
           continue;

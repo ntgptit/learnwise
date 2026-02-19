@@ -40,6 +40,9 @@ jobs:
       - name: Enforce Common Widget Boundaries
         run: dart run tool/verify_common_widget_boundaries.dart
 
+      - name: Enforce Common Widget Usage Contract
+        run: dart run tool/verify_common_widget_usage_contract.dart
+
       - name: Enforce UI Constants Centralization
         run: dart run tool/verify_ui_constants_centralization.dart
 

@@ -35,4 +35,10 @@ public class FlashcardEntity extends AuditableSoftDeleteEntity {
     @Column(name = "back_text", nullable = false, length = FlashcardConst.BACK_TEXT_MAX_LENGTH)
     private String backText;
 
+    @Column(name = "front_lang_code", length = 10)
+    private String frontLangCode;
+
+    @Column(name = "back_lang_code", length = 10)
+    private String backLangCode;
+
 }

@@ -38,4 +38,7 @@ public class DeckEntity extends AuditableSoftDeleteEntity {
     @Column(name = "description", nullable = false, length = DeckConst.DESCRIPTION_MAX_LENGTH)
     private String description;
 
+    @Column(name = "term_lang_code", length = 10)
+    private String termLangCode;
+
 }

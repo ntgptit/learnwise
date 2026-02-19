@@ -9,6 +9,8 @@ void main() {
     const FlashcardUpsertInput input = FlashcardUpsertInput(
       frontText: '  Front  ',
       backText: '  Back  ',
+      frontLangCode: null,
+      backLangCode: null,
     );
 
     final FlashcardUpsertInput normalized = service.normalize(input);
@@ -21,6 +23,8 @@ void main() {
     const FlashcardUpsertInput input = FlashcardUpsertInput(
       frontText: '',
       backText: 'Back',
+      frontLangCode: null,
+      backLangCode: null,
     );
 
     final bool isValid = service.isValid(input);

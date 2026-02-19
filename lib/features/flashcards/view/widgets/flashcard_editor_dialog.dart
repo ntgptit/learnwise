@@ -7,6 +7,7 @@ import 'package:reactive_forms/reactive_forms.dart';
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../model/flashcard_constants.dart';
 import '../../model/flashcard_models.dart';
+import '../../model/language_models.dart';
 import '../../viewmodel/flashcard_viewmodel.dart';
 import '../validation/flashcard_form_schema.dart';
 
@@ -17,6 +18,8 @@ Future<bool> showFlashcardEditorDialog({
   required BuildContext context,
   required FlashcardItem? initialFlashcard,
   required FlashcardSubmitHandler onSubmit,
+  required List<LanguageItem> languages,
+  required String? termLangCode,
 }) async {
   final AppLocalizations l10n = AppLocalizations.of(context)!;
   final FormGroup form = FlashcardFormSchema.build(
@@ -26,6 +29,25 @@ Future<bool> showFlashcardEditorDialog({
       FlashcardFormSchema.resolveFrontTextControl(form);
   final FormControl<String> backTextControl =
       FlashcardFormSchema.resolveBackTextControl(form);
+  final FormControl<String?> frontLangControl =
+      FlashcardFormSchema.resolveFrontLangCodeControl(form);
+  final FormControl<String?> backLangControl =
+      FlashcardFormSchema.resolveBackLangCodeControl(form);
+  if (termLangCode != null) {
+    frontLangControl.patchValue(termLangCode);
+    frontLangControl.markAsDisabled();
+  }
+  final List<DropdownMenuItem<String?>> langItems = <DropdownMenuItem<String?>>[
+    DropdownMenuItem<String?>(
+      value: null,
+      child: Text(l10n.flashcardsLangAutoDetect),
+    ),
+    for (final LanguageItem lang in languages)
+      DropdownMenuItem<String?>(
+        value: lang.code,
+        child: Text('${lang.name} (${lang.nativeName})'),
+      ),
+  ];
   final Map<String, ValidationMessageFunction> frontValidationMessages =
       <String, ValidationMessageFunction>{
         ValidationMessage.required: (_) =>
@@ -121,6 +143,16 @@ Future<bool> showFlashcardEditorDialog({
                         const SizedBox(
                           height: FlashcardScreenTokens.sectionSpacing,
                         ),
+                        ReactiveDropdownField<String?>(
+                          formControl: frontLangControl,
+                          decoration: InputDecoration(
+                            labelText: l10n.flashcardsLangFrontLabel,
+                          ),
+                          items: langItems,
+                        ),
+                        const SizedBox(
+                          height: FlashcardScreenTokens.sectionSpacing,
+                        ),
                         ReactiveTextField<String>(
                           formControl: backTextControl,
                           maxLength: FlashcardConstants.backTextMaxLength,
@@ -139,6 +171,16 @@ Future<bool> showFlashcardEditorDialog({
                             labelText: l10n.flashcardsBackLabel,
                             hintText: l10n.flashcardsBackHint,
                           ),
+                        ),
+                        const SizedBox(
+                          height: FlashcardScreenTokens.sectionSpacing,
+                        ),
+                        ReactiveDropdownField<String?>(
+                          formControl: backLangControl,
+                          decoration: InputDecoration(
+                            labelText: l10n.flashcardsLangBackLabel,
+                          ),
+                          items: langItems,
                         ),
                       ],
                     ),

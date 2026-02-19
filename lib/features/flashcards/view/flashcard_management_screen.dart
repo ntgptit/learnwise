@@ -17,6 +17,8 @@ import '../../../core/utils/string_utils.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_management_args.dart';
 import '../model/flashcard_models.dart';
+import '../model/language_models.dart';
+import '../viewmodel/language_viewmodel.dart';
 import '../../study/model/study_constants.dart';
 import '../../study/model/study_mode.dart';
 import '../../study/model/study_session_args.dart';
@@ -776,14 +778,41 @@ class _FlashcardManagementScreenState
         .setSearch(_searchController.text);
   }
 
+  String? _deriveTermLangCode() {
+    return ref.read(flashcardControllerProvider(widget.args.deckId)).when(
+          data: (listing) {
+            for (final FlashcardItem item in listing.items) {
+              if (item.frontLangCode != null) {
+                return item.frontLangCode;
+              }
+            }
+            return null;
+          },
+          error: (_, _) => null,
+          loading: () => null,
+        );
+  }
+
   Future<void> _onCreateFlashcardPressed() async {
     final FlashcardController controller = ref.read(
       flashcardControllerProvider(widget.args.deckId).notifier,
     );
+    final String? termLangCode = _deriveTermLangCode();
+    List<LanguageItem> languages;
+    try {
+      languages = await ref.read(languagesControllerProvider.future);
+    } catch (_) {
+      languages = const <LanguageItem>[];
+    }
+    if (!mounted) {
+      return;
+    }
     await showFlashcardEditorDialog(
       context: context,
       initialFlashcard: null,
       onSubmit: controller.submitCreateFlashcard,
+      languages: languages,
+      termLangCode: termLangCode,
     );
   }
 
@@ -791,6 +820,16 @@ class _FlashcardManagementScreenState
     final FlashcardController controller = ref.read(
       flashcardControllerProvider(widget.args.deckId).notifier,
     );
+    final String? termLangCode = _deriveTermLangCode();
+    List<LanguageItem> languages;
+    try {
+      languages = await ref.read(languagesControllerProvider.future);
+    } catch (_) {
+      languages = const <LanguageItem>[];
+    }
+    if (!mounted) {
+      return;
+    }
     await showFlashcardEditorDialog(
       context: context,
       initialFlashcard: flashcard,
@@ -800,6 +839,8 @@ class _FlashcardManagementScreenState
           input: input,
         );
       },
+      languages: languages,
+      termLangCode: termLangCode,
     );
   }
 

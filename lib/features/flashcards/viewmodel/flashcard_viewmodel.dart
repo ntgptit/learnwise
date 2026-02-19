@@ -327,6 +327,8 @@ class FlashcardController extends _$FlashcardController {
         return item.copyWith(
           frontText: normalized.frontText,
           backText: normalized.backText,
+          frontLangCode: normalized.frontLangCode,
+          backLangCode: normalized.backLangCode,
           audit: item.audit.copyWith(
             updatedBy: FlashcardConstants.optimisticActorLabel,
             updatedAt: DateTime.now().toUtc(),

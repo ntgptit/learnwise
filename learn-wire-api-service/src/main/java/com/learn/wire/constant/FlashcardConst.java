@@ -35,6 +35,7 @@ public final class FlashcardConst {
     public static final String SORT_DIRECTION_INVALID_KEY = ErrorMessageConst.FLASHCARD_VALIDATION_SORT_DIRECTION_INVALID;
     public static final String NOT_FOUND_KEY = ErrorMessageConst.FLASHCARD_ERROR_NOT_FOUND;
     public static final String DECK_NOT_FOUND_KEY = ErrorMessageConst.FLASHCARD_ERROR_DECK_NOT_FOUND;
+    public static final String TERM_LANG_MISMATCH_KEY = ErrorMessageConst.FLASHCARD_ERROR_TERM_LANG_MISMATCH;
 
     public static final String FRONT_REQUIRED_MESSAGE = "{" + FRONT_REQUIRED_KEY + "}";
     public static final String FRONT_TOO_LONG_MESSAGE = "{" + FRONT_TOO_LONG_KEY + "}";

@@ -10,6 +10,9 @@ public final class ApiDocConst {
     public static final String TAG_FLASHCARDS = "Flashcards";
     public static final String TAG_FOLDERS = "Folders";
     public static final String TAG_STUDY_SESSIONS = "Study Sessions";
+    public static final String TAG_LANGUAGES = "Languages";
+
+    public static final String LANGUAGE_OPERATION_GET_LIST = "Get language list";
 
     public static final String AUTH_OPERATION_REGISTER_USER = "Register user";
     public static final String AUTH_OPERATION_LOGIN_USER = "Login user";

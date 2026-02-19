@@ -57,6 +57,9 @@ public final class LogConst {
 
     public static final String STUDY_SERVICE_START_SESSION = "Start study session with deckId={}, mode={}, seed={}";
 
+    public static final String LANGUAGE_CONTROLLER_GET_LIST = "Get languages";
+    public static final String LANGUAGE_SERVICE_GET_LIST = "Get active languages";
+
     public static final String EXCEPTION_VALIDATION_FAILURE = "Validation failure at path {} with detail {}";
     public static final String EXCEPTION_UNREADABLE_PAYLOAD = "Unreadable payload at path {}";
     public static final String EXCEPTION_UNHANDLED_RUNTIME = "Unhandled runtime exception at path {}";

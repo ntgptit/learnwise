@@ -40,6 +40,8 @@ sealed class FlashcardItem with _$FlashcardItem {
     required int deckId,
     required String frontText,
     required String backText,
+    @JsonKey(defaultValue: null) required String? frontLangCode,
+    @JsonKey(defaultValue: null) required String? backLangCode,
     @JsonKey(defaultValue: '') required String pronunciation,
     @JsonKey(defaultValue: '') required String note,
     @JsonKey(defaultValue: false) required bool isBookmarked,
@@ -65,6 +67,8 @@ sealed class FlashcardUpsertInput with _$FlashcardUpsertInput {
   const factory FlashcardUpsertInput({
     required String frontText,
     required String backText,
+    @JsonKey(includeIfNull: false) required String? frontLangCode,
+    @JsonKey(includeIfNull: false) required String? backLangCode,
   }) = _FlashcardUpsertInput;
 
   factory FlashcardUpsertInput.fromJson(Map<String, dynamic> json) =>

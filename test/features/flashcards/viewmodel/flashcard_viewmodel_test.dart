@@ -180,6 +180,8 @@ FlashcardItem _item(int id) {
     deckId: 1,
     frontText: 'Front $id',
     backText: 'Back $id',
+    frontLangCode: null,
+    backLangCode: null,
     pronunciation: '',
     note: '',
     isBookmarked: false,

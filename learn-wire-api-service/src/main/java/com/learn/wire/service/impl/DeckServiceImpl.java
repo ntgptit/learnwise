@@ -205,6 +205,7 @@ public class DeckServiceImpl implements DeckService {
                 entity.getFolderId(),
                 entity.getName(),
                 entity.getDescription(),
+                entity.getTermLangCode(),
                 flashcardCount,
                 entity.getCreatedBy(),
                 entity.getUpdatedBy(),

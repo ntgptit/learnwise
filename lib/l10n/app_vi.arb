@@ -1443,5 +1443,17 @@
   "snackUnknownError": "Đã có lỗi xảy ra. Vui lòng thử lại.",
   "@snackUnknownError": {
     "description": "Fallback snackbar message for unexpected errors."
+  },
+  "flashcardsLangFrontLabel": "Ngôn ngữ mặt trước",
+  "@flashcardsLangFrontLabel": {
+    "description": "Label for the front-side language picker in flashcard editor."
+  },
+  "flashcardsLangBackLabel": "Ngôn ngữ mặt sau",
+  "@flashcardsLangBackLabel": {
+    "description": "Label for the back-side language picker in flashcard editor."
+  },
+  "flashcardsLangAutoDetect": "Tự động nhận dạng",
+  "@flashcardsLangAutoDetect": {
+    "description": "Option shown when no language is selected (null value) in the language picker."
   }
 }

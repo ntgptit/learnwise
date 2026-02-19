@@ -7,6 +7,8 @@ public record FlashcardResponse(
         Long deckId,
         String frontText,
         String backText,
+        String frontLangCode,
+        String backLangCode,
         String createdBy,
         String updatedBy,
         String createdByDisplayName,

@@ -13,6 +13,8 @@ public interface FlashcardMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deckId", ignore = true)
+    @Mapping(target = "frontLangCode", ignore = true)
+    @Mapping(target = "backLangCode", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)
@@ -23,6 +25,8 @@ public interface FlashcardMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deckId", ignore = true)
+    @Mapping(target = "frontLangCode", ignore = true)
+    @Mapping(target = "backLangCode", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedBy", ignore = true)

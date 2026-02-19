@@ -7,6 +7,7 @@ public record DeckResponse(
         Long folderId,
         String name,
         String description,
+        String termLangCode,
         long flashcardCount,
         String createdBy,
         String updatedBy,

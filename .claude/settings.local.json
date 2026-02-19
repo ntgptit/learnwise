@@ -10,7 +10,8 @@
       "Bash(dart tool/verify_ui_design_guard.dart:*)",
       "Bash(wc -l:*)",
       "Bash(git stash:*)",
-      "Bash(flutter test:*)"
+      "Bash(flutter test:*)",
+      "Bash(flutter gen-l10n:*)"
     ]
   }
 }

@@ -17,6 +17,7 @@ public final class ErrorMessageConst {
     public static final String DECK_ERROR_FOLDER_HAS_SUBFOLDERS = "deck.error.folderHasSubfolders";
     public static final String FLASHCARD_ERROR_NOT_FOUND = "flashcard.error.notFound";
     public static final String FLASHCARD_ERROR_DECK_NOT_FOUND = "flashcard.error.deckNotFound";
+    public static final String FLASHCARD_ERROR_TERM_LANG_MISMATCH = "flashcard.error.termLangMismatch";
     public static final String AUTH_ERROR_EMAIL_ALREADY_EXISTS = "auth.error.emailAlreadyExists";
     public static final String AUTH_ERROR_INVALID_CREDENTIALS = "auth.error.invalidCredentials";
     public static final String AUTH_ERROR_REFRESH_TOKEN_INVALID = "auth.error.refreshTokenInvalid";

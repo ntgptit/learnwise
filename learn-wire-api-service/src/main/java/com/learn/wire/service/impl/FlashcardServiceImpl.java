@@ -110,14 +110,21 @@ public class FlashcardServiceImpl implements FlashcardService {
         validateRequest(normalizedFrontText, normalizedBackText);
 
         final var deck = getActiveDeckEntity(deckId, currentActor);
+        validateTermLangCode(deck, request.frontLangCode());
         final var entity = this.flashcardMapper.toEntity(request);
         entity.setDeckId(deckId);
         entity.setFrontText(normalizedFrontText);
         entity.setBackText(normalizedBackText);
+        entity.setFrontLangCode(request.frontLangCode());
+        entity.setBackLangCode(request.backLangCode());
         entity.setCreatedBy(currentActor);
         entity.setUpdatedBy(currentActor);
 
         final var created = this.flashcardRepository.save(entity);
+        if (deck.getTermLangCode() == null && request.frontLangCode() != null) {
+            deck.setTermLangCode(request.frontLangCode());
+            this.deckRepository.save(deck);
+        }
         final var activeFolders = this.folderRepository.findByCreatedByAndDeletedAtIsNull(currentActor);
         final var folderById = toFolderById(activeFolders);
         applyFlashcardDelta(deck.getFolderId(), 1, folderById, currentActor);
@@ -135,10 +142,14 @@ public class FlashcardServiceImpl implements FlashcardService {
         final var normalizedBackText = normalizeText(request.backText());
         validateRequest(normalizedFrontText, normalizedBackText);
 
+        final var deck = getActiveDeckEntity(deckId, currentActor);
+        validateTermLangCode(deck, request.frontLangCode());
         final var entity = getActiveFlashcardEntity(deckId, flashcardId, currentActor);
         this.flashcardMapper.updateEntity(request, entity);
         entity.setFrontText(normalizedFrontText);
         entity.setBackText(normalizedBackText);
+        entity.setFrontLangCode(request.frontLangCode());
+        entity.setBackLangCode(request.backLangCode());
         entity.setUpdatedBy(currentActor);
         final var updated = this.flashcardRepository.save(entity);
         final var actorDisplayNameByActor = resolveActorDisplayNameByActor(List.of(updated));
@@ -181,6 +192,8 @@ public class FlashcardServiceImpl implements FlashcardService {
                 entity.getDeckId(),
                 entity.getFrontText(),
                 entity.getBackText(),
+                entity.getFrontLangCode(),
+                entity.getBackLangCode(),
                 entity.getCreatedBy(),
                 entity.getUpdatedBy(),
                 resolveActorDisplayName(entity.getCreatedBy(), actorDisplayNameByActor),
@@ -306,5 +319,18 @@ public class FlashcardServiceImpl implements FlashcardService {
 
     private String normalizeText(String value) {
         return StringUtils.trimToEmpty(value);
+    }
+
+    private void validateTermLangCode(DeckEntity deck, String requestedFrontLangCode) {
+        if (deck.getTermLangCode() == null) {
+            return;
+        }
+        if (requestedFrontLangCode == null) {
+            return;
+        }
+        if (deck.getTermLangCode().equals(requestedFrontLangCode)) {
+            return;
+        }
+        throw new BadRequestException(FlashcardConst.TERM_LANG_MISMATCH_KEY);
     }
 }

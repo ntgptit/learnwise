@@ -38,6 +38,7 @@ public final class ApiConst {
     public static final String AUTH_ME_PATH = AUTH_PATH + AUTH_ME_SUB_PATH;
     public static final String AUTH_ME_SETTINGS_PATH = AUTH_PATH + AUTH_ME_SETTINGS_SUB_PATH;
     public static final String AUTH_WILDCARD_PATH = AUTH_PATH + "/**";
+    public static final String LANGUAGES_PATH = API_BASE_PATH + "/languages";
     public static final String OPEN_API_TITLE = "Learn Wire API";
     public static final String OPEN_API_VERSION = "v1";
     public static final String OPEN_API_DESCRIPTION = "REST API for Learn Wire backend services.";

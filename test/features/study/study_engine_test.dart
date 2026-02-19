@@ -168,6 +168,8 @@ FlashcardItem _buildItem({
     deckId: 10,
     frontText: frontText,
     backText: backText,
+    frontLangCode: null,
+    backLangCode: null,
     pronunciation: '',
     note: '',
     isBookmarked: false,

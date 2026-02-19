@@ -9,6 +9,8 @@ class FlashcardInputService {
     return FlashcardUpsertInput(
       frontText: StringUtils.normalize(input.frontText),
       backText: StringUtils.normalize(input.backText),
+      frontLangCode: input.frontLangCode,
+      backLangCode: input.backLangCode,
     );
   }
 

@@ -62,11 +62,24 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(AuthConst.EMAIL_ALREADY_EXISTS_KEY);
         }
 
+        final var normalizedUsername = normalizeUsername(request.username());
+        if (!normalizedUsername.isEmpty()) {
+            final var usernameAlreadyExists =
+                    this.appUserRepository.existsByNormalizedUsername(normalizedUsername);
+            if (usernameAlreadyExists) {
+                throw new BusinessException(AuthConst.USERNAME_ALREADY_EXISTS_KEY);
+            }
+        }
+
         final var user = new AppUserEntity();
         user.setEmail(normalizedEmail);
         user.setNormalizedEmail(normalizedEmail);
         user.setPasswordHash(this.passwordEncoder.encode(request.password()));
         user.setDisplayName(resolveDisplayName(request.displayName(), normalizedEmail));
+        if (!normalizedUsername.isEmpty()) {
+            user.setUsername(request.username());
+            user.setNormalizedUsername(normalizedUsername);
+        }
         applyDefaultSettings(user);
         final var createdUser = this.appUserRepository.save(user);
         log.info(LogConst.AUTH_SERVICE_REGISTERED_NEW_USER, createdUser.getId(), createdUser.getEmail());
@@ -75,9 +88,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthTokenResponse login(AuthLoginRequest request) {
-        final var normalizedEmail = normalizeEmail(request.email());
+        final var normalizedIdentifier = normalizeIdentifier(request.identifier());
         final var user = this.appUserRepository
-                .findByNormalizedEmail(normalizedEmail)
+                .findByNormalizedEmailOrNormalizedUsername(normalizedIdentifier, normalizedIdentifier)
                 .orElseThrow(() -> new UnauthorizedException(AuthConst.INVALID_CREDENTIALS_KEY));
 
         final var passwordMatched = this.passwordEncoder.matches(request.password(), user.getPasswordHash());
@@ -148,6 +161,21 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new UnauthorizedException(AuthConst.UNAUTHORIZED_KEY));
         final var normalizedDisplayName = StringUtils.trimToEmpty(request.displayName());
         user.setDisplayName(normalizedDisplayName);
+
+        final var normalizedUsername = normalizeUsername(request.username());
+        if (normalizedUsername.isEmpty()) {
+            user.setUsername(null);
+            user.setNormalizedUsername(null);
+        } else {
+            final var existingUserWithUsername =
+                    this.appUserRepository.findByNormalizedUsername(normalizedUsername);
+            if (existingUserWithUsername.isPresent()
+                    && !existingUserWithUsername.get().getId().equals(user.getId())) {
+                throw new BusinessException(AuthConst.USERNAME_ALREADY_EXISTS_KEY);
+            }
+            user.setUsername(request.username());
+            user.setNormalizedUsername(normalizedUsername);
+        }
         final var updatedUser = this.appUserRepository.save(user);
         return toMeResponse(updatedUser);
     }
@@ -212,6 +240,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String normalizeEmail(String value) {
+        return StringUtils.trimToEmpty(value).toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeUsername(String value) {
+        return StringUtils.trimToEmpty(value).toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeIdentifier(String value) {
         return StringUtils.trimToEmpty(value).toLowerCase(Locale.ROOT);
     }
 
@@ -290,6 +326,7 @@ public class AuthServiceImpl implements AuthService {
         return new AuthMeResponse(
                 user.getId(),
                 user.getEmail(),
+                user.getUsername(),
                 user.getDisplayName(),
                 resolveThemeMode(user.getThemeMode()),
                 resolveStudyAutoPlayAudio(user.getStudyAutoPlayAudio()),

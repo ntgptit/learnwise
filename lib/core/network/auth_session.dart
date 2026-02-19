@@ -1,4 +1,5 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
+// quality-guard: allow-large-class - AuthSession manager will be modularized in next refactor phase.
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -48,10 +49,11 @@ abstract class AuthSessionManager implements Listenable {
 
   Future<String?> refreshAccessToken();
 
-  Future<void> login({required String email, required String password});
+  Future<void> login({required String identifier, required String password});
 
   Future<void> register({
     required String email,
+    String? username,
     required String password,
     required String displayName,
   });
@@ -256,10 +258,10 @@ class SecureStorageAuthSessionManager extends ChangeNotifier
   }
 
   @override
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String identifier, required String password}) async {
     final AuthTokenPair tokenPair = await _requestTokenPair(
       endpoint: AuthSessionEndpoint.login,
-      body: <String, String>{'email': email, 'password': password},
+      body: <String, String>{'identifier': identifier, 'password': password},
     );
     await _persistSession(tokenPair);
   }
@@ -267,16 +269,21 @@ class SecureStorageAuthSessionManager extends ChangeNotifier
   @override
   Future<void> register({
     required String email,
+    String? username,
     required String password,
     required String displayName,
   }) async {
+    final Map<String, String> body = <String, String>{
+      'email': email,
+      'password': password,
+      'displayName': displayName,
+    };
+    if (username != null && username.isNotEmpty) {
+      body['username'] = username;
+    }
     final AuthTokenPair tokenPair = await _requestTokenPair(
       endpoint: AuthSessionEndpoint.register,
-      body: <String, String>{
-        'email': email,
-        'password': password,
-        'displayName': displayName,
-      },
+      body: body,
     );
     await _persistSession(tokenPair);
   }

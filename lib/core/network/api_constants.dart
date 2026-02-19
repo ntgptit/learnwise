@@ -3,7 +3,7 @@ class ApiConstants {
 
   static const String apiVersion = 'v1';
 
-  static const String devBaseUrl = 'http://192.168.35.35:8080';
+  static const String devBaseUrl = 'http://localhost:8080';
   static const String stgBaseUrl = 'https://stg-api.learnwise.com';
   static const String prodBaseUrl = 'https://api.learnwise.com';
 

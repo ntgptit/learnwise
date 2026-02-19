@@ -31,6 +31,12 @@ public class AppUserEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "username", length = AuthConst.USERNAME_MAX_LENGTH)
+    private String username;
+
+    @Column(name = "normalized_username", length = AuthConst.USERNAME_MAX_LENGTH)
+    private String normalizedUsername;
+
     @Column(name = "email", nullable = false, length = AuthConst.EMAIL_MAX_LENGTH)
     private String email;
 

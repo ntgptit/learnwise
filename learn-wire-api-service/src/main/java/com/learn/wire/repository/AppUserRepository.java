@@ -11,4 +11,10 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
     boolean existsByNormalizedEmail(String normalizedEmail);
 
     Optional<AppUserEntity> findByNormalizedEmail(String normalizedEmail);
+
+    boolean existsByNormalizedUsername(String normalizedUsername);
+
+    Optional<AppUserEntity> findByNormalizedUsername(String normalizedUsername);
+
+    Optional<AppUserEntity> findByNormalizedEmailOrNormalizedUsername(String normalizedEmail, String normalizedUsername);
 }

@@ -116,18 +116,21 @@ class UserProfile {
   const UserProfile({
     required this.userId,
     required this.email,
+    required this.username,
     required this.displayName,
     required this.settings,
   });
 
   final int userId;
   final String email;
+  final String? username;
   final String displayName;
   final UserStudySettings settings;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     final dynamic rawUserId = json['userId'];
     final dynamic rawEmail = json['email'];
+    final dynamic rawUsername = json['username'];
     final dynamic rawDisplayName = json['displayName'];
     final dynamic rawThemeMode = json['themeMode'];
     final dynamic rawStudyAutoPlayAudio = json['studyAutoPlayAudio'];
@@ -141,9 +144,14 @@ class UserProfile {
     if (rawDisplayName is! String) {
       throw const UnexpectedResponseAppException();
     }
+    String? username;
+    if (rawUsername is String) {
+      username = rawUsername;
+    }
     return UserProfile(
       userId: rawUserId.toInt(),
       email: rawEmail,
+      username: username,
       displayName: rawDisplayName,
       settings: UserStudySettings.fromJson(<String, dynamic>{
         'themeMode': rawThemeMode,

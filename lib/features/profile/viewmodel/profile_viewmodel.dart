@@ -27,9 +27,15 @@ class ProfileController extends _$ProfileController {
     state = await AsyncValue.guard(_loadProfile);
   }
 
-  Future<bool> updateDisplayName(String displayName) async {
+  Future<bool> updateProfile({
+    required String displayName,
+    String? username,
+  }) async {
     return _updateProfile(
-      action: () => _repository.updateDisplayName(displayName),
+      action: () => _repository.updateProfile(
+        displayName: displayName,
+        username: username,
+      ),
     );
   }
 

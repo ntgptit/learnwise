@@ -79,9 +79,9 @@ class StudySessionIntegrationTest {
     @Test
     void startReviewSession_shouldCreateItemsAndDefaultIndex() {
         final Long deckId = createDeckWithFlashcards(_unique("Review"), List.of(
-                new FlashcardCreateRequest("apple", "tao"),
-                new FlashcardCreateRequest("banana", "chuoi"),
-                new FlashcardCreateRequest("cat", "meo")));
+                new FlashcardCreateRequest("apple", "tao", null, null),
+                new FlashcardCreateRequest("banana", "chuoi", null, null),
+                new FlashcardCreateRequest("cat", "meo", null, null)));
 
         final StudySessionResponse response = this.studySessionService.startSession(
                 deckId,
@@ -102,9 +102,9 @@ class StudySessionIntegrationTest {
     @Test
     void matchMode_wrongSelection_shouldFlashOnlyWrongPair() {
         final Long deckId = createDeckWithFlashcards(_unique("Match"), List.of(
-                new FlashcardCreateRequest("red", "do"),
-                new FlashcardCreateRequest("blue", "xanh"),
-                new FlashcardCreateRequest("green", "la")));
+                new FlashcardCreateRequest("red", "do", null, null),
+                new FlashcardCreateRequest("blue", "xanh", null, null),
+                new FlashcardCreateRequest("green", "la", null, null)));
 
         final StudySessionResponse started = this.studySessionService.startSession(
                 deckId,
@@ -154,9 +154,9 @@ class StudySessionIntegrationTest {
     @Test
     void submitEvent_withDuplicateClientSequence_shouldReturnCurrentStateWithoutError() {
         final Long deckId = createDeckWithFlashcards(_unique("DuplicateSequence"), List.of(
-                new FlashcardCreateRequest("one", "mot"),
-                new FlashcardCreateRequest("two", "hai"),
-                new FlashcardCreateRequest("three", "ba")));
+                new FlashcardCreateRequest("one", "mot", null, null),
+                new FlashcardCreateRequest("two", "hai", null, null),
+                new FlashcardCreateRequest("three", "ba", null, null)));
 
         final StudySessionResponse started = this.studySessionService.startSession(
                 deckId,
@@ -187,9 +187,9 @@ class StudySessionIntegrationTest {
     @Test
     void completeAllModes_shouldCompleteSingleCycleSession() {
         final Long deckId = createDeckWithFlashcards(_unique("Cycle"), List.of(
-                new FlashcardCreateRequest("alpha", "mot"),
-                new FlashcardCreateRequest("beta", "hai"),
-                new FlashcardCreateRequest("gamma", "ba")));
+                new FlashcardCreateRequest("alpha", "mot", null, null),
+                new FlashcardCreateRequest("beta", "hai", null, null),
+                new FlashcardCreateRequest("gamma", "ba", null, null)));
 
         final StudySessionResponse reviewSession = this.studySessionService.startSession(
                 deckId,
@@ -234,9 +234,9 @@ class StudySessionIntegrationTest {
     @Test
     void restartFromCompletedMode_shouldResumeAtNextIncompleteMode() {
         final Long deckId = createDeckWithFlashcards(_unique("ResumeCycle"), List.of(
-                new FlashcardCreateRequest("sun", "mat troi"),
-                new FlashcardCreateRequest("moon", "mat trang"),
-                new FlashcardCreateRequest("star", "ngoi sao")));
+                new FlashcardCreateRequest("sun", "mat troi", null, null),
+                new FlashcardCreateRequest("moon", "mat trang", null, null),
+                new FlashcardCreateRequest("star", "ngoi sao", null, null)));
 
         final StudySessionResponse startedMatch = this.studySessionService.startSession(
                 deckId,
@@ -258,15 +258,15 @@ class StudySessionIntegrationTest {
     @Test
     void sessionSnapshot_shouldKeepSameFlashcardSetAcrossModesWhenDeckChanges() {
         final Long deckId = createDeckWithFlashcards(_unique("Snapshot"), List.of(
-                new FlashcardCreateRequest("car", "xe hoi"),
-                new FlashcardCreateRequest("bike", "xe dap"),
-                new FlashcardCreateRequest("bus", "xe buyt")));
+                new FlashcardCreateRequest("car", "xe hoi", null, null),
+                new FlashcardCreateRequest("bike", "xe dap", null, null),
+                new FlashcardCreateRequest("bus", "xe buyt", null, null)));
 
         final StudySessionResponse reviewSession = this.studySessionService.startSession(
                 deckId,
                 new StudySessionStartRequest(StudyConst.MODE_REVIEW, 83, null));
 
-        this.flashcardService.createFlashcard(deckId, new FlashcardCreateRequest("train", "tau hoa"));
+        this.flashcardService.createFlashcard(deckId, new FlashcardCreateRequest("train", "tau hoa", null, null));
 
         final StudySessionResponse guessSession = this.studySessionService.startSession(
                 deckId,
@@ -298,7 +298,7 @@ class StudySessionIntegrationTest {
         final List<FlashcardCreateRequest> flashcards = new java.util.ArrayList<>();
         var index = 1;
         while (index <= count) {
-            flashcards.add(new FlashcardCreateRequest("term-" + index, "meaning-" + index));
+            flashcards.add(new FlashcardCreateRequest("term-" + index, "meaning-" + index, null, null));
             index++;
         }
         return flashcards;
@@ -329,3 +329,4 @@ class StudySessionIntegrationTest {
         return prefix + "-" + System.nanoTime();
     }
 }
+

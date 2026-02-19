@@ -24,6 +24,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late final TextEditingController _displayNameController;
+  late final TextEditingController _usernameController;
   late final ValueNotifier<ProfileSettingsDraft> _settingsDraftNotifier;
   int? _boundUserId;
   String? _boundSettingsSignature;
@@ -32,6 +33,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     _displayNameController = TextEditingController();
+    _usernameController = TextEditingController();
     _settingsDraftNotifier = ValueNotifier<ProfileSettingsDraft>(
       const ProfileSettingsDraft(
         themeMode: UserThemeMode.system,
@@ -44,6 +46,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void dispose() {
     _displayNameController.dispose();
+    _usernameController.dispose();
     _settingsDraftNotifier.dispose();
     super.dispose();
   }
@@ -103,6 +106,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     required AppThemeModeController themeModeController,
   }) {
     _bindDisplayName(profile);
+    _bindUsername(profile);
     _bindSettings(profile);
 
     return CustomScrollView(
@@ -149,7 +153,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       PersonalInfoSection(
         profile: profile,
         displayNameController: _displayNameController,
-        onSave: () => _submitProfileUpdate(controller),
+        usernameController: _usernameController,
+        onSave: () => _submitProfileUpdate(
+          controller: controller,
+          profile: profile,
+        ),
       ),
       const SizedBox(height: AppSizes.spacingLg),
       SettingsSection(
@@ -207,14 +215,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  Future<void> _submitProfileUpdate(ProfileController controller) async {
+  Future<void> _submitProfileUpdate({
+    required ProfileController controller,
+    required UserProfile profile,
+  }) async {
     final String? displayName = StringUtils.normalizeNullable(
       _displayNameController.text,
     );
     if (displayName == null) {
       return;
     }
-    await controller.updateDisplayName(displayName);
+     String? username = StringUtils.normalizeNullable(
+      _usernameController.text,
+    );
+    if (username == null && profile.username != null) {
+      username = '';
+    }
+    await controller.updateProfile(
+      displayName: displayName,
+      username: username,
+    );
   }
 
   Future<void> _submitSettingsUpdate({
@@ -243,6 +263,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _displayNameController.value = TextEditingValue(
       text: profile.displayName,
       selection: TextSelection.collapsed(offset: profile.displayName.length),
+    );
+  }
+
+  void _bindUsername(UserProfile profile) {
+    final String profileUsername = profile.username ?? '';
+    if (_boundUserId == profile.userId &&
+        _usernameController.text == profileUsername) {
+      return;
+    }
+    _boundUserId = profile.userId;
+    _usernameController.value = TextEditingValue(
+      text: profileUsername,
+      selection: TextSelection.collapsed(offset: profileUsername.length),
     );
   }
 

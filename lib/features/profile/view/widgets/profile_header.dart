@@ -50,7 +50,8 @@ class ProfileHeader extends StatelessWidget {
               const SizedBox(height: AppSizes.spacingMd),
               _buildDisplayName(textTheme, colorScheme),
               const SizedBox(height: AppSizes.spacingXs),
-              _buildEmail(textTheme, colorScheme),
+            _buildEmail(textTheme, colorScheme),
+            _buildUsername(textTheme, colorScheme),
             ],
           ),
         ),
@@ -123,6 +124,19 @@ class ProfileHeader extends StatelessWidget {
   Widget _buildEmail(TextTheme textTheme, ColorScheme colorScheme) {
     return Text(
       profile.email,
+      style: textTheme.bodyMedium?.copyWith(
+        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+      ),
+    );
+  }
+
+  Widget _buildUsername(TextTheme textTheme, ColorScheme colorScheme) {
+    final String? username = profile.username;
+    if (username == null || username.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Text(
+      '@$username',
       style: textTheme.bodyMedium?.copyWith(
         color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
       ),

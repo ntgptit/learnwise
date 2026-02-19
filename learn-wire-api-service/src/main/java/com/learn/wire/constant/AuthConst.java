@@ -9,6 +9,7 @@ public final class AuthConst {
     public static final String REFRESH_TOKEN_TABLE_NAME = "auth_refresh_tokens";
 
     public static final int EMAIL_MAX_LENGTH = 255;
+    public static final int USERNAME_MAX_LENGTH = 120;
     public static final int PASSWORD_MIN_LENGTH = 8;
     public static final int PASSWORD_MAX_LENGTH = 120;
     public static final int DISPLAY_NAME_MAX_LENGTH = 120;
@@ -39,6 +40,7 @@ public final class AuthConst {
     public static final String PASSWORD_TOO_LONG_KEY = ErrorMessageConst.AUTH_VALIDATION_PASSWORD_TOO_LONG;
     public static final String DISPLAY_NAME_REQUIRED_KEY = ErrorMessageConst.AUTH_VALIDATION_DISPLAY_NAME_REQUIRED;
     public static final String DISPLAY_NAME_TOO_LONG_KEY = ErrorMessageConst.AUTH_VALIDATION_DISPLAY_NAME_TOO_LONG;
+    public static final String USERNAME_TOO_LONG_KEY = ErrorMessageConst.AUTH_VALIDATION_USERNAME_TOO_LONG;
     public static final String REFRESH_TOKEN_REQUIRED_KEY = ErrorMessageConst.AUTH_VALIDATION_REFRESH_TOKEN_REQUIRED;
     public static final String THEME_MODE_REQUIRED_KEY = ErrorMessageConst.AUTH_VALIDATION_THEME_MODE_REQUIRED;
     public static final String THEME_MODE_INVALID_KEY = ErrorMessageConst.AUTH_VALIDATION_THEME_MODE_INVALID;
@@ -51,6 +53,7 @@ public final class AuthConst {
     public static final String INVALID_CREDENTIALS_KEY = ErrorMessageConst.AUTH_ERROR_INVALID_CREDENTIALS;
     public static final String REFRESH_TOKEN_INVALID_KEY = ErrorMessageConst.AUTH_ERROR_REFRESH_TOKEN_INVALID;
     public static final String UNAUTHORIZED_KEY = ErrorMessageConst.AUTH_ERROR_UNAUTHORIZED;
+    public static final String USERNAME_ALREADY_EXISTS_KEY = ErrorMessageConst.AUTH_ERROR_USERNAME_ALREADY_EXISTS;
 
     public static final String EMAIL_REQUIRED_MESSAGE = "{" + EMAIL_REQUIRED_KEY + "}";
     public static final String EMAIL_INVALID_MESSAGE = "{" + EMAIL_INVALID_KEY + "}";
@@ -60,6 +63,7 @@ public final class AuthConst {
     public static final String PASSWORD_TOO_LONG_MESSAGE = "{" + PASSWORD_TOO_LONG_KEY + "}";
     public static final String DISPLAY_NAME_REQUIRED_MESSAGE = "{" + DISPLAY_NAME_REQUIRED_KEY + "}";
     public static final String DISPLAY_NAME_TOO_LONG_MESSAGE = "{" + DISPLAY_NAME_TOO_LONG_KEY + "}";
+    public static final String USERNAME_TOO_LONG_MESSAGE = "{" + USERNAME_TOO_LONG_KEY + "}";
     public static final String REFRESH_TOKEN_REQUIRED_MESSAGE = "{" + REFRESH_TOKEN_REQUIRED_KEY + "}";
     public static final String THEME_MODE_REQUIRED_MESSAGE = "{" + THEME_MODE_REQUIRED_KEY + "}";
     public static final String THEME_MODE_INVALID_MESSAGE = "{" + THEME_MODE_INVALID_KEY + "}";

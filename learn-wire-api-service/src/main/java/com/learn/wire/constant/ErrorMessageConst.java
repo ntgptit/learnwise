@@ -22,6 +22,7 @@ public final class ErrorMessageConst {
     public static final String AUTH_ERROR_INVALID_CREDENTIALS = "auth.error.invalidCredentials";
     public static final String AUTH_ERROR_REFRESH_TOKEN_INVALID = "auth.error.refreshTokenInvalid";
     public static final String AUTH_ERROR_UNAUTHORIZED = "auth.error.unauthorized";
+    public static final String AUTH_ERROR_USERNAME_ALREADY_EXISTS = "auth.error.usernameAlreadyExists";
     public static final String STUDY_ERROR_SESSION_NOT_FOUND = "study.error.sessionNotFound";
     public static final String STUDY_ERROR_SESSION_NOT_ACTIVE = "study.error.sessionNotActive";
     public static final String STUDY_ERROR_MATCH_STATE_NOT_FOUND = "study.error.matchStateNotFound";
@@ -65,6 +66,7 @@ public final class ErrorMessageConst {
     public static final String AUTH_VALIDATION_PASSWORD_TOO_LONG = "auth.validation.password.tooLong";
     public static final String AUTH_VALIDATION_DISPLAY_NAME_REQUIRED = "auth.validation.displayName.required";
     public static final String AUTH_VALIDATION_DISPLAY_NAME_TOO_LONG = "auth.validation.displayName.tooLong";
+    public static final String AUTH_VALIDATION_USERNAME_TOO_LONG = "auth.validation.username.tooLong";
     public static final String AUTH_VALIDATION_REFRESH_TOKEN_REQUIRED = "auth.validation.refreshToken.required";
     public static final String AUTH_VALIDATION_THEME_MODE_REQUIRED = "auth.validation.themeMode.required";
     public static final String AUTH_VALIDATION_THEME_MODE_INVALID = "auth.validation.themeMode.invalid";

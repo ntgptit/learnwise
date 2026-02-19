@@ -32,16 +32,27 @@ class ProfileApiService implements ProfileRepository {
   }
 
   @override
-  Future<UserProfile> updateDisplayName(String displayName) async {
+  Future<UserProfile> updateProfile({
+    required String displayName,
+    String? username,
+  }) async {
+    final Map<String, dynamic> payload = <String, dynamic>{
+      'displayName': displayName,
+    };
+    if (username != null) {
+      payload['username'] = username;
+    }
     final dynamic response = await _apiClient.patch<dynamic>(
       ProfileConstants.resourcePath,
-      data: <String, dynamic>{'displayName': displayName},
+      data: payload,
     );
-    final dynamic payload = response.data;
-    if (payload is! Map) {
+    final dynamic rawPayload = response.data;
+    if (rawPayload is! Map) {
       throw const UnexpectedResponseAppException();
     }
-    final Map<String, dynamic> profileJson = Map<String, dynamic>.from(payload);
+    final Map<String, dynamic> profileJson = Map<String, dynamic>.from(
+      rawPayload,
+    );
     return UserProfile.fromJson(profileJson);
   }
 

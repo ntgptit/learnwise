@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
 
 import com.learn.wire.constant.FlashcardConst;
@@ -21,7 +24,9 @@ import com.learn.wire.dto.flashcard.request.FlashcardUpdateRequest;
 import com.learn.wire.dto.flashcard.response.FlashcardResponse;
 import com.learn.wire.dto.folder.request.FolderCreateRequest;
 import com.learn.wire.dto.folder.response.FolderResponse;
+import com.learn.wire.config.AbstractPostgresIntegrationTest;
 import com.learn.wire.exception.BusinessException;
+import com.learn.wire.mapper.DeckMapper;
 import com.learn.wire.service.DeckService;
 import com.learn.wire.service.FlashcardService;
 import com.learn.wire.service.FolderService;
@@ -31,15 +36,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class FlashcardCrudIntegrationTest {
+class FlashcardCrudIntegrationTest extends AbstractPostgresIntegrationTest {
 
     private static final String DESCRIPTION = "Folder for flashcard tests";
     private static final String COLOR = "#10B981";
-    private static final String DISABLE_REF_INTEGRITY_SQL = "SET REFERENTIAL_INTEGRITY FALSE";
-    private static final String ENABLE_REF_INTEGRITY_SQL = "SET REFERENTIAL_INTEGRITY TRUE";
-    private static final String TRUNCATE_FLASHCARDS_SQL = "TRUNCATE TABLE flashcards";
-    private static final String TRUNCATE_DECKS_SQL = "TRUNCATE TABLE decks";
-    private static final String TRUNCATE_FOLDERS_SQL = "TRUNCATE TABLE folders";
+    private static final String RESET_DOMAIN_DATA_SQL = "TRUNCATE TABLE flashcards, decks, folders RESTART IDENTITY CASCADE";
+
+    @TestConfiguration
+    static class MapperTestConfig {
+
+        @Bean
+        DeckMapper deckMapper() {
+            return Mappers.getMapper(DeckMapper.class);
+        }
+    }
 
     @Autowired
     private FolderService folderService;
@@ -55,11 +65,7 @@ class FlashcardCrudIntegrationTest {
 
     @BeforeEach
     void cleanupData() {
-        this.jdbcTemplate.execute(DISABLE_REF_INTEGRITY_SQL);
-        this.jdbcTemplate.execute(TRUNCATE_FLASHCARDS_SQL);
-        this.jdbcTemplate.execute(TRUNCATE_DECKS_SQL);
-        this.jdbcTemplate.execute(TRUNCATE_FOLDERS_SQL);
-        this.jdbcTemplate.execute(ENABLE_REF_INTEGRITY_SQL);
+        this.jdbcTemplate.execute(RESET_DOMAIN_DATA_SQL);
     }
 
     @Test
@@ -71,10 +77,10 @@ class FlashcardCrudIntegrationTest {
                 new DeckCreateRequest(_unique("Default Deck"), "Default deck"));
         final FlashcardResponse createdFirst = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("  front one  ", "  back one  "));
+                new FlashcardCreateRequest("  front one  ", "  back one  ", null, null));
         final FlashcardResponse createdSecond = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("front two", "back two"));
+                new FlashcardCreateRequest("front two", "back two", null, null));
 
         final FlashcardListRequest request = new FlashcardListRequest();
         final FlashcardListQuery query = FlashcardListQuery.fromRequest(deck.id(), request);
@@ -122,12 +128,12 @@ class FlashcardCrudIntegrationTest {
                 new DeckCreateRequest(_unique("Count Deck"), "Count deck"));
         final FlashcardResponse created = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("front initial", "back initial"));
+                new FlashcardCreateRequest("front initial", "back initial", null, null));
 
         final FlashcardResponse updated = this.flashcardService.updateFlashcard(
                 deck.id(),
                 created.id(),
-                new FlashcardUpdateRequest("front updated", "back updated"));
+                new FlashcardUpdateRequest("front updated", "back updated", null, null));
         assertThat(updated.frontText()).isEqualTo("front updated");
         assertThat(updated.backText()).isEqualTo("back updated");
 
@@ -157,13 +163,13 @@ class FlashcardCrudIntegrationTest {
 
         final FlashcardResponse alpha = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("alpha", "A"));
+                new FlashcardCreateRequest("alpha", "A", null, null));
         final FlashcardResponse charlie = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("charlie", "C"));
+                new FlashcardCreateRequest("charlie", "C", null, null));
         final FlashcardResponse bravo = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("bravo", "B"));
+                new FlashcardCreateRequest("bravo", "B", null, null));
 
         final FlashcardListRequest request = new FlashcardListRequest();
         request.setSortBy(FlashcardConst.SORT_BY_FRONT_TEXT);
@@ -187,15 +193,15 @@ class FlashcardCrudIntegrationTest {
 
         final FlashcardResponse first = this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("first", "first back"));
+                new FlashcardCreateRequest("first", "first back", null, null));
         this.flashcardService.createFlashcard(
                 deck.id(),
-                new FlashcardCreateRequest("second", "second back"));
+                new FlashcardCreateRequest("second", "second back", null, null));
 
         final FlashcardResponse updatedFirst = this.flashcardService.updateFlashcard(
                 deck.id(),
                 first.id(),
-                new FlashcardUpdateRequest("first updated", "first back updated"));
+                new FlashcardUpdateRequest("first updated", "first back updated", null, null));
 
         final FlashcardListRequest request = new FlashcardListRequest();
         request.setSortBy(FlashcardConst.SORT_BY_UPDATED_AT);

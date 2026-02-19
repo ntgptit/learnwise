@@ -16,15 +16,16 @@ class AuthActionController extends _$AuthActionController {
     _authActionRepository = ref.read(authActionRepositoryProvider);
   }
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String identifier, required String password}) async {
     state = const AsyncLoading<void>();
     state = await AsyncValue.guard(() {
-      return _authActionRepository.login(email: email, password: password);
+      return _authActionRepository.login(identifier: identifier, password: password);
     });
   }
 
   Future<void> register({
     required String email,
+    String? username,
     required String password,
     required String displayName,
   }) async {
@@ -32,6 +33,7 @@ class AuthActionController extends _$AuthActionController {
     state = await AsyncValue.guard(() {
       return _authActionRepository.register(
         email: email,
+        username: username,
         password: password,
         displayName: displayName,
       );

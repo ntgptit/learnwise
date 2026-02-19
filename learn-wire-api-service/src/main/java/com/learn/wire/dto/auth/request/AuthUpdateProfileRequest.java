@@ -6,5 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record AuthUpdateProfileRequest(
-        @NotBlank(message = AuthConst.DISPLAY_NAME_REQUIRED_MESSAGE) @Size(max = AuthConst.DISPLAY_NAME_MAX_LENGTH, message = AuthConst.DISPLAY_NAME_TOO_LONG_MESSAGE) String displayName) {
+        @NotBlank(message = AuthConst.DISPLAY_NAME_REQUIRED_MESSAGE)
+        @Size(max = AuthConst.DISPLAY_NAME_MAX_LENGTH, message = AuthConst.DISPLAY_NAME_TOO_LONG_MESSAGE)
+        String displayName,
+        @Size(max = AuthConst.USERNAME_MAX_LENGTH, message = AuthConst.USERNAME_TOO_LONG_MESSAGE)
+        String username) {
 }

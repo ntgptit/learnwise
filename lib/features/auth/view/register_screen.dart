@@ -22,6 +22,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   late final TextEditingController _displayNameController;
   late final TextEditingController _emailController;
+  late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
 
   @override
@@ -29,6 +30,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.initState();
     _displayNameController = TextEditingController();
     _emailController = TextEditingController();
+    _usernameController = TextEditingController();
     _passwordController = TextEditingController();
   }
 
@@ -36,6 +38,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void dispose() {
     _displayNameController.dispose();
     _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -97,6 +100,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
                 AppTextField(
+                  controller: _usernameController,
+                  label: _RegisterText.usernameLabel,
+                  hint: _RegisterText.usernameHint,
+                  onChanged: (_) => _clearError(),
+                ),
+                const SizedBox(height: AppSizes.spacingMd),
+                AppTextField(
                   controller: _passwordController,
                   label: _RegisterText.passwordLabel,
                   hint: _RegisterText.passwordHint,
@@ -139,6 +149,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _displayNameController.text,
     );
     final String? email = StringUtils.normalizeNullable(_emailController.text);
+    final String? username = StringUtils.normalizeNullable(
+      _usernameController.text,
+    );
     final String? password = StringUtils.normalizeNullable(
       _passwordController.text,
     );
@@ -150,6 +163,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         .read(authActionControllerProvider.notifier)
         .register(
           email: email,
+          username: username,
           password: password,
           displayName: normalizedDisplayName,
         );
@@ -179,6 +193,8 @@ class _RegisterText {
   static const String displayNameHint = 'Your name';
   static const String emailLabel = 'Email';
   static const String emailHint = 'you@example.com';
+  static const String usernameLabel = 'Username (optional)';
+  static const String usernameHint = 'Choose a unique username';
   static const String passwordLabel = 'Password';
   static const String passwordHint = 'At least 8 characters';
   static const String registerButton = 'Register';

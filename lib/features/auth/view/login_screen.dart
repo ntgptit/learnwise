@@ -20,19 +20,19 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  late final TextEditingController _emailController;
+  late final TextEditingController _identifierController;
   late final TextEditingController _passwordController;
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
+    _identifierController = TextEditingController();
     _passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -79,9 +79,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: AppSizes.spacingLg),
                 AppTextField(
-                  controller: _emailController,
-                  label: _LoginText.emailLabel,
-                  hint: _LoginText.emailHint,
+                  controller: _identifierController,
+                  label: _LoginText.identifierLabel,
+                  hint: _LoginText.identifierHint,
                   textInputType: TextInputType.emailAddress,
                   onChanged: (_) => _clearError(),
                 ),
@@ -125,16 +125,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submitLogin() async {
-    final String? email = StringUtils.normalizeNullable(_emailController.text);
+    final String? identifier = StringUtils.normalizeNullable(
+      _identifierController.text,
+    );
     final String? password = StringUtils.normalizeNullable(
       _passwordController.text,
     );
-    if (email == null || password == null) {
+    if (identifier == null || password == null) {
       return;
     }
     await ref
         .read(authActionControllerProvider.notifier)
-        .login(email: email, password: password);
+        .login(identifier: identifier, password: password);
   }
 
   void _clearError() {
@@ -157,8 +159,8 @@ class _LoginText {
 
   static const String title = 'Welcome back';
   static const String subtitle = 'Sign in to continue your study session';
-  static const String emailLabel = 'Email';
-  static const String emailHint = 'you@example.com';
+  static const String identifierLabel = 'Email or username';
+  static const String identifierHint = 'you@example.com or your username';
   static const String passwordLabel = 'Password';
   static const String passwordHint = 'Enter password';
   static const String signInButton = 'Sign in';

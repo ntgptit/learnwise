@@ -29,10 +29,12 @@ import com.learn.wire.dto.auth.query.AuthThemeMode;
 import com.learn.wire.dto.auth.response.AuthMeResponse;
 import com.learn.wire.dto.auth.response.AuthTokenResponse;
 import com.learn.wire.entity.AppUserEntity;
+import com.learn.wire.entity.AppUserSettingEntity;
 import com.learn.wire.entity.AuthRefreshTokenEntity;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.UnauthorizedException;
 import com.learn.wire.repository.AppUserRepository;
+import com.learn.wire.repository.AppUserSettingRepository;
 import com.learn.wire.repository.AuthRefreshTokenRepository;
 import com.learn.wire.security.CurrentUserAccessor;
 import com.learn.wire.security.SecurityProperties;
@@ -48,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthServiceImpl implements AuthService {
 
     private final AppUserRepository appUserRepository;
+    private final AppUserSettingRepository appUserSettingRepository;
     private final AuthRefreshTokenRepository authRefreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;
@@ -80,8 +83,9 @@ public class AuthServiceImpl implements AuthService {
             user.setUsername(request.username());
             user.setNormalizedUsername(normalizedUsername);
         }
-        applyDefaultSettings(user);
         final var createdUser = this.appUserRepository.save(user);
+        final var createdUserSetting = createDefaultUserSetting(createdUser.getId());
+        this.appUserSettingRepository.save(createdUserSetting);
         log.info(LogConst.AUTH_SERVICE_REGISTERED_NEW_USER, createdUser.getId(), createdUser.getEmail());
         return issueTokenResponse(createdUser);
     }
@@ -161,21 +165,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new UnauthorizedException(AuthConst.UNAUTHORIZED_KEY));
         final var normalizedDisplayName = StringUtils.trimToEmpty(request.displayName());
         user.setDisplayName(normalizedDisplayName);
-
-        final var normalizedUsername = normalizeUsername(request.username());
-        if (normalizedUsername.isEmpty()) {
-            user.setUsername(null);
-            user.setNormalizedUsername(null);
-        } else {
-            final var existingUserWithUsername =
-                    this.appUserRepository.findByNormalizedUsername(normalizedUsername);
-            if (existingUserWithUsername.isPresent()
-                    && !existingUserWithUsername.get().getId().equals(user.getId())) {
-                throw new BusinessException(AuthConst.USERNAME_ALREADY_EXISTS_KEY);
-            }
-            user.setUsername(request.username());
-            user.setNormalizedUsername(normalizedUsername);
-        }
         final var updatedUser = this.appUserRepository.save(user);
         return toMeResponse(updatedUser);
     }
@@ -186,14 +175,15 @@ public class AuthServiceImpl implements AuthService {
         final var user = this.appUserRepository
                 .findById(currentUser.userId())
                 .orElseThrow(() -> new UnauthorizedException(AuthConst.UNAUTHORIZED_KEY));
+        final var userSetting = resolveOrCreateUserSetting(user.getId());
 
         final var normalizedThemeMode = AuthThemeMode.fromValue(request.themeMode()).value();
-        user.setThemeMode(normalizedThemeMode);
-        user.setStudyAutoPlayAudio(request.studyAutoPlayAudio());
-        user.setStudyCardsPerSession(request.studyCardsPerSession());
+        userSetting.setThemeMode(normalizedThemeMode);
+        userSetting.setStudyAutoPlayAudio(request.studyAutoPlayAudio());
+        userSetting.setStudyCardsPerSession(request.studyCardsPerSession());
+        this.appUserSettingRepository.save(userSetting);
 
-        final var updatedUser = this.appUserRepository.save(user);
-        return toMeResponse(updatedUser);
+        return toMeResponse(user);
     }
 
     private AuthTokenResponse issueTokenResponse(AppUserEntity user) {
@@ -271,10 +261,22 @@ public class AuthServiceImpl implements AuthService {
         return normalizedEmail;
     }
 
-    private void applyDefaultSettings(AppUserEntity user) {
-        user.setThemeMode(AuthConst.THEME_MODE_DEFAULT);
-        user.setStudyAutoPlayAudio(AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT);
-        user.setStudyCardsPerSession(AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT);
+    private AppUserSettingEntity createDefaultUserSetting(Long userId) {
+        final var userSetting = new AppUserSettingEntity();
+        userSetting.setUserId(userId);
+        userSetting.setThemeMode(AuthConst.THEME_MODE_DEFAULT);
+        userSetting.setStudyAutoPlayAudio(AuthConst.STUDY_AUTO_PLAY_AUDIO_DEFAULT);
+        userSetting.setStudyCardsPerSession(AuthConst.STUDY_CARDS_PER_SESSION_DEFAULT);
+        return userSetting;
+    }
+
+    private AppUserSettingEntity resolveOrCreateUserSetting(Long userId) {
+        final var existingSetting = this.appUserSettingRepository.findByUserId(userId);
+        if (existingSetting.isPresent()) {
+            return existingSetting.get();
+        }
+        final var createdSetting = createDefaultUserSetting(userId);
+        return this.appUserSettingRepository.save(createdSetting);
     }
 
     private String resolveThemeMode(String value) {
@@ -323,14 +325,15 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private AuthMeResponse toMeResponse(AppUserEntity user) {
+        final var userSetting = resolveOrCreateUserSetting(user.getId());
         return new AuthMeResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getUsername(),
                 user.getDisplayName(),
-                resolveThemeMode(user.getThemeMode()),
-                resolveStudyAutoPlayAudio(user.getStudyAutoPlayAudio()),
-                resolveStudyCardsPerSession(user.getStudyCardsPerSession()));
+                resolveThemeMode(userSetting.getThemeMode()),
+                resolveStudyAutoPlayAudio(userSetting.getStudyAutoPlayAudio()),
+                resolveStudyCardsPerSession(userSetting.getStudyCardsPerSession()));
     }
 
     private record RefreshTokenMaterial(

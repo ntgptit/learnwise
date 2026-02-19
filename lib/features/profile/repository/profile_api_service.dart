@@ -32,16 +32,10 @@ class ProfileApiService implements ProfileRepository {
   }
 
   @override
-  Future<UserProfile> updateProfile({
-    required String displayName,
-    String? username,
-  }) async {
+  Future<UserProfile> updateProfile({required String displayName}) async {
     final Map<String, dynamic> payload = <String, dynamic>{
       'displayName': displayName,
     };
-    if (username != null) {
-      payload['username'] = username;
-    }
     final dynamic response = await _apiClient.patch<dynamic>(
       ProfileConstants.resourcePath,
       data: payload,

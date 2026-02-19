@@ -27,22 +27,14 @@ class ProfileController extends _$ProfileController {
     state = await AsyncValue.guard(_loadProfile);
   }
 
-  Future<bool> updateProfile({
-    required String displayName,
-    String? username,
-  }) async {
+  Future<bool> updateProfile({required String displayName}) async {
     return _updateProfile(
-      action: () => _repository.updateProfile(
-        displayName: displayName,
-        username: username,
-      ),
+      action: () => _repository.updateProfile(displayName: displayName),
     );
   }
 
   Future<bool> updateSettings(UserStudySettings settings) async {
-    return _updateProfile(
-      action: () => _repository.updateSettings(settings),
-    );
+    return _updateProfile(action: () => _repository.updateSettings(settings));
   }
 
   Future<void> signOut() {
@@ -75,10 +67,7 @@ class ProfileController extends _$ProfileController {
       return true;
     } catch (error, stackTrace) {
       state = AsyncError<UserProfile>(error, stackTrace);
-      _errorAdvisor.handle(
-        error,
-        fallback: AppErrorCode.unexpectedResponse,
-      );
+      _errorAdvisor.handle(error, fallback: AppErrorCode.unexpectedResponse);
       return false;
     }
   }

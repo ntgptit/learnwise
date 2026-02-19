@@ -5,6 +5,8 @@ class RouteNames {
   static const String dashboard = '/dashboard';
   static const String folders = '/folders';
   static const String profile = '/profile';
+  static const String profilePersonalInfo = '/profile/personal-information';
+  static const String profileSettings = '/profile/settings';
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String learning = '/learning';

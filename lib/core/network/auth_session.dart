@@ -53,9 +53,9 @@ abstract class AuthSessionManager implements Listenable {
 
   Future<void> register({
     required String email,
-    String? username,
     required String password,
     required String displayName,
+    String? username,
   });
 
   void markUserActivity();
@@ -69,11 +69,12 @@ abstract class AuthSessionManager implements Listenable {
 AuthSessionManager authSessionManager(Ref ref) {
   final SecureStorage storage = ref.read(secureStorageProvider);
   final AppErrorMapper errorMapper = ref.read(appErrorMapperProvider);
-  final SecureStorageAuthSessionManager manager = SecureStorageAuthSessionManager(
-    storage: storage,
-    appConfig: AppConfig.fromEnv(),
-    errorMapper: errorMapper,
-  );
+  final SecureStorageAuthSessionManager manager =
+      SecureStorageAuthSessionManager(
+        storage: storage,
+        appConfig: AppConfig.fromEnv(),
+        errorMapper: errorMapper,
+      );
   ref.onDispose(manager.dispose);
   return manager;
 }
@@ -258,7 +259,10 @@ class SecureStorageAuthSessionManager extends ChangeNotifier
   }
 
   @override
-  Future<void> login({required String identifier, required String password}) async {
+  Future<void> login({
+    required String identifier,
+    required String password,
+  }) async {
     final AuthTokenPair tokenPair = await _requestTokenPair(
       endpoint: AuthSessionEndpoint.login,
       body: <String, String>{'identifier': identifier, 'password': password},
@@ -269,9 +273,9 @@ class SecureStorageAuthSessionManager extends ChangeNotifier
   @override
   Future<void> register({
     required String email,
-    String? username,
     required String password,
     required String displayName,
+    String? username,
   }) async {
     final Map<String, String> body = <String, String>{
       'email': email,

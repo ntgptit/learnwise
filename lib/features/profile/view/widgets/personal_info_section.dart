@@ -12,14 +12,12 @@ class PersonalInfoSection extends StatelessWidget {
   const PersonalInfoSection({
     required this.profile,
     required this.displayNameController,
-    required this.usernameController,
     required this.onSave,
     super.key,
   });
 
   final UserProfile profile;
   final TextEditingController displayNameController;
-  final TextEditingController usernameController;
   final VoidCallback onSave;
 
   @override
@@ -90,25 +88,13 @@ class PersonalInfoSection extends StatelessWidget {
             hint: l10n.profileDisplayNameHint,
           ),
           const SizedBox(height: AppSizes.spacingMd),
-          AppTextField(
-            controller: usernameController,
-            label: 'Username',
-            hint: 'Enter username',
-          ),
-          const SizedBox(height: AppSizes.spacingMd),
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: displayNameController,
             builder: (context, value, _) {
-              return ValueListenableBuilder<TextEditingValue>(
-                valueListenable: usernameController,
-                builder: (context, usernameValue, __) {
-                  final bool isChanged = _isDisplayNameChanged(value.text) ||
-                      _isUsernameChanged(usernameValue.text);
-                  return PrimaryButton(
-                    label: l10n.profileSaveChangesLabel,
-                    onPressed: isChanged ? onSave : null,
-                  );
-                },
+              final bool isChanged = _isDisplayNameChanged(value.text);
+              return PrimaryButton(
+                label: l10n.profileSaveChangesLabel,
+                onPressed: isChanged ? onSave : null,
               );
             },
           ),
@@ -123,13 +109,6 @@ class PersonalInfoSection extends StatelessWidget {
       profile.displayName,
     );
     return normalizedInput != null && normalizedInput != normalizedProfileName;
-  }
-
-  bool _isUsernameChanged(String text) {
-    final String? normalizedInput = StringUtils.normalizeNullable(text);
-    final String? normalizedProfileUsername =
-        StringUtils.normalizeNullable(profile.username);
-    return normalizedInput != normalizedProfileUsername;
   }
 
   Widget _buildSectionHeader({

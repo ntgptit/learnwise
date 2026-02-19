@@ -19,35 +19,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = AuthConst.USER_TABLE_NAME)
+@Table(name = AuthConst.USER_SETTING_TABLE_NAME)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppUserEntity {
+public class AppUserSettingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", length = AuthConst.USERNAME_MAX_LENGTH)
-    private String username;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "normalized_username", length = AuthConst.USERNAME_MAX_LENGTH)
-    private String normalizedUsername;
+    @Column(name = "theme_mode", nullable = false, length = AuthConst.THEME_MODE_MAX_LENGTH)
+    private String themeMode;
 
-    @Column(name = "email", nullable = false, length = AuthConst.EMAIL_MAX_LENGTH)
-    private String email;
+    @Column(name = "study_auto_play_audio", nullable = false)
+    private Boolean studyAutoPlayAudio;
 
-    @Column(name = "normalized_email", nullable = false, length = AuthConst.EMAIL_MAX_LENGTH)
-    private String normalizedEmail;
-
-    @Column(name = "password_hash", nullable = false, length = AuthConst.PASSWORD_MAX_LENGTH * 2)
-    private String passwordHash;
-
-    @Column(name = "display_name", nullable = false, length = AuthConst.DISPLAY_NAME_MAX_LENGTH)
-    private String displayName;
+    @Column(name = "study_cards_per_session", nullable = false)
+    private Integer studyCardsPerSession;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

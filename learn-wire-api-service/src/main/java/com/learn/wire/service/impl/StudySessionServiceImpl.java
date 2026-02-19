@@ -29,7 +29,7 @@ import com.learn.wire.entity.StudySessionSnapshotItemEntity;
 import com.learn.wire.exception.BusinessException;
 import com.learn.wire.exception.DeckNotFoundException;
 import com.learn.wire.exception.StudySessionNotFoundException;
-import com.learn.wire.repository.AppUserRepository;
+import com.learn.wire.repository.AppUserSettingRepository;
 import com.learn.wire.repository.DeckRepository;
 import com.learn.wire.repository.FlashcardRepository;
 import com.learn.wire.repository.StudySessionItemRepository;
@@ -53,7 +53,7 @@ public class StudySessionServiceImpl implements StudySessionService {
     private static final int STUDY_CARDS_PER_SESSION_MIN = AuthConst.STUDY_CARDS_PER_SESSION_MIN;
     private static final int STUDY_CARDS_PER_SESSION_MAX = AuthConst.STUDY_CARDS_PER_SESSION_MAX;
 
-    private final AppUserRepository appUserRepository;
+    private final AppUserSettingRepository appUserSettingRepository;
     private final DeckRepository deckRepository;
     private final FlashcardRepository flashcardRepository;
     private final StudySessionRepository studySessionRepository;
@@ -257,9 +257,9 @@ public class StudySessionServiceImpl implements StudySessionService {
     }
 
     private int resolveCardsPerSession(Long userId) {
-        return this.appUserRepository
-                .findById(userId)
-                .map(user -> normalizeCardsPerSession(user.getStudyCardsPerSession()))
+        return this.appUserSettingRepository
+                .findByUserId(userId)
+                .map(setting -> normalizeCardsPerSession(setting.getStudyCardsPerSession()))
                 .orElse(STUDY_CARDS_PER_SESSION_DEFAULT);
     }
 

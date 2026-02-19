@@ -3,9 +3,9 @@ abstract class AuthActionRepository {
 
   Future<void> register({
     required String email,
-    String? username,
     required String password,
     required String displayName,
+    String? username,
   });
 
   Future<void> signOut();

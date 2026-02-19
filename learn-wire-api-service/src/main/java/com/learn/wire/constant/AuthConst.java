@@ -6,6 +6,7 @@ public final class AuthConst {
     }
 
     public static final String USER_TABLE_NAME = "app_users";
+    public static final String USER_SETTING_TABLE_NAME = "user_settings";
     public static final String REFRESH_TOKEN_TABLE_NAME = "auth_refresh_tokens";
 
     public static final int EMAIL_MAX_LENGTH = 255;

@@ -16,18 +16,24 @@ class AuthActionController extends _$AuthActionController {
     _authActionRepository = ref.read(authActionRepositoryProvider);
   }
 
-  Future<void> login({required String identifier, required String password}) async {
+  Future<void> login({
+    required String identifier,
+    required String password,
+  }) async {
     state = const AsyncLoading<void>();
     state = await AsyncValue.guard(() {
-      return _authActionRepository.login(identifier: identifier, password: password);
+      return _authActionRepository.login(
+        identifier: identifier,
+        password: password,
+      );
     });
   }
 
   Future<void> register({
     required String email,
-    String? username,
     required String password,
     required String displayName,
+    String? username,
   }) async {
     state = const AsyncLoading<void>();
     state = await AsyncValue.guard(() {

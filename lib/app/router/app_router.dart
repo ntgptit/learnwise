@@ -12,6 +12,8 @@ import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
 import '../../features/folders/view/folder_screen.dart';
 import '../../features/profile/view/profile_screen.dart';
+import '../../features/profile/view/profile_personal_information_screen.dart';
+import '../../features/profile/view/profile_user_settings_screen.dart';
 import '../../features/study/model/study_session_args.dart';
 import '../../features/study/view/index.dart';
 import '../../features/tts/view/tts_screen.dart';
@@ -93,6 +95,27 @@ class ProfileRoute extends GoRouteData with $ProfileRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const ProfileScreen();
+  }
+}
+
+@TypedGoRoute<ProfilePersonalInfoRoute>(path: RouteNames.profilePersonalInfo)
+class ProfilePersonalInfoRoute extends GoRouteData
+    with $ProfilePersonalInfoRoute {
+  const ProfilePersonalInfoRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ProfilePersonalInformationScreen();
+  }
+}
+
+@TypedGoRoute<ProfileSettingsRoute>(path: RouteNames.profileSettings)
+class ProfileSettingsRoute extends GoRouteData with $ProfileSettingsRoute {
+  const ProfileSettingsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ProfileUserSettingsScreen();
   }
 }
 

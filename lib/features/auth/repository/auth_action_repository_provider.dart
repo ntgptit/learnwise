@@ -21,15 +21,18 @@ class _AuthActionSessionRepository implements AuthActionRepository {
 
   @override
   Future<void> login({required String identifier, required String password}) {
-    return _authSessionManager.login(identifier: identifier, password: password);
+    return _authSessionManager.login(
+      identifier: identifier,
+      password: password,
+    );
   }
 
   @override
   Future<void> register({
     required String email,
-    String? username,
     required String password,
     required String displayName,
+    String? username,
   }) {
     return _authSessionManager.register(
       email: email,

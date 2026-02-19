@@ -50,7 +50,7 @@ class DashboardMetricSection extends StatelessWidget {
           children: snapshot.metrics.map((metric) {
             return SizedBox(
               width: itemWidth,
-              child: AppMetricCard(
+              child: LwMetricCard(
                 icon: _metricIcon(metric.type),
                 label: _metricLabel(l10n, metric.type),
                 value: _metricValueText(l10n, metric),

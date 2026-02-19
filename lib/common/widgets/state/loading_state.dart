@@ -13,16 +13,16 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// LoadingState(
+/// LwLoadingState(
 ///   message: 'Loading your flashcards...',
 /// )
 /// ```
 ///
 /// See also:
-///  * [ErrorState], for displaying error states
-///  * [EmptyState], for displaying empty content states
-class LoadingState extends StatelessWidget {
-  const LoadingState({
+///  * [LwErrorState], for displaying error states
+///  * [LwEmptyState], for displaying empty content states
+class LwLoadingState extends StatelessWidget {
+  const LwLoadingState({
     super.key,
     this.message,
     this.padding = const EdgeInsets.all(AppSizes.spacingLg),

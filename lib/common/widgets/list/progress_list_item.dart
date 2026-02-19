@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../../styles/app_sizes.dart';
 import '../indicator/linear_progress.dart';
 
-class ProgressListItem extends StatelessWidget {
-  const ProgressListItem({
-    required this.title, required this.progress, super.key,
+class LwProgressListItem extends StatelessWidget {
+  const LwProgressListItem({
+    required this.title,
+    required this.progress,
+    super.key,
     this.onTap,
   });
 
@@ -19,7 +21,7 @@ class ProgressListItem extends StatelessWidget {
       title: Text(title),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: AppSizes.spacingXs),
-        child: AppLinearProgress(value: progress),
+        child: LwLinearProgress(value: progress),
       ),
       onTap: onTap,
     );

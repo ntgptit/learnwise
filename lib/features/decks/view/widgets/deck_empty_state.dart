@@ -17,7 +17,7 @@ class DeckEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    return EmptyState(
+    return LwEmptyState(
       title: l10n.decksEmptyTitle,
       subtitle: subtitle,
       icon: Icons.collections_bookmark_outlined,

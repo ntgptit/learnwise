@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_durations.dart';
 
-class FlashcardFlip extends StatefulWidget {
-  const FlashcardFlip({
+class LwFlashcardFlip extends StatefulWidget {
+  const LwFlashcardFlip({
     required this.front,
     required this.back,
     super.key,
@@ -22,10 +22,10 @@ class FlashcardFlip extends StatefulWidget {
   final ValueChanged<bool>? onFlipChanged;
 
   @override
-  State<FlashcardFlip> createState() => _FlashcardFlipState();
+  State<LwFlashcardFlip> createState() => _FlashcardFlipState();
 }
 
-class _FlashcardFlipState extends State<FlashcardFlip>
+class _FlashcardFlipState extends State<LwFlashcardFlip>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late bool _isFront;

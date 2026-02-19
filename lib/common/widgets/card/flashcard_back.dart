@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../styles/app_sizes.dart';
 import 'app_card.dart';
 
-class FlashcardBack extends StatelessWidget {
-  const FlashcardBack({required this.meaning, super.key, this.example});
+class LwFlashcardBack extends StatelessWidget {
+  const LwFlashcardBack({required this.meaning, super.key, this.example});
 
   final String meaning;
   final String? example;
@@ -13,7 +13,7 @@ class FlashcardBack extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return AppCard(
+    return LwCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

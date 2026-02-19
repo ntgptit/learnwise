@@ -31,7 +31,7 @@ class DeckListCard extends StatelessWidget {
     final String metadata =
         '${l10n.decksFlashcardCountLabel(deck.flashcardCount)} · ${l10n.foldersAuditLabel(deck.updatedBy)}';
 
-    return AppCard(
+    return LwCard(
       onTap: onOpenPressed,
       padding: const EdgeInsets.symmetric(
         horizontal: FolderScreenTokens.listItemHorizontalPadding,

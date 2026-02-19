@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/string_utils.dart';
 import 'app_text_field.dart';
 
-class SearchField extends StatelessWidget {
-  const SearchField({
+class LwSearchField extends StatelessWidget {
+  const LwSearchField({
     required this.controller,
     required this.hint,
     super.key,
@@ -23,7 +23,7 @@ class SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppTextField(
+    return LwTextField(
       controller: controller,
       focusNode: focusNode,
       onChanged: onChanged,

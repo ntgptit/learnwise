@@ -59,13 +59,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       loading: () => null,
     );
 
-    return AppScaffold(
+    return LwScaffold(
       useSafeArea: true,
       resizeToAvoidBottomInset: true,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
-          child: AppCard(
+          child: LwCard(
             variant: AppCardVariant.elevated,
             padding: const EdgeInsets.all(AppSizes.spacingLg),
             child: Column(
@@ -84,14 +84,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSizes.spacingLg),
-                AppTextField(
+                LwTextField(
                   controller: _displayNameController,
                   label: _RegisterText.displayNameLabel,
                   hint: _RegisterText.displayNameHint,
                   onChanged: (_) => _clearError(),
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
-                AppTextField(
+                LwTextField(
                   controller: _emailController,
                   label: _RegisterText.emailLabel,
                   hint: _RegisterText.emailHint,
@@ -99,14 +99,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onChanged: (_) => _clearError(),
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
-                AppTextField(
+                LwTextField(
                   controller: _usernameController,
                   label: _RegisterText.usernameLabel,
                   hint: _RegisterText.usernameHint,
                   onChanged: (_) => _clearError(),
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
-                AppTextField(
+                LwTextField(
                   controller: _passwordController,
                   label: _RegisterText.passwordLabel,
                   hint: _RegisterText.passwordHint,
@@ -124,7 +124,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ],
                 const SizedBox(height: AppSizes.spacingLg),
-                PrimaryButton(
+                LwPrimaryButton(
                   label: _RegisterText.registerButton,
                   isLoading: isSubmitting,
                   onPressed: isSubmitting ? null : _submitRegister,

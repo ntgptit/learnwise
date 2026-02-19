@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-class AppCircularProgress extends StatelessWidget {
-  const AppCircularProgress({
-    required this.value, super.key,
+class LwCircularProgress extends StatelessWidget {
+  const LwCircularProgress({
+    required this.value,
+    super.key,
     this.size = _CircularProgressConstants.defaultSize,
     this.strokeWidth = _CircularProgressConstants.defaultStrokeWidth,
     this.label,

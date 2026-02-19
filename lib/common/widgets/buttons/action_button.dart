@@ -13,7 +13,7 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// ActionButton(
+/// LwActionButton(
 ///   icon: Icons.add,
 ///   label: 'Add Item',
 ///   onPressed: () => addItem(),
@@ -22,16 +22,18 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [PrimaryButton], for primary actions without icons
-///  * [SecondaryButton], for secondary actions without icons
-///  * [AppIconButton], for icon-only buttons
-class ActionButton extends StatelessWidget {
+///  * [LwPrimaryButton], for primary actions without icons
+///  * [LwSecondaryButton], for secondary actions without icons
+///  * [LwIconButton], for icon-only buttons
+class LwActionButton extends StatelessWidget {
   /// Creates an action button with both icon and text.
   ///
   /// Both [icon] and [label] are required. The [isPrimary] flag determines
   /// the button style (filled for primary, outlined for secondary).
-  const ActionButton({
-    required this.label, required this.icon, super.key,
+  const LwActionButton({
+    required this.label,
+    required this.icon,
+    super.key,
     this.onPressed,
     this.isPrimary = false,
   });

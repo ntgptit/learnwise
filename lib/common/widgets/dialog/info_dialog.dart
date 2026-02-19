@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'app_dialog.dart';
 
-class InfoDialog extends StatelessWidget {
-  const InfoDialog({
-    required this.title, required this.message, required this.onAcknowledge, required this.buttonLabel, super.key,
+class LwInfoDialog extends StatelessWidget {
+  const LwInfoDialog({
+    required this.title,
+    required this.message,
+    required this.onAcknowledge,
+    required this.buttonLabel,
+    super.key,
   });
 
   final String title;
@@ -14,7 +18,7 @@ class InfoDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppDialog(
+    return LwDialog(
       title: title,
       content: Text(message),
       actions: <Widget>[

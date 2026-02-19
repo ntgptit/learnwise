@@ -231,10 +231,10 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       FolderScreenTokens.screenPadding,
                     ),
                     children: <Widget>[
-                      AppBreadcrumbs(
+                      LwBreadcrumbs(
                         rootLabel: l10n.foldersRootLabel,
                         items: query.breadcrumbs
-                            .map((item) => AppBreadcrumbItem(label: item.name))
+                            .map((item) => LwBreadcrumbItem(label: item.name))
                             .toList(),
                         onRootPressed: _onRootPressed,
                         onItemPressed: _onBreadcrumbPressed,
@@ -259,7 +259,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                       ),
                       const SizedBox(height: FolderScreenTokens.sectionSpacing),
                       if (showFolderSearchEmptyState)
-                        EmptyState(
+                        LwEmptyState(
                           icon: Icons.search_rounded,
                           title: l10n.foldersSearchEmptyTitle,
                           subtitle: l10n.foldersSearchEmptyDescription,
@@ -311,14 +311,14 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
                           ),
                         ),
                       if (showDeckError)
-                        ErrorState(
+                        LwErrorState(
                           title: l10n.decksErrorTitle,
                           message: l10n.decksErrorDescription,
                           retryLabel: l10n.decksRetryLabel,
                           onRetry: _refreshDecks,
                         ),
                       if (showDeckSearchEmptyState)
-                        EmptyState(
+                        LwEmptyState(
                           icon: Icons.search_rounded,
                           title: l10n.decksSearchEmptyTitle,
                           subtitle: l10n.decksSearchEmptyDescription,
@@ -382,7 +382,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             );
           },
           error: (error, stackTrace) {
-            return ErrorState(
+            return LwErrorState(
               title: l10n.foldersErrorTitle,
               message: l10n.foldersErrorDescription,
               retryLabel: l10n.foldersRetryLabel,
@@ -390,23 +390,23 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
             );
           },
           loading: () {
-            return LoadingState(message: l10n.foldersLoadingLabel);
+            return LwLoadingState(message: l10n.foldersLoadingLabel);
           },
         ),
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        destinations: <AppBottomNavDestination>[
-          AppBottomNavDestination(
+      bottomNavigationBar: LwBottomNavBar(
+        destinations: <LwBottomNavDestination>[
+          LwBottomNavDestination(
             icon: Icons.dashboard_outlined,
             selectedIcon: Icons.dashboard_rounded,
             label: l10n.dashboardNavHome,
           ),
-          AppBottomNavDestination(
+          LwBottomNavDestination(
             icon: Icons.folder_open_outlined,
             selectedIcon: Icons.folder_rounded,
             label: l10n.dashboardNavFolders,
           ),
-          AppBottomNavDestination(
+          LwBottomNavDestination(
             icon: Icons.person_outline_rounded,
             selectedIcon: Icons.person_rounded,
             label: l10n.dashboardNavProfile,
@@ -871,7 +871,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        return ConfirmDialog(
+        return LwConfirmDialog(
           title: l10n.decksDeleteDialogTitle,
           message: l10n.decksDeleteDialogMessage(deck.name),
           confirmLabel: l10n.decksDeleteConfirmLabel,
@@ -914,7 +914,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        return ConfirmDialog(
+        return LwConfirmDialog(
           title: l10n.foldersDeleteDialogTitle,
           message: l10n.foldersDeleteDialogMessage(folder.name),
           confirmLabel: l10n.foldersDeleteConfirmLabel,
@@ -1063,7 +1063,7 @@ class _FolderToolbar extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: SearchField(
+            child: LwSearchField(
               controller: searchController,
               focusNode: searchFocusNode,
               hint: searchHint,

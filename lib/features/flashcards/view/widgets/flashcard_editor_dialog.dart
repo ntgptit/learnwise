@@ -38,13 +38,10 @@ Future<bool> showFlashcardEditorDialog({
     frontLangControl.patchValue(termLangCode);
     frontLangControl.markAsDisabled();
   }
-  final List<SelectOption<String?>> langOptions = <SelectOption<String?>>[
-    SelectOption<String?>(
-      value: null,
-      label: l10n.flashcardsLangAutoDetect,
-    ),
+  final List<LwSelectOption<String?>> langOptions = <LwSelectOption<String?>>[
+    LwSelectOption<String?>(value: null, label: l10n.flashcardsLangAutoDetect),
     for (final LanguageItem lang in languages)
-      SelectOption<String?>(
+      LwSelectOption<String?>(
         value: lang.code,
         label: '${lang.name} (${lang.nativeName})',
       ),
@@ -126,7 +123,7 @@ Future<bool> showFlashcardEditorDialog({
                         // Front language dropdown
                         ReactiveFormConsumer(
                           builder: (context, form, _) {
-                            return SelectBox<String?>(
+                            return LwSelectBox<String?>(
                               labelText: l10n.flashcardsLangFrontLabel,
                               options: langOptions,
                               value: frontLangControl.value,
@@ -164,7 +161,7 @@ Future<bool> showFlashcardEditorDialog({
                         // Back language dropdown
                         ReactiveFormConsumer(
                           builder: (context, form, _) {
-                            return SelectBox<String?>(
+                            return LwSelectBox<String?>(
                               labelText: l10n.flashcardsLangBackLabel,
                               options: langOptions,
                               value: backLangControl.value,
@@ -203,13 +200,18 @@ Future<bool> showFlashcardEditorDialog({
                 ),
               ),
               actions: <Widget>[
-                TextButton(
+                LwTextButton(
+                  label: l10n.flashcardsCancelLabel,
                   onPressed: isSubmitting
                       ? null
                       : () => dialogContext.pop(false),
-                  child: Text(l10n.flashcardsCancelLabel),
                 ),
-                FilledButton(
+                LwPrimaryButton(
+                  label: initialFlashcard == null
+                      ? l10n.flashcardsSaveLabel
+                      : l10n.flashcardsUpdateLabel,
+                  expanded: false,
+                  isLoading: isSubmitting,
                   onPressed: isSubmitting
                       ? null
                       : () async {
@@ -235,22 +237,6 @@ Future<bool> showFlashcardEditorDialog({
                             formErrorMessage = submitResult.formErrorMessage;
                           });
                         },
-                  child: isSubmitting
-                      ? const SizedBox(
-                          width: FlashcardScreenTokens
-                              .editorDialogSubmitIndicatorSize,
-                          height: FlashcardScreenTokens
-                              .editorDialogSubmitIndicatorSize,
-                          child: CircularProgressIndicator(
-                            strokeWidth: FlashcardScreenTokens
-                                .editorDialogSubmitIndicatorStrokeWidth,
-                          ),
-                        )
-                      : Text(
-                          initialFlashcard == null
-                              ? l10n.flashcardsSaveLabel
-                              : l10n.flashcardsUpdateLabel,
-                        ),
                 ),
               ],
             ),

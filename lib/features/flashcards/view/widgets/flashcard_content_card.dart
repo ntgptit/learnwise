@@ -67,7 +67,7 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
       onTapCancel: () => _isPressedNotifier.value = false,
       child: ValueListenableBuilder<bool>(
         valueListenable: _isPressedNotifier,
-        child: AppCard(
+        child: LwCard(
           variant: AppCardVariant.elevated,
           borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
           backgroundColor: colorScheme.surfaceContainerHigh,
@@ -116,12 +116,12 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
               const SizedBox(height: FlashcardScreenTokens.cardTextGap),
               Align(
                 alignment: Alignment.centerLeft,
-                child: AppActionIconRow(
+                child: LwActionIconRow(
                   spacing: FlashcardScreenTokens.cardActionIconSpacing,
                   iconSize: FlashcardScreenTokens.cardActionIconSize,
                   tapTargetSize: FlashcardScreenTokens.cardActionTapTargetSize,
-                  items: <AppActionIconItem>[
-                    AppActionIconItem(
+                  items: <LwActionIconItem>[
+                    LwActionIconItem(
                       icon: Icons.volume_up_outlined,
                       activeIcon: Icons.graphic_eq_rounded,
                       tooltip: l10n.flashcardsPlayAudioTooltip,
@@ -129,17 +129,17 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
                       isActive: widget.isAudioPlaying,
                       activeColor: colorScheme.primary,
                     ),
-                    AppActionIconItem(
+                    LwActionIconItem(
                       icon: Icons.edit_outlined,
                       tooltip: l10n.flashcardsEditTooltip,
                       onPressed: widget.onEditPressed,
                     ),
-                    AppActionIconItem(
+                    LwActionIconItem(
                       icon: Icons.delete_outline_rounded,
                       tooltip: l10n.flashcardsDeleteTooltip,
                       onPressed: widget.onDeletePressed,
                     ),
-                    AppActionIconItem(
+                    LwActionIconItem(
                       icon: Icons.star_border,
                       activeIcon: Icons.star,
                       tooltip: l10n.flashcardsBookmarkTooltip,

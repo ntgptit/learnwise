@@ -27,21 +27,21 @@ const String _closeFabMenuSemanticLabel = 'Close menu';
 ///
 /// Example:
 /// ```dart
-/// AppExpandableFab(
+/// LwExpandableFab(
 ///   icon: Icons.add,
 ///   tooltip: 'Create',
 ///   actions: [
-///     FabAction(
+///     LwFabAction(
 ///       icon: Icons.note_add,
 ///       label: 'New Note',
 ///       onPressed: () => createNote(),
 ///     ),
-///     FabAction(
+///     LwFabAction(
 ///       icon: Icons.folder_open,
 ///       label: 'New Folder',
 ///       onPressed: () => createFolder(),
 ///     ),
-///     FabAction(
+///     LwFabAction(
 ///       icon: Icons.upload_file,
 ///       label: 'Upload',
 ///       onPressed: () => uploadFile(),
@@ -51,14 +51,14 @@ const String _closeFabMenuSemanticLabel = 'Close menu';
 /// ```
 ///
 /// See also:
-///  * [AppFab], for a simple single-action FAB
-///  * [FabAction], the data class for each expandable action
-class AppExpandableFab extends StatefulWidget {
+///  * [LwFab], for a simple single-action FAB
+///  * [LwFabAction], the data class for each expandable action
+class LwExpandableFab extends StatefulWidget {
   /// Creates an expandable floating action button.
   ///
   /// The [icon] is displayed on the main FAB.
   /// The [actions] are shown when the FAB is expanded.
-  const AppExpandableFab({
+  const LwExpandableFab({
     required this.icon,
     required this.actions,
     super.key,
@@ -98,7 +98,7 @@ class AppExpandableFab extends StatefulWidget {
   final IconData? expandedIcon;
 
   /// The list of actions to display when expanded.
-  final List<FabAction> actions;
+  final List<LwFabAction> actions;
 
   /// The tooltip for the main FAB button.
   final String? tooltip;
@@ -112,10 +112,10 @@ class AppExpandableFab extends StatefulWidget {
   final Object? heroTag;
 
   @override
-  State<AppExpandableFab> createState() => _AppExpandableFabState();
+  State<LwExpandableFab> createState() => _AppExpandableFabState();
 }
 
-class _AppExpandableFabState extends State<AppExpandableFab>
+class _AppExpandableFabState extends State<LwExpandableFab>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
@@ -227,7 +227,7 @@ class _AppExpandableFabState extends State<AppExpandableFab>
     final int count = widget.actions.length;
 
     for (int i = 0; i < count; i++) {
-      final FabAction action = widget.actions[i];
+      final LwFabAction action = widget.actions[i];
       children.add(
         _ExpandingActionButton(
           animation: _expandAnimation,
@@ -273,15 +273,15 @@ class _AppExpandableFabState extends State<AppExpandableFab>
   }
 }
 
-/// An action item for [AppExpandableFab].
+/// An action item for [LwExpandableFab].
 ///
 /// Represents a single action in the expandable FAB menu with an icon,
 /// label, and callback.
-class FabAction {
+class LwFabAction {
   /// Creates a FAB action.
   ///
   /// The [icon], [label], and [onPressed] are required.
-  const FabAction({
+  const LwFabAction({
     required this.icon,
     required this.label,
     required this.onPressed,
@@ -322,7 +322,7 @@ class _ExpandingActionButton extends StatelessWidget {
   final Animation<double> animation;
   final int index;
   final double distance;
-  final FabAction action;
+  final LwFabAction action;
   final VoidCallback onPressed;
 
   @override

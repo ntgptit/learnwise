@@ -176,10 +176,7 @@ class DeckApiService implements DeckRepository {
       return settings;
     } catch (_) {
       if (kDebugMode) {
-        log(
-          '$_getAudioSettingsErrorLogPrefix deckId=$deckId',
-          name: _logName,
-        );
+        log('$_getAudioSettingsErrorLogPrefix deckId=$deckId', name: _logName);
       }
       throw const UnexpectedResponseAppException();
     }

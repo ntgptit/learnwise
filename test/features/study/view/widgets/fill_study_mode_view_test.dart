@@ -36,13 +36,13 @@ void main() {
 
         expect(submittedAnswer, 'Wrong');
         expect(find.text('Re-enter'), findsOneWidget);
-        expect(find.byType(AppTextField), findsNothing);
+        expect(find.byType(LwTextField), findsNothing);
 
         await tester.tap(find.text('Re-enter'));
         await tester.pump();
 
         expect(controller.text, isEmpty);
-        expect(find.byType(AppTextField), findsOneWidget);
+        expect(find.byType(LwTextField), findsOneWidget);
       },
     );
   });

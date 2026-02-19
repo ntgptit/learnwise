@@ -2,20 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class AudioSpeedOption {
-  const AudioSpeedOption({required this.value, required this.label});
+class LwAudioSpeedOption {
+  const LwAudioSpeedOption({required this.value, required this.label});
 
   final double value;
   final String label;
 }
 
-class AudioSpeedSelector extends StatelessWidget {
-  const AudioSpeedSelector({
-    required this.selectedValue, required this.options, required this.onChanged, super.key,
+class LwAudioSpeedSelector extends StatelessWidget {
+  const LwAudioSpeedSelector({
+    required this.selectedValue,
+    required this.options,
+    required this.onChanged,
+    super.key,
   });
 
   final double selectedValue;
-  final List<AudioSpeedOption> options;
+  final List<LwAudioSpeedOption> options;
   final ValueChanged<double> onChanged;
 
   @override

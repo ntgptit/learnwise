@@ -38,7 +38,7 @@ class _StudySessionBody extends ConsumerWidget {
     }
 
     if (isEmpty) {
-      return EmptyState(
+      return LwEmptyState(
         title: l10n.flashcardsEmptyTitle,
         subtitle: l10n.flashcardsEmptyDescription,
         icon: Icons.style_outlined,

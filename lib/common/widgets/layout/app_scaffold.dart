@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/theme/theme_context_extensions.dart';
 import '../../styles/app_sizes.dart';
 
-class AppScaffold extends StatelessWidget {
-  const AppScaffold({
+class LwScaffold extends StatelessWidget {
+  const LwScaffold({
     required this.body,
     super.key,
     this.title,

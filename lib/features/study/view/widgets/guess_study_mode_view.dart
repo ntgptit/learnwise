@@ -99,7 +99,7 @@ class _GuessPromptCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
@@ -211,7 +211,7 @@ class _GuessOptionCard extends StatelessWidget {
     final Color backgroundColor = _resolveBackgroundColor(colorScheme);
     final BoxBorder? border = _resolveBorder(colorScheme);
     final VoidCallback? tapHandler = _resolveTapHandler();
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       backgroundColor: backgroundColor,
       border: border,

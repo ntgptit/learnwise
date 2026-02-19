@@ -5,7 +5,8 @@ import '../../../../common/styles/app_sizes.dart';
 
 class AudioWaveform extends StatelessWidget {
   const AudioWaveform({
-    required this.amplitudes, super.key,
+    required this.amplitudes,
+    super.key,
     this.height = 28,
     this.minBarHeight = 4,
     this.barWidth = 3,

@@ -40,10 +40,7 @@ sealed class DeckItem with _$DeckItem {
     required String name,
     required String description,
     required int flashcardCount,
-    @JsonKey(
-      name: _deckItemAuditJsonKey,
-      readValue: _readDeckItemAuditValue,
-    )
+    @JsonKey(name: _deckItemAuditJsonKey, readValue: _readDeckItemAuditValue)
     required AuditMetadata audit,
   }) = _DeckItem;
 

@@ -88,7 +88,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                 const LinearProgressIndicator(),
                 const SizedBox(height: TtsScreenTokens.sectionSpacing),
               ],
-              SectionTitle(title: l10n.inputSectionTitle),
+              LwSectionTitle(title: l10n.inputSectionTitle),
               const SizedBox(height: TtsScreenTokens.sectionSpacing),
               DropdownButtonFormField<TtsLanguageMode>(
                 key: ValueKey<TtsLanguageMode>(config.languageMode),
@@ -120,7 +120,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                 ],
               ),
               const SizedBox(height: TtsScreenTokens.sectionSpacing),
-              SectionTitle(title: l10n.koreanVoicesSectionTitle),
+              LwSectionTitle(title: l10n.koreanVoicesSectionTitle),
               const SizedBox(height: TtsScreenTokens.subsectionSpacing),
               OutlinedButton.icon(
                 onPressed: isLoadingVoices ? null : controller.loadVoices,
@@ -161,7 +161,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                 ],
               ),
               const SizedBox(height: TtsScreenTokens.sectionSpacing),
-              SectionTitle(title: l10n.sampleSectionTitle),
+              LwSectionTitle(title: l10n.sampleSectionTitle),
               const SizedBox(height: TtsScreenTokens.subsectionSpacing),
               Wrap(
                 spacing: TtsScreenTokens.subsectionSpacing,
@@ -178,7 +178,7 @@ class _TtsScreenState extends ConsumerState<TtsScreen> {
                     .toList(),
               ),
               const SizedBox(height: TtsScreenTokens.sectionSpacing),
-              SectionTitle(title: l10n.voiceSettingsSectionTitle),
+              LwSectionTitle(title: l10n.voiceSettingsSectionTitle),
               const SizedBox(height: TtsScreenTokens.subsectionSpacing),
               _VoiceSlider(
                 label: l10n.speedLabel,

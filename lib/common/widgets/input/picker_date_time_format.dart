@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PickerDateTimeFormat {
-  const PickerDateTimeFormat._();
+class LwPickerDateTimeFormat {
+  const LwPickerDateTimeFormat._();
 
   static const String dateSeparator = '-';
   static const String timeSeparator = ':';

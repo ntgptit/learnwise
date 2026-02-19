@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class ResponsivePadding extends StatelessWidget {
-  const ResponsivePadding({
-    required this.child, super.key,
+class LwResponsivePadding extends StatelessWidget {
+  const LwResponsivePadding({
+    required this.child,
+    super.key,
     this.mobile = const EdgeInsets.all(AppSizes.spacingMd),
     this.tablet = const EdgeInsets.symmetric(
       horizontal: AppSizes.spacingLg,

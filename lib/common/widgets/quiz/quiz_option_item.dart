@@ -5,8 +5,8 @@ import '../../../app/theme/semantic_colors.dart';
 import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
-class QuizOptionItem extends StatelessWidget {
-  const QuizOptionItem({
+class LwQuizOptionItem extends StatelessWidget {
+  const LwQuizOptionItem({
     required this.label,
     required this.text,
     required this.onTap,

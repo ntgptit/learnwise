@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'app_dialog.dart';
 
-class ConfirmDialog extends StatelessWidget {
-  const ConfirmDialog({
-    required this.title, required this.message, required this.onConfirm, required this.onCancel, required this.confirmLabel, required this.cancelLabel, super.key,
+class LwConfirmDialog extends StatelessWidget {
+  const LwConfirmDialog({
+    required this.title,
+    required this.message,
+    required this.onConfirm,
+    required this.onCancel,
+    required this.confirmLabel,
+    required this.cancelLabel,
+    super.key,
   });
 
   final String title;
@@ -16,7 +22,7 @@ class ConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppDialog(
+    return LwDialog(
       title: title,
       content: Text(message),
       actions: <Widget>[

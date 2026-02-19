@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import '../../styles/app_sizes.dart';
 import 'quiz_progress_bar.dart';
 
-class QuizQuestionHeader extends StatelessWidget {
-  const QuizQuestionHeader({
-    required this.question, required this.progressValue, required this.progressText, super.key,
+class LwQuizQuestionHeader extends StatelessWidget {
+  const LwQuizQuestionHeader({
+    required this.question,
+    required this.progressValue,
+    required this.progressText,
+    super.key,
     this.trailing,
   });
 
@@ -33,7 +36,7 @@ class QuizQuestionHeader extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSizes.spacingSm),
-        QuizProgressBar(
+        LwQuizProgressBar(
           progressValue: progressValue,
           progressText: progressText,
         ),

@@ -5,8 +5,8 @@ import '../../styles/app_durations.dart';
 import '../../styles/app_sizes.dart';
 import 'app_card.dart';
 
-class AppMetricCard extends StatelessWidget {
-  const AppMetricCard({
+class LwMetricCard extends StatelessWidget {
+  const LwMetricCard({
     required this.icon,
     required this.label,
     required this.value,
@@ -37,7 +37,7 @@ class AppMetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       elevation: elevation,
       backgroundColor:

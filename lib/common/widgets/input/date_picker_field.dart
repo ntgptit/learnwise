@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'picker_date_time_format.dart';
 import 'picker_field.dart';
 
-class DatePickerField extends StatelessWidget {
-  const DatePickerField({
+class LwDatePickerField extends StatelessWidget {
+  const LwDatePickerField({
     super.key,
     this.labelText,
     this.hintText,
@@ -30,11 +30,11 @@ class DatePickerField extends StatelessWidget {
     String? valueText;
     if (selectedDate != null) {
       final String Function(DateTime value) formatter =
-          formatDate ?? PickerDateTimeFormat.date;
+          formatDate ?? LwPickerDateTimeFormat.date;
       valueText = formatter(selectedDate!);
     }
 
-    return PickerField(
+    return LwPickerField(
       labelText: labelText,
       hintText: hintText,
       helperText: helperText,

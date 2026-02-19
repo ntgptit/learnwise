@@ -13,23 +13,24 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// SecondaryButton(
+/// LwSecondaryButton(
 ///   label: 'Cancel',
 ///   onPressed: () => Navigator.pop(context),
 /// )
 /// ```
 ///
 /// See also:
-///  * [PrimaryButton], for primary actions
-///  * [AppTextButton], for tertiary or text-only actions
-///  * [ActionButton], for buttons with both icon and text
-class SecondaryButton extends StatelessWidget {
+///  * [LwPrimaryButton], for primary actions
+///  * [LwTextButton], for tertiary or text-only actions
+///  * [LwActionButton], for buttons with both icon and text
+class LwSecondaryButton extends StatelessWidget {
   /// Creates a secondary action button.
   ///
   /// The [label] is required and used as the button text and semantic label.
   /// The [onPressed] callback is called when the button is tapped.
-  const SecondaryButton({
-    required this.label, super.key,
+  const LwSecondaryButton({
+    required this.label,
+    super.key,
     this.onPressed,
     this.expanded = true,
   });

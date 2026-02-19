@@ -4,13 +4,13 @@ import 'text_box.dart';
 
 /// A form-integrated password text field with visibility toggle.
 ///
-/// This widget extends [TextBox] with password-specific functionality,
+/// This widget extends [LwTextBox] with password-specific functionality,
 /// including obscured text by default and a toggle button to show/hide
 /// the password. The toggle button includes appropriate tooltips and icons.
 ///
 /// Example:
 /// ```dart
-/// PasswordTextBox(
+/// LwPasswordTextBox(
 ///   labelText: 'Password',
 ///   hintText: 'Enter your password',
 ///   validator: (value) {
@@ -24,10 +24,10 @@ import 'text_box.dart';
 /// ```
 ///
 /// See also:
-///  * [TextBox], the base text field widget
-///  * [AppTextField], for simpler text input without form integration
-class PasswordTextBox extends StatefulWidget {
-  const PasswordTextBox({
+///  * [LwTextBox], the base text field widget
+///  * [LwTextField], for simpler text input without form integration
+class LwPasswordTextBox extends StatefulWidget {
+  const LwPasswordTextBox({
     super.key,
     this.controller,
     this.initialValue,
@@ -82,10 +82,10 @@ class PasswordTextBox extends StatefulWidget {
   final int? maxLength;
 
   @override
-  State<PasswordTextBox> createState() => _PasswordTextBoxState();
+  State<LwPasswordTextBox> createState() => _PasswordTextBoxState();
 }
 
-class _PasswordTextBoxState extends State<PasswordTextBox> {
+class _PasswordTextBoxState extends State<LwPasswordTextBox> {
   static const String _showPasswordTooltip = 'Show password';
   static const String _hidePasswordTooltip = 'Hide password';
 
@@ -108,7 +108,7 @@ class _PasswordTextBoxState extends State<PasswordTextBox> {
     return ValueListenableBuilder<bool>(
       valueListenable: _obscureTextNotifier,
       builder: (context, obscureText, child) {
-        return TextBox(
+        return LwTextBox(
           controller: widget.controller,
           initialValue: widget.initialValue,
           labelText: widget.labelText,

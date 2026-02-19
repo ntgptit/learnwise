@@ -15,7 +15,7 @@ import '../../styles/app_durations.dart';
 ///
 /// Example:
 /// ```dart
-/// FadeIn(
+/// LwFadeIn(
 ///   duration: AppDurations.animationFast,
 ///   delay: Duration(milliseconds: 100),
 ///   child: Text('Hello World'),
@@ -23,10 +23,10 @@ import '../../styles/app_durations.dart';
 /// ```
 ///
 /// See also:
-///  * [ScaleIn], for scale animations
+///  * [LwScaleIn], for scale animations
 ///  * [TweenAnimationBuilder], the underlying animation widget
-class FadeIn extends StatelessWidget {
-  const FadeIn({
+class LwFadeIn extends StatelessWidget {
+  const LwFadeIn({
     required this.child,
     super.key,
     this.duration = AppDurations.animationFast,

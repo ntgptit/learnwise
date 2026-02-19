@@ -85,7 +85,7 @@ class _ProfileTtsVoiceSettingsSectionState
           profileSettings: profile.settings,
           draft: draft,
         );
-        return AppCard(
+        return LwCard(
           variant: AppCardVariant.elevated,
           child: Padding(
             padding: const EdgeInsets.all(AppSizes.spacingLg),

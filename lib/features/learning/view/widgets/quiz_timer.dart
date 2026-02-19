@@ -4,7 +4,8 @@ typedef QuizTimerFormat = String Function(int remainingSeconds);
 
 class QuizTimer extends StatelessWidget {
   const QuizTimer({
-    required this.remainingSeconds, super.key,
+    required this.remainingSeconds,
+    super.key,
     this.style,
     this.formatter,
   }) : assert(remainingSeconds >= 0, 'remainingSeconds must be >= 0.');

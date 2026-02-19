@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_durations.dart';
 
-class FlipAnimation extends StatelessWidget {
-  const FlipAnimation({
+class LwFlipAnimation extends StatelessWidget {
+  const LwFlipAnimation({
     required this.front,
     required this.back,
     required this.isFlipped,

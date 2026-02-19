@@ -18,21 +18,21 @@ const String _defaultFabSemanticLabel = 'Floating action button';
 /// Example:
 /// ```dart
 /// // Simple FAB with icon only
-/// AppFab(
+/// LwFab(
 ///   icon: Icons.add,
 ///   onPressed: () => handleAdd(),
 ///   tooltip: 'Add item',
 /// )
 ///
 /// // Extended FAB with label
-/// AppFab(
+/// LwFab(
 ///   icon: Icons.edit,
 ///   label: 'Edit',
 ///   onPressed: () => handleEdit(),
 /// )
 ///
 /// // Small FAB
-/// AppFab(
+/// LwFab(
 ///   icon: Icons.add,
 ///   size: FabSize.small,
 ///   onPressed: () => handleAdd(),
@@ -40,14 +40,14 @@ const String _defaultFabSemanticLabel = 'Floating action button';
 /// ```
 ///
 /// See also:
-///  * [AppExpandableFab], for a FAB that expands to show multiple actions
-///  * [PrimaryButton], for primary actions that aren't floating
-class AppFab extends StatelessWidget {
+///  * [LwExpandableFab], for a FAB that expands to show multiple actions
+///  * [LwPrimaryButton], for primary actions that aren't floating
+class LwFab extends StatelessWidget {
   /// Creates a floating action button.
   ///
   /// The [icon] is required and specifies which icon to display.
   /// The [onPressed] callback is called when the button is tapped.
-  const AppFab({
+  const LwFab({
     required this.icon,
     required this.onPressed,
     super.key,
@@ -165,7 +165,7 @@ class AppFab extends StatelessWidget {
   }
 }
 
-/// Size variants for [AppFab].
+/// Size variants for [LwFab].
 enum FabSize {
   /// Small FAB (40x40dp) - Use sparingly for tight spaces.
   small,

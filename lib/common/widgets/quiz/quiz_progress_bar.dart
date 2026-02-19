@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class QuizProgressBar extends StatelessWidget {
-  const QuizProgressBar({
-    required this.progressValue, required this.progressText, super.key,
+class LwQuizProgressBar extends StatelessWidget {
+  const LwQuizProgressBar({
+    required this.progressValue,
+    required this.progressText,
+    super.key,
     this.height = _QuizProgressBarConstants.defaultHeight,
   }) : assert(progressValue >= 0, 'progressValue must be >= 0.'),
        assert(progressValue <= 1, 'progressValue must be <= 1.'),

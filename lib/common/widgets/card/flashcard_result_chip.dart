@@ -5,8 +5,8 @@ import '../../styles/app_opacities.dart';
 
 enum FlashcardResultType { correct, wrong, hard }
 
-class FlashcardResultChip extends StatelessWidget {
-  const FlashcardResultChip({required this.type, super.key, this.onTap});
+class LwFlashcardResultChip extends StatelessWidget {
+  const LwFlashcardResultChip({required this.type, super.key, this.onTap});
 
   final FlashcardResultType type;
   final VoidCallback? onTap;

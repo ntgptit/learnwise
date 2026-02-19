@@ -63,7 +63,7 @@ class _ProfilePersonalInformationScreenState
             error: error,
             controller: controller,
           ),
-          loading: () => LoadingState(message: l10n.profileLoadingLabel),
+          loading: () => LwLoadingState(message: l10n.profileLoadingLabel),
         ),
       ),
     );
@@ -75,7 +75,7 @@ class _ProfilePersonalInformationScreenState
     required ProfileController controller,
   }) {
     final String message = _resolveErrorMessage(error: error, l10n: l10n);
-    return ErrorState(
+    return LwErrorState(
       title: l10n.profileLoadErrorTitle,
       message: message,
       retryLabel: l10n.profileRetryLabel,

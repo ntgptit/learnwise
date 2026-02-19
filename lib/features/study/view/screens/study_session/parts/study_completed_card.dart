@@ -18,7 +18,7 @@ class _StudyCompletedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return Center(
-      child: AppCard(
+      child: LwCard(
         variant: AppCardVariant.filled,
         borderRadius: BorderRadius.circular(
           FlashcardStudySessionTokens.cardRadius,

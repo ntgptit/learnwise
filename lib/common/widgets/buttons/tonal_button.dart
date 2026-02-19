@@ -6,7 +6,7 @@ import '../../styles/app_sizes.dart';
 /// A tonal button for medium-emphasis actions following Material Design 3 guidelines.
 ///
 /// Tonal buttons are used for important actions that don't need as much visual weight
-/// as [PrimaryButton]. They use [FilledButton.tonal] which fills with secondary
+/// as [LwPrimaryButton]. They use [FilledButton.tonal] which fills with secondary
 /// color and has less contrast than a filled button.
 ///
 /// Use this button for actions that are important but not the primary action on the screen.
@@ -22,7 +22,7 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// TonalButton(
+/// LwTonalButton(
 ///   label: 'Save Draft',
 ///   onPressed: () => handleSaveDraft(),
 ///   isLoading: _isSaving,
@@ -31,23 +31,23 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// Button Hierarchy:
-/// - Primary: [PrimaryButton] (FilledButton) - Highest emphasis
-/// - Tonal: [TonalButton] (FilledButton.tonal) - Medium-high emphasis
-/// - Secondary: [SecondaryButton] (OutlinedButton) - Medium emphasis
-/// - Tertiary: [AppTextButton] (TextButton) - Low emphasis
+/// - Primary: [LwPrimaryButton] (FilledButton) - Highest emphasis
+/// - Tonal: [LwTonalButton] (FilledButton.tonal) - Medium-high emphasis
+/// - Secondary: [LwSecondaryButton] (OutlinedButton) - Medium emphasis
+/// - Tertiary: [LwTextButton] (TextButton) - Low emphasis
 ///
 /// See also:
-///  * [PrimaryButton], for primary actions with highest emphasis
-///  * [SecondaryButton], for secondary actions with outlined style
-///  * [AppTextButton], for tertiary actions with minimal style
-///  * [ActionButton], for buttons with both icon and text
-class TonalButton extends StatelessWidget {
+///  * [LwPrimaryButton], for primary actions with highest emphasis
+///  * [LwSecondaryButton], for secondary actions with outlined style
+///  * [LwTextButton], for tertiary actions with minimal style
+///  * [LwActionButton], for buttons with both icon and text
+class LwTonalButton extends StatelessWidget {
   /// Creates a tonal button for medium-emphasis actions.
   ///
   /// The [label] is required and used as the button text and semantic label.
   /// The [onPressed] callback is called when the button is tapped.
   /// When [isLoading] is true, a loading indicator is shown and the button is disabled.
-  const TonalButton({
+  const LwTonalButton({
     required this.label,
     super.key,
     this.onPressed,

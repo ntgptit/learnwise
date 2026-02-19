@@ -20,7 +20,7 @@ class FolderEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    return EmptyState(
+    return LwEmptyState(
       title: l10n.foldersEmptyTitle,
       subtitle: description,
       icon: Icons.folder_off_outlined,

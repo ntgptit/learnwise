@@ -58,7 +58,7 @@ class _PersonalInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       child: Column(children: _buildInfoChildren(colorScheme)),
     );
@@ -72,7 +72,11 @@ class _PersonalInfoCard extends StatelessWidget {
         value: profile.userId.toString(),
       ),
       _InfoDivider(colorScheme: colorScheme),
-      _InfoTile(icon: Icons.email_outlined, label: 'Email', value: profile.email),
+      _InfoTile(
+        icon: Icons.email_outlined,
+        label: 'Email',
+        value: profile.email,
+      ),
       _InfoDivider(colorScheme: colorScheme),
       _InfoTile(
         icon: Icons.alternate_email_rounded,
@@ -110,7 +114,7 @@ class _EditSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          AppTextField(
+          LwTextField(
             controller: displayNameController,
             label: l10n.profileDisplayNameLabel,
             hint: l10n.profileDisplayNameHint,
@@ -123,7 +127,7 @@ class _EditSection extends StatelessWidget {
                 value.text,
                 profile.displayName,
               );
-              return PrimaryButton(
+              return LwPrimaryButton(
                 label: l10n.profileSaveChangesLabel,
                 onPressed: isChanged ? onSave : null,
               );
@@ -136,7 +140,9 @@ class _EditSection extends StatelessWidget {
 
   bool _isDisplayNameChanged(String text, String currentDisplayName) {
     final String? normalizedInput = StringUtils.normalizeNullable(text);
-    final String normalizedProfileName = StringUtils.normalize(currentDisplayName);
+    final String normalizedProfileName = StringUtils.normalize(
+      currentDisplayName,
+    );
     return normalizedInput != null && normalizedInput != normalizedProfileName;
   }
 }
@@ -190,7 +196,9 @@ class _InfoTile extends StatelessWidget {
         children: <Widget>[
           _InfoLeadingIcon(icon: icon),
           const SizedBox(width: AppSizes.spacingMd),
-          Expanded(child: _InfoTextContent(label: label, value: value)),
+          Expanded(
+            child: _InfoTextContent(label: label, value: value),
+          ),
         ],
       ),
     );
@@ -244,9 +252,7 @@ class _InfoTextContent extends StatelessWidget {
         const SizedBox(height: AppSizes.size2),
         Text(
           value,
-          style: textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+          style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
       ],
     );

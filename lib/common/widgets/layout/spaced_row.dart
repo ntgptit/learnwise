@@ -13,7 +13,7 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// SpacedRow(
+/// LwSpacedRow(
 ///   spacing: AppSizes.spacingSm,
 ///   children: [
 ///     Icon(Icons.star),
@@ -24,11 +24,12 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [SpacedColumn], for vertical spacing
+///  * [LwSpacedColumn], for vertical spacing
 ///  * [Row], the underlying widget
-class SpacedRow extends StatelessWidget {
-  const SpacedRow({
-    required this.children, super.key,
+class LwSpacedRow extends StatelessWidget {
+  const LwSpacedRow({
+    required this.children,
+    super.key,
     this.spacing = AppSizes.spacingSm,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,

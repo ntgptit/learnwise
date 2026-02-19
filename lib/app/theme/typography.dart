@@ -22,7 +22,9 @@ class AppTypography {
   }
 
   static TextTheme _baseTextTheme(ColorScheme colorScheme) {
-    final Typography typography = Typography.material2021(colorScheme: colorScheme);
+    final Typography typography = Typography.material2021(
+      colorScheme: colorScheme,
+    );
     if (colorScheme.brightness == Brightness.dark) {
       return typography.white;
     }
@@ -37,7 +39,10 @@ class AppTypography {
       base: base,
       fontFamily: fontFamily,
     );
-    return _applyBodyAndLabelStyles(base: headlineTheme, fontFamily: fontFamily);
+    return _applyBodyAndLabelStyles(
+      base: headlineTheme,
+      fontFamily: fontFamily,
+    );
   }
 
   static TextTheme _applyHeadlineStyles({
@@ -76,7 +81,10 @@ class AppTypography {
   }) {
     return base.copyWith(
       bodyLarge: base.bodyLarge?.copyWith(fontFamily: fontFamily, height: 1.4),
-      bodyMedium: base.bodyMedium?.copyWith(fontFamily: fontFamily, height: 1.4),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontFamily: fontFamily,
+        height: 1.4,
+      ),
       bodySmall: base.bodySmall?.copyWith(fontFamily: fontFamily, height: 1.4),
       labelLarge: base.labelLarge?.copyWith(
         fontFamily: fontFamily,

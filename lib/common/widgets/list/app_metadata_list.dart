@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
-class AppMetadataList extends StatelessWidget {
-  const AppMetadataList({
-    required this.items, super.key,
+class LwMetadataList extends StatelessWidget {
+  const LwMetadataList({
+    required this.items,
+    super.key,
     this.spacing = AppSizes.spacing2Xs,
     this.color,
   });

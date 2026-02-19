@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../styles/app_durations.dart';
 import '../../styles/app_sizes.dart';
 
-class AppActionIconItem {
-  const AppActionIconItem({
+class LwActionIconItem {
+  const LwActionIconItem({
     required this.icon,
     required this.tooltip,
     this.onPressed,
@@ -24,8 +24,8 @@ class AppActionIconItem {
   final bool isActive;
 }
 
-class AppActionIconRow extends StatelessWidget {
-  const AppActionIconRow({
+class LwActionIconRow extends StatelessWidget {
+  const LwActionIconRow({
     required this.items,
     super.key,
     this.spacing = AppSizes.spacingSm,
@@ -33,7 +33,7 @@ class AppActionIconRow extends StatelessWidget {
     this.tapTargetSize = AppSizes.size40,
   });
 
-  final List<AppActionIconItem> items;
+  final List<LwActionIconItem> items;
   final double spacing;
   final double iconSize;
   final double tapTargetSize;
@@ -46,7 +46,7 @@ class AppActionIconRow extends StatelessWidget {
 
     final List<Widget> children = <Widget>[];
     for (int index = 0; index < items.length; index++) {
-      final AppActionIconItem item = items[index];
+      final LwActionIconItem item = items[index];
       final IconData resolvedIcon = item.isActive && item.activeIcon != null
           ? item.activeIcon!
           : item.icon;

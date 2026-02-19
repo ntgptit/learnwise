@@ -6,8 +6,8 @@ import '../../styles/app_sizes.dart';
 
 enum AppCardVariant { outlined, filled, elevated }
 
-class AppCard extends StatelessWidget {
-  const AppCard({
+class LwCard extends StatelessWidget {
+  const LwCard({
     required this.child,
     super.key,
     this.padding = const EdgeInsets.all(AppSizes.spacingMd),

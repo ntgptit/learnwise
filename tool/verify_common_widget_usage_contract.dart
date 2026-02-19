@@ -159,42 +159,42 @@ List<_DisallowedWidgetRule> _disallowedRules() {
   return <_DisallowedWidgetRule>[
     _DisallowedWidgetRule(
       widgetName: 'TextField',
-      replacement: 'AppTextField/TextBox/TextArea/SearchField',
+      replacement: 'LwTextField/LwTextBox/LwTextArea/LwSearchField',
       pattern: r'\bTextField\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'TextFormField',
-      replacement: 'TextBox',
+      replacement: 'LwTextBox',
       pattern: r'\bTextFormField\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'FilledButton',
-      replacement: 'PrimaryButton/TonalButton/ActionButton',
+      replacement: 'LwPrimaryButton/LwTonalButton/LwActionButton',
       pattern: r'\bFilledButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'ElevatedButton',
-      replacement: 'PrimaryButton',
+      replacement: 'LwPrimaryButton',
       pattern: r'\bElevatedButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'OutlinedButton',
-      replacement: 'SecondaryButton',
+      replacement: 'LwSecondaryButton',
       pattern: r'\bOutlinedButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'TextButton',
-      replacement: 'AppTextButton',
+      replacement: 'LwTextButton',
       pattern: r'\bTextButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'IconButton',
-      replacement: 'AppIconButton/CircleButton',
+      replacement: 'LwIconButton/LwCircleButton',
       pattern: r'\bIconButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'FloatingActionButton',
-      replacement: 'AppFab',
+      replacement: 'LwFab',
       pattern: r'\bFloatingActionButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
   ];

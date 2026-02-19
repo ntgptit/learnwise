@@ -31,7 +31,7 @@ class SettingsSection extends StatelessWidget {
       builder: (context, draft, _) {
         final bool isChanged = _isSettingsChanged(profile, draft);
 
-        return AppCard(
+        return LwCard(
           variant: AppCardVariant.elevated,
           padding: EdgeInsets.zero,
           child: Padding(

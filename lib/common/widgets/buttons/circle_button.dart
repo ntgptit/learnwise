@@ -16,7 +16,7 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// CircleButton(
+/// LwCircleButton(
 ///   icon: Icons.play_arrow,
 ///   onPressed: () => startPlayback(),
 ///   backgroundColor: Colors.green,
@@ -25,16 +25,17 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [AppIconButton], for standard icon buttons
-///  * [PrimaryButton], for primary actions with text
-///  * [ActionButton], for buttons with both icon and text
-class CircleButton extends StatelessWidget {
+///  * [LwIconButton], for standard icon buttons
+///  * [LwPrimaryButton], for primary actions with text
+///  * [LwActionButton], for buttons with both icon and text
+class LwCircleButton extends StatelessWidget {
   /// Creates a circular icon button.
   ///
   /// The [icon] is required. The [size] defaults to 48dp to meet
   /// accessibility touch target requirements.
-  const CircleButton({
-    required this.icon, super.key,
+  const LwCircleButton({
+    required this.icon,
+    super.key,
     this.onPressed,
     this.backgroundColor,
     this.foregroundColor,

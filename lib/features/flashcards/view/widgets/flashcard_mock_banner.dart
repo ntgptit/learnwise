@@ -17,7 +17,7 @@ class FlashcardMockBanner extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       borderRadius: BorderRadius.circular(FlashcardScreenTokens.bannerRadius),
       backgroundColor: colorScheme.surfaceContainerHigh.withValues(

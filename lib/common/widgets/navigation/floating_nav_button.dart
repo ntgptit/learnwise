@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FloatingNavButton extends StatelessWidget {
-  const FloatingNavButton({
+class LwFloatingNavButton extends StatelessWidget {
+  const LwFloatingNavButton({
     required this.icon,
     super.key,
     this.label,

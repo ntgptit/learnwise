@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class AppTabBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppTabBar({required this.tabs, super.key, this.isScrollable = false})
+class LwTabBar extends StatelessWidget implements PreferredSizeWidget {
+  const LwTabBar({required this.tabs, super.key, this.isScrollable = false})
     : assert(tabs.length > 0, 'tabs must not be empty.');
 
   final List<Tab> tabs;

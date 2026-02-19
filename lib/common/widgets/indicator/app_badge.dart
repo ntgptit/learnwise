@@ -12,10 +12,10 @@ import 'package:flutter/material.dart';
 /// Example:
 /// ```dart
 /// // Numeric badge
-/// AppBadge(label: '5')
+/// LwBadge(label: '5')
 ///
 /// // Text badge
-/// AppBadge(
+/// LwBadge(
 ///   label: 'New',
 ///   backgroundColor: colorScheme.errorContainer,
 ///   foregroundColor: colorScheme.onErrorContainer,
@@ -23,9 +23,9 @@ import 'package:flutter/material.dart';
 /// ```
 ///
 /// See also:
-///  * [AppBadgeWrapper], for adding overlay badges to widgets (e.g., notification icons)
-class AppBadge extends StatelessWidget {
-  const AppBadge({
+///  * [LwBadgeWrapper], for adding overlay badges to widgets (e.g., notification icons)
+class LwBadge extends StatelessWidget {
+  const LwBadge({
     required this.label,
     super.key,
     this.backgroundColor,
@@ -33,7 +33,7 @@ class AppBadge extends StatelessWidget {
     this.isLarge = false,
   }) : count = null;
 
-  const AppBadge.count({
+  const LwBadge.count({
     required this.count,
     super.key,
     this.backgroundColor,
@@ -126,20 +126,20 @@ class AppBadge extends StatelessWidget {
 /// Example:
 /// ```dart
 /// // Notification badge with count
-/// AppBadgeWrapper(
+/// LwBadgeWrapper(
 ///   count: 5,
 ///   child: Icon(Icons.notifications),
 /// )
 ///
 /// // Badge with text label
-/// AppBadgeWrapper(
+/// LwBadgeWrapper(
 ///   label: 'New',
 ///   backgroundColor: colorScheme.errorContainer,
 ///   child: Icon(Icons.mail),
 /// )
 ///
 /// // Badge with custom offset
-/// AppBadgeWrapper(
+/// LwBadgeWrapper(
 ///   count: 3,
 ///   offset: Offset(4, -4),
 ///   child: Icon(Icons.shopping_cart),
@@ -147,9 +147,9 @@ class AppBadge extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppBadge], for standalone badges
-class AppBadgeWrapper extends StatelessWidget {
-  const AppBadgeWrapper({
+///  * [LwBadge], for standalone badges
+class LwBadgeWrapper extends StatelessWidget {
+  const LwBadgeWrapper({
     required this.child,
     super.key,
     this.label,

@@ -9,13 +9,13 @@ import '../../styles/app_sizes.dart';
 /// a selected state with a checkmark.
 ///
 /// For other chip use cases, see:
-/// - [AppAssistChip] for suggesting actions
-/// - [AppFilterChip] for filtering content
-/// - [AppInputChip] for displaying removable tags
+/// - [LwAssistChip] for suggesting actions
+/// - [LwFilterChip] for filtering content
+/// - [LwInputChip] for displaying removable tags
 ///
 /// Example:
 /// ```dart
-/// AppChip(
+/// LwChip(
 ///   label: 'Technology',
 ///   selected: selectedCategory == 'Technology',
 ///   onTap: () => selectCategory('Technology'),
@@ -23,11 +23,11 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [AppAssistChip], for suggesting actions
-///  * [AppFilterChip], for filtering
-///  * [AppInputChip], for tags with delete option
-class AppChip extends StatelessWidget {
-  const AppChip({
+///  * [LwAssistChip], for suggesting actions
+///  * [LwFilterChip], for filtering
+///  * [LwInputChip], for tags with delete option
+class LwChip extends StatelessWidget {
+  const LwChip({
     required this.label,
     super.key,
     this.onTap,
@@ -63,12 +63,12 @@ class AppChip extends StatelessWidget {
 /// in a group and offer quick access to helpful actions or information.
 /// Use these for contextual actions like "Add to calendar", "Share", or "Print".
 ///
-/// Unlike [AppChip], assist chips don't have a selected state.
+/// Unlike [LwChip], assist chips don't have a selected state.
 /// They trigger an immediate action when tapped.
 ///
 /// Example:
 /// ```dart
-/// AppAssistChip(
+/// LwAssistChip(
 ///   label: 'Add Tag',
 ///   icon: Icons.add,
 ///   onTap: () => showAddTagDialog(),
@@ -76,11 +76,11 @@ class AppChip extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppChip], for selection chips
-///  * [AppFilterChip], for filtering
-///  * [AppInputChip], for tags with delete option
-class AppAssistChip extends StatelessWidget {
-  const AppAssistChip({required this.label, super.key, this.icon, this.onTap});
+///  * [LwChip], for selection chips
+///  * [LwFilterChip], for filtering
+///  * [LwInputChip], for tags with delete option
+class LwAssistChip extends StatelessWidget {
+  const LwAssistChip({required this.label, super.key, this.icon, this.onTap});
 
   /// The text label shown on the chip.
   final String label;
@@ -108,7 +108,7 @@ class AppAssistChip extends StatelessWidget {
 /// A filter chip for filtering content.
 ///
 /// Filter chips help users refine content by selecting one or more options
-/// from a set of criteria. Unlike [AppChip], filter chips show a checkmark
+/// from a set of criteria. Unlike [LwChip], filter chips show a checkmark
 /// when selected and are designed specifically for filtering scenarios.
 ///
 /// Use filter chips for filtering lists, search results, or any content
@@ -117,7 +117,7 @@ class AppAssistChip extends StatelessWidget {
 ///
 /// Example:
 /// ```dart
-/// AppFilterChip(
+/// LwFilterChip(
 ///   label: 'Active',
 ///   selected: filters.showActive,
 ///   icon: Icons.check_circle,
@@ -128,11 +128,11 @@ class AppAssistChip extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppChip], for general selection chips
-///  * [AppAssistChip], for suggesting actions
-///  * [AppInputChip], for tags with delete option
-class AppFilterChip extends StatelessWidget {
-  const AppFilterChip({
+///  * [LwChip], for general selection chips
+///  * [LwAssistChip], for suggesting actions
+///  * [LwInputChip], for tags with delete option
+class LwFilterChip extends StatelessWidget {
+  const LwFilterChip({
     required this.label,
     required this.selected,
     super.key,
@@ -184,7 +184,7 @@ class AppFilterChip extends StatelessWidget {
 ///
 /// Example:
 /// ```dart
-/// AppInputChip(
+/// LwInputChip(
 ///   label: 'Flutter',
 ///   onDeleted: () => removeTag('Flutter'),
 ///   onPressed: () => editTag('Flutter'),
@@ -193,11 +193,11 @@ class AppFilterChip extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppChip], for selection chips
-///  * [AppAssistChip], for suggesting actions
-///  * [AppFilterChip], for filtering
-class AppInputChip extends StatelessWidget {
-  const AppInputChip({
+///  * [LwChip], for selection chips
+///  * [LwAssistChip], for suggesting actions
+///  * [LwFilterChip], for filtering
+class LwInputChip extends StatelessWidget {
+  const LwInputChip({
     required this.label,
     super.key,
     this.onDeleted,

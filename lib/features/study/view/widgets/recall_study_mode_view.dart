@@ -244,7 +244,7 @@ class _RecallCard extends StatelessWidget {
     );
     return Opacity(
       opacity: opacity,
-      child: AppCard(
+      child: LwCard(
         variant: AppCardVariant.elevated,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(

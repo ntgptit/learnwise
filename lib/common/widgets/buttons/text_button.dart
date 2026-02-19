@@ -11,22 +11,22 @@ import 'package:flutter/material.dart';
 ///
 /// Example:
 /// ```dart
-/// AppTextButton(
+/// LwTextButton(
 ///   label: 'Skip',
 ///   onPressed: () => skipStep(),
 /// )
 /// ```
 ///
 /// See also:
-///  * [PrimaryButton], for primary actions
-///  * [SecondaryButton], for secondary actions
-///  * [ActionButton], for buttons with both icon and text
-class AppTextButton extends StatelessWidget {
+///  * [LwPrimaryButton], for primary actions
+///  * [LwSecondaryButton], for secondary actions
+///  * [LwActionButton], for buttons with both icon and text
+class LwTextButton extends StatelessWidget {
   /// Creates a text-only button.
   ///
   /// The [label] is required and used as the button text and semantic label.
   /// The [onPressed] callback is called when the button is tapped.
-  const AppTextButton({required this.label, super.key, this.onPressed});
+  const LwTextButton({required this.label, super.key, this.onPressed});
 
   /// The text label shown on the button.
   ///

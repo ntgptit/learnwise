@@ -53,24 +53,28 @@ class FlashcardFormSchema {
   }
 
   static FormControl<String?> resolveFrontLangCodeControl(FormGroup form) {
-    final AbstractControl<Object?> control =
-        form.control(frontLangCodeControlKey);
+    final AbstractControl<Object?> control = form.control(
+      frontLangCodeControlKey,
+    );
     return control as FormControl<String?>;
   }
 
   static FormControl<String?> resolveBackLangCodeControl(FormGroup form) {
-    final AbstractControl<Object?> control =
-        form.control(backLangCodeControlKey);
+    final AbstractControl<Object?> control = form.control(
+      backLangCodeControlKey,
+    );
     return control as FormControl<String?>;
   }
 
   static FlashcardUpsertInput toUpsertInput({required FormGroup form}) {
     final FormControl<String> frontTextControl = resolveFrontTextControl(form);
     final FormControl<String> backTextControl = resolveBackTextControl(form);
-    final FormControl<String?> frontLangControl =
-        resolveFrontLangCodeControl(form);
-    final FormControl<String?> backLangControl =
-        resolveBackLangCodeControl(form);
+    final FormControl<String?> frontLangControl = resolveFrontLangCodeControl(
+      form,
+    );
+    final FormControl<String?> backLangControl = resolveBackLangCodeControl(
+      form,
+    );
     return FlashcardUpsertInput(
       frontText: StringUtils.normalize(frontTextControl.value ?? ''),
       backText: StringUtils.normalize(backTextControl.value ?? ''),

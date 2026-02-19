@@ -31,9 +31,9 @@ class AutoPlaySettingRow extends StatelessWidget {
           ),
         ),
         Theme(
-          data: Theme.of(context).copyWith(
-            switchTheme: _buildSwitchTheme(colorScheme),
-          ),
+          data: Theme.of(
+            context,
+          ).copyWith(switchTheme: _buildSwitchTheme(colorScheme)),
           child: Switch.adaptive(
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             value: enabled,

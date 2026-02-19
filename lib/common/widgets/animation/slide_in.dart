@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_durations.dart';
 
-class SlideIn extends StatelessWidget {
-  const SlideIn({
+class LwSlideIn extends StatelessWidget {
+  const LwSlideIn({
     required this.child,
     super.key,
     this.duration = AppDurations.animationNormal,

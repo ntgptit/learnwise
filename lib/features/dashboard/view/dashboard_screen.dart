@@ -68,7 +68,7 @@ class _DashboardBody extends StatelessWidget {
   }
 
   Widget _buildError() {
-    return ErrorState(
+    return LwErrorState(
       title: l10n.dashboardErrorTitle,
       message: l10n.dashboardErrorDescription,
       retryLabel: l10n.dashboardRetryLabel,
@@ -77,7 +77,7 @@ class _DashboardBody extends StatelessWidget {
   }
 
   Widget _buildLoading() {
-    return LoadingState(message: l10n.dashboardLoadingLabel);
+    return LwLoadingState(message: l10n.dashboardLoadingLabel);
   }
 }
 
@@ -88,19 +88,19 @@ class _DashboardBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomNavBar(
-      destinations: <AppBottomNavDestination>[
-        AppBottomNavDestination(
+    return LwBottomNavBar(
+      destinations: <LwBottomNavDestination>[
+        LwBottomNavDestination(
           icon: Icons.dashboard_outlined,
           selectedIcon: Icons.dashboard_rounded,
           label: l10n.dashboardNavHome,
         ),
-        AppBottomNavDestination(
+        LwBottomNavDestination(
           icon: Icons.folder_open_outlined,
           selectedIcon: Icons.folder_rounded,
           label: l10n.dashboardNavFolders,
         ),
-        AppBottomNavDestination(
+        LwBottomNavDestination(
           icon: Icons.person_outline_rounded,
           selectedIcon: Icons.person_rounded,
           label: l10n.dashboardNavProfile,

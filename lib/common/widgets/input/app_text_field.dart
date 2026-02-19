@@ -9,12 +9,12 @@ import 'input_field_variant.dart';
 /// This widget wraps [TextField] with consistent styling and behavior.
 /// It supports labels, hints, prefix/suffix icons, and various text input types.
 ///
-/// For forms with validation, consider using [TextBox] which includes
+/// For forms with validation, consider using [LwTextBox] which includes
 /// [FormField] integration.
 ///
 /// Example:
 /// ```dart
-/// AppTextField(
+/// LwTextField(
 ///   label: 'Email',
 ///   hint: 'Enter your email',
 ///   textInputType: TextInputType.emailAddress,
@@ -23,10 +23,10 @@ import 'input_field_variant.dart';
 /// ```
 ///
 /// See also:
-///  * [TextBox], for form field integration with validation
-///  * [PasswordTextBox], for password input with visibility toggle
-class AppTextField extends StatelessWidget {
-  const AppTextField({
+///  * [LwTextBox], for form field integration with validation
+///  * [LwPasswordTextBox], for password input with visibility toggle
+class LwTextField extends StatelessWidget {
+  const LwTextField({
     super.key,
     this.controller,
     this.focusNode,

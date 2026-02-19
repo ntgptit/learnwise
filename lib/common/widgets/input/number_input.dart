@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'app_text_field.dart';
 
-class NumberInput extends StatelessWidget {
-  const NumberInput({
+class LwNumberInput extends StatelessWidget {
+  const LwNumberInput({
     super.key,
     this.controller,
     this.label,
@@ -18,7 +18,7 @@ class NumberInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppTextField(
+    return LwTextField(
       controller: controller,
       label: label,
       textInputType: const TextInputType.numberWithOptions(decimal: true),

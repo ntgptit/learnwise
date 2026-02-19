@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class SliderInput extends StatelessWidget {
-  const SliderInput({
-    required this.value, required this.onChanged, required this.min, required this.max, required this.displayValueText, super.key,
+class LwSliderInput extends StatelessWidget {
+  const LwSliderInput({
+    required this.value,
+    required this.onChanged,
+    required this.min,
+    required this.max,
+    required this.displayValueText,
+    super.key,
     this.divisions,
     this.label,
   }) : assert(min < max, 'min must be less than max.');

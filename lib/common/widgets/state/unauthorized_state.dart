@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import '../buttons/primary_button.dart';
 import 'empty_state.dart';
 
-class UnauthorizedState extends StatelessWidget {
-  const UnauthorizedState({
-    required this.title, required this.message, required this.actionLabel, super.key,
+class LwUnauthorizedState extends StatelessWidget {
+  const LwUnauthorizedState({
+    required this.title,
+    required this.message,
+    required this.actionLabel,
+    super.key,
     this.onSignIn,
   });
 
@@ -16,11 +19,11 @@ class UnauthorizedState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyState(
+    return LwEmptyState(
       title: title,
       subtitle: message,
       icon: Icons.lock_outline,
-      action: PrimaryButton(
+      action: LwPrimaryButton(
         label: actionLabel,
         expanded: false,
         onPressed: onSignIn,

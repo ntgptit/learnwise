@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ScrollWithHeader extends StatelessWidget {
-  const ScrollWithHeader({
-    required this.header, required this.slivers, super.key,
+class LwScrollWithHeader extends StatelessWidget {
+  const LwScrollWithHeader({
+    required this.header,
+    required this.slivers,
+    super.key,
     this.pinnedHeader = true,
   });
 

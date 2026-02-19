@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'error_state.dart';
 
-class OfflineState extends StatelessWidget {
-  const OfflineState({
-    required this.title, required this.message, super.key,
+class LwOfflineState extends StatelessWidget {
+  const LwOfflineState({
+    required this.title,
+    required this.message,
+    super.key,
     this.onRetry,
   });
 
@@ -14,6 +16,6 @@ class OfflineState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ErrorState(title: title, message: message, onRetry: onRetry);
+    return LwErrorState(title: title, message: message, onRetry: onRetry);
   }
 }

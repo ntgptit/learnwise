@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'picker_date_time_format.dart';
 import 'picker_field.dart';
 
-class DateTimeRangePickerField extends StatelessWidget {
-  const DateTimeRangePickerField({
+class LwDateTimeRangePickerField extends StatelessWidget {
+  const LwDateTimeRangePickerField({
     super.key,
     this.labelText,
     this.hintText,
@@ -28,7 +28,7 @@ class DateTimeRangePickerField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? valueText = _resolveRangeText();
-    return PickerField(
+    return LwPickerField(
       labelText: labelText,
       hintText: hintText,
       helperText: helperText,
@@ -47,9 +47,9 @@ class DateTimeRangePickerField extends StatelessWidget {
     }
 
     final String Function(DateTime value) formatter =
-        formatDateTime ?? PickerDateTimeFormat.dateTime;
+        formatDateTime ?? LwPickerDateTimeFormat.dateTime;
     final String startText = formatter(selectedRange!.start);
     final String endText = formatter(selectedRange!.end);
-    return '$startText${PickerDateTimeFormat.rangeSeparator}$endText';
+    return '$startText${LwPickerDateTimeFormat.rangeSeparator}$endText';
   }
 }

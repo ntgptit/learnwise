@@ -18,7 +18,7 @@ import '../../styles/app_durations.dart';
 ///
 /// Example:
 /// ```dart
-/// ScaleIn(
+/// LwScaleIn(
 ///   duration: AppDurations.animationNormal,
 ///   curve: Curves.easeOutBack,
 ///   child: Card(
@@ -28,10 +28,10 @@ import '../../styles/app_durations.dart';
 /// ```
 ///
 /// See also:
-///  * [FadeIn], for opacity animations
+///  * [LwFadeIn], for opacity animations
 ///  * [TweenAnimationBuilder], the underlying animation widget
-class ScaleIn extends StatelessWidget {
-  const ScaleIn({
+class LwScaleIn extends StatelessWidget {
+  const LwScaleIn({
     required this.child,
     super.key,
     this.duration = AppDurations.animationNormal,

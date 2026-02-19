@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../styles/app_sizes.dart';
 import '../card/app_card.dart';
 
-class AppActionTile extends StatelessWidget {
-  const AppActionTile({
+class LwActionTile extends StatelessWidget {
+  const LwActionTile({
     required this.label,
     required this.icon,
     super.key,
@@ -23,7 +23,7 @@ class AppActionTile extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    return AppCard(
+    return LwCard(
       onTap: onPressed,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSizes.spacingMd,
@@ -53,7 +53,10 @@ class AppActionTile extends StatelessWidget {
             ),
           ),
           if (onPressed != null)
-            Icon(Icons.chevron_right_rounded, color: colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: colorScheme.onSurfaceVariant,
+            ),
         ],
       ),
     );

@@ -36,7 +36,7 @@ class ProfileScreen extends ConsumerWidget {
             error: error,
             controller: controller,
           ),
-          loading: () => LoadingState(message: l10n.profileLoadingLabel),
+          loading: () => LwLoadingState(message: l10n.profileLoadingLabel),
         ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(
@@ -85,7 +85,7 @@ class ProfileScreen extends ConsumerWidget {
     required ProfileController controller,
   }) {
     final String message = _resolveErrorMessage(error: error, l10n: l10n);
-    return ErrorState(
+    return LwErrorState(
       title: l10n.profileLoadErrorTitle,
       message: message,
       retryLabel: l10n.profileRetryLabel,
@@ -97,19 +97,19 @@ class ProfileScreen extends ConsumerWidget {
     required BuildContext context,
     required AppLocalizations l10n,
   }) {
-    return AppBottomNavBar(
-      destinations: <AppBottomNavDestination>[
-        AppBottomNavDestination(
+    return LwBottomNavBar(
+      destinations: <LwBottomNavDestination>[
+        LwBottomNavDestination(
           icon: Icons.dashboard_outlined,
           selectedIcon: Icons.dashboard_rounded,
           label: l10n.dashboardNavHome,
         ),
-        AppBottomNavDestination(
+        LwBottomNavDestination(
           icon: Icons.folder_open_outlined,
           selectedIcon: Icons.folder_rounded,
           label: l10n.dashboardNavFolders,
         ),
-        AppBottomNavDestination(
+        LwBottomNavDestination(
           icon: Icons.person_outline_rounded,
           selectedIcon: Icons.person_rounded,
           label: l10n.dashboardNavProfile,
@@ -164,7 +164,7 @@ class _ProfileMenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       child: ListTile(
         leading: Icon(icon, color: colorScheme.primary, size: AppSizes.size24),

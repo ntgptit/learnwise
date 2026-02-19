@@ -18,7 +18,7 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// PrimaryButton(
+/// LwPrimaryButton(
 ///   label: 'Submit Form',
 ///   onPressed: () => handleSubmit(),
 ///   isLoading: _isSubmitting,
@@ -27,16 +27,16 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [SecondaryButton], for secondary actions
-///  * [AppIconButton], for icon-only buttons
-///  * [ActionButton], for buttons with both icon and text
-class PrimaryButton extends StatelessWidget {
+///  * [LwSecondaryButton], for secondary actions
+///  * [LwIconButton], for icon-only buttons
+///  * [LwActionButton], for buttons with both icon and text
+class LwPrimaryButton extends StatelessWidget {
   /// Creates a primary action button.
   ///
   /// The [label] is required and used as the button text and semantic label.
   /// The [onPressed] callback is called when the button is tapped.
   /// When [isLoading] is true, a loading indicator is shown and the button is disabled.
-  const PrimaryButton({
+  const LwPrimaryButton({
     required this.label,
     super.key,
     this.onPressed,

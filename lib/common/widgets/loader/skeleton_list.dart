@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../styles/app_sizes.dart';
 import 'shimmer_box.dart';
 
-class SkeletonList extends StatelessWidget {
-  const SkeletonList({
+class LwSkeletonList extends StatelessWidget {
+  const LwSkeletonList({
     super.key,
     this.itemCount = 6,
     this.itemHeight = 72,
@@ -22,7 +22,9 @@ class SkeletonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int safeItemCount = itemCount <= 0 ? 1 : itemCount;
-    final double safeItemHeight = itemHeight <= 0 ? AppSizes.size48 : itemHeight;
+    final double safeItemHeight = itemHeight <= 0
+        ? AppSizes.size48
+        : itemHeight;
     final double safeItemSpacing = itemSpacing < 0 ? 0 : itemSpacing;
 
     return ListView.separated(
@@ -32,7 +34,7 @@ class SkeletonList extends StatelessWidget {
         return SizedBox(height: safeItemSpacing);
       },
       itemBuilder: (context, index) {
-        return ShimmerBox(
+        return LwShimmerBox(
           height: safeItemHeight,
           borderRadius: AppSizes.radiusMd,
         );

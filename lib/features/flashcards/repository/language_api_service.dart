@@ -21,9 +21,7 @@ class LanguageApiService implements LanguageRepository {
     final response = await _apiClient.get<dynamic>(_path);
     final List<dynamic> list = response.data as List<dynamic>;
     final result = list
-        .map(
-          (e) => LanguageItem.fromJson(e as Map<String, dynamic>),
-        )
+        .map((e) => LanguageItem.fromJson(e as Map<String, dynamic>))
         .toList();
     if (kDebugMode) {
       log(

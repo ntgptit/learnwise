@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class TagInput extends StatelessWidget {
-  const TagInput({
+class LwTagInput extends StatelessWidget {
+  const LwTagInput({
     required this.controller,
     required this.tags,
     required this.onAddRequested,

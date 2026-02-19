@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 /// space is limited or icons provide clear visual affordance.
 ///
 /// This is the standard variant with no background. For buttons with emphasis,
-/// use [AppFilledIconButton], [AppFilledTonalIconButton], or [AppOutlinedIconButton].
+/// use [LwFilledIconButton], [LwFilledTonalIconButton], or [LwOutlinedIconButton].
 ///
 /// The button uses [tooltip] or a default label for accessibility.
 /// Always provide a [tooltip] to describe the button's action for users
@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 ///
 /// Example:
 /// ```dart
-/// AppIconButton(
+/// LwIconButton(
 ///   icon: Icons.delete,
 ///   tooltip: 'Delete item',
 ///   onPressed: () => handleDelete(),
@@ -23,26 +23,27 @@ import 'package:flutter/material.dart';
 /// ```
 ///
 /// Icon Button Hierarchy:
-/// - Filled: [AppFilledIconButton] - Highest emphasis, filled background
-/// - Tonal: [AppFilledTonalIconButton] - Medium emphasis, tonal background
-/// - Outlined: [AppOutlinedIconButton] - Medium-low emphasis, outlined border
-/// - Standard: [AppIconButton] - Low emphasis, no background
+/// - Filled: [LwFilledIconButton] - Highest emphasis, filled background
+/// - Tonal: [LwFilledTonalIconButton] - Medium emphasis, tonal background
+/// - Outlined: [LwOutlinedIconButton] - Medium-low emphasis, outlined border
+/// - Standard: [LwIconButton] - Low emphasis, no background
 ///
 /// See also:
-///  * [AppFilledIconButton], for high-emphasis icon buttons
-///  * [AppFilledTonalIconButton], for medium-emphasis icon buttons
-///  * [AppOutlinedIconButton], for medium-low emphasis icon buttons
-///  * [PrimaryButton], for primary actions with text labels
-///  * [CircleButton], for circular icon buttons
-///  * [ActionButton], for buttons with both icon and text
-class AppIconButton extends StatelessWidget {
+///  * [LwFilledIconButton], for high-emphasis icon buttons
+///  * [LwFilledTonalIconButton], for medium-emphasis icon buttons
+///  * [LwOutlinedIconButton], for medium-low emphasis icon buttons
+///  * [LwPrimaryButton], for primary actions with text labels
+///  * [LwCircleButton], for circular icon buttons
+///  * [LwActionButton], for buttons with both icon and text
+class LwIconButton extends StatelessWidget {
   /// Creates an icon-only button.
   ///
   /// The [icon] is required and specifies which icon to display.
   /// The [tooltip] should describe the button's action and is used
   /// for accessibility.
-  const AppIconButton({
-    required this.icon, super.key,
+  const LwIconButton({
+    required this.icon,
+    super.key,
     this.onPressed,
     this.tooltip,
   });
@@ -83,11 +84,11 @@ class AppIconButton extends StatelessWidget {
 /// on a screen, such as a primary action in a toolbar or a key control.
 ///
 /// The filled style provides strong visual emphasis and should be used sparingly.
-/// For medium emphasis, consider [AppFilledTonalIconButton] instead.
+/// For medium emphasis, consider [LwFilledTonalIconButton] instead.
 ///
 /// Example:
 /// ```dart
-/// AppFilledIconButton(
+/// LwFilledIconButton(
 ///   icon: Icons.edit,
 ///   tooltip: 'Edit',
 ///   onPressed: () => handleEdit(),
@@ -95,16 +96,16 @@ class AppIconButton extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppFilledTonalIconButton], for medium-emphasis icon buttons
-///  * [AppOutlinedIconButton], for medium-low emphasis icon buttons
-///  * [AppIconButton], for standard icon buttons with no background
-class AppFilledIconButton extends StatelessWidget {
+///  * [LwFilledTonalIconButton], for medium-emphasis icon buttons
+///  * [LwOutlinedIconButton], for medium-low emphasis icon buttons
+///  * [LwIconButton], for standard icon buttons with no background
+class LwFilledIconButton extends StatelessWidget {
   /// Creates a filled icon button with high emphasis.
   ///
   /// The [icon] is required and specifies which icon to display.
   /// The [tooltip] should describe the button's action and is used
   /// for accessibility.
-  const AppFilledIconButton({
+  const LwFilledIconButton({
     required this.icon,
     super.key,
     this.onPressed,
@@ -150,14 +151,14 @@ class AppFilledIconButton extends StatelessWidget {
 ///
 /// This button uses [IconButton.filledTonal] which provides a tonal filled
 /// background (secondary container color). Use this for important icon-only
-/// actions that don't need as much visual weight as [AppFilledIconButton].
+/// actions that don't need as much visual weight as [LwFilledIconButton].
 ///
 /// The tonal style is ideal for actions like "Save", "Archive", or "Favorite"
 /// that are important but not the primary action on the screen.
 ///
 /// Example:
 /// ```dart
-/// AppFilledTonalIconButton(
+/// LwFilledTonalIconButton(
 ///   icon: Icons.favorite,
 ///   tooltip: 'Add to favorites',
 ///   onPressed: () => handleFavorite(),
@@ -165,16 +166,16 @@ class AppFilledIconButton extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppFilledIconButton], for high-emphasis icon buttons
-///  * [AppOutlinedIconButton], for medium-low emphasis icon buttons
-///  * [AppIconButton], for standard icon buttons with no background
-class AppFilledTonalIconButton extends StatelessWidget {
+///  * [LwFilledIconButton], for high-emphasis icon buttons
+///  * [LwOutlinedIconButton], for medium-low emphasis icon buttons
+///  * [LwIconButton], for standard icon buttons with no background
+class LwFilledTonalIconButton extends StatelessWidget {
   /// Creates a filled tonal icon button with medium emphasis.
   ///
   /// The [icon] is required and specifies which icon to display.
   /// The [tooltip] should describe the button's action and is used
   /// for accessibility.
-  const AppFilledTonalIconButton({
+  const LwFilledTonalIconButton({
     required this.icon,
     super.key,
     this.onPressed,
@@ -220,14 +221,14 @@ class AppFilledTonalIconButton extends StatelessWidget {
 ///
 /// This button uses [IconButton.outlined] which provides an outlined border
 /// without a filled background. Use this for secondary icon-only actions that
-/// need more emphasis than a standard [AppIconButton] but less than filled variants.
+/// need more emphasis than a standard [LwIconButton] but less than filled variants.
 ///
 /// The outlined style is ideal for actions like "Share", "Download", or "Print"
 /// that are useful but not critical to the main workflow.
 ///
 /// Example:
 /// ```dart
-/// AppOutlinedIconButton(
+/// LwOutlinedIconButton(
 ///   icon: Icons.share,
 ///   tooltip: 'Share',
 ///   onPressed: () => handleShare(),
@@ -235,16 +236,16 @@ class AppFilledTonalIconButton extends StatelessWidget {
 /// ```
 ///
 /// See also:
-///  * [AppFilledIconButton], for high-emphasis icon buttons
-///  * [AppFilledTonalIconButton], for medium-emphasis icon buttons
-///  * [AppIconButton], for standard icon buttons with no background
-class AppOutlinedIconButton extends StatelessWidget {
+///  * [LwFilledIconButton], for high-emphasis icon buttons
+///  * [LwFilledTonalIconButton], for medium-emphasis icon buttons
+///  * [LwIconButton], for standard icon buttons with no background
+class LwOutlinedIconButton extends StatelessWidget {
   /// Creates an outlined icon button with medium-low emphasis.
   ///
   /// The [icon] is required and specifies which icon to display.
   /// The [tooltip] should describe the button's action and is used
   /// for accessibility.
-  const AppOutlinedIconButton({
+  const LwOutlinedIconButton({
     required this.icon,
     super.key,
     this.onPressed,

@@ -19,7 +19,7 @@ import 'app_sizes.dart';
 ///   - Color comes from `Theme.of(context).colorScheme` (with shared
 ///     `AppOpacities` when alpha is needed).
 ///   - Motion comes from `AppDurations`/`AppMotionCurves`.
-///   - Elevation follows Theme/AppCard defaults.
+///   - Elevation follows Theme/LwCard defaults.
 /// - Value source:
 ///   - Aggregated from approved design values and normalized into AppSizes
 ///     scales; avoid introducing new magic numbers without design rationale.

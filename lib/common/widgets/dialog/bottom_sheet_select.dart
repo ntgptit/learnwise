@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class BottomSheetSelectOption<T> {
-  const BottomSheetSelectOption({required this.value, required this.label});
+class LwBottomSheetSelectOption<T> {
+  const LwBottomSheetSelectOption({required this.value, required this.label});
 
   final T value;
   final String label;
 }
 
-class BottomSheetSelect<T> extends StatelessWidget {
-  const BottomSheetSelect({
-    required this.options, required this.onSelected, super.key,
+class LwBottomSheetSelect<T> extends StatelessWidget {
+  const LwBottomSheetSelect({
+    required this.options,
+    required this.onSelected,
+    super.key,
     this.title,
   });
 
-  final List<BottomSheetSelectOption<T>> options;
+  final List<LwBottomSheetSelectOption<T>> options;
   final ValueChanged<T> onSelected;
   final String? title;
 
@@ -44,7 +46,7 @@ class BottomSheetSelect<T> extends StatelessWidget {
                 return const Divider(height: AppSizes.size1);
               },
               itemBuilder: (context, index) {
-                final BottomSheetSelectOption<T> option = options[index];
+                final LwBottomSheetSelectOption<T> option = options[index];
                 return ListTile(
                   title: Text(option.label),
                   onTap: () => onSelected(option.value),

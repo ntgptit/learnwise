@@ -17,7 +17,7 @@ import 'input_field_variant.dart';
 ///
 /// Example:
 /// ```dart
-/// TextBox(
+/// LwTextBox(
 ///   labelText: 'Username',
 ///   hintText: 'Enter your username',
 ///   validator: (value) {
@@ -29,10 +29,10 @@ import 'input_field_variant.dart';
 /// ```
 ///
 /// See also:
-///  * [AppTextField], for a simpler text field without form integration
-///  * [PasswordTextBox], for password input with visibility toggle
-class TextBox extends StatelessWidget {
-  const TextBox({
+///  * [LwTextField], for a simpler text field without form integration
+///  * [LwPasswordTextBox], for password input with visibility toggle
+class LwTextBox extends StatelessWidget {
+  const LwTextBox({
     super.key,
     this.controller,
     this.initialValue,

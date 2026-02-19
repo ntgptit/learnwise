@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class VocabListItem extends StatelessWidget {
-  const VocabListItem({
-    required this.term, required this.meaning, super.key,
+class LwVocabListItem extends StatelessWidget {
+  const LwVocabListItem({
+    required this.term,
+    required this.meaning,
+    super.key,
     this.onTap,
     this.trailing,
   });

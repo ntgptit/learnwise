@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import '../../styles/app_durations.dart';
 import '../../styles/app_sizes.dart';
 
-class ShimmerBox extends StatefulWidget {
-  const ShimmerBox({
+class LwShimmerBox extends StatefulWidget {
+  const LwShimmerBox({
     super.key,
     this.width = double.infinity,
     this.height = AppSizes.spacingMd,
@@ -23,10 +23,10 @@ class ShimmerBox extends StatefulWidget {
   final Color? highlightColor;
 
   @override
-  State<ShimmerBox> createState() => _ShimmerBoxState();
+  State<LwShimmerBox> createState() => _ShimmerBoxState();
 }
 
-class _ShimmerBoxState extends State<ShimmerBox>
+class _ShimmerBoxState extends State<LwShimmerBox>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 

@@ -273,7 +273,7 @@ class _ReviewCardFace extends StatelessWidget {
     final TextStyle? resolvedTextStyle = textStyle?.copyWith(
       fontWeight: FontWeight.normal,
     );
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(

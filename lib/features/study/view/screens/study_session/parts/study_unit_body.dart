@@ -95,7 +95,7 @@ class _StudyUnitBody extends ConsumerWidget {
   }
 
   Widget _buildCardContentLayout(BuildContext context, Widget unitContent) {
-    final Widget content = AppCard(
+    final Widget content = LwCard(
       variant: AppCardVariant.elevated,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(

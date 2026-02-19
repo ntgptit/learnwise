@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'text_box.dart';
 
-class TextArea extends StatelessWidget {
-  const TextArea({
+class LwTextArea extends StatelessWidget {
+  const LwTextArea({
     super.key,
     this.controller,
     this.initialValue,
@@ -41,7 +41,7 @@ class TextArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextBox(
+    return LwTextBox(
       controller: controller,
       initialValue: initialValue,
       labelText: labelText,

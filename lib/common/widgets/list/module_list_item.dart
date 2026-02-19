@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../indicator/app_badge.dart';
 
-class ModuleListItem extends StatelessWidget {
-  const ModuleListItem({
-    required this.title, required this.subtitle, required this.progressLabel, super.key,
+class LwModuleListItem extends StatelessWidget {
+  const LwModuleListItem({
+    required this.title,
+    required this.subtitle,
+    required this.progressLabel,
+    super.key,
     this.onTap,
   });
 
@@ -18,7 +21,7 @@ class ModuleListItem extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: AppBadge(label: progressLabel),
+      trailing: LwBadge(label: progressLabel),
       onTap: onTap,
     );
   }

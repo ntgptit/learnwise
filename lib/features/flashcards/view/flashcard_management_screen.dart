@@ -244,7 +244,7 @@ class _FlashcardManagementScreenState
                                 padding: const EdgeInsets.only(
                                   top: FlashcardScreenTokens.sectionSpacing,
                                 ),
-                                child: SearchField(
+                                child: LwSearchField(
                                   controller: _searchController,
                                   onChanged: _onSearchChanged,
                                   hint: l10n.flashcardsSearchHint,
@@ -290,7 +290,7 @@ class _FlashcardManagementScreenState
                                   vertical:
                                       FlashcardScreenTokens.sectionSpacing,
                                 ),
-                                child: EmptyState(
+                                child: LwEmptyState(
                                   title: l10n.flashcardsEmptyTitle,
                                   subtitle: l10n.flashcardsEmptyDescription,
                                   icon: Icons.style_outlined,
@@ -383,7 +383,7 @@ class _FlashcardManagementScreenState
             );
           },
           error: (error, stackTrace) {
-            return ErrorState(
+            return LwErrorState(
               title: l10n.flashcardsErrorTitle,
               message: l10n.flashcardsErrorDescription,
               retryLabel: l10n.flashcardsRetryLabel,
@@ -846,7 +846,7 @@ class _FlashcardManagementScreenState
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        return ConfirmDialog(
+        return LwConfirmDialog(
           title: l10n.flashcardsDeleteDialogTitle,
           message: l10n.flashcardsDeleteDialogMessage(flashcard.frontText),
           confirmLabel: l10n.flashcardsDeleteConfirmLabel,
@@ -1217,7 +1217,7 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
       backgroundColor: colorScheme.surfaceContainerHigh,
@@ -1228,7 +1228,7 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              ShimmerBox(
+              LwShimmerBox(
                 width:
                     maxWidth *
                     FlashcardScreenTokens.skeletonLinePrimaryWidthFactor,
@@ -1238,7 +1238,7 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
               const SizedBox(
                 height: FlashcardScreenTokens.cardPrimarySecondaryGap,
               ),
-              ShimmerBox(
+              LwShimmerBox(
                 width:
                     maxWidth *
                     FlashcardScreenTokens.skeletonLineSecondaryWidthFactor,
@@ -1246,7 +1246,7 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
                 borderRadius: FlashcardScreenTokens.cardRadius,
               ),
               const SizedBox(height: FlashcardScreenTokens.cardTextGap),
-              ShimmerBox(
+              LwShimmerBox(
                 width:
                     maxWidth *
                     FlashcardScreenTokens.skeletonLineDescriptionWidthFactor,
@@ -1254,7 +1254,7 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
                 borderRadius: FlashcardScreenTokens.cardRadius,
               ),
               const SizedBox(height: FlashcardScreenTokens.skeletonLineGap),
-              ShimmerBox(
+              LwShimmerBox(
                 width:
                     maxWidth *
                     FlashcardScreenTokens.skeletonLineDescriptionWidthFactor,
@@ -1267,7 +1267,7 @@ class _FlashcardContentCardSkeleton extends StatelessWidget {
                 children: List<Widget>.generate(
                   FlashcardScreenTokens.skeletonActionCount,
                   (index) {
-                    return const ShimmerBox(
+                    return const LwShimmerBox(
                       width: FlashcardScreenTokens.cardActionTapTargetSize,
                       height: FlashcardScreenTokens.cardActionTapTargetSize,
                       borderRadius:

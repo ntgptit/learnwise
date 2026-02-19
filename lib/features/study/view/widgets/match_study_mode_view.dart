@@ -285,7 +285,7 @@ class _MatchBoardTile extends StatelessWidget {
         ),
         child: Opacity(
           opacity: _resolveOpacity(),
-          child: AppCard(
+          child: LwCard(
             variant: AppCardVariant.elevated,
             borderRadius: BorderRadius.circular(
               FlashcardStudySessionTokens.matchCardRadius,

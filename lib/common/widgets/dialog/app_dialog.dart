@@ -8,8 +8,8 @@ const double _dialogContentMaxHeightFactor = 0.6;
 
 enum AppDialogActionLayout { horizontal, vertical }
 
-class AppDialog extends StatelessWidget {
-  const AppDialog({
+class LwDialog extends StatelessWidget {
+  const LwDialog({
     required this.title,
     required this.content,
     required this.actions,

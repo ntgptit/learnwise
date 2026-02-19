@@ -14,7 +14,7 @@ import '../buttons/primary_button.dart';
 ///
 /// Example:
 /// ```dart
-/// ErrorState(
+/// LwErrorState(
 ///   title: 'Failed to load data',
 ///   message: 'Please check your internet connection and try again.',
 ///   retryLabel: 'Retry',
@@ -23,11 +23,12 @@ import '../buttons/primary_button.dart';
 /// ```
 ///
 /// See also:
-///  * [EmptyState], for displaying empty content states
-///  * [LoadingState], for displaying loading indicators
-class ErrorState extends StatelessWidget {
-  const ErrorState({
-    required this.title, super.key,
+///  * [LwEmptyState], for displaying empty content states
+///  * [LwLoadingState], for displaying loading indicators
+class LwErrorState extends StatelessWidget {
+  const LwErrorState({
+    required this.title,
+    super.key,
     this.message,
     this.retryLabel,
     this.onRetry,
@@ -78,7 +79,9 @@ class ErrorState extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
+                style: textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               if (message != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingXs),
@@ -92,7 +95,7 @@ class ErrorState extends StatelessWidget {
               ],
               if (onRetry != null && retryLabel != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingMd),
-                PrimaryButton(
+                LwPrimaryButton(
                   label: retryLabel!,
                   expanded: false,
                   onPressed: onRetry,

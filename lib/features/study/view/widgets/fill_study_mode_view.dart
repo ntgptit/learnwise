@@ -268,7 +268,7 @@ class _FillPromptCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       backgroundColor: colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
@@ -335,7 +335,7 @@ class _FillInputCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return AppCard(
+    return LwCard(
       variant: AppCardVariant.elevated,
       backgroundColor: colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(
@@ -370,7 +370,7 @@ class _FillInputCard extends StatelessWidget {
                 );
               }
               return Center(
-                child: AppTextField(
+                child: LwTextField(
                   controller: fillController,
                   focusNode: fillInputFocusNode,
                   onSubmitted: (_) => onSubmitPressed(),

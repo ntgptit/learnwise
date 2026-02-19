@@ -7,8 +7,8 @@ import '../../styles/app_sizes.dart';
 ///
 /// Each destination has an [icon] and [label] for display, and an optional
 /// [selectedIcon] to show when the destination is active.
-class AppBottomNavDestination {
-  const AppBottomNavDestination({
+class LwBottomNavDestination {
+  const LwBottomNavDestination({
     required this.icon,
     required this.label,
     this.selectedIcon,
@@ -37,19 +37,19 @@ class AppBottomNavDestination {
 ///
 /// Example:
 /// ```dart
-/// AppBottomNavBar(
+/// LwBottomNavBar(
 ///   destinations: [
-///     AppBottomNavDestination(
+///     LwBottomNavDestination(
 ///       icon: Icons.home_outlined,
 ///       selectedIcon: Icons.home,
 ///       label: 'Home',
 ///     ),
-///     AppBottomNavDestination(
+///     LwBottomNavDestination(
 ///       icon: Icons.search_outlined,
 ///       selectedIcon: Icons.search,
 ///       label: 'Search',
 ///     ),
-///     AppBottomNavDestination(
+///     LwBottomNavDestination(
 ///       icon: Icons.person_outlined,
 ///       selectedIcon: Icons.person,
 ///       label: 'Profile',
@@ -61,10 +61,10 @@ class AppBottomNavDestination {
 /// ```
 ///
 /// See also:
-///  * [AppBottomNavDestination], the destination data class
-///  * [AppBreadcrumbs], for hierarchical navigation
-class AppBottomNavBar extends StatelessWidget {
-  const AppBottomNavBar({
+///  * [LwBottomNavDestination], the destination data class
+///  * [LwBreadcrumbs], for hierarchical navigation
+class LwBottomNavBar extends StatelessWidget {
+  const LwBottomNavBar({
     required this.destinations,
     required this.selectedIndex,
     required this.onDestinationSelected,
@@ -74,7 +74,7 @@ class AppBottomNavBar extends StatelessWidget {
   /// The list of navigation destinations to display.
   ///
   /// Must not be empty.
-  final List<AppBottomNavDestination> destinations;
+  final List<LwBottomNavDestination> destinations;
 
   /// The index of the currently selected destination.
   ///

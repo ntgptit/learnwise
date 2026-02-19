@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import '../../styles/app_sizes.dart';
 import 'app_card.dart';
 
-class FlashcardFront extends StatelessWidget {
-  const FlashcardFront({
-    required this.word, super.key,
+class LwFlashcardFront extends StatelessWidget {
+  const LwFlashcardFront({
+    required this.word,
+    super.key,
     this.pronunciation,
     this.trailing,
   });
@@ -19,7 +20,7 @@ class FlashcardFront extends StatelessWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final Widget trailingWidget = trailing ?? const SizedBox.shrink();
 
-    return AppCard(
+    return LwCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

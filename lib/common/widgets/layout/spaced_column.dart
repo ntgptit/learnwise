@@ -13,7 +13,7 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// SpacedColumn(
+/// LwSpacedColumn(
 ///   spacing: AppSizes.spacingMd,
 ///   children: [
 ///     Text('First item'),
@@ -24,11 +24,12 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [SpacedRow], for horizontal spacing
+///  * [LwSpacedRow], for horizontal spacing
 ///  * [Column], the underlying widget
-class SpacedColumn extends StatelessWidget {
-  const SpacedColumn({
-    required this.children, super.key,
+class LwSpacedColumn extends StatelessWidget {
+  const LwSpacedColumn({
+    required this.children,
+    super.key,
     this.spacing = AppSizes.spacingSm,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,

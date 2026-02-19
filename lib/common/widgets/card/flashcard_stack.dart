@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class FlashcardStack extends StatelessWidget {
-  const FlashcardStack({
-    required this.cards, super.key,
+class LwFlashcardStack extends StatelessWidget {
+  const LwFlashcardStack({
+    required this.cards,
+    super.key,
     this.maxVisible = 3,
     this.stackOffset = AppSizes.spacingXs,
   });

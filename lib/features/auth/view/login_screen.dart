@@ -53,13 +53,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       loading: () => null,
     );
 
-    return AppScaffold(
+    return LwScaffold(
       useSafeArea: true,
       resizeToAvoidBottomInset: true,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
-          child: AppCard(
+          child: LwCard(
             variant: AppCardVariant.elevated,
             padding: const EdgeInsets.all(AppSizes.spacingLg),
             child: Column(
@@ -78,7 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSizes.spacingLg),
-                AppTextField(
+                LwTextField(
                   controller: _identifierController,
                   label: _LoginText.identifierLabel,
                   hint: _LoginText.identifierHint,
@@ -86,7 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onChanged: (_) => _clearError(),
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
-                AppTextField(
+                LwTextField(
                   controller: _passwordController,
                   label: _LoginText.passwordLabel,
                   hint: _LoginText.passwordHint,
@@ -104,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ],
                 const SizedBox(height: AppSizes.spacingLg),
-                PrimaryButton(
+                LwPrimaryButton(
                   label: _LoginText.signInButton,
                   isLoading: isSubmitting,
                   onPressed: isSubmitting ? null : _submitLogin,

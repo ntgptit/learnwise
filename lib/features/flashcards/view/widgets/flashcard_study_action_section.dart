@@ -30,7 +30,7 @@ class FlashcardStudyActionSection extends StatelessWidget {
     for (int index = 0; index < actions.length; index++) {
       final FlashcardStudyAction action = actions[index];
       children.add(
-        AppActionTile(
+        LwActionTile(
           label: action.label,
           icon: action.icon,
           onPressed: action.onPressed,

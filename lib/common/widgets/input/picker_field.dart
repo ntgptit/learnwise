@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-class PickerField extends StatelessWidget {
-  const PickerField({
+class LwPickerField extends StatelessWidget {
+  const LwPickerField({
     super.key,
     this.labelText,
     this.hintText,

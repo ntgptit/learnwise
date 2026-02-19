@@ -78,7 +78,7 @@ class FlashcardPreviewCarousel extends StatelessWidget {
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: handleExpandPressed,
-                    child: AppCard(
+                    child: LwCard(
                       variant: AppCardVariant.elevated,
                       borderRadius: BorderRadius.circular(
                         FlashcardScreenTokens.cardRadius,

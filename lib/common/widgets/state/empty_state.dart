@@ -14,11 +14,11 @@ import '../../styles/app_sizes.dart';
 ///
 /// Example:
 /// ```dart
-/// EmptyState(
+/// LwEmptyState(
 ///   icon: Icons.folder_open_outlined,
 ///   title: 'No folders yet',
 ///   subtitle: 'Create your first folder to get started',
-///   action: PrimaryButton(
+///   action: LwPrimaryButton(
 ///     label: 'Create Folder',
 ///     onPressed: () => showCreateFolderDialog(),
 ///   ),
@@ -26,11 +26,12 @@ import '../../styles/app_sizes.dart';
 /// ```
 ///
 /// See also:
-///  * [ErrorState], for displaying error states
-///  * [LoadingState], for displaying loading indicators
-class EmptyState extends StatelessWidget {
-  const EmptyState({
-    required this.title, super.key,
+///  * [LwErrorState], for displaying error states
+///  * [LwLoadingState], for displaying loading indicators
+class LwEmptyState extends StatelessWidget {
+  const LwEmptyState({
+    required this.title,
+    super.key,
     this.subtitle,
     this.icon = Icons.inbox_rounded,
     this.action,
@@ -65,12 +66,18 @@ class EmptyState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Icon(icon, size: AppSizes.size72, color: colorScheme.onSurfaceVariant),
+              Icon(
+                icon,
+                size: AppSizes.size72,
+                color: colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(height: AppSizes.spacingMd),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
+                style: textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               if (subtitle != null) ...<Widget>[
                 const SizedBox(height: AppSizes.spacingXs),

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import '../../styles/app_opacities.dart';
 import '../../styles/app_sizes.dart';
 
-class SectionTitle extends StatelessWidget {
-  const SectionTitle({
-    required this.title, super.key,
+class LwSectionTitle extends StatelessWidget {
+  const LwSectionTitle({
+    required this.title,
+    super.key,
     this.subtitle,
     this.trailing,
   });

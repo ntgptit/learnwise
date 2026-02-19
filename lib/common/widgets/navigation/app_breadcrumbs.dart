@@ -9,8 +9,8 @@ import '../../styles/app_sizes.dart';
 /// Represents a single breadcrumb item in the navigation trail.
 ///
 /// Each item displays a [label] and can be tapped to navigate to that level.
-class AppBreadcrumbItem {
-  const AppBreadcrumbItem({required this.label});
+class LwBreadcrumbItem {
+  const LwBreadcrumbItem({required this.label});
 
   /// The display label for this breadcrumb item.
   final String label;
@@ -18,7 +18,7 @@ class AppBreadcrumbItem {
 
 /// A horizontal navigation breadcrumb trail for hierarchical navigation.
 ///
-/// Displays a root item followed by a trail of [AppBreadcrumbItem]s,
+/// Displays a root item followed by a trail of [LwBreadcrumbItem]s,
 /// separated by chevron icons. The active (current) item is visually
 /// highlighted. Automatically scrolls to show the latest item when the trail
 /// expands.
@@ -28,12 +28,12 @@ class AppBreadcrumbItem {
 ///
 /// Example:
 /// ```dart
-/// AppBreadcrumbs(
+/// LwBreadcrumbs(
 ///   rootLabel: 'Home',
 ///   items: [
-///     AppBreadcrumbItem(label: 'Documents'),
-///     AppBreadcrumbItem(label: 'Projects'),
-///     AppBreadcrumbItem(label: '2024'),
+///     LwBreadcrumbItem(label: 'Documents'),
+///     LwBreadcrumbItem(label: 'Projects'),
+///     LwBreadcrumbItem(label: '2024'),
 ///   ],
 ///   onRootPressed: () => navigateToRoot(),
 ///   onItemPressed: (index) => navigateToLevel(index),
@@ -41,10 +41,10 @@ class AppBreadcrumbItem {
 /// ```
 ///
 /// See also:
-///  * [AppBreadcrumbItem], the item data class
-///  * [AppBottomNavBar], for top-level app navigation
-class AppBreadcrumbs extends StatefulWidget {
-  const AppBreadcrumbs({
+///  * [LwBreadcrumbItem], the item data class
+///  * [LwBottomNavBar], for top-level app navigation
+class LwBreadcrumbs extends StatefulWidget {
+  const LwBreadcrumbs({
     required this.rootLabel,
     required this.items,
     required this.onRootPressed,
@@ -56,7 +56,7 @@ class AppBreadcrumbs extends StatefulWidget {
   final String rootLabel;
 
   /// The list of breadcrumb items to display after the root.
-  final List<AppBreadcrumbItem> items;
+  final List<LwBreadcrumbItem> items;
 
   /// Called when the user taps the root breadcrumb.
   final VoidCallback onRootPressed;
@@ -67,14 +67,14 @@ class AppBreadcrumbs extends StatefulWidget {
   final ValueChanged<int> onItemPressed;
 
   @override
-  State<AppBreadcrumbs> createState() => _AppBreadcrumbsState();
+  State<LwBreadcrumbs> createState() => _AppBreadcrumbsState();
 }
 
-class _AppBreadcrumbsState extends State<AppBreadcrumbs> {
+class _AppBreadcrumbsState extends State<LwBreadcrumbs> {
   final ScrollController _scrollController = ScrollController();
 
   @override
-  void didUpdateWidget(covariant AppBreadcrumbs oldWidget) {
+  void didUpdateWidget(covariant LwBreadcrumbs oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.items.length != oldWidget.items.length) {
       _scrollToEnd();

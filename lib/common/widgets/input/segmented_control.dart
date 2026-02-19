@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-class SegmentedControl extends StatelessWidget {
-  const SegmentedControl({
-    required this.labels, required this.selected, required this.onSelectionChanged, super.key,
+class LwSegmentedControl extends StatelessWidget {
+  const LwSegmentedControl({
+    required this.labels,
+    required this.selected,
+    required this.onSelectionChanged,
+    super.key,
     this.emptySelectionAllowed = false,
   });
 

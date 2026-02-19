@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../../styles/app_sizes.dart';
 
-/// Represents a single option in a [SelectBox] dropdown.
+/// Represents a single option in a [LwSelectBox] dropdown.
 ///
 /// Each option has a [value] for the selected data and a [label]
 /// for display. Options can be disabled and include an optional leading widget.
-class SelectOption<T> {
-  const SelectOption({
+class LwSelectOption<T> {
+  const LwSelectOption({
     required this.value,
     required this.label,
     this.enabled = true,
@@ -31,7 +31,7 @@ class SelectOption<T> {
 /// A form-integrated dropdown selection field.
 ///
 /// This widget wraps [DropdownButtonFormField] with consistent styling
-/// and validation support. It displays a list of [SelectOption]s and
+/// and validation support. It displays a list of [LwSelectOption]s and
 /// allows the user to select one.
 ///
 /// Migration note:
@@ -43,13 +43,13 @@ class SelectOption<T> {
 ///
 /// Example:
 /// ```dart
-/// SelectBox<String>(
+/// LwSelectBox<String>(
 ///   labelText: 'Country',
 ///   hintText: 'Select your country',
 ///   options: [
-///     SelectOption(value: 'us', label: 'United States'),
-///     SelectOption(value: 'uk', label: 'United Kingdom'),
-///     SelectOption(value: 'ca', label: 'Canada'),
+///     LwSelectOption(value: 'us', label: 'United States'),
+///     LwSelectOption(value: 'uk', label: 'United Kingdom'),
+///     LwSelectOption(value: 'ca', label: 'Canada'),
 ///   ],
 ///   value: selectedCountry,
 ///   onChanged: (value) => setState(() => selectedCountry = value),
@@ -57,10 +57,10 @@ class SelectOption<T> {
 /// ```
 ///
 /// See also:
-///  * [SelectOption], the option data class
-///  * [TextBox], for text input with validation
-class SelectBox<T> extends StatelessWidget {
-  const SelectBox({
+///  * [LwSelectOption], the option data class
+///  * [LwTextBox], for text input with validation
+class LwSelectBox<T> extends StatelessWidget {
+  const LwSelectBox({
     required this.options,
     super.key,
     this.value,
@@ -77,7 +77,7 @@ class SelectBox<T> extends StatelessWidget {
   });
 
   /// The list of options to display in the dropdown.
-  final List<SelectOption<T>> options;
+  final List<LwSelectOption<T>> options;
 
   /// The currently selected value.
   final T? value;

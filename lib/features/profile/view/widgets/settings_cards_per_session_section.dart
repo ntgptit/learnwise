@@ -27,10 +27,7 @@ class CardsPerSessionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _CardsPerSessionHeader(
-          l10n: l10n,
-          cardsPerSession: cardsPerSession,
-        ),
+        _CardsPerSessionHeader(l10n: l10n, cardsPerSession: cardsPerSession),
         const SizedBox(height: _innerSpacing),
         _CardsPerSessionSlider(
           l10n: l10n,
@@ -138,8 +135,8 @@ class _CardsPerSessionSlider extends StatelessWidget {
         divisions: _divisions(),
         label: l10n.profileStudyCardsPerSessionOption(cardsPerSession),
         onChanged: (value) {
-          final int normalizedValue = UserStudySettings
-              .normalizeStudyCardsPerSession(value.round());
+          final int normalizedValue =
+              UserStudySettings.normalizeStudyCardsPerSession(value.round());
           onChanged(normalizedValue);
         },
       ),

@@ -4,9 +4,13 @@ import '../../styles/app_sizes.dart';
 import '../buttons/primary_button.dart';
 import '../card/app_card.dart';
 
-class QuizResultCard extends StatelessWidget {
-  const QuizResultCard({
-    required this.titleText, required this.correctText, required this.scoreText, required this.progressValue, super.key,
+class LwQuizResultCard extends StatelessWidget {
+  const LwQuizResultCard({
+    required this.titleText,
+    required this.correctText,
+    required this.scoreText,
+    required this.progressValue,
+    super.key,
     this.onRetry,
     this.retryLabel,
   }) : assert(progressValue >= 0, 'progressValue must be >= 0.'),
@@ -25,7 +29,7 @@ class QuizResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
+    return LwCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +43,7 @@ class QuizResultCard extends StatelessWidget {
           Text(scoreText),
           if (onRetry != null && retryLabel != null) ...<Widget>[
             const SizedBox(height: AppSizes.spacingMd),
-            PrimaryButton(
+            LwPrimaryButton(
               label: retryLabel!,
               expanded: false,
               onPressed: onRetry,

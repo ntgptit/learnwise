@@ -106,7 +106,7 @@ class _FlashcardFlipStudyScreenState
         backgroundColor: colorScheme.surface,
         body: SafeArea(
           child: Center(
-            child: EmptyState(
+            child: LwEmptyState(
               title: l10n.flashcardsEmptyTitle,
               subtitle: l10n.flashcardsEmptyDescription,
               icon: Icons.style_outlined,
@@ -217,7 +217,7 @@ class _FlashcardFlipStudyScreenState
                             final bool isAudioPlaying =
                                 _playingFlashcardIdNotifier.value == item.id;
 
-                            return FlipAnimation(
+                            return LwFlipAnimation(
                               isFlipped: isFlipped,
                               duration: AppDurations.animationStandard,
                               curve: AppMotionCurves.standard,

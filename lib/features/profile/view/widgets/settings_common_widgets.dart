@@ -5,23 +5,27 @@ import '../../../../common/styles/app_sizes.dart';
 class SettingsGroupGap extends StatelessWidget {
   const SettingsGroupGap({super.key});
 
+  static const double _groupGap = AppSizes.spacingMd;
+
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(height: AppSizes.spacingLg);
+    return const SizedBox(height: SettingsGroupGap._groupGap);
   }
 }
 
 class SettingsGroupDivider extends StatelessWidget {
   const SettingsGroupDivider({super.key});
 
+  static const double _dividerGap = AppSizes.spacingSm;
+
   @override
   Widget build(BuildContext context) {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SizedBox(height: AppSizes.spacingLg),
+        SizedBox(height: SettingsGroupDivider._dividerGap),
         _DividerLine(),
-        SizedBox(height: AppSizes.spacingLg),
+        SizedBox(height: SettingsGroupDivider._dividerGap),
       ],
     );
   }

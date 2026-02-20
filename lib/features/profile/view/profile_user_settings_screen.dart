@@ -26,6 +26,11 @@ class ProfileUserSettingsScreen extends ConsumerStatefulWidget {
 
 class _ProfileUserSettingsScreenState
     extends ConsumerState<ProfileUserSettingsScreen> {
+  static const double _screenHorizontalPadding = AppSizes.spacingMd;
+  static const double _screenTopPadding = AppSizes.spacingMd;
+  static const double _screenBottomPadding = AppSizes.spacingMd;
+  static const double _sectionGap = AppSizes.spacingMd;
+
   late final ValueNotifier<ProfileSettingsDraft> _settingsDraftNotifier;
   int? _boundUserId;
   String? _boundSettingsSignature;
@@ -117,10 +122,10 @@ class _ProfileUserSettingsScreenState
     final double bottomSafeArea = MediaQuery.paddingOf(context).bottom;
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
-        AppSizes.spacingLg,
-        AppSizes.spacingLg,
-        AppSizes.spacingLg,
-        AppSizes.spacing2Xl + bottomSafeArea,
+        _screenHorizontalPadding,
+        _screenTopPadding,
+        _screenHorizontalPadding,
+        _screenBottomPadding + bottomSafeArea,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -135,7 +140,7 @@ class _ProfileUserSettingsScreenState
               baseSettings: profile.settings,
             ),
           ),
-          const SizedBox(height: AppSizes.spacingLg),
+          const SizedBox(height: _sectionGap),
           const ProfileTtsVoiceSettingsSection(),
         ],
       ),

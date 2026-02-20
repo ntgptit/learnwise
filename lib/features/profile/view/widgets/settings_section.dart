@@ -19,8 +19,8 @@ class SettingsSection extends StatelessWidget {
   final ValueNotifier<ProfileSettingsDraft> settingsDraftNotifier;
   final void Function(ProfileSettingsDraft) onSave;
 
-  static const double _horizontalPadding = AppSizes.spacingLg;
-  static const double _verticalPadding = AppSizes.spacingXmd;
+  static const double _horizontalPadding = AppSizes.spacingMd;
+  static const double _verticalPadding = AppSizes.spacingMd;
 
   @override
   Widget build(BuildContext context) {

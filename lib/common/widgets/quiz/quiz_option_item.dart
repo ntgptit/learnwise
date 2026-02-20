@@ -25,7 +25,8 @@ class LwQuizOptionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
     final Color contentColor = correct
         ? colorScheme.onSuccessContainer
@@ -66,8 +67,7 @@ class LwQuizOptionItem extends StatelessWidget {
               backgroundColor: avatarBackgroundColor,
               child: Text(
                 label,
-                style: TextStyle(
-                  fontSize: AppSizes.spacingSm,
+                style: theme.textTheme.labelMedium?.copyWith(
                   color: contentColor,
                 ),
               ),

@@ -58,6 +58,9 @@ class _HeaderBody extends StatelessWidget {
   final String signOutTooltip;
   final VoidCallback onSignOut;
 
+  static const double _bodyBottomPadding = AppSizes.spacingLg;
+  static const double _topRowToAvatarGap = AppSizes.spacingMd;
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -68,7 +71,7 @@ class _HeaderBody extends StatelessWidget {
         AppSizes.spacingMd,
         AppSizes.spacingMd,
         AppSizes.spacingMd,
-        AppSizes.size32,
+        _bodyBottomPadding,
       ),
       child: Column(
         children: <Widget>[
@@ -77,7 +80,7 @@ class _HeaderBody extends StatelessWidget {
             signOutTooltip: signOutTooltip,
             onSignOut: onSignOut,
           ),
-          const SizedBox(height: AppSizes.spacingLg),
+          const SizedBox(height: _topRowToAvatarGap),
           _HeaderAvatar(colorScheme: colorScheme),
           const SizedBox(height: AppSizes.spacingMd),
           _HeaderDisplayName(textTheme: textTheme, profile: profile),

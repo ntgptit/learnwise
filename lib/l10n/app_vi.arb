@@ -1308,6 +1308,10 @@
   "@profileVoiceTestHint": {
     "description": "Hint for custom voice test text input."
   },
+  "profileVoiceTestCustomRequired": "Vui lòng nhập nội dung tùy chỉnh trước khi nghe thử giọng.",
+  "@profileVoiceTestCustomRequired": {
+    "description": "Validation message shown when custom voice test text is empty."
+  },
   "profileVoiceTestButtonLabel": "Nghe thử giọng",
   "@profileVoiceTestButtonLabel": {
     "description": "Button label to preview current voice settings."

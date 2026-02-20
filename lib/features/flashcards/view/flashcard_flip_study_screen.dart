@@ -380,18 +380,20 @@ class _FlashcardFlipStudyScreenState
     );
     _applyTtsSettings(ttsController);
     await ttsController.initialize();
-    ttsController.setInputText(text);
-    await ttsController.readText();
+    await ttsController.speakText(text);
   }
 
   void _applyTtsSettings(TtsController ttsController) {
     final UserStudySettings settings = ref.read(
       effectiveStudySettingsForDeckProvider(widget.deckId),
     );
-    ttsController.selectVoice(settings.ttsVoiceId);
-    ttsController.setSpeechRate(settings.ttsSpeechRate);
-    ttsController.setPitch(settings.ttsPitch);
-    ttsController.setVolume(settings.ttsVolume);
+    ttsController.applyVoiceSettings(
+      voiceId: settings.ttsVoiceId,
+      speechRate: settings.ttsSpeechRate,
+      pitch: settings.ttsPitch,
+      volume: settings.ttsVolume,
+      clearVoiceId: settings.ttsVoiceId == null,
+    );
   }
 
   void _toggleStudyCardFlipped() {

@@ -1308,6 +1308,10 @@
   "@profileVoiceTestHint": {
     "description": "Hint for custom voice test text input."
   },
+  "profileVoiceTestCustomRequired": "Please enter custom text before testing voice.",
+  "@profileVoiceTestCustomRequired": {
+    "description": "Validation message shown when custom voice test text is empty."
+  },
   "profileVoiceTestButtonLabel": "Test voice",
   "@profileVoiceTestButtonLabel": {
     "description": "Button label to preview current voice settings."

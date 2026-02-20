@@ -16,7 +16,6 @@ import '../../features/profile/view/profile_personal_information_screen.dart';
 import '../../features/profile/view/profile_user_settings_screen.dart';
 import '../../features/study/model/study_session_args.dart';
 import '../../features/study/view/index.dart';
-import '../../features/tts/view/tts_screen.dart';
 import 'route_names.dart';
 
 part 'app_router.g.dart';
@@ -166,16 +165,6 @@ class FlashcardStudySessionRoute extends GoRouteData
   Widget build(BuildContext context, GoRouterState state) {
     final StudySessionArgs args = $extra ?? const StudySessionArgs.fallback();
     return FlashcardStudySessionScreen(args: args);
-  }
-}
-
-@TypedGoRoute<TtsRoute>(path: RouteNames.tts)
-class TtsRoute extends GoRouteData with $TtsRoute {
-  const TtsRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const TtsScreen();
   }
 }
 

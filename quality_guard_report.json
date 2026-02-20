@@ -1,10 +1,10 @@
 [
   {
-    "file": "lib/features/profile/view/widgets/profile_tts_voice_settings_section.dart",
-    "line": 28,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Class length exceeds 300 lines. Split class or add `quality-guard: allow-large-class` with justification.",
-    "content": "307 lines"
+    "file": "lib/common/styles/icons.dart",
+    "line": 1,
+    "severity": "INFO",
+    "rule": "UnusedFilesRule",
+    "reason": "Potentially unused Dart file. Remove/merge or connect it to the import graph.",
+    "content": "lib/common/styles/icons.dart"
   }
 ]

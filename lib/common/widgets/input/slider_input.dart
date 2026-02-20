@@ -5,17 +5,19 @@ import '../../styles/app_sizes.dart';
 class LwSliderInput extends StatelessWidget {
   const LwSliderInput({
     required this.value,
-    required this.onChanged,
     required this.min,
     required this.max,
     required this.displayValueText,
     super.key,
+    this.onChanged,
+    this.onChangeEnd,
     this.divisions,
     this.label,
   }) : assert(min < max, 'min must be less than max.');
 
   final double value;
-  final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChanged;
+  final ValueChanged<double>? onChangeEnd;
   final double min;
   final double max;
   final String displayValueText;
@@ -42,6 +44,7 @@ class LwSliderInput extends StatelessWidget {
           max: max,
           divisions: divisions,
           onChanged: onChanged,
+          onChangeEnd: onChangeEnd,
         ),
       ],
     );

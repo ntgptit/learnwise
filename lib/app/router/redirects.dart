@@ -13,7 +13,7 @@ class AppRedirects {
       return RouteNames.login;
     }
     if (isAuthenticated && isAuthScreen) {
-      return RouteNames.tts;
+      return RouteNames.dashboard;
     }
     return null;
   }

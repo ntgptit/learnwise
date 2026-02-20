@@ -240,5 +240,5 @@ void _openQuickAction(BuildContext context, DashboardQuickActionType type) {
     unawaited(const ProgressDetailRoute().push<void>(context));
     return;
   }
-  unawaited(const TtsRoute().push<void>(context));
+  unawaited(const ProfileSettingsRoute().push<void>(context));
 }

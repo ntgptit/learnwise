@@ -12,5 +12,7 @@ abstract class TtsRepository {
 
   Future<void> stop();
 
+  Future<void> dispose();
+
   Future<List<TtsVoiceOption>> getAvailableVoices({String? localePrefix});
 }

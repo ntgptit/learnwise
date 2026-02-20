@@ -16,14 +16,12 @@ sealed class TtsStatus with _$TtsStatus {
 @freezed
 sealed class TtsState with _$TtsState {
   const factory TtsState({
-    required String inputText,
     required TtsConfig config,
     required TtsEngineState engine,
   }) = _TtsState;
 
   factory TtsState.initial() {
     return TtsState(
-      inputText: '',
       config: TtsConfig.initial(),
       engine: TtsEngineState.initial(),
     );

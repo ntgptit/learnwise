@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
@@ -7,6 +9,7 @@ import '../../../app/theme/app_theme_mode_controller.dart';
 import '../../../common/styles/app_sizes.dart';
 import '../../../common/widgets/widgets.dart';
 import '../../../core/error/app_exception.dart';
+import '../../tts/viewmodel/tts_viewmodel.dart';
 import '../model/profile_models.dart';
 import '../viewmodel/profile_viewmodel.dart';
 import 'widgets/profile_settings_draft.dart';
@@ -46,6 +49,7 @@ class _ProfileUserSettingsScreenState
   }
 
   @override
+  // quality-guard: allow-long-function - build composes pop handling, appbar back behavior, and data-state wiring in one lifecycle-safe entrypoint.
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final AsyncValue<UserProfile> state = ref.watch(profileControllerProvider);
@@ -56,20 +60,30 @@ class _ProfileUserSettingsScreenState
       appThemeModeControllerProvider.notifier,
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          tooltip: 'Back',
-          onPressed: () => const ProfileRoute().go(context),
+    return PopScope<void>(
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          return;
+        }
+        unawaited(_stopVoiceReading());
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded),
+            tooltip: 'Back',
+            onPressed: () {
+              unawaited(_onBackPressed());
+            },
+          ),
+          title: Text(l10n.profileSettingsTitle),
         ),
-        title: Text(l10n.profileSettingsTitle),
-      ),
-      body: _buildBody(
-        l10n: l10n,
-        state: state,
-        controller: controller,
-        themeModeController: themeModeController,
+        body: _buildBody(
+          l10n: l10n,
+          state: state,
+          controller: controller,
+          themeModeController: themeModeController,
+        ),
       ),
     );
   }
@@ -161,7 +175,23 @@ class _ProfileUserSettingsScreenState
     if (!updated) {
       return;
     }
+    await _stopVoiceReading();
     await themeModeController.setThemeMode(_toThemeMode(draft.themeMode));
+  }
+
+  Future<void> _onBackPressed() async {
+    await _stopVoiceReading();
+    if (!mounted) {
+      return;
+    }
+    const ProfileRoute().go(context);
+  }
+
+  Future<void> _stopVoiceReading() async {
+    final TtsController ttsController = ref.read(
+      ttsControllerProvider.notifier,
+    );
+    await ttsController.stopReading();
   }
 
   void _bindSettings(UserProfile profile) {

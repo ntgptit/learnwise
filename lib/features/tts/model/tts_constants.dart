@@ -14,8 +14,12 @@ class TtsConstants {
 
   static const int sliderDivisions = 20;
   static const int sliderPrecision = 2;
+  static const int livePreviewDebounceMilliseconds = 400;
+  static const int speechRetryDelayMilliseconds = 120;
   static const int voiceAliasPadWidth = 2;
   static const String voiceAliasPadChar = '0';
+  static const String speechSynthesisErrorToken = 'speechsynthesiserrorevent';
+  static const String warmUpText = ' ';
 
   static const String koreanLocalePrefix = 'ko';
   static const String englishLanguageCode = 'en-US';

@@ -30,6 +30,7 @@ class _ProfileTtsVoiceSettingsSectionState
     extends ConsumerState<ProfileTtsVoiceSettingsSection> {
   late final ValueNotifier<_TtsDraft> _draftNotifier;
   late final ValueNotifier<bool> _useDefaultTestTextNotifier;
+  late final ValueNotifier<String?> _customTestTextErrorNotifier;
   late final TextEditingController _testTextController;
   int? _boundUserId;
   String? _boundSignature;
@@ -39,6 +40,7 @@ class _ProfileTtsVoiceSettingsSectionState
     super.initState();
     _draftNotifier = ValueNotifier<_TtsDraft>(_TtsDraft.initial());
     _useDefaultTestTextNotifier = ValueNotifier<bool>(true);
+    _customTestTextErrorNotifier = ValueNotifier<String?>(null);
     _testTextController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_bootstrapVoices());
@@ -49,6 +51,7 @@ class _ProfileTtsVoiceSettingsSectionState
   void dispose() {
     _testTextController.dispose();
     _useDefaultTestTextNotifier.dispose();
+    _customTestTextErrorNotifier.dispose();
     _draftNotifier.dispose();
     super.dispose();
   }
@@ -76,6 +79,13 @@ class _ProfileTtsVoiceSettingsSectionState
     return ValueListenableBuilder<_TtsDraft>(
       valueListenable: _draftNotifier,
       builder: (context, draft, _) {
+        final List<TtsVoiceOption> dropdownVoices = _resolveUniqueVoices(
+          _resolveKoreanVoices(engine.voices),
+        );
+        final int? dropdownVoiceIndex = _resolveDropdownVoiceIndex(
+          draftVoiceId: draft.voiceId,
+          voices: dropdownVoices,
+        );
         final String defaultTestText = _resolveDefaultTestText(
           draft: draft,
           voices: engine.voices,
@@ -96,31 +106,34 @@ class _ProfileTtsVoiceSettingsSectionState
                   title: l10n.voiceSettingsSectionTitle,
                   onRefresh: _resolveRefreshHandler(engine),
                 ),
-                const SizedBox(height: AppSizes.spacingMd),
+                const SizedBox(height: _VoiceSettingsLayoutConstants.blockGap),
                 Text(
-                  l10n.koreanVoicesCount(engine.voices.length),
+                  l10n.koreanVoicesCount(dropdownVoices.length),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: AppSizes.spacingSm),
-                DropdownButtonFormField<String?>(
-                  key: ValueKey<String?>(draft.voiceId),
-                  initialValue: draft.voiceId,
+                const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
+                LwSelectBox<int?>(
+                  key: ValueKey<int?>(dropdownVoiceIndex),
+                  value: dropdownVoiceIndex,
                   onChanged: isInputDisabled
                       ? null
-                      : (voiceId) {
+                      : (voiceIndex) {
+                          final String? selectedVoiceId =
+                              _resolveVoiceIdByDropdownIndex(
+                                voiceIndex: voiceIndex,
+                                voices: dropdownVoices,
+                              );
                           _updateDraft(
                             draft.copyWith(
-                              voiceId: voiceId,
-                              clearVoiceId: voiceId == null,
+                              voiceId: selectedVoiceId,
+                              clearVoiceId: selectedVoiceId == null,
                             ),
                           );
                         },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ).copyWith(labelText: l10n.selectKoreanVoiceLabel),
-                  items: _buildVoiceItems(l10n: l10n, voices: engine.voices),
+                  options: _buildVoiceItems(l10n: l10n, voices: dropdownVoices),
+                  labelText: l10n.selectKoreanVoiceLabel,
                 ),
-                const SizedBox(height: AppSizes.spacingMd),
+                const SizedBox(height: _VoiceSettingsLayoutConstants.blockGap),
                 _TtsSliderRow(
                   label: l10n.speedLabel,
                   value: draft.speechRate,
@@ -129,10 +142,18 @@ class _ProfileTtsVoiceSettingsSectionState
                   onChanged: isInputDisabled
                       ? null
                       : (value) {
-                          _updateDraft(draft.copyWith(speechRate: value));
+                          _updateDraft(
+                            draft.copyWith(speechRate: value),
+                            triggerLivePreview: false,
+                          );
+                        },
+                  onChangeEnd: isInputDisabled
+                      ? null
+                      : (_) {
+                          _emitLivePreviewIntent();
                         },
                 ),
-                const SizedBox(height: AppSizes.spacingSm),
+                const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
                 _TtsSliderRow(
                   label: l10n.pitchLabel,
                   value: draft.pitch,
@@ -141,10 +162,18 @@ class _ProfileTtsVoiceSettingsSectionState
                   onChanged: isInputDisabled
                       ? null
                       : (value) {
-                          _updateDraft(draft.copyWith(pitch: value));
+                          _updateDraft(
+                            draft.copyWith(pitch: value),
+                            triggerLivePreview: false,
+                          );
+                        },
+                  onChangeEnd: isInputDisabled
+                      ? null
+                      : (_) {
+                          _emitLivePreviewIntent();
                         },
                 ),
-                const SizedBox(height: AppSizes.spacingSm),
+                const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
                 _TtsSliderRow(
                   label: l10n.volumeLabel,
                   value: draft.volume,
@@ -153,29 +182,36 @@ class _ProfileTtsVoiceSettingsSectionState
                   onChanged: isInputDisabled
                       ? null
                       : (value) {
-                          _updateDraft(draft.copyWith(volume: value));
+                          _updateDraft(
+                            draft.copyWith(volume: value),
+                            triggerLivePreview: false,
+                          );
+                        },
+                  onChangeEnd: isInputDisabled
+                      ? null
+                      : (_) {
+                          _emitLivePreviewIntent();
                         },
                 ),
-                const SizedBox(height: AppSizes.spacingMd),
+                const SizedBox(height: _VoiceSettingsLayoutConstants.blockGap),
                 _VoiceTestSection(
                   l10n: l10n,
                   useDefaultTestTextNotifier: _useDefaultTestTextNotifier,
+                  customTestTextErrorNotifier: _customTestTextErrorNotifier,
                   testTextController: _testTextController,
                   defaultTestText: defaultTestText,
                   isInputDisabled: isInputDisabled,
                   isTesting: isTesting,
                   onPreviewPressed: _previewVoice,
                 ),
-                const SizedBox(height: AppSizes.spacingLg),
+                const SizedBox(height: _VoiceSettingsLayoutConstants.footerGap),
                 Center(
-                  child: SizedBox(
-                    height: AppSizes.size48,
-                    child: FilledButton(
-                      onPressed: !hasChanges || isSaving
-                          ? null
-                          : () => _saveGlobalVoiceSettings(profile.settings),
-                      child: Text(l10n.profileSaveSettingsLabel),
-                    ),
+                  child: LwPrimaryButton(
+                    label: l10n.profileSaveSettingsLabel,
+                    expanded: false,
+                    onPressed: !hasChanges || isSaving
+                        ? null
+                        : () => _saveGlobalVoiceSettings(profile.settings),
                   ),
                 ),
               ],
@@ -195,18 +231,19 @@ class _ProfileTtsVoiceSettingsSectionState
       return null;
     }
     final TtsController controller = ref.read(ttsControllerProvider.notifier);
-    return controller.loadVoices;
+    return () {
+      unawaited(
+        controller.loadVoices(localePrefix: TtsConstants.koreanLocalePrefix),
+      );
+    };
   }
 
-  List<DropdownMenuItem<String?>> _buildVoiceItems({
+  List<LwSelectOption<int?>> _buildVoiceItems({
     required AppLocalizations l10n,
     required List<TtsVoiceOption> voices,
   }) {
-    return <DropdownMenuItem<String?>>[
-      DropdownMenuItem<String?>(
-        value: null,
-        child: Text(l10n.systemDefaultVoice),
-      ),
+    return <LwSelectOption<int?>>[
+      LwSelectOption<int?>(value: null, label: l10n.systemDefaultVoice),
       ...voices.asMap().entries.map((entry) {
         final int index = entry.key + 1;
         final TtsVoiceOption voice = entry.value;
@@ -216,18 +253,89 @@ class _ProfileTtsVoiceSettingsSectionState
             TtsConstants.voiceAliasPadChar,
           ),
         );
-        return DropdownMenuItem<String?>(
-          value: voice.id,
-          child: Text('$alias - ${voice.displayLabel}'),
+        return LwSelectOption<int?>(
+          value: entry.key,
+          label: '$alias - ${voice.displayLabel}',
         );
       }),
     ];
   }
 
+  List<TtsVoiceOption> _resolveUniqueVoices(List<TtsVoiceOption> voices) {
+    final Set<String> seenIds = <String>{};
+    final List<TtsVoiceOption> uniqueVoices = <TtsVoiceOption>[];
+    for (final TtsVoiceOption voice in voices) {
+      final String normalizedVoiceId = StringUtils.normalize(voice.id);
+      if (normalizedVoiceId.isEmpty) {
+        continue;
+      }
+      final String dedupeId = StringUtils.toLower(normalizedVoiceId);
+      if (seenIds.contains(dedupeId)) {
+        continue;
+      }
+      seenIds.add(dedupeId);
+      uniqueVoices.add(voice);
+    }
+    return uniqueVoices;
+  }
+
+  List<TtsVoiceOption> _resolveKoreanVoices(List<TtsVoiceOption> voices) {
+    final List<TtsVoiceOption> koreanVoices = <TtsVoiceOption>[];
+    for (final TtsVoiceOption voice in voices) {
+      if (!StringUtils.startsWithIgnoreCase(
+        value: voice.locale,
+        prefix: TtsConstants.koreanLocalePrefix,
+      )) {
+        continue;
+      }
+      koreanVoices.add(voice);
+    }
+    return koreanVoices;
+  }
+
+  int? _resolveDropdownVoiceIndex({
+    required String? draftVoiceId,
+    required List<TtsVoiceOption> voices,
+  }) {
+    final String? normalizedDraftVoiceId = StringUtils.normalizeNullable(
+      draftVoiceId,
+    );
+    if (normalizedDraftVoiceId == null) {
+      return null;
+    }
+    final String normalizedDraftKey = StringUtils.toLower(
+      normalizedDraftVoiceId,
+    );
+    for (int index = 0; index < voices.length; index += 1) {
+      final TtsVoiceOption voice = voices[index];
+      final String voiceKey = StringUtils.toLower(
+        StringUtils.normalize(voice.id),
+      );
+      if (voiceKey != normalizedDraftKey) {
+        continue;
+      }
+      return index;
+    }
+    return null;
+  }
+
+  String? _resolveVoiceIdByDropdownIndex({
+    required int? voiceIndex,
+    required List<TtsVoiceOption> voices,
+  }) {
+    if (voiceIndex == null) {
+      return null;
+    }
+    if (voiceIndex < 0 || voiceIndex >= voices.length) {
+      return null;
+    }
+    return voices[voiceIndex].id;
+  }
+
   Future<void> _bootstrapVoices() async {
     final TtsController controller = ref.read(ttsControllerProvider.notifier);
     final TtsState state = ref.read(ttsControllerProvider);
-    if (state.engine.isInitialized && state.engine.voices.isNotEmpty) {
+    if (state.engine.isInitialized && _hasKoreanVoice(state.engine.voices)) {
       return;
     }
     await controller.initialize();
@@ -235,10 +343,23 @@ class _ProfileTtsVoiceSettingsSectionState
       return;
     }
     final TtsState initializedState = ref.read(ttsControllerProvider);
-    if (initializedState.engine.voices.isNotEmpty) {
+    if (_hasKoreanVoice(initializedState.engine.voices)) {
       return;
     }
-    await controller.loadVoices();
+    await controller.loadVoices(localePrefix: TtsConstants.koreanLocalePrefix);
+  }
+
+  bool _hasKoreanVoice(List<TtsVoiceOption> voices) {
+    for (final TtsVoiceOption voice in voices) {
+      if (!StringUtils.startsWithIgnoreCase(
+        value: voice.locale,
+        prefix: TtsConstants.koreanLocalePrefix,
+      )) {
+        continue;
+      }
+      return true;
+    }
+    return false;
   }
 
   void _bindDraft(UserProfile profile) {
@@ -276,17 +397,24 @@ class _ProfileTtsVoiceSettingsSectionState
     return false;
   }
 
-  void _updateDraft(_TtsDraft draft) {
+  void _updateDraft(_TtsDraft draft, {bool triggerLivePreview = true}) {
     _draftNotifier.value = draft;
     _applyDraftToTtsController(draft);
+    if (!triggerLivePreview) {
+      return;
+    }
+    _emitLivePreviewIntent();
   }
 
   void _applyDraftToTtsController(_TtsDraft draft) {
     final TtsController controller = ref.read(ttsControllerProvider.notifier);
-    controller.selectVoice(draft.voiceId);
-    controller.setSpeechRate(draft.speechRate);
-    controller.setPitch(draft.pitch);
-    controller.setVolume(draft.volume);
+    controller.applyVoiceSettings(
+      voiceId: draft.voiceId,
+      speechRate: draft.speechRate,
+      pitch: draft.pitch,
+      volume: draft.volume,
+      clearVoiceId: draft.voiceId == null,
+    );
   }
 
   void _scheduleApplyDraftToTtsController(_TtsDraft draft) {
@@ -298,20 +426,61 @@ class _ProfileTtsVoiceSettingsSectionState
     });
   }
 
+  void _emitLivePreviewIntent() {
+    final _TtsDraft draft = _draftNotifier.value;
+    final String text = _resolvePreviewText();
+    if (text.isEmpty) {
+      return;
+    }
+    final TtsState ttsState = ref.read(ttsControllerProvider);
+    final TtsController controller = ref.read(ttsControllerProvider.notifier);
+    controller.queueLivePreview(
+      previewText: text,
+      voiceId: draft.voiceId,
+      speechRate: draft.speechRate,
+      pitch: draft.pitch,
+      volume: draft.volume,
+      isPreviewActive: ttsState.engine.status.isReading,
+    );
+  }
+
   Future<void> _previewVoice() async {
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
+    if (!_useDefaultTestTextNotifier.value) {
+      final String customText = StringUtils.normalize(_testTextController.text);
+      if (customText.isEmpty) {
+        _customTestTextErrorNotifier.value =
+            l10n.profileVoiceTestCustomRequired;
+        _showVoiceTestValidationError(l10n.profileVoiceTestCustomRequired);
+        return;
+      }
+    }
+    _customTestTextErrorNotifier.value = null;
     final _TtsDraft draft = _draftNotifier.value;
     final String text = _resolvePreviewText();
     if (text.isEmpty) {
       return;
     }
     final TtsController controller = ref.read(ttsControllerProvider.notifier);
-    controller.selectVoice(draft.voiceId);
-    controller.setSpeechRate(draft.speechRate);
-    controller.setPitch(draft.pitch);
-    controller.setVolume(draft.volume);
-    await controller.initialize();
-    controller.setInputText(text);
-    await controller.readText();
+    await controller.previewWithConfig(
+      previewText: text,
+      voiceId: draft.voiceId,
+      speechRate: draft.speechRate,
+      pitch: draft.pitch,
+      volume: draft.volume,
+    );
+  }
+
+  void _showVoiceTestValidationError(String message) {
+    final ScaffoldMessengerState? messenger = ScaffoldMessenger.maybeOf(
+      context,
+    );
+    if (messenger == null) {
+      return;
+    }
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   String _resolvePreviewText() {
@@ -405,6 +574,7 @@ class _ProfileTtsVoiceSettingsSectionState
   }
 
   Future<void> _saveGlobalVoiceSettings(UserStudySettings baseSettings) async {
+    await ref.read(ttsControllerProvider.notifier).stopReading();
     final _TtsDraft draft = _draftNotifier.value;
     final UserStudySettings nextSettings = baseSettings.copyWith(
       ttsVoiceId: draft.voiceId,
@@ -423,6 +593,7 @@ class _VoiceTestSection extends StatelessWidget {
   const _VoiceTestSection({
     required this.l10n,
     required this.useDefaultTestTextNotifier,
+    required this.customTestTextErrorNotifier,
     required this.testTextController,
     required this.defaultTestText,
     required this.isInputDisabled,
@@ -432,6 +603,7 @@ class _VoiceTestSection extends StatelessWidget {
 
   final AppLocalizations l10n;
   final ValueNotifier<bool> useDefaultTestTextNotifier;
+  final ValueNotifier<String?> customTestTextErrorNotifier;
   final TextEditingController testTextController;
   final String defaultTestText;
   final bool isInputDisabled;
@@ -445,57 +617,76 @@ class _VoiceTestSection extends StatelessWidget {
       builder: (context, useDefaultText, _) {
         final bool canEditInput = !useDefaultText && !isInputDisabled;
         final bool canPreview = !isInputDisabled && !isTesting;
+        final String toggleLabel = useDefaultText
+            ? l10n.profileVoiceTestUseDefaultLabel
+            : l10n.profileVoiceTestUseCustomLabel;
+        final IconData toggleIcon = useDefaultText
+            ? Icons.auto_awesome_rounded
+            : Icons.edit_note_rounded;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              l10n.profileVoiceTestModeLabel,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: AppSizes.spacingSm),
-            SegmentedButton<bool>(
-              segments: <ButtonSegment<bool>>[
-                ButtonSegment<bool>(
-                  value: true,
-                  label: Text(l10n.profileVoiceTestUseDefaultLabel),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    l10n.profileVoiceTestModeLabel,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
-                ButtonSegment<bool>(
-                  value: false,
-                  label: Text(l10n.profileVoiceTestUseCustomLabel),
+                SizedBox(
+                  width: _VoiceTestSectionConstants.toggleButtonWidth,
+                  child: OutlinedButton.icon(
+                    onPressed: isInputDisabled
+                        ? null
+                        : () {
+                            customTestTextErrorNotifier.value = null;
+                            useDefaultTestTextNotifier.value = !useDefaultText;
+                          },
+                    icon: Icon(toggleIcon),
+                    label: Text(toggleLabel),
+                  ),
                 ),
               ],
-              selected: <bool>{useDefaultText},
-              onSelectionChanged: (selection) {
-                useDefaultTestTextNotifier.value = selection.first;
-              },
-              showSelectedIcon: false,
             ),
-            const SizedBox(height: AppSizes.spacingSm),
-            if (!useDefaultText)
-              TextField(
-                controller: testTextController,
-                enabled: canEditInput,
-                maxLines: 3,
-                minLines: 2,
-                decoration: InputDecoration(
-                  labelText: l10n.profileVoiceTestInputLabel,
-                  hintText: l10n.profileVoiceTestHint,
-                ),
-              ),
-            if (useDefaultText) ...<Widget>[
-              const SizedBox(height: AppSizes.spacingXs),
-              Text(
-                defaultTestText,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: AppSizes.spacingSm),
+            const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
+            ValueListenableBuilder<String?>(
+              valueListenable: customTestTextErrorNotifier,
+              builder: (context, customTextError, _) {
+                return LwTextArea(
+                  key: ValueKey<String>(
+                    'voice-test-panel-$useDefaultText-$defaultTestText',
+                  ),
+                  controller: useDefaultText ? null : testTextController,
+                  initialValue: useDefaultText ? defaultTestText : null,
+                  enabled: useDefaultText ? true : canEditInput,
+                  readOnly: useDefaultText,
+                  maxLines: _VoiceTestSectionConstants.textPanelMaxLines,
+                  minLines: _VoiceTestSectionConstants.textPanelMinLines,
+                  labelText: useDefaultText
+                      ? l10n.profileVoiceTestUseDefaultLabel
+                      : l10n.profileVoiceTestInputLabel,
+                  hintText: useDefaultText ? null : l10n.profileVoiceTestHint,
+                  errorText: useDefaultText ? null : customTextError,
+                  onChanged: useDefaultText
+                      ? null
+                      : (_) {
+                          if (customTextError == null) {
+                            return;
+                          }
+                          customTestTextErrorNotifier.value = null;
+                        },
+                );
+              },
+            ),
+            const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
             Align(
               alignment: Alignment.centerLeft,
-              child: FilledButton.tonalIcon(
+              child: LwTonalButton(
+                label: l10n.profileVoiceTestButtonLabel,
                 onPressed: canPreview ? onPreviewPressed : null,
-                icon: const Icon(Icons.volume_up_rounded),
-                label: Text(l10n.profileVoiceTestButtonLabel),
+                expanded: false,
+                leading: const Icon(Icons.volume_up_rounded),
               ),
             ),
           ],
@@ -503,6 +694,22 @@ class _VoiceTestSection extends StatelessWidget {
       },
     );
   }
+}
+
+class _VoiceTestSectionConstants {
+  const _VoiceTestSectionConstants._();
+
+  static const int textPanelMinLines = 4;
+  static const int textPanelMaxLines = 5;
+  static const double toggleButtonWidth = AppSizes.size144 + AppSizes.size32;
+}
+
+class _VoiceSettingsLayoutConstants {
+  const _VoiceSettingsLayoutConstants._();
+
+  static const double itemGap = AppSizes.spacingMd;
+  static const double blockGap = AppSizes.spacingMd;
+  static const double footerGap = AppSizes.spacingLg;
 }
 
 class _SectionTitleRow extends StatelessWidget {
@@ -523,10 +730,10 @@ class _SectionTitleRow extends StatelessWidget {
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
-        IconButton(
+        LwIconButton(
           onPressed: onRefresh,
           tooltip: AppLocalizations.of(context)!.loadKoreanVoices,
-          icon: const Icon(Icons.refresh_rounded),
+          icon: Icons.refresh_rounded,
         ),
       ],
     );
@@ -540,6 +747,7 @@ class _TtsSliderRow extends StatelessWidget {
     required this.min,
     required this.max,
     required this.onChanged,
+    this.onChangeEnd,
   });
 
   final String label;
@@ -547,6 +755,7 @@ class _TtsSliderRow extends StatelessWidget {
   final double min;
   final double max;
   final ValueChanged<double>? onChanged;
+  final ValueChanged<double>? onChangeEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -554,18 +763,15 @@ class _TtsSliderRow extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(child: Text(label)),
-            Text(valueText),
-          ],
-        ),
-        Slider(
+        LwSliderInput(
           value: value.clamp(min, max),
           min: min,
           max: max,
+          label: label,
+          displayValueText: valueText,
           divisions: TtsConstants.sliderDivisions,
           onChanged: onChanged,
+          onChangeEnd: onChangeEnd,
         ),
       ],
     );

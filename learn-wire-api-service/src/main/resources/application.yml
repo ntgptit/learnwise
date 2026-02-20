@@ -50,7 +50,7 @@ springdoc:
 app:
   security:
     jwt-secret: ${APP_SECURITY_JWT_SECRET:learnwise-default-jwt-secret-32-bytes-minimum}
-    cors-allowed-origins: ${APP_SECURITY_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://192.168.35.165:3000,http://192.168.35.165:8080}
+    cors-allowed-origins: ${APP_SECURITY_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://192.168.35.178:3000,http://192.168.35.178:8080}
     access-token-ttl-seconds: ${APP_SECURITY_ACCESS_TOKEN_TTL_SECONDS:900}
     refresh-token-ttl-seconds: ${APP_SECURITY_REFRESH_TOKEN_TTL_SECONDS:2592000}
     token-issuer: ${APP_SECURITY_TOKEN_ISSUER:learnwise-api}

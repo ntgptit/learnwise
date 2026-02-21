@@ -7,7 +7,7 @@ export 'package:learnwise/common/widgets/state/error_state.dart';
 export 'package:learnwise/common/widgets/state/loading_state.dart';
 export 'package:learnwise/common/widgets/buttons/primary_button.dart';
 export 'package:learnwise/features/flashcards/view/widgets/flashcard_mock_banner.dart';
-export 'package:learnwise/features/folders/view/folder_open_flow.dart';
+export 'package:learnwise/features/folders/view/flow/folder_open_flow.dart';
 export 'package:learnwise/features/folders/view/widgets/filters/folder_filter_section.dart';
 export 'package:learnwise/features/folders/view/widgets/cards/folder_hero_card.dart';
 export 'package:learnwise/features/learning/view/widgets/audio_waveform.dart';

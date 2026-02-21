@@ -1,4 +1,4 @@
-import '../model/folder_models.dart';
+import '../../model/folder_models.dart';
 
 enum FolderOpenDestination { subfolders, decks, emptyFolder }
 

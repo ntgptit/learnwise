@@ -1,7 +1,3 @@
-// quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
-// quality-guard: allow-large-class - phase2 legacy backlog tracked for class decomposition.
-// quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
-// ui-state-guard: allow-spinner-list - hierarchical list keeps lightweight inline progress indicators.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -29,9 +25,13 @@ import 'widgets/cards/folder_list_card.dart';
 import 'widgets/dialogs/folder_editor_dialog.dart';
 import 'widgets/state/folder_empty_state.dart';
 
-part 'folder_screen_logic.dart';
-part 'folder_screen_build.dart';
-part 'folder_screen_toolbar.dart';
+part 'screen/folder_screen_logic.dart';
+part 'screen/folder_screen_build.dart';
+part 'screen/folder_screen_build_body.dart';
+part 'screen/folder_screen_logic_actions.dart';
+part 'screen/folder_screen_logic_navigation.dart';
+part 'screen/folder_screen_logic_state.dart';
+part 'widgets/toolbar/folder_screen_toolbar.dart';
 
 enum _FolderMenuAction {
   refresh,

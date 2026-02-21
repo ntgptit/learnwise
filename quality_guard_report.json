@@ -1,53 +1,5 @@
 [
   {
-    "file": "lib/features/folders/view/folder_screen_build.dart",
-    "line": 1,
-    "severity": "WARN",
-    "rule": "FileLengthRule",
-    "reason": "File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.",
-    "content": "425 lines"
-  },
-  {
-    "file": "lib/features/folders/view/folder_screen_build.dart",
-    "line": 4,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "421 lines"
-  },
-  {
-    "file": "lib/features/folders/view/folder_screen_logic.dart",
-    "line": 1,
-    "severity": "WARN",
-    "rule": "FileLengthRule",
-    "reason": "File length exceeds 400 lines. Split file or add `quality-guard: allow-large-file` with justification.",
-    "content": "704 lines"
-  },
-  {
-    "file": "lib/features/folders/view/folder_screen_logic.dart",
-    "line": 4,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "36 lines"
-  },
-  {
-    "file": "lib/features/folders/view/folder_screen_logic.dart",
-    "line": 123,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "49 lines"
-  },
-  {
-    "file": "lib/features/folders/view/folder_screen_toolbar.dart",
-    "line": 28,
-    "severity": "WARN",
-    "rule": "ClassAndFunctionLengthRule",
-    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
-    "content": "50 lines"
-  },
-  {
     "file": "lib/common/styles/icons.dart",
     "line": 1,
     "severity": "INFO",

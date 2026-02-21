@@ -57,6 +57,7 @@ class ProfileScreen extends HookConsumerWidget {
       errorTitle: l10n.profileLoadErrorTitle,
       errorMessage: errorMessage,
       errorRetryLabel: l10n.profileRetryLabel,
+      contentPadding: EdgeInsets.zero,
       onRetry: onRefresh,
       onRefreshAndScrollToTop: onRefreshAndScrollToTop,
       onDestinationSelected: (index) {

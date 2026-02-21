@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
 import 'package:learnwise/features/folders/model/folder_models.dart';
-import 'package:learnwise/features/folders/view/folder_open_flow.dart';
+import 'package:learnwise/features/folders/view/flow/folder_open_flow.dart';
 
 void main() {
   group('resolveFolderOpenDestination', () {

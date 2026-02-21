@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../common/styles/app_durations.dart';
-import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
 import '../model/dashboard_constants.dart';
 import '../model/dashboard_models.dart';
@@ -52,9 +51,6 @@ class DashboardScreen extends HookConsumerWidget {
       errorTitle: l10n.dashboardErrorTitle,
       errorMessage: l10n.dashboardErrorDescription,
       errorRetryLabel: l10n.dashboardRetryLabel,
-      contentPadding: const EdgeInsets.all(
-        DashboardScreenTokens.contentPadding,
-      ),
       useBodyScrollView: true,
       scrollController: scrollController,
       onRefresh: onRefresh,

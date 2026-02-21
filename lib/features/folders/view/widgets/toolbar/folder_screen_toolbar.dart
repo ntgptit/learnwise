@@ -1,6 +1,6 @@
-part of 'folder_screen.dart';
+part of '../../folder_screen.dart';
 
-/// Modern toolbar combining search and sort controls
+/// Modern toolbar combining search and sort controls.
 class _FolderToolbar extends StatelessWidget {
   const _FolderToolbar({
     required this.searchController,
@@ -26,6 +26,7 @@ class _FolderToolbar extends StatelessWidget {
   final ValueChanged<_FolderMenuAction> onMenuActionSelected;
 
   @override
+  // quality-guard: allow-long-function - search field and sort action remain together for a compact toolbar composition.
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final BorderRadius buttonRadius = BorderRadius.circular(AppSizes.radiusMd);

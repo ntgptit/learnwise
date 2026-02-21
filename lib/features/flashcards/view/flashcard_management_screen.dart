@@ -4,8 +4,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/app_router.dart';
@@ -55,56 +56,82 @@ class _StudyModeOption {
   final IconData icon;
 }
 
-class FlashcardManagementScreen extends ConsumerStatefulWidget {
+class FlashcardManagementScreen extends HookConsumerWidget {
   const FlashcardManagementScreen({required this.args, super.key});
 
   final FlashcardManagementArgs args;
 
   @override
-  ConsumerState<FlashcardManagementScreen> createState() =>
-      _FlashcardManagementScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _FlashcardManagementView(args: args);
+  }
 }
 
-class _FlashcardManagementScreenState
-    extends ConsumerState<FlashcardManagementScreen> {
-  late final TextEditingController _searchController;
-  late final ScrollController _scrollController;
-  late final PageController _previewPageController;
-  Timer? _searchDebounceTimer;
+class _FlashcardManagementView extends HookConsumerWidget {
+  const _FlashcardManagementView({required this.args});
+
+  final FlashcardManagementArgs args;
 
   @override
-  void initState() {
-    super.initState();
-    final int deckId = widget.args.deckId;
-    final FlashcardListQuery query = ref.read(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final int deckId = args.deckId;
+    final FlashcardListQuery initialQuery = ref.read(
       flashcardQueryControllerProvider(deckId),
     );
-    final FlashcardUiState uiState = ref.read(
+    final FlashcardUiState initialUiState = ref.read(
       flashcardUiControllerProvider(deckId),
     );
-    _searchController = TextEditingController(text: query.search);
-    _scrollController = ScrollController()..addListener(_onScroll);
-    _previewPageController = PageController(
-      initialPage: uiState.previewIndex,
+    final TextEditingController searchController = useTextEditingController(
+      text: initialQuery.search,
+    );
+    final ScrollController scrollController = useScrollController();
+    final PageController previewPageController = usePageController(
+      initialPage: initialUiState.previewIndex,
       viewportFraction: FlashcardScreenTokens.heroViewportFraction,
     );
+    final ObjectRef<Timer?> searchDebounceTimerRef = useRef<Timer?>(null);
+    final _FlashcardManagementViewLogic logic = _FlashcardManagementViewLogic(
+      context: context,
+      ref: ref,
+      args: args,
+      searchController: searchController,
+      scrollController: scrollController,
+      previewPageController: previewPageController,
+      searchDebounceTimerRef: searchDebounceTimerRef,
+    );
+    useEffect(() {
+      scrollController.addListener(logic.onScroll);
+      return () {
+        scrollController.removeListener(logic.onScroll);
+        searchDebounceTimerRef.value?.cancel();
+      };
+    }, <Object>[scrollController, deckId]);
+    return logic.build();
   }
+}
 
-  @override
-  void dispose() {
-    _searchDebounceTimer?.cancel();
-    _searchController.dispose();
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
-    _previewPageController.dispose();
-    super.dispose();
-  }
+class _FlashcardManagementViewLogic {
+  _FlashcardManagementViewLogic({
+    required this.context,
+    required this.ref,
+    required this.args,
+    required this.searchController,
+    required this.scrollController,
+    required this.previewPageController,
+    required this.searchDebounceTimerRef,
+  });
 
-  @override
-  Widget build(BuildContext context) {
+  final BuildContext context;
+  final WidgetRef ref;
+  final FlashcardManagementArgs args;
+  final TextEditingController searchController;
+  final ScrollController scrollController;
+  final PageController previewPageController;
+  final ObjectRef<Timer?> searchDebounceTimerRef;
+
+  Widget build() {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final int deckId = widget.args.deckId;
+    final int deckId = args.deckId;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final FlashcardListQuery query = ref.watch(
       flashcardQueryControllerProvider(deckId),
@@ -129,8 +156,8 @@ class _FlashcardManagementScreenState
       flashcardUiControllerProvider(deckId).notifier,
     );
 
-    if (_searchController.text != query.search) {
-      _searchController.value = TextEditingValue(
+    if (searchController.text != query.search) {
+      searchController.value = TextEditingValue(
         text: query.search,
         selection: TextSelection.collapsed(offset: query.search.length),
       );
@@ -189,7 +216,7 @@ class _FlashcardManagementScreenState
                 RefreshIndicator(
                   onRefresh: controller.refresh,
                   child: CustomScrollView(
-                    controller: _scrollController,
+                    controller: scrollController,
                     physics: const AlwaysScrollableScrollPhysics(
                       parent: BouncingScrollPhysics(),
                     ),
@@ -206,7 +233,7 @@ class _FlashcardManagementScreenState
                             if (hasCards)
                               FlashcardPreviewCarousel(
                                 items: listing.items,
-                                pageController: _previewPageController,
+                                pageController: previewPageController,
                                 previewIndex: safePreviewIndex,
                                 onPageChanged: uiController.setPreviewIndex,
                                 onExpandPressed: (index) => _onFlipCardsPressed(
@@ -222,20 +249,16 @@ class _FlashcardManagementScreenState
                               ),
                             FlashcardSetMetadataSection(
                               title: _resolveSetTitle(l10n),
-                              ownerName: widget.args.ownerName,
+                              ownerName: args.ownerName,
                               totalFlashcards: listing.totalElements,
                             ),
-                            if (StringUtils.isNotBlank(
-                              widget.args.deckDescription,
-                            ))
+                            if (StringUtils.isNotBlank(args.deckDescription))
                               Padding(
                                 padding: const EdgeInsets.only(
                                   top: FlashcardScreenTokens.metadataGap,
                                 ),
                                 child: Text(
-                                  StringUtils.normalize(
-                                    widget.args.deckDescription,
-                                  ),
+                                  StringUtils.normalize(args.deckDescription),
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ),
@@ -245,7 +268,7 @@ class _FlashcardManagementScreenState
                                   top: FlashcardScreenTokens.sectionSpacing,
                                 ),
                                 child: LwSearchField(
-                                  controller: _searchController,
+                                  controller: searchController,
                                   onChanged: _onSearchChanged,
                                   hint: l10n.flashcardsSearchHint,
                                 ),
@@ -601,12 +624,12 @@ class _FlashcardManagementScreenState
     required StudyMode mode,
     required bool forceReset,
   }) {
-    final int seed = widget.args.deckId ^ listing.items.length ^ mode.index;
+    final int seed = args.deckId ^ listing.items.length ^ mode.index;
     final List<StudyMode> cycleModes = buildStudyModeCycle(startMode: mode);
     unawaited(
       FlashcardStudySessionRoute(
         $extra: StudySessionArgs(
-          deckId: widget.args.deckId,
+          deckId: args.deckId,
           mode: mode,
           items: const <FlashcardItem>[],
           title: _resolveTitle(l10n),
@@ -637,7 +660,7 @@ class _FlashcardManagementScreenState
     unawaited(
       FlashcardFlipStudyRoute(
         $extra: FlashcardFlipStudyArgs(
-          deckId: widget.args.deckId,
+          deckId: args.deckId,
           items: listing.items,
           initialIndex: safeInitialIndex,
           title: title,
@@ -646,9 +669,9 @@ class _FlashcardManagementScreenState
     );
   }
 
-  void _onScroll() {
-    final ScrollPosition? position = _scrollController.hasClients
-        ? _scrollController.position
+  void onScroll() {
+    final ScrollPosition? position = scrollController.hasClients
+        ? scrollController.position
         : null;
     if (position == null) {
       return;
@@ -657,9 +680,7 @@ class _FlashcardManagementScreenState
       return;
     }
     unawaited(
-      ref
-          .read(flashcardControllerProvider(widget.args.deckId).notifier)
-          .loadMore(),
+      ref.read(flashcardControllerProvider(args.deckId).notifier).loadMore(),
     );
   }
 
@@ -674,13 +695,13 @@ class _FlashcardManagementScreenState
   void _onMenuActionSelected(_FlashcardMenuAction action) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.deckId).notifier,
+      flashcardControllerProvider(args.deckId).notifier,
     );
     final FlashcardQueryController queryController = ref.read(
-      flashcardQueryControllerProvider(widget.args.deckId).notifier,
+      flashcardQueryControllerProvider(args.deckId).notifier,
     );
     final FlashcardUiController uiController = ref.read(
-      flashcardUiControllerProvider(widget.args.deckId).notifier,
+      flashcardUiControllerProvider(args.deckId).notifier,
     );
 
     if (action == _FlashcardMenuAction.toggleSearch) {
@@ -768,20 +789,23 @@ class _FlashcardManagementScreenState
   }
 
   void _onSearchChanged(String value) {
-    _searchDebounceTimer?.cancel();
-    _searchDebounceTimer = Timer(AppDurations.debounceMedium, _submitSearch);
+    searchDebounceTimerRef.value?.cancel();
+    searchDebounceTimerRef.value = Timer(
+      AppDurations.debounceMedium,
+      _submitSearch,
+    );
   }
 
   void _submitSearch() {
-    _searchDebounceTimer?.cancel();
+    searchDebounceTimerRef.value?.cancel();
     ref
-        .read(flashcardQueryControllerProvider(widget.args.deckId).notifier)
-        .setSearch(_searchController.text);
+        .read(flashcardQueryControllerProvider(args.deckId).notifier)
+        .setSearch(searchController.text);
   }
 
   String? _deriveTermLangCode() {
     return ref
-        .read(flashcardControllerProvider(widget.args.deckId))
+        .read(flashcardControllerProvider(args.deckId))
         .when(
           data: (listing) {
             for (final FlashcardItem item in listing.items) {
@@ -796,17 +820,15 @@ class _FlashcardManagementScreenState
         );
   }
 
+  // ignore: use_build_context_synchronously
   Future<void> _onCreateFlashcardPressed() async {
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.deckId).notifier,
+      flashcardControllerProvider(args.deckId).notifier,
     );
     final String? termLangCode = _deriveTermLangCode();
     final List<LanguageItem> languages = await ref.read(
       languagesControllerProvider.future,
     );
-    if (!mounted) {
-      return;
-    }
     await showFlashcardEditorDialog(
       context: context,
       initialFlashcard: null,
@@ -816,17 +838,15 @@ class _FlashcardManagementScreenState
     );
   }
 
+  // ignore: use_build_context_synchronously
   Future<void> _onEditFlashcardPressed(FlashcardItem flashcard) async {
     final FlashcardController controller = ref.read(
-      flashcardControllerProvider(widget.args.deckId).notifier,
+      flashcardControllerProvider(args.deckId).notifier,
     );
     final String? termLangCode = _deriveTermLangCode();
     final List<LanguageItem> languages = await ref.read(
       languagesControllerProvider.future,
     );
-    if (!mounted) {
-      return;
-    }
     await showFlashcardEditorDialog(
       context: context,
       initialFlashcard: flashcard,
@@ -860,7 +880,7 @@ class _FlashcardManagementScreenState
       return;
     }
     await ref
-        .read(flashcardControllerProvider(widget.args.deckId).notifier)
+        .read(flashcardControllerProvider(args.deckId).notifier)
         .deleteFlashcard(flashcard.id);
   }
 
@@ -869,18 +889,25 @@ class _FlashcardManagementScreenState
     required FlashcardListQuery query,
   }) {
     final FlashcardQueryController queryController = ref.read(
-      flashcardQueryControllerProvider(widget.args.deckId).notifier,
+      flashcardQueryControllerProvider(args.deckId).notifier,
     );
-    FlashcardSortBy selectedSortBy = query.sortBy;
-    FlashcardSortDirection selectedSortDirection = query.sortDirection;
 
     unawaited(
       showModalBottomSheet<void>(
         context: context,
         showDragHandle: true,
         builder: (sheetContext) {
-          return StatefulBuilder(
-            builder: (sheetContext, setSheetState) {
+          return HookBuilder(
+            builder: (sheetContext) {
+              final ValueNotifier<FlashcardSortBy> selectedSortByState =
+                  useState<FlashcardSortBy>(query.sortBy);
+              final ValueNotifier<FlashcardSortDirection>
+              selectedSortDirectionState = useState<FlashcardSortDirection>(
+                query.sortDirection,
+              );
+              final FlashcardSortBy selectedSortBy = selectedSortByState.value;
+              final FlashcardSortDirection selectedSortDirection =
+                  selectedSortDirectionState.value;
               return SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(
@@ -894,45 +921,39 @@ class _FlashcardManagementScreenState
                         label: l10n.flashcardsSortByCreatedAt,
                         isSelected: selectedSortBy == FlashcardSortBy.createdAt,
                         onTap: () {
-                          setSheetState(() {
-                            selectedSortDirection =
-                                _resolveSortDirectionForSortBySelection(
-                                  currentSortBy: selectedSortBy,
-                                  currentSortDirection: selectedSortDirection,
-                                  nextSortBy: FlashcardSortBy.createdAt,
-                                );
-                            selectedSortBy = FlashcardSortBy.createdAt;
-                          });
+                          selectedSortDirectionState.value =
+                              _resolveSortDirectionForSortBySelection(
+                                currentSortBy: selectedSortBy,
+                                currentSortDirection: selectedSortDirection,
+                                nextSortBy: FlashcardSortBy.createdAt,
+                              );
+                          selectedSortByState.value = FlashcardSortBy.createdAt;
                         },
                       ),
                       _buildSortOptionTile(
                         label: l10n.flashcardsSortByUpdatedAt,
                         isSelected: selectedSortBy == FlashcardSortBy.updatedAt,
                         onTap: () {
-                          setSheetState(() {
-                            selectedSortDirection =
-                                _resolveSortDirectionForSortBySelection(
-                                  currentSortBy: selectedSortBy,
-                                  currentSortDirection: selectedSortDirection,
-                                  nextSortBy: FlashcardSortBy.updatedAt,
-                                );
-                            selectedSortBy = FlashcardSortBy.updatedAt;
-                          });
+                          selectedSortDirectionState.value =
+                              _resolveSortDirectionForSortBySelection(
+                                currentSortBy: selectedSortBy,
+                                currentSortDirection: selectedSortDirection,
+                                nextSortBy: FlashcardSortBy.updatedAt,
+                              );
+                          selectedSortByState.value = FlashcardSortBy.updatedAt;
                         },
                       ),
                       _buildSortOptionTile(
                         label: l10n.flashcardsSortByFrontText,
                         isSelected: selectedSortBy == FlashcardSortBy.frontText,
                         onTap: () {
-                          setSheetState(() {
-                            selectedSortDirection =
-                                _resolveSortDirectionForSortBySelection(
-                                  currentSortBy: selectedSortBy,
-                                  currentSortDirection: selectedSortDirection,
-                                  nextSortBy: FlashcardSortBy.frontText,
-                                );
-                            selectedSortBy = FlashcardSortBy.frontText;
-                          });
+                          selectedSortDirectionState.value =
+                              _resolveSortDirectionForSortBySelection(
+                                currentSortBy: selectedSortBy,
+                                currentSortDirection: selectedSortDirection,
+                                nextSortBy: FlashcardSortBy.frontText,
+                              );
+                          selectedSortByState.value = FlashcardSortBy.frontText;
                         },
                       ),
                       const SizedBox(
@@ -947,9 +968,8 @@ class _FlashcardManagementScreenState
                             selectedSortDirection ==
                             FlashcardSortDirection.desc,
                         onTap: () {
-                          setSheetState(() {
-                            selectedSortDirection = FlashcardSortDirection.desc;
-                          });
+                          selectedSortDirectionState.value =
+                              FlashcardSortDirection.desc;
                         },
                       ),
                       _buildSortOptionTile(
@@ -960,9 +980,8 @@ class _FlashcardManagementScreenState
                         isSelected:
                             selectedSortDirection == FlashcardSortDirection.asc,
                         onTap: () {
-                          setSheetState(() {
-                            selectedSortDirection = FlashcardSortDirection.asc;
-                          });
+                          selectedSortDirectionState.value =
+                              FlashcardSortDirection.asc;
                         },
                       ),
                       const SizedBox(
@@ -1077,9 +1096,7 @@ class _FlashcardManagementScreenState
   }
 
   String _resolveTitle(AppLocalizations l10n) {
-    final String? deckName = StringUtils.normalizeNullable(
-      widget.args.deckName,
-    );
+    final String? deckName = StringUtils.normalizeNullable(args.deckName);
     if (deckName == null) {
       return l10n.flashcardsTitle;
     }
@@ -1087,9 +1104,7 @@ class _FlashcardManagementScreenState
   }
 
   String _resolveSetTitle(AppLocalizations l10n) {
-    final String? folderName = StringUtils.normalizeNullable(
-      widget.args.folderName,
-    );
+    final String? folderName = StringUtils.normalizeNullable(args.folderName);
     if (folderName == null) {
       return _resolveTitle(l10n);
     }
@@ -1141,8 +1156,8 @@ class _FlashcardManagementScreenState
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       uiController.setPreviewIndex(safeIndex);
-      if (_previewPageController.hasClients) {
-        _previewPageController.jumpToPage(safeIndex);
+      if (previewPageController.hasClients) {
+        previewPageController.jumpToPage(safeIndex);
       }
     });
   }

@@ -1,6 +1,7 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_sizes.dart';
@@ -12,33 +13,14 @@ import '../../../core/error/app_exception.dart';
 import '../../../core/utils/string_utils.dart';
 import '../viewmodel/auth_action_viewmodel.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  late final TextEditingController _identifierController;
-  late final TextEditingController _passwordController;
-
-  @override
-  void initState() {
-    super.initState();
-    _identifierController = TextEditingController();
-    _passwordController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _identifierController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final TextEditingController identifierController =
+        useTextEditingController();
+    final TextEditingController passwordController = useTextEditingController();
     final AsyncValue<void> actionState = ref.watch(
       authActionControllerProvider,
     );
@@ -49,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
     final String? errorMessage = actionState.when(
       data: (_) => null,
-      error: (error, stackTrace) => _resolveErrorMessage(error),
+      error: (error, stackTrace) => _resolveLoginErrorMessage(error),
       loading: () => null,
     );
 
@@ -79,19 +61,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: AppSizes.spacingLg),
                 LwTextField(
-                  controller: _identifierController,
+                  controller: identifierController,
                   label: _LoginText.identifierLabel,
                   hint: _LoginText.identifierHint,
                   textInputType: TextInputType.emailAddress,
-                  onChanged: (_) => _clearError(),
+                  onChanged: (_) {
+                    ref.read(authActionControllerProvider.notifier).clearError();
+                  },
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
                 LwTextField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   label: _LoginText.passwordLabel,
                   hint: _LoginText.passwordHint,
                   obscureText: true,
-                  onChanged: (_) => _clearError(),
+                  onChanged: (_) {
+                    ref.read(authActionControllerProvider.notifier).clearError();
+                  },
                 ),
                 if (errorMessage != null) ...<Widget>[
                   const SizedBox(height: AppSizes.spacingMd),
@@ -107,7 +93,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 LwPrimaryButton(
                   label: _LoginText.signInButton,
                   isLoading: isSubmitting,
-                  onPressed: isSubmitting ? null : _submitLogin,
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final String? identifier =
+                              StringUtils.normalizeNullable(
+                            identifierController.text,
+                          );
+                          final String? password =
+                              StringUtils.normalizeNullable(
+                            passwordController.text,
+                          );
+                          if (identifier == null || password == null) {
+                            return;
+                          }
+                          await ref
+                              .read(authActionControllerProvider.notifier)
+                              .login(
+                                identifier: identifier,
+                                password: password,
+                              );
+                        },
                 ),
                 const SizedBox(height: AppSizes.spacingSm),
                 TextButton(
@@ -123,35 +129,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+}
 
-  Future<void> _submitLogin() async {
-    final String? identifier = StringUtils.normalizeNullable(
-      _identifierController.text,
-    );
-    final String? password = StringUtils.normalizeNullable(
-      _passwordController.text,
-    );
-    if (identifier == null || password == null) {
-      return;
-    }
-    await ref
-        .read(authActionControllerProvider.notifier)
-        .login(identifier: identifier, password: password);
+String? _resolveLoginErrorMessage(Object? error) {
+  if (error == null) {
+    return null;
   }
-
-  void _clearError() {
-    ref.read(authActionControllerProvider.notifier).clearError();
+  if (error is AppException) {
+    return error.message;
   }
-
-  String? _resolveErrorMessage(Object? error) {
-    if (error == null) {
-      return null;
-    }
-    if (error is AppException) {
-      return error.message;
-    }
-    return _LoginText.defaultError;
-  }
+  return _LoginText.defaultError;
 }
 
 class _LoginText {

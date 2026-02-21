@@ -31,6 +31,9 @@ jobs:
       - name: Enforce Riverpod Annotation DI
         run: dart run tool/verify_riverpod_annotation.dart
 
+      - name: Enforce Riverpod Hook Checklist
+        run: dart run tool/verify_riverpod_hook_checklist.dart
+
       - name: Enforce State Management Contract
         run: dart run tool/verify_state_management_contract.dart
 

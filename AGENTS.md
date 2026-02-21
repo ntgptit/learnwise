@@ -164,6 +164,7 @@ flutter pub get
 flutter gen-l10n
 flutter pub run build_runner build --delete-conflicting-outputs
 dart run tool/verify_riverpod_annotation.dart
+dart run tool/verify_riverpod_hook_checklist.dart
 dart run tool/verify_state_management_contract.dart
 dart run tool/verify_navigation_go_router_contract.dart
 dart run tool/verify_common_widget_boundaries.dart
@@ -198,6 +199,9 @@ Required after any code delivery (not only before commit):
   - Enforce Riverpod Annotation + DI usage.
   - Block manual provider declarations in non-generated files.
   - Block manual `mounted` checks (`mounted`, `context.mounted`), allow only `ref.mounted`.
+- `tool/verify_riverpod_hook_checklist.dart`
+  - Enforce HookRiverpod checklist rules with ratchet baseline for legacy screens.
+  - Block new `ConsumerStatefulWidget`/`ConsumerState` regressions and view-layer Repository/Service DI violations.
 - `tool/verify_state_management_contract.dart`
   - Enforce global no-`setState`.
   - Enforce global no-`else`.

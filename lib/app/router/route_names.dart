@@ -11,6 +11,7 @@ class RouteNames {
   static const String register = '/auth/register';
   static const String learning = '/learning';
   static const String flashcards = '/flashcards';
+  static const String decks = '/decks/:folderId';
   static const String flashcardFlipStudy = '/flashcards/flip-study';
   static const String flashcardStudySession = '/flashcards/study-session';
   static const String progressDetail = '/progress/detail';

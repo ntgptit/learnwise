@@ -1,6 +1,7 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_sizes.dart';
@@ -12,39 +13,16 @@ import '../../../core/error/app_exception.dart';
 import '../../../core/utils/string_utils.dart';
 import '../viewmodel/auth_action_viewmodel.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+class RegisterScreen extends HookConsumerWidget {
   const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
-}
-
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
-  late final TextEditingController _displayNameController;
-  late final TextEditingController _emailController;
-  late final TextEditingController _usernameController;
-  late final TextEditingController _passwordController;
-
-  @override
-  void initState() {
-    super.initState();
-    _displayNameController = TextEditingController();
-    _emailController = TextEditingController();
-    _usernameController = TextEditingController();
-    _passwordController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _displayNameController.dispose();
-    _emailController.dispose();
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final TextEditingController displayNameController =
+        useTextEditingController();
+    final TextEditingController emailController = useTextEditingController();
+    final TextEditingController usernameController = useTextEditingController();
+    final TextEditingController passwordController = useTextEditingController();
     final AsyncValue<void> actionState = ref.watch(
       authActionControllerProvider,
     );
@@ -55,7 +33,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
     final String? errorMessage = actionState.when(
       data: (_) => null,
-      error: (error, stackTrace) => _resolveErrorMessage(error),
+      error: (error, stackTrace) => _resolveRegisterErrorMessage(error),
       loading: () => null,
     );
 
@@ -85,33 +63,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: AppSizes.spacingLg),
                 LwTextField(
-                  controller: _displayNameController,
+                  controller: displayNameController,
                   label: _RegisterText.displayNameLabel,
                   hint: _RegisterText.displayNameHint,
-                  onChanged: (_) => _clearError(),
+                  onChanged: (_) {
+                    ref.read(authActionControllerProvider.notifier).clearError();
+                  },
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
                 LwTextField(
-                  controller: _emailController,
+                  controller: emailController,
                   label: _RegisterText.emailLabel,
                   hint: _RegisterText.emailHint,
                   textInputType: TextInputType.emailAddress,
-                  onChanged: (_) => _clearError(),
+                  onChanged: (_) {
+                    ref.read(authActionControllerProvider.notifier).clearError();
+                  },
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
                 LwTextField(
-                  controller: _usernameController,
+                  controller: usernameController,
                   label: _RegisterText.usernameLabel,
                   hint: _RegisterText.usernameHint,
-                  onChanged: (_) => _clearError(),
+                  onChanged: (_) {
+                    ref.read(authActionControllerProvider.notifier).clearError();
+                  },
                 ),
                 const SizedBox(height: AppSizes.spacingMd),
                 LwTextField(
-                  controller: _passwordController,
+                  controller: passwordController,
                   label: _RegisterText.passwordLabel,
                   hint: _RegisterText.passwordHint,
                   obscureText: true,
-                  onChanged: (_) => _clearError(),
+                  onChanged: (_) {
+                    ref.read(authActionControllerProvider.notifier).clearError();
+                  },
                 ),
                 if (errorMessage != null) ...<Widget>[
                   const SizedBox(height: AppSizes.spacingMd),
@@ -127,7 +113,37 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 LwPrimaryButton(
                   label: _RegisterText.registerButton,
                   isLoading: isSubmitting,
-                  onPressed: isSubmitting ? null : _submitRegister,
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final String? displayName =
+                              StringUtils.normalizeNullable(
+                            displayNameController.text,
+                          );
+                          final String? email = StringUtils.normalizeNullable(
+                            emailController.text,
+                          );
+                          final String? username =
+                              StringUtils.normalizeNullable(
+                            usernameController.text,
+                          );
+                          final String? password =
+                              StringUtils.normalizeNullable(
+                            passwordController.text,
+                          );
+                          if (email == null || password == null) {
+                            return;
+                          }
+                          final String normalizedDisplayName = displayName ?? '';
+                          await ref
+                              .read(authActionControllerProvider.notifier)
+                              .register(
+                                email: email,
+                                username: username,
+                                password: password,
+                                displayName: normalizedDisplayName,
+                              );
+                        },
                 ),
                 const SizedBox(height: AppSizes.spacingSm),
                 TextButton(
@@ -143,45 +159,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
     );
   }
+}
 
-  Future<void> _submitRegister() async {
-    final String? displayName = StringUtils.normalizeNullable(
-      _displayNameController.text,
-    );
-    final String? email = StringUtils.normalizeNullable(_emailController.text);
-    final String? username = StringUtils.normalizeNullable(
-      _usernameController.text,
-    );
-    final String? password = StringUtils.normalizeNullable(
-      _passwordController.text,
-    );
-    if (email == null || password == null) {
-      return;
-    }
-    final String normalizedDisplayName = displayName ?? '';
-    await ref
-        .read(authActionControllerProvider.notifier)
-        .register(
-          email: email,
-          username: username,
-          password: password,
-          displayName: normalizedDisplayName,
-        );
+String? _resolveRegisterErrorMessage(Object? error) {
+  if (error == null) {
+    return null;
   }
-
-  void _clearError() {
-    ref.read(authActionControllerProvider.notifier).clearError();
+  if (error is AppException) {
+    return error.message;
   }
-
-  String? _resolveErrorMessage(Object? error) {
-    if (error == null) {
-      return null;
-    }
-    if (error is AppException) {
-      return error.message;
-    }
-    return _RegisterText.defaultError;
-  }
+  return _RegisterText.defaultError;
 }
 
 class _RegisterText {

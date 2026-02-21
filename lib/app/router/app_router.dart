@@ -1,4 +1,5 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
+// quality-guard: allow-large-file - centralized route graph keeps typed-route and shell-route definitions in one orchestration unit.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -7,6 +8,7 @@ import '../../core/network/auth_session.dart';
 import '../../features/auth/view/login_screen.dart';
 import '../../features/auth/view/register_screen.dart';
 import '../../features/dashboard/view/dashboard_screen.dart';
+import '../../features/decks/view/deck_screen.dart';
 import '../../features/flashcards/model/flashcard_management_args.dart';
 import '../../features/flashcards/view/flashcard_flip_study_screen.dart';
 import '../../features/flashcards/view/flashcard_management_screen.dart';
@@ -131,6 +133,19 @@ List<RouteBase> _buildAppRouterRoutes() {
       },
     ),
     GoRoute(
+      path: RouteNames.decks,
+      builder: (context, state) {
+        final int? folderId = _resolveDeckFolderId(state);
+        if (folderId == null) {
+          return const _NotFoundScreen();
+        }
+        final String folderName =
+            state.uri.queryParameters[_RouteParamKeys.folderName] ??
+            _RouteText.empty;
+        return DeckScreen(folderId: folderId, folderName: folderName);
+      },
+    ),
+    GoRoute(
       path: RouteNames.flashcards,
       builder: (context, state) {
         final FlashcardManagementArgs args = _resolveFlashcardArgs(state.extra);
@@ -192,6 +207,15 @@ StudySessionArgs _resolveStudySessionArgs(Object? extra) {
     return extra;
   }
   return const StudySessionArgs.fallback();
+}
+
+int? _resolveDeckFolderId(GoRouterState state) {
+  final String? folderIdParam = state.pathParameters[_RouteParamKeys.folderId];
+  if (folderIdParam == null) {
+    return null;
+  }
+  final int? folderId = int.tryParse(folderIdParam);
+  return folderId;
 }
 
 @TypedGoRoute<RootRoute>(path: RouteNames.root)
@@ -371,8 +395,16 @@ class _NotFoundScreen extends StatelessWidget {
 class _RouteText {
   const _RouteText._();
 
+  static const String empty = '';
   static const String learning = 'Learning';
   static const String progressDetail = 'Progress Detail';
   static const String notImplementedSuffix = ' screen is not implemented yet.';
   static const String notFound = 'Route not found.';
+}
+
+class _RouteParamKeys {
+  const _RouteParamKeys._();
+
+  static const String folderId = 'folderId';
+  static const String folderName = 'folderName';
 }

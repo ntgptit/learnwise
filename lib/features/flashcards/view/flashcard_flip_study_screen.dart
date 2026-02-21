@@ -4,9 +4,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../common/styles/app_durations.dart';
@@ -21,7 +22,7 @@ import '../../tts/viewmodel/tts_viewmodel.dart';
 import '../model/flashcard_constants.dart';
 import '../model/flashcard_models.dart';
 
-class FlashcardFlipStudyScreen extends ConsumerStatefulWidget {
+class FlashcardFlipStudyScreen extends HookConsumerWidget {
   const FlashcardFlipStudyScreen({
     required this.deckId,
     required this.items,
@@ -36,72 +37,176 @@ class FlashcardFlipStudyScreen extends ConsumerStatefulWidget {
   final String title;
 
   @override
-  ConsumerState<FlashcardFlipStudyScreen> createState() =>
-      _FlashcardFlipStudyScreenState();
-}
-
-class FlashcardFlipStudyArgs {
-  const FlashcardFlipStudyArgs({
-    required this.deckId,
-    required this.items,
-    required this.initialIndex,
-    required this.title,
-  });
-
-  const FlashcardFlipStudyArgs.fallback()
-    : deckId = 0,
-      items = const <FlashcardItem>[],
-      initialIndex = FlashcardConstants.defaultPage,
-      title = '';
-
-  final int deckId;
-  final List<FlashcardItem> items;
-  final int initialIndex;
-  final String title;
-}
-
-class _FlashcardFlipStudyScreenState
-    extends ConsumerState<FlashcardFlipStudyScreen> {
-  late final PageController _pageController;
-  late final ValueNotifier<int> _currentIndexNotifier;
-  late final ValueNotifier<bool> _isFlippedNotifier;
-  late final ValueNotifier<Set<int>> _starToggleIdsNotifier;
-  late final ValueNotifier<int?> _playingFlashcardIdNotifier;
-  Timer? _audioPlayingIndicatorTimer;
-  int? _lastAutoPlayFlashcardId;
-
-  @override
-  void initState() {
-    super.initState();
-    final int safeInitialIndex = _resolveSafeIndex(widget.initialIndex);
-    _pageController = PageController(initialPage: safeInitialIndex);
-    _currentIndexNotifier = ValueNotifier<int>(safeInitialIndex);
-    _isFlippedNotifier = ValueNotifier<bool>(false);
-    _starToggleIdsNotifier = ValueNotifier<Set<int>>(<int>{});
-    _playingFlashcardIdNotifier = ValueNotifier<int?>(null);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(_attemptAutoPlayCurrentCard());
-    });
-  }
-
-  @override
-  void dispose() {
-    _audioPlayingIndicatorTimer?.cancel();
-    _pageController.dispose();
-    _currentIndexNotifier.dispose();
-    _isFlippedNotifier.dispose();
-    _starToggleIdsNotifier.dispose();
-    _playingFlashcardIdNotifier.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final int safeInitialIndex = _resolveSafeFlashcardIndex(
+      value: initialIndex,
+      itemCount: items.length,
+    );
+    final PageController pageController = usePageController(
+      initialPage: safeInitialIndex,
+    );
+    final ValueNotifier<int> currentIndexNotifier = useState<int>(
+      safeInitialIndex,
+    );
+    final ValueNotifier<bool> isFlippedNotifier = useState<bool>(false);
+    final ValueNotifier<Set<int>> starToggleIdsNotifier = useState<Set<int>>(
+      <int>{},
+    );
+    final ValueNotifier<int?> playingFlashcardIdNotifier = useState<int?>(null);
+    final ObjectRef<Timer?> audioPlayingIndicatorTimerRef = useRef<Timer?>(
+      null,
+    );
+    final ObjectRef<int?> lastAutoPlayFlashcardIdRef = useRef<int?>(null);
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    if (widget.items.isEmpty) {
+    bool resolveIsItemStarred(FlashcardItem item) {
+      final bool isToggled = starToggleIdsNotifier.value.contains(item.id);
+      if (item.isBookmarked) {
+        return !isToggled;
+      }
+      return isToggled;
+    }
+
+    void clearAudioPlayingIndicator() {
+      if (playingFlashcardIdNotifier.value == null) {
+        return;
+      }
+      playingFlashcardIdNotifier.value = null;
+    }
+
+    void startAudioPlayingIndicator(int flashcardId) {
+      audioPlayingIndicatorTimerRef.value?.cancel();
+      playingFlashcardIdNotifier.value = flashcardId;
+      audioPlayingIndicatorTimerRef.value = Timer(
+        const Duration(
+          milliseconds: FlashcardConstants.audioPlayingIndicatorDurationMs,
+        ),
+        clearAudioPlayingIndicator,
+      );
+    }
+
+    void applyTtsSettings(TtsController ttsController) {
+      final UserStudySettings settings = ref.read(
+        effectiveStudySettingsForDeckProvider(deckId),
+      );
+      ttsController.applyVoiceSettings(
+        voiceId: settings.ttsVoiceId,
+        speechRate: settings.ttsSpeechRate,
+        pitch: settings.ttsPitch,
+        volume: settings.ttsVolume,
+        clearVoiceId: settings.ttsVoiceId == null,
+      );
+    }
+
+    bool isAutoPlayEnabled() {
+      final UserStudySettings settings = ref.read(
+        effectiveStudySettingsForDeckProvider(deckId),
+      );
+      return settings.studyAutoPlayAudio;
+    }
+
+    Future<void> speakText(String text) async {
+      final TtsController ttsController = ref.read(
+        ttsControllerProvider.notifier,
+      );
+      applyTtsSettings(ttsController);
+      await ttsController.initialize();
+      await ttsController.speakText(text);
+    }
+
+    void playPronunciationFor({required FlashcardItem item}) {
+      startAudioPlayingIndicator(item.id);
+      final String text = StringUtils.normalize(item.frontText);
+      if (text.isEmpty) {
+        return;
+      }
+      unawaited(speakText(text));
+    }
+
+    Future<void> attemptAutoPlayCurrentCard() async {
+      if (!isAutoPlayEnabled()) {
+        lastAutoPlayFlashcardIdRef.value = null;
+        return;
+      }
+      if (items.isEmpty) {
+        return;
+      }
+      final int index = currentIndexNotifier.value;
+      if (index < 0 || index >= items.length) {
+        return;
+      }
+      final FlashcardItem currentItem = items[index];
+      if (lastAutoPlayFlashcardIdRef.value == currentItem.id) {
+        return;
+      }
+      lastAutoPlayFlashcardIdRef.value = currentItem.id;
+      playPronunciationFor(item: currentItem);
+    }
+
+    void showToast(String message) {
+      final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    void onPageChanged(int index) {
+      if (currentIndexNotifier.value == index) {
+        return;
+      }
+      currentIndexNotifier.value = index;
+      isFlippedNotifier.value = false;
+      clearAudioPlayingIndicator();
+      unawaited(HapticFeedback.selectionClick());
+      unawaited(attemptAutoPlayCurrentCard());
+    }
+
+    void toggleStudyCardFlipped() {
+      isFlippedNotifier.value = !isFlippedNotifier.value;
+      unawaited(HapticFeedback.selectionClick());
+    }
+
+    void toggleStar(int flashcardId) {
+      final Set<int> nextIds = Set<int>.from(starToggleIdsNotifier.value);
+      if (nextIds.contains(flashcardId)) {
+        nextIds.remove(flashcardId);
+        starToggleIdsNotifier.value = nextIds;
+        return;
+      }
+      nextIds.add(flashcardId);
+      starToggleIdsNotifier.value = nextIds;
+    }
+
+    void goPrevious() {
+      unawaited(
+        pageController.previousPage(
+          duration: AppDurations.animationStandard,
+          curve: AppMotionCurves.standard,
+        ),
+      );
+    }
+
+    void goNext() {
+      unawaited(
+        pageController.nextPage(
+          duration: AppDurations.animationStandard,
+          curve: AppMotionCurves.standard,
+        ),
+      );
+    }
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(attemptAutoPlayCurrentCard());
+      });
+      return () {
+        audioPlayingIndicatorTimerRef.value?.cancel();
+      };
+    }, <Object>[deckId, safeInitialIndex, items.length]);
+
+    if (items.isEmpty) {
       return Scaffold(
         backgroundColor: colorScheme.surface,
         body: SafeArea(
@@ -121,10 +226,10 @@ class _FlashcardFlipStudyScreenState
       appBar: AppBar(
         centerTitle: true,
         title: ValueListenableBuilder<int>(
-          valueListenable: _currentIndexNotifier,
+          valueListenable: currentIndexNotifier,
           builder: (context, currentIndex, child) {
             return Text(
-              '${currentIndex + 1} / ${widget.items.length}',
+              '${currentIndex + 1} / ${items.length}',
               style: theme.textTheme.titleLarge,
             );
           },
@@ -146,7 +251,7 @@ class _FlashcardFlipStudyScreenState
         ),
         actions: <Widget>[
           IconButton(
-            onPressed: () => _showToast(l10n.flashcardsFlipStudySettingsToast),
+            onPressed: () => showToast(l10n.flashcardsFlipStudySettingsToast),
             tooltip: l10n.flashcardsFlipStudySettingsTooltip,
             iconSize: FlashcardFlipStudyTokens.topIconSize,
             constraints: const BoxConstraints(
@@ -174,10 +279,10 @@ class _FlashcardFlipStudyScreenState
                 height: FlashcardFlipStudyTokens.progressBarTopGap,
               ),
               ValueListenableBuilder<int>(
-                valueListenable: _currentIndexNotifier,
+                valueListenable: currentIndexNotifier,
                 builder: (context, currentIndex, child) {
                   final double progressValue =
-                      (currentIndex + 1) / widget.items.length;
+                      (currentIndex + 1) / items.length;
                   return _AnimatedStudyProgressBar(value: progressValue);
                 },
               ),
@@ -186,14 +291,14 @@ class _FlashcardFlipStudyScreenState
               ),
               Expanded(
                 child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: widget.items.length,
+                  controller: pageController,
+                  itemCount: items.length,
                   physics: const BouncingScrollPhysics(
                     parent: PageScrollPhysics(),
                   ),
-                  onPageChanged: _onPageChanged,
+                  onPageChanged: onPageChanged,
                   itemBuilder: (context, index) {
-                    final FlashcardItem item = widget.items[index];
+                    final FlashcardItem item = items[index];
                     final String noteText = StringUtils.normalize(item.note);
                     return Padding(
                       padding: const EdgeInsets.symmetric(
@@ -203,19 +308,19 @@ class _FlashcardFlipStudyScreenState
                       child: SizedBox.expand(
                         child: AnimatedBuilder(
                           animation: Listenable.merge(<Listenable>[
-                            _currentIndexNotifier,
-                            _isFlippedNotifier,
-                            _starToggleIdsNotifier,
-                            _playingFlashcardIdNotifier,
+                            currentIndexNotifier,
+                            isFlippedNotifier,
+                            starToggleIdsNotifier,
+                            playingFlashcardIdNotifier,
                           ]),
                           builder: (context, child) {
                             final bool isCurrent =
-                                _currentIndexNotifier.value == index;
+                                currentIndexNotifier.value == index;
                             final bool isFlipped =
-                                isCurrent && _isFlippedNotifier.value;
-                            final bool isStarred = _resolveIsItemStarred(item);
+                                isCurrent && isFlippedNotifier.value;
+                            final bool isStarred = resolveIsItemStarred(item);
                             final bool isAudioPlaying =
-                                _playingFlashcardIdNotifier.value == item.id;
+                                playingFlashcardIdNotifier.value == item.id;
 
                             return LwFlipAnimation(
                               isFlipped: isFlipped,
@@ -228,18 +333,18 @@ class _FlashcardFlipStudyScreenState
                                 descriptionText: null,
                                 isStarred: isStarred,
                                 isAudioPlaying: isAudioPlaying,
-                                onFlipPressed: _toggleStudyCardFlipped,
+                                onFlipPressed: toggleStudyCardFlipped,
                                 onAudioPressed: () {
-                                  _playPronunciationFor(item: item);
-                                  _showToast(
+                                  playPronunciationFor(item: item);
+                                  showToast(
                                     l10n.flashcardsAudioPlayToast(
                                       item.frontText,
                                     ),
                                   );
                                 },
                                 onStarPressed: () {
-                                  _toggleStar(item.id);
-                                  _showToast(
+                                  toggleStar(item.id);
+                                  showToast(
                                     isStarred
                                         ? l10n.flashcardsUnbookmarkToast
                                         : l10n.flashcardsBookmarkToast,
@@ -255,18 +360,18 @@ class _FlashcardFlipStudyScreenState
                                     : noteText,
                                 isStarred: isStarred,
                                 isAudioPlaying: isAudioPlaying,
-                                onFlipPressed: _toggleStudyCardFlipped,
+                                onFlipPressed: toggleStudyCardFlipped,
                                 onAudioPressed: () {
-                                  _playPronunciationFor(item: item);
-                                  _showToast(
+                                  playPronunciationFor(item: item);
+                                  showToast(
                                     l10n.flashcardsAudioPlayToast(
                                       item.frontText,
                                     ),
                                   );
                                 },
                                 onStarPressed: () {
-                                  _toggleStar(item.id);
-                                  _showToast(
+                                  toggleStar(item.id);
+                                  showToast(
                                     isStarred
                                         ? l10n.flashcardsUnbookmarkToast
                                         : l10n.flashcardsBookmarkToast,
@@ -283,20 +388,19 @@ class _FlashcardFlipStudyScreenState
               ),
               const SizedBox(height: FlashcardFlipStudyTokens.bottomBarTopGap),
               ValueListenableBuilder<int>(
-                valueListenable: _currentIndexNotifier,
+                valueListenable: currentIndexNotifier,
                 builder: (context, currentIndex, child) {
                   final bool isAtFirstCard =
                       currentIndex == FlashcardConstants.defaultPage;
-                  final bool isAtLastCard =
-                      currentIndex == (widget.items.length - 1);
+                  final bool isAtLastCard = currentIndex == (items.length - 1);
                   return _StudyBottomBar(
-                    onPreviousPressed: isAtFirstCard ? null : _goPrevious,
+                    onPreviousPressed: isAtFirstCard ? null : goPrevious,
                     onNextPressed: () {
                       if (isAtLastCard) {
-                        _showToast(l10n.flashcardsFlipStudyCompletedToast);
+                        showToast(l10n.flashcardsFlipStudyCompletedToast);
                         return;
                       }
-                      _goNext();
+                      goNext();
                     },
                   );
                 },
@@ -310,150 +414,34 @@ class _FlashcardFlipStudyScreenState
       ),
     );
   }
+}
 
-  void _onPageChanged(int index) {
-    if (_currentIndexNotifier.value == index) {
-      return;
-    }
-    _currentIndexNotifier.value = index;
-    _isFlippedNotifier.value = false;
-    _clearAudioPlayingIndicator();
-    unawaited(HapticFeedback.selectionClick());
-    unawaited(_attemptAutoPlayCurrentCard());
-  }
+class FlashcardFlipStudyArgs {
+  const FlashcardFlipStudyArgs({
+    required this.deckId,
+    required this.items,
+    required this.initialIndex,
+    required this.title,
+  });
 
-  int _resolveSafeIndex(int value) {
-    if (widget.items.isEmpty) {
-      return FlashcardConstants.defaultPage;
-    }
-    final int maxIndex = widget.items.length - 1;
-    return value.clamp(FlashcardConstants.defaultPage, maxIndex);
-  }
+  const FlashcardFlipStudyArgs.fallback()
+    : deckId = 0,
+      items = const <FlashcardItem>[],
+      initialIndex = FlashcardConstants.defaultPage,
+      title = '';
 
-  bool _resolveIsItemStarred(FlashcardItem item) {
-    final bool isToggled = _starToggleIdsNotifier.value.contains(item.id);
-    if (item.isBookmarked) {
-      return !isToggled;
-    }
-    return isToggled;
-  }
+  final int deckId;
+  final List<FlashcardItem> items;
+  final int initialIndex;
+  final String title;
+}
 
-  void _playPronunciationFor({required FlashcardItem item}) {
-    _startAudioPlayingIndicator(item.id);
-    final String text = StringUtils.normalize(item.frontText);
-    if (text.isEmpty) {
-      return;
-    }
-    unawaited(_speakText(text));
+int _resolveSafeFlashcardIndex({required int value, required int itemCount}) {
+  if (itemCount == 0) {
+    return FlashcardConstants.defaultPage;
   }
-
-  Future<void> _attemptAutoPlayCurrentCard() async {
-    if (!_isAutoPlayEnabled()) {
-      _lastAutoPlayFlashcardId = null;
-      return;
-    }
-    if (widget.items.isEmpty) {
-      return;
-    }
-    final int index = _currentIndexNotifier.value;
-    if (index < 0 || index >= widget.items.length) {
-      return;
-    }
-    final FlashcardItem currentItem = widget.items[index];
-    if (_lastAutoPlayFlashcardId == currentItem.id) {
-      return;
-    }
-    _lastAutoPlayFlashcardId = currentItem.id;
-    _playPronunciationFor(item: currentItem);
-  }
-
-  bool _isAutoPlayEnabled() {
-    final UserStudySettings settings = ref.read(
-      effectiveStudySettingsForDeckProvider(widget.deckId),
-    );
-    return settings.studyAutoPlayAudio;
-  }
-
-  Future<void> _speakText(String text) async {
-    final TtsController ttsController = ref.read(
-      ttsControllerProvider.notifier,
-    );
-    _applyTtsSettings(ttsController);
-    await ttsController.initialize();
-    await ttsController.speakText(text);
-  }
-
-  void _applyTtsSettings(TtsController ttsController) {
-    final UserStudySettings settings = ref.read(
-      effectiveStudySettingsForDeckProvider(widget.deckId),
-    );
-    ttsController.applyVoiceSettings(
-      voiceId: settings.ttsVoiceId,
-      speechRate: settings.ttsSpeechRate,
-      pitch: settings.ttsPitch,
-      volume: settings.ttsVolume,
-      clearVoiceId: settings.ttsVoiceId == null,
-    );
-  }
-
-  void _toggleStudyCardFlipped() {
-    _isFlippedNotifier.value = !_isFlippedNotifier.value;
-    unawaited(HapticFeedback.selectionClick());
-  }
-
-  void _toggleStar(int flashcardId) {
-    final Set<int> nextIds = Set<int>.from(_starToggleIdsNotifier.value);
-    if (nextIds.contains(flashcardId)) {
-      nextIds.remove(flashcardId);
-      _starToggleIdsNotifier.value = nextIds;
-      return;
-    }
-    nextIds.add(flashcardId);
-    _starToggleIdsNotifier.value = nextIds;
-  }
-
-  void _startAudioPlayingIndicator(int flashcardId) {
-    _audioPlayingIndicatorTimer?.cancel();
-    _playingFlashcardIdNotifier.value = flashcardId;
-    _audioPlayingIndicatorTimer = Timer(
-      const Duration(
-        milliseconds: FlashcardConstants.audioPlayingIndicatorDurationMs,
-      ),
-      _clearAudioPlayingIndicator,
-    );
-  }
-
-  void _clearAudioPlayingIndicator() {
-    if (_playingFlashcardIdNotifier.value == null) {
-      return;
-    }
-    _playingFlashcardIdNotifier.value = null;
-  }
-
-  void _goPrevious() {
-    unawaited(
-      _pageController.previousPage(
-        duration: AppDurations.animationStandard,
-        curve: AppMotionCurves.standard,
-      ),
-    );
-  }
-
-  void _goNext() {
-    unawaited(
-      _pageController.nextPage(
-        duration: AppDurations.animationStandard,
-        curve: AppMotionCurves.standard,
-      ),
-    );
-  }
-
-  void _showToast(String message) {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
-  }
+  final int maxIndex = itemCount - 1;
+  return value.clamp(FlashcardConstants.defaultPage, maxIndex);
 }
 
 class _AnimatedStudyProgressBar extends StatelessWidget {
@@ -486,7 +474,7 @@ class _AnimatedStudyProgressBar extends StatelessWidget {
   }
 }
 
-class _StudyCardFace extends StatefulWidget {
+class _StudyCardFace extends HookWidget {
   const _StudyCardFace({
     required this.isFrontSide,
     required this.primaryText,
@@ -510,210 +498,178 @@ class _StudyCardFace extends StatefulWidget {
   final VoidCallback onStarPressed;
 
   @override
-  State<_StudyCardFace> createState() => _StudyCardFaceState();
-}
-
-class _StudyCardFaceState extends State<_StudyCardFace> {
-  late final ValueNotifier<bool> _isPressedNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _isPressedNotifier = ValueNotifier<bool>(false);
-  }
-
-  @override
-  void dispose() {
-    _isPressedNotifier.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final ValueNotifier<bool> isPressedNotifier = useState<bool>(false);
+    final bool isPressed = isPressedNotifier.value;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final double defaultCardElevation =
         theme.cardTheme.elevation ?? AppSizes.size1;
     final String? normalizedSecondary = StringUtils.normalizeNullable(
-      widget.secondaryText,
+      secondaryText,
     );
     final String? normalizedDescription = StringUtils.normalizeNullable(
-      widget.descriptionText,
+      descriptionText,
     );
 
-    return ValueListenableBuilder<bool>(
-      valueListenable: _isPressedNotifier,
-      builder: (context, isPressed, child) {
-        return Card(
-          elevation: isPressed ? AppSizes.size2 : defaultCardElevation,
-          shadowColor: colorScheme.shadow,
-          margin: EdgeInsets.zero,
-          color: colorScheme.surfaceContainerHigh,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              FlashcardFlipStudyTokens.cardRadius,
-            ),
+    return Card(
+      elevation: isPressed ? AppSizes.size2 : defaultCardElevation,
+      shadowColor: colorScheme.shadow,
+      margin: EdgeInsets.zero,
+      color: colorScheme.surfaceContainerHigh,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          FlashcardFlipStudyTokens.cardRadius,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(
+          FlashcardFlipStudyTokens.cardRadius,
+        ),
+        onTap: onFlipPressed,
+        onHighlightChanged: (isHighlighted) {
+          isPressedNotifier.value = isHighlighted;
+        },
+        overlayColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return colorScheme.primary.withValues(alpha: AppOpacities.soft10);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
+          }
+          if (states.contains(WidgetState.focused)) {
+            return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
+          }
+          return null;
+        }),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            FlashcardFlipStudyTokens.cardContentHorizontalPadding,
+            FlashcardFlipStudyTokens.cardContentTopPadding,
+            FlashcardFlipStudyTokens.cardContentHorizontalPadding,
+            FlashcardFlipStudyTokens.cardContentBottomPadding,
           ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(
-              FlashcardFlipStudyTokens.cardRadius,
-            ),
-            onTap: widget.onFlipPressed,
-            onHighlightChanged: (isHighlighted) {
-              _isPressedNotifier.value = isHighlighted;
-            },
-            overlayColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.pressed)) {
-                return colorScheme.primary.withValues(
-                  alpha: AppOpacities.soft10,
-                );
-              }
-              if (states.contains(WidgetState.hovered)) {
-                return colorScheme.primary.withValues(
-                  alpha: AppOpacities.soft08,
-                );
-              }
-              if (states.contains(WidgetState.focused)) {
-                return colorScheme.primary.withValues(
-                  alpha: AppOpacities.soft08,
-                );
-              }
-              return null;
-            }),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                FlashcardFlipStudyTokens.cardContentHorizontalPadding,
-                FlashcardFlipStudyTokens.cardContentTopPadding,
-                FlashcardFlipStudyTokens.cardContentHorizontalPadding,
-                FlashcardFlipStudyTokens.cardContentBottomPadding,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      IconButton(
-                        isSelected: widget.isAudioPlaying,
-                        iconSize: FlashcardFlipStudyTokens.cardActionIconSize,
-                        style: _resolveCardActionIconStyle(colorScheme),
-                        tooltip: AppLocalizations.of(
-                          context,
-                        )!.flashcardsPlayAudioTooltip,
-                        onPressed: widget.onAudioPressed,
-                        icon: const Icon(Icons.volume_up_outlined),
-                        selectedIcon: const Icon(Icons.graphic_eq_rounded),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        isSelected: widget.isStarred,
-                        iconSize: FlashcardFlipStudyTokens.cardActionIconSize,
-                        style: _resolveCardActionIconStyle(colorScheme),
-                        tooltip: AppLocalizations.of(
-                          context,
-                        )!.flashcardsBookmarkTooltip,
-                        onPressed: widget.onStarPressed,
-                        icon: const Icon(Icons.star_border),
-                        selectedIcon: const Icon(Icons.star),
-                      ),
-                    ],
+                  IconButton(
+                    isSelected: isAudioPlaying,
+                    iconSize: FlashcardFlipStudyTokens.cardActionIconSize,
+                    style: _resolveCardActionIconStyle(colorScheme),
+                    tooltip: AppLocalizations.of(
+                      context,
+                    )!.flashcardsPlayAudioTooltip,
+                    onPressed: onAudioPressed,
+                    icon: const Icon(Icons.volume_up_outlined),
+                    selectedIcon: const Icon(Icons.graphic_eq_rounded),
                   ),
-                  const SizedBox(
-                    height: FlashcardFlipStudyTokens.cardBodyTopGap,
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Text(
-                              widget.primaryText,
-                              textAlign: TextAlign.center,
-                              style: widget.isFrontSide
-                                  ? theme.textTheme.headlineMedium?.copyWith(
-                                      color: colorScheme.onSurface,
-                                    )
-                                  : theme.textTheme.titleMedium?.copyWith(
-                                      color: colorScheme.onSurface,
-                                    ),
-                            ),
-                            if (normalizedSecondary != null) ...<Widget>[
-                              const SizedBox(
-                                height: FlashcardFlipStudyTokens.cardBodyTopGap,
-                              ),
-                              Text(
-                                normalizedSecondary,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: colorScheme.onSurface,
-                                ),
-                                maxLines: FlashcardFlipStudyTokens
-                                    .backPrimaryMaxLines,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                            if (normalizedDescription != null) ...<Widget>[
-                              const SizedBox(
-                                height: FlashcardFlipStudyTokens.cardBodyTopGap,
-                              ),
-                              Text(
-                                normalizedDescription,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                                maxLines: FlashcardFlipStudyTokens
-                                    .backDescriptionMaxLines,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: FlashcardFlipStudyTokens.cardBodyBottomGap,
+                  const Spacer(),
+                  IconButton(
+                    isSelected: isStarred,
+                    iconSize: FlashcardFlipStudyTokens.cardActionIconSize,
+                    style: _resolveCardActionIconStyle(colorScheme),
+                    tooltip: AppLocalizations.of(
+                      context,
+                    )!.flashcardsBookmarkTooltip,
+                    onPressed: onStarPressed,
+                    icon: const Icon(Icons.star_border),
+                    selectedIcon: const Icon(Icons.star),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: FlashcardFlipStudyTokens.cardBodyTopGap),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          primaryText,
+                          textAlign: TextAlign.center,
+                          style: isFrontSide
+                              ? theme.textTheme.headlineMedium?.copyWith(
+                                  color: colorScheme.onSurface,
+                                )
+                              : theme.textTheme.titleMedium?.copyWith(
+                                  color: colorScheme.onSurface,
+                                ),
+                        ),
+                        if (normalizedSecondary != null) ...<Widget>[
+                          const SizedBox(
+                            height: FlashcardFlipStudyTokens.cardBodyTopGap,
+                          ),
+                          Text(
+                            normalizedSecondary,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                            maxLines:
+                                FlashcardFlipStudyTokens.backPrimaryMaxLines,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        if (normalizedDescription != null) ...<Widget>[
+                          const SizedBox(
+                            height: FlashcardFlipStudyTokens.cardBodyTopGap,
+                          ),
+                          Text(
+                            normalizedDescription,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            maxLines: FlashcardFlipStudyTokens
+                                .backDescriptionMaxLines,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: FlashcardFlipStudyTokens.cardBodyBottomGap,
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
-
-  ButtonStyle _resolveCardActionIconStyle(ColorScheme colorScheme) {
-    return ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll<Size>(
-        Size.square(FlashcardFlipStudyTokens.cardActionTapTargetSize),
+        ),
       ),
-      foregroundColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.disabled)) {
-          return colorScheme.onSurface.withValues(
-            alpha: AppOpacities.disabled38,
-          );
-        }
-        if (states.contains(WidgetState.selected)) {
-          return colorScheme.primary;
-        }
-        return colorScheme.onSurfaceVariant;
-      }),
-      overlayColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.pressed)) {
-          return colorScheme.primary.withValues(alpha: AppOpacities.soft10);
-        }
-        if (states.contains(WidgetState.hovered)) {
-          return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
-        }
-        if (states.contains(WidgetState.focused)) {
-          return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
-        }
-        return null;
-      }),
     );
   }
+}
+
+ButtonStyle _resolveCardActionIconStyle(ColorScheme colorScheme) {
+  return ButtonStyle(
+    minimumSize: const WidgetStatePropertyAll<Size>(
+      Size.square(FlashcardFlipStudyTokens.cardActionTapTargetSize),
+    ),
+    foregroundColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return colorScheme.onSurface.withValues(alpha: AppOpacities.disabled38);
+      }
+      if (states.contains(WidgetState.selected)) {
+        return colorScheme.primary;
+      }
+      return colorScheme.onSurfaceVariant;
+    }),
+    overlayColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.pressed)) {
+        return colorScheme.primary.withValues(alpha: AppOpacities.soft10);
+      }
+      if (states.contains(WidgetState.hovered)) {
+        return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
+      }
+      if (states.contains(WidgetState.focused)) {
+        return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
+      }
+      return null;
+    }),
+  );
 }
 
 class _StudyBottomBar extends StatelessWidget {

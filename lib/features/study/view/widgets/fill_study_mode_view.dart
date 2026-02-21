@@ -1,6 +1,7 @@
 // quality-guard: allow-large-file - phase2 legacy backlog tracked for file modularization.
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_durations.dart';
@@ -11,7 +12,7 @@ import '../../../../../core/utils/string_utils.dart';
 import '../../model/study_constants.dart';
 import '../../model/study_unit.dart';
 
-class FillStudyModeView extends StatefulWidget {
+class FillStudyModeView extends HookWidget {
   const FillStudyModeView({
     required this.unit,
     required this.onSubmitAnswer,
@@ -26,37 +27,87 @@ class FillStudyModeView extends StatefulWidget {
   final TextEditingController fillController;
 
   @override
-  State<FillStudyModeView> createState() => _FillStudyModeViewState();
-}
-
-class _FillStudyModeViewState extends State<FillStudyModeView> {
-  final ValueNotifier<String?> _helpAnswerNotifier = ValueNotifier<String?>(
-    null,
-  );
-  final ValueNotifier<_FillWrongAnswerFeedback?> _wrongAnswerNotifier =
-      ValueNotifier<_FillWrongAnswerFeedback?>(null);
-  final FocusNode _fillInputFocusNode = FocusNode(debugLabel: 'fill_input');
-
-  @override
-  void didUpdateWidget(covariant FillStudyModeView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.unit.unitId == widget.unit.unitId) {
-      return;
-    }
-    _helpAnswerNotifier.value = null;
-    _wrongAnswerNotifier.value = null;
-  }
-
-  @override
-  void dispose() {
-    _helpAnswerNotifier.dispose();
-    _wrongAnswerNotifier.dispose();
-    _fillInputFocusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final ValueNotifier<String?> helpAnswerNotifier = useState<String?>(null);
+    final ValueNotifier<_FillWrongAnswerFeedback?> wrongAnswerNotifier =
+        useState<_FillWrongAnswerFeedback?>(null);
+    final FocusNode fillInputFocusNode = useFocusNode(debugLabel: 'fill_input');
+    useEffect(() {
+      helpAnswerNotifier.value = null;
+      wrongAnswerNotifier.value = null;
+      return null;
+    }, <Object>[unit.unitId]);
+
+    void onHelpPressed() {
+      helpAnswerNotifier.value = unit.expectedAnswer;
+      wrongAnswerNotifier.value = null;
+      fillController.text = unit.expectedAnswer;
+      fillController.selection = TextSelection.collapsed(
+        offset: unit.expectedAnswer.length,
+      );
+    }
+
+    void submitCurrentAnswer() {
+      final String normalizedAnswer = fillController.text.normalized;
+      if (normalizedAnswer.isEmpty) {
+        return;
+      }
+      final bool isCorrect = _isFillAnswerCorrect(
+        actual: normalizedAnswer,
+        expected: unit.expectedAnswer,
+      );
+      if (isCorrect) {
+        helpAnswerNotifier.value = null;
+        wrongAnswerNotifier.value = null;
+        onSubmitAnswer(normalizedAnswer);
+        return;
+      }
+      helpAnswerNotifier.value = null;
+      wrongAnswerNotifier.value = _FillWrongAnswerFeedback(
+        actualText: normalizedAnswer,
+        expectedText: StringUtils.normalize(unit.expectedAnswer),
+      );
+      onSubmitAnswer(normalizedAnswer);
+    }
+
+    void confirmIncorrectAndAdvance() {
+      final _FillWrongAnswerFeedback? feedback = wrongAnswerNotifier.value;
+      if (feedback == null) {
+        return;
+      }
+      wrongAnswerNotifier.value = null;
+      helpAnswerNotifier.value = null;
+      fillController.clear();
+      fillInputFocusNode.requestFocus();
+    }
+
+    VoidCallback? resolveHelpButtonHandler({required bool isAwaitingConfirm}) {
+      if (isAwaitingConfirm) {
+        return null;
+      }
+      return onHelpPressed;
+    }
+
+    VoidCallback? resolveCheckButtonHandler({
+      required bool canSubmit,
+      required bool isAwaitingConfirm,
+    }) {
+      if (isAwaitingConfirm) {
+        return confirmIncorrectAndAdvance;
+      }
+      if (!canSubmit) {
+        return null;
+      }
+      return submitCurrentAnswer;
+    }
+
+    String resolveCheckButtonLabel({required bool isAwaitingConfirm}) {
+      if (isAwaitingConfirm) {
+        return l10n.flashcardsStudyFillContinueLabel;
+      }
+      return l10n.flashcardsStudyFillCheckLabel;
+    }
+
     final bool isKeyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
     final double promptOpacity = _resolvePromptOpacity(isKeyboardVisible);
     return Column(
@@ -64,17 +115,17 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
       children: <Widget>[
         Expanded(
           flex: 1,
-          child: _FillPromptCard(unit: widget.unit, opacity: promptOpacity),
+          child: _FillPromptCard(unit: unit, opacity: promptOpacity),
         ),
         const SizedBox(height: FlashcardStudySessionTokens.fillCardGap),
         Expanded(
           flex: 1,
           child: _FillInputCard(
-            fillController: widget.fillController,
-            fillInputFocusNode: _fillInputFocusNode,
-            onSubmitPressed: _submitCurrentAnswer,
-            helpAnswerListenable: _helpAnswerNotifier,
-            wrongAnswerListenable: _wrongAnswerNotifier,
+            fillController: fillController,
+            fillInputFocusNode: fillInputFocusNode,
+            onSubmitPressed: submitCurrentAnswer,
+            helpAnswerListenable: helpAnswerNotifier,
+            wrongAnswerListenable: wrongAnswerNotifier,
           ),
         ),
         const SizedBox(height: FlashcardStudySessionTokens.fillActionTopGap),
@@ -84,11 +135,11 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
             bottom: FlashcardStudySessionTokens.fillActionBottomPadding,
           ),
           child: ValueListenableBuilder<_FillWrongAnswerFeedback?>(
-            valueListenable: _wrongAnswerNotifier,
+            valueListenable: wrongAnswerNotifier,
             builder: (context, wrongAnswerFeedback, child) {
               final bool isAwaitingConfirm = wrongAnswerFeedback != null;
               return ValueListenableBuilder<TextEditingValue>(
-                valueListenable: widget.fillController,
+                valueListenable: fillController,
                 builder: (context, value, child) {
                   final bool canSubmit = StringUtils.normalize(
                     value.text,
@@ -100,13 +151,11 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
                           height: FlashcardStudySessionTokens
                               .fillActionButtonHeight,
                           child: OutlinedButton(
-                            onPressed: _resolveHelpButtonHandler(
+                            onPressed: resolveHelpButtonHandler(
                               isAwaitingConfirm: isAwaitingConfirm,
                             ),
                             style: _resolveSecondaryActionButtonStyle(context),
-                            child: Text(
-                              widget.l10n.flashcardsStudyFillHelpLabel,
-                            ),
+                            child: Text(l10n.flashcardsStudyFillHelpLabel),
                           ),
                         ),
                       ),
@@ -118,13 +167,13 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
                           height: FlashcardStudySessionTokens
                               .fillActionButtonHeight,
                           child: FilledButton(
-                            onPressed: _resolveCheckButtonHandler(
+                            onPressed: resolveCheckButtonHandler(
                               canSubmit: canSubmit,
                               isAwaitingConfirm: isAwaitingConfirm,
                             ),
                             style: _resolvePrimaryActionButtonStyle(context),
                             child: Text(
-                              _resolveCheckButtonLabel(
+                              resolveCheckButtonLabel(
                                 isAwaitingConfirm: isAwaitingConfirm,
                               ),
                             ),
@@ -141,122 +190,49 @@ class _FillStudyModeViewState extends State<FillStudyModeView> {
       ],
     );
   }
+}
 
-  double _resolvePromptOpacity(bool isKeyboardVisible) {
-    if (isKeyboardVisible) {
-      return AppOpacities.soft92;
-    }
-    return AppOpacities.soft95;
+double _resolvePromptOpacity(bool isKeyboardVisible) {
+  if (isKeyboardVisible) {
+    return AppOpacities.soft92;
   }
+  return AppOpacities.soft95;
+}
 
-  void _onHelpPressed() {
-    _helpAnswerNotifier.value = widget.unit.expectedAnswer;
-    _wrongAnswerNotifier.value = null;
-    widget.fillController.text = widget.unit.expectedAnswer;
-    widget.fillController.selection = TextSelection.collapsed(
-      offset: widget.unit.expectedAnswer.length,
-    );
+bool _isFillAnswerCorrect({required String actual, required String expected}) {
+  final String normalizedActual = StringUtils.normalizeLower(actual);
+  final String normalizedExpected = StringUtils.normalizeLower(expected);
+  if (normalizedActual.isEmpty) {
+    return false;
   }
+  return normalizedActual == normalizedExpected;
+}
 
-  void _submitCurrentAnswer() {
-    final String normalizedAnswer = widget.fillController.text.normalized;
-    if (normalizedAnswer.isEmpty) {
-      return;
-    }
-    final bool isCorrect = _isFillAnswerCorrect(
-      actual: normalizedAnswer,
-      expected: widget.unit.expectedAnswer,
-    );
-    if (isCorrect) {
-      _helpAnswerNotifier.value = null;
-      _wrongAnswerNotifier.value = null;
-      widget.onSubmitAnswer(normalizedAnswer);
-      return;
-    }
-    _helpAnswerNotifier.value = null;
-    _wrongAnswerNotifier.value = _FillWrongAnswerFeedback(
-      actualText: normalizedAnswer,
-      expectedText: StringUtils.normalize(widget.unit.expectedAnswer),
-    );
-    widget.onSubmitAnswer(normalizedAnswer);
-  }
-
-  void _confirmIncorrectAndAdvance() {
-    final _FillWrongAnswerFeedback? feedback = _wrongAnswerNotifier.value;
-    if (feedback == null) {
-      return;
-    }
-    _wrongAnswerNotifier.value = null;
-    _helpAnswerNotifier.value = null;
-    widget.fillController.clear();
-    _fillInputFocusNode.requestFocus();
-  }
-
-  bool _isFillAnswerCorrect({
-    required String actual,
-    required String expected,
-  }) {
-    final String normalizedActual = StringUtils.normalizeLower(actual);
-    final String normalizedExpected = StringUtils.normalizeLower(expected);
-    if (normalizedActual.isEmpty) {
-      return false;
-    }
-    return normalizedActual == normalizedExpected;
-  }
-
-  VoidCallback? _resolveHelpButtonHandler({required bool isAwaitingConfirm}) {
-    if (isAwaitingConfirm) {
-      return null;
-    }
-    return _onHelpPressed;
-  }
-
-  VoidCallback? _resolveCheckButtonHandler({
-    required bool canSubmit,
-    required bool isAwaitingConfirm,
-  }) {
-    if (isAwaitingConfirm) {
-      return _confirmIncorrectAndAdvance;
-    }
-    if (!canSubmit) {
-      return null;
-    }
-    return _submitCurrentAnswer;
-  }
-
-  String _resolveCheckButtonLabel({required bool isAwaitingConfirm}) {
-    if (isAwaitingConfirm) {
-      return widget.l10n.flashcardsStudyFillContinueLabel;
-    }
-    return widget.l10n.flashcardsStudyFillCheckLabel;
-  }
-
-  ButtonStyle _resolveSecondaryActionButtonStyle(BuildContext context) {
-    return OutlinedButton.styleFrom(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          FlashcardStudySessionTokens.fillActionButtonRadius,
-        ),
+ButtonStyle _resolveSecondaryActionButtonStyle(BuildContext context) {
+  return OutlinedButton.styleFrom(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(
+        FlashcardStudySessionTokens.fillActionButtonRadius,
       ),
-    );
-  }
+    ),
+  );
+}
 
-  ButtonStyle _resolvePrimaryActionButtonStyle(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    return FilledButton.styleFrom(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          FlashcardStudySessionTokens.fillActionButtonRadius,
-        ),
+ButtonStyle _resolvePrimaryActionButtonStyle(BuildContext context) {
+  final ColorScheme colorScheme = Theme.of(context).colorScheme;
+  return FilledButton.styleFrom(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(
+        FlashcardStudySessionTokens.fillActionButtonRadius,
       ),
-      disabledForegroundColor: colorScheme.onSurface.withValues(
-        alpha: AppOpacities.disabled38,
-      ),
-      disabledBackgroundColor: colorScheme.onSurface.withValues(
-        alpha: AppOpacities.soft12,
-      ),
-    );
-  }
+    ),
+    disabledForegroundColor: colorScheme.onSurface.withValues(
+      alpha: AppOpacities.disabled38,
+    ),
+    disabledBackgroundColor: colorScheme.onSurface.withValues(
+      alpha: AppOpacities.soft12,
+    ),
+  );
 }
 
 class _FillPromptCard extends StatelessWidget {

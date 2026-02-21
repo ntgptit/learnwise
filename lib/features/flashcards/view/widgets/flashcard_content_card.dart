@@ -1,5 +1,6 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_durations.dart';
@@ -10,7 +11,7 @@ import '../../../../common/widgets/widgets.dart';
 import '../../../../core/utils/string_utils.dart';
 import '../../model/flashcard_models.dart';
 
-class FlashcardContentCard extends StatefulWidget {
+class FlashcardContentCard extends HookWidget {
   const FlashcardContentCard({
     required this.item,
     required this.isStarred,
@@ -31,42 +32,22 @@ class FlashcardContentCard extends StatefulWidget {
   final VoidCallback onDeletePressed;
 
   @override
-  State<FlashcardContentCard> createState() => _FlashcardContentCardState();
-}
-
-class _FlashcardContentCardState extends State<FlashcardContentCard> {
-  late final ValueNotifier<bool> _isPressedNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _isPressedNotifier = ValueNotifier<bool>(false);
-  }
-
-  @override
-  void dispose() {
-    _isPressedNotifier.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final ValueNotifier<bool> isPressedNotifier = useState<bool>(false);
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final String noteText = StringUtils.normalize(widget.item.note);
-    final String pronunciationText = StringUtils.normalize(
-      widget.item.pronunciation,
-    );
+    final String noteText = StringUtils.normalize(item.note);
+    final String pronunciationText = StringUtils.normalize(item.pronunciation);
     final bool hasNote = noteText.isNotEmpty;
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTapDown: (_) => _isPressedNotifier.value = true,
-      onTapUp: (_) => _isPressedNotifier.value = false,
-      onTapCancel: () => _isPressedNotifier.value = false,
+      onTapDown: (_) => isPressedNotifier.value = true,
+      onTapUp: (_) => isPressedNotifier.value = false,
+      onTapCancel: () => isPressedNotifier.value = false,
       child: ValueListenableBuilder<bool>(
-        valueListenable: _isPressedNotifier,
+        valueListenable: isPressedNotifier,
         child: LwCard(
           variant: AppCardVariant.elevated,
           borderRadius: BorderRadius.circular(FlashcardScreenTokens.cardRadius),
@@ -77,12 +58,12 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(widget.item.frontText, style: theme.textTheme.titleLarge),
+              Text(item.frontText, style: theme.textTheme.titleLarge),
               const SizedBox(
                 height: FlashcardScreenTokens.cardPrimarySecondaryGap,
               ),
               Text(
-                widget.item.backText,
+                item.backText,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -125,26 +106,26 @@ class _FlashcardContentCardState extends State<FlashcardContentCard> {
                       icon: Icons.volume_up_outlined,
                       activeIcon: Icons.graphic_eq_rounded,
                       tooltip: l10n.flashcardsPlayAudioTooltip,
-                      onPressed: widget.onAudioPressed,
-                      isActive: widget.isAudioPlaying,
+                      onPressed: onAudioPressed,
+                      isActive: isAudioPlaying,
                       activeColor: colorScheme.primary,
                     ),
                     LwActionIconItem(
                       icon: Icons.edit_outlined,
                       tooltip: l10n.flashcardsEditTooltip,
-                      onPressed: widget.onEditPressed,
+                      onPressed: onEditPressed,
                     ),
                     LwActionIconItem(
                       icon: Icons.delete_outline_rounded,
                       tooltip: l10n.flashcardsDeleteTooltip,
-                      onPressed: widget.onDeletePressed,
+                      onPressed: onDeletePressed,
                     ),
                     LwActionIconItem(
                       icon: Icons.star_border,
                       activeIcon: Icons.star,
                       tooltip: l10n.flashcardsBookmarkTooltip,
-                      onPressed: widget.onStarPressed,
-                      isActive: widget.isStarred,
+                      onPressed: onStarPressed,
+                      isActive: isStarred,
                       activeColor: colorScheme.primary,
                     ),
                   ],

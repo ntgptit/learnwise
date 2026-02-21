@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:learnwise/app/router/app_router.dart';
 import 'package:learnwise/app/theme/semantic_colors.dart';
 import 'package:learnwise/common/styles/app_screen_tokens.dart';
@@ -47,13 +48,13 @@ StudyModeContentBuilder? _resolveModeContentBuilder(StudyMode mode) {
   return _modeContentBuilderRegistry[mode];
 }
 
-class FlashcardStudySessionScreen extends ConsumerStatefulWidget {
+class FlashcardStudySessionScreen extends HookConsumerWidget {
   const FlashcardStudySessionScreen({required this.args, super.key});
 
   final StudySessionArgs args;
 
   @override
-  ConsumerState<FlashcardStudySessionScreen> createState() {
-    return _FlashcardStudySessionScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _buildStudySessionScreen(context: context, ref: ref, args: args);
   }
 }

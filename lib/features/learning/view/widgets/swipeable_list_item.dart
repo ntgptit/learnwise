@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 
 class SwipeableListItem extends StatelessWidget {
   const SwipeableListItem({
@@ -65,11 +66,25 @@ class _DefaultSwipeBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MainAxisAlignment mainAxisAlignment = _resolveMainAxisAlignment();
     return Container(
       alignment: alignment,
       color: color,
       padding: const EdgeInsets.symmetric(horizontal: AppSizes.spacingMd),
-      child: Icon(icon),
+      child: LwSpacedRow(
+        mainAxisAlignment: mainAxisAlignment,
+        children: <Widget>[Icon(icon)],
+      ),
     );
+  }
+
+  MainAxisAlignment _resolveMainAxisAlignment() {
+    if (alignment.x < 0) {
+      return MainAxisAlignment.start;
+    }
+    if (alignment.x > 0) {
+      return MainAxisAlignment.end;
+    }
+    return MainAxisAlignment.center;
   }
 }

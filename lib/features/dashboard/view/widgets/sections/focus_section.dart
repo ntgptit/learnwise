@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/widgets/widgets.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardFocusSection extends StatelessWidget {
@@ -14,31 +15,28 @@ class DashboardFocusSection extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      height: DashboardScreenTokens.focusCardHeight,
+    return LwCard(
+      variant: AppCardVariant.filled,
       padding: const EdgeInsets.all(DashboardScreenTokens.focusCardPadding),
-      decoration: _buildDecoration(colorScheme),
-      child: Row(
-        children: <Widget>[
-          _buildIcon(colorScheme),
-          const SizedBox(width: DashboardScreenTokens.focusIconGap),
-          Expanded(
-            child: _FocusText(
-              l10n: l10n,
-              snapshot: snapshot,
-              colorScheme: colorScheme,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration _buildDecoration(ColorScheme colorScheme) {
-    return BoxDecoration(
-      color: colorScheme.primaryContainer,
+      backgroundColor: colorScheme.primaryContainer,
       borderRadius: BorderRadius.circular(
         DashboardScreenTokens.metricCardRadius,
+      ),
+      child: SizedBox(
+        height: DashboardScreenTokens.focusCardHeight,
+        child: LwSpacedRow(
+          spacing: DashboardScreenTokens.focusIconGap,
+          children: <Widget>[
+            _buildIcon(colorScheme),
+            Expanded(
+              child: _FocusText(
+                l10n: l10n,
+                snapshot: snapshot,
+                colorScheme: colorScheme,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

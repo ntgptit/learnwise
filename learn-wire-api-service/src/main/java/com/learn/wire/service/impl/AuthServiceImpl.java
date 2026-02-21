@@ -20,12 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.learn.wire.constant.AuthConst;
 import com.learn.wire.constant.LogConst;
 import com.learn.wire.constant.SecurityConst;
+import com.learn.wire.dto.auth.query.AuthThemeMode;
 import com.learn.wire.dto.auth.request.AuthLoginRequest;
 import com.learn.wire.dto.auth.request.AuthRefreshRequest;
 import com.learn.wire.dto.auth.request.AuthRegisterRequest;
 import com.learn.wire.dto.auth.request.AuthUpdateProfileRequest;
 import com.learn.wire.dto.auth.request.AuthUpdateSettingsRequest;
-import com.learn.wire.dto.auth.query.AuthThemeMode;
 import com.learn.wire.dto.auth.response.AuthMeResponse;
 import com.learn.wire.dto.auth.response.AuthTokenResponse;
 import com.learn.wire.entity.AppUserEntity;
@@ -67,8 +67,7 @@ public class AuthServiceImpl implements AuthService {
 
         final var normalizedUsername = normalizeUsername(request.username());
         if (!normalizedUsername.isEmpty()) {
-            final var usernameAlreadyExists =
-                    this.appUserRepository.existsByNormalizedUsername(normalizedUsername);
+            final var usernameAlreadyExists = this.appUserRepository.existsByNormalizedUsername(normalizedUsername);
             if (usernameAlreadyExists) {
                 throw new BusinessException(AuthConst.USERNAME_ALREADY_EXISTS_KEY);
             }
@@ -288,7 +287,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String resolveThemeMode(String value) {
-        final String normalizedValue = StringUtils.trimToNull(value);
+        final var normalizedValue = StringUtils.trimToNull(value);
         if (normalizedValue == null) {
             return AuthConst.THEME_MODE_DEFAULT;
         }

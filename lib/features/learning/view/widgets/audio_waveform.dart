@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 
 class AudioWaveform extends StatelessWidget {
   const AudioWaveform({
@@ -34,27 +35,25 @@ class AudioWaveform extends StatelessWidget {
     final double safeBarWidth = barWidth <= 0 ? 3 : barWidth;
     final double safeBarSpacing = barSpacing < 0 ? 0 : barSpacing;
     final Color effectiveColor = color ?? Theme.of(context).colorScheme.primary;
+    final List<Widget> waveformBars = safeAmplitudes.map((amplitude) {
+      final double clampedAmplitude = amplitude.clamp(0, 1).toDouble();
+      final double barHeight =
+          safeMinBarHeight + (safeHeight - safeMinBarHeight) * clampedAmplitude;
 
-    return Row(
+      return Container(
+        width: safeBarWidth,
+        height: barHeight,
+        decoration: BoxDecoration(
+          color: effectiveColor,
+          borderRadius: BorderRadius.circular(AppSizes.size2),
+        ),
+      );
+    }).toList();
+
+    return LwSpacedRow(
+      spacing: safeBarSpacing,
       mainAxisSize: MainAxisSize.min,
-      children: safeAmplitudes.map((amplitude) {
-        final double clampedAmplitude = amplitude.clamp(0, 1).toDouble();
-        final double barHeight =
-            safeMinBarHeight +
-            (safeHeight - safeMinBarHeight) * clampedAmplitude;
-
-        return Container(
-          width: safeBarWidth,
-          height: barHeight,
-          margin: EdgeInsets.symmetric(
-            horizontal: safeBarSpacing / AppSizes.size2,
-          ),
-          decoration: BoxDecoration(
-            color: effectiveColor,
-            borderRadius: BorderRadius.circular(AppSizes.size2),
-          ),
-        );
-      }).toList(),
+      children: waveformBars,
     );
   }
 }

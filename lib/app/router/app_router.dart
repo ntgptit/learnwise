@@ -25,6 +25,10 @@ GoRouter appRouter(Ref ref) {
   final AuthSessionManager authSessionManager = ref.read(
     authSessionManagerProvider,
   );
+  return buildAppRouter(authSessionManager: authSessionManager);
+}
+
+GoRouter buildAppRouter({required AuthSessionManager authSessionManager}) {
   final String loginLocation = const LoginRoute().location;
   final String registerLocation = const RegisterRoute().location;
   final String dashboardLocation = const DashboardRoute().location;

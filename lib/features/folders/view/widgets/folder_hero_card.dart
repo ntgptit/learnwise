@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_screen_tokens.dart';
 import '../../../../common/styles/app_opacities.dart';
+import '../../../../common/widgets/widgets.dart';
 
 class FolderHeroCard extends StatelessWidget {
   const FolderHeroCard({super.key});
@@ -24,7 +25,8 @@ class FolderHeroCard extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Column(
+      child: LwSpacedColumn(
+        spacing: FolderScreenTokens.heroTextGap,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
@@ -34,7 +36,6 @@ class FolderHeroCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: FolderScreenTokens.heroTextGap),
           Text(
             l10n.foldersHeroDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(

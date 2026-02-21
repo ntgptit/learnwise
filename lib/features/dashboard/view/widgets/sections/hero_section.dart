@@ -4,6 +4,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/widgets/widgets.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardHeroSection extends StatelessWidget {
@@ -21,7 +22,8 @@ class DashboardHeroSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(DashboardScreenTokens.headerPadding),
       decoration: _buildDecoration(colorScheme),
-      child: Column(
+      child: LwSpacedColumn(
+        spacing: DashboardScreenTokens.heroGapLarge,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _HeroTitle(
@@ -30,7 +32,6 @@ class DashboardHeroSection extends StatelessWidget {
             theme: theme,
             foregroundColor: foregroundColor,
           ),
-          const SizedBox(height: DashboardScreenTokens.heroGapLarge),
           _HeroStats(l10n: l10n, snapshot: snapshot),
         ],
       ),
@@ -76,11 +77,13 @@ class _HeroTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return LwSpacedRow(
+      spacing: DashboardScreenTokens.heroGapSmall,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(
-          child: Column(
+          child: LwSpacedColumn(
+            spacing: DashboardScreenTokens.heroGapSmall,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
@@ -90,7 +93,6 @@ class _HeroTitle extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: DashboardScreenTokens.heroGapSmall),
               Text(
                 headline,
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -138,7 +140,8 @@ class _HeroStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return LwSpacedRow(
+      spacing: DashboardScreenTokens.heroChipSpacing,
       children: <Widget>[
         _HeroStatChip(
           icon: Icons.local_fire_department_outlined,
@@ -147,7 +150,6 @@ class _HeroStats extends StatelessWidget {
           foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
           backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
         ),
-        const SizedBox(width: DashboardScreenTokens.heroChipSpacing),
         _HeroStatChip(
           icon: Icons.flag_outlined,
           label: l10n.dashboardGoalProgressLabel,
@@ -182,10 +184,10 @@ class _HeroStatChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(DashboardScreenTokens.heroChipPadding),
         decoration: _buildDecoration(colorScheme),
-        child: Row(
+        child: LwSpacedRow(
+          spacing: DashboardScreenTokens.heroChipSpacing,
           children: <Widget>[
             Icon(icon, color: foregroundColor),
-            const SizedBox(width: DashboardScreenTokens.heroChipSpacing),
             Expanded(
               child: _HeroStatText(
                 label: label,

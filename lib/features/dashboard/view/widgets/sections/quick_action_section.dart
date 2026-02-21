@@ -5,9 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../app/router/app_router.dart';
-import '../../../../../common/styles/app_opacities.dart';
 import '../../../../../common/styles/app_screen_tokens.dart';
-import '../../../../../common/styles/app_sizes.dart';
+import '../../../../../common/widgets/widgets.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardQuickActionSection extends StatelessWidget {
@@ -30,25 +29,19 @@ class DashboardQuickActionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          l10n.dashboardQuickActionsTitle,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        LwSectionTitle(title: l10n.dashboardQuickActionsTitle),
         const SizedBox(height: DashboardScreenTokens.sectionTitleGap),
         if (learningAction != null)
           _PressScale(
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                style: _resolveFilledStyle(context: context),
-                icon: Icon(_actionIcon(learningAction.type)),
-                onPressed: () => _openQuickAction(context, learningAction.type),
-                label: Text(_actionLabel(l10n, learningAction.type)),
-              ),
+            child: LwPrimaryButton(
+              label: _actionLabel(l10n, learningAction.type),
+              leading: Icon(_actionIcon(learningAction.type)),
+              onPressed: () => _openQuickAction(context, learningAction.type),
             ),
           ),
         const SizedBox(height: DashboardScreenTokens.quickActionSpacing),
-        Row(
+        LwSpacedRow(
+          spacing: DashboardScreenTokens.quickActionSpacing,
           children: <Widget>[
             Expanded(
               child: _buildTonalActionButton(
@@ -57,7 +50,6 @@ class DashboardQuickActionSection extends StatelessWidget {
                 action: progressAction,
               ),
             ),
-            const SizedBox(width: DashboardScreenTokens.quickActionSpacing),
             Expanded(
               child: _buildOutlinedActionButton(
                 context: context,
@@ -89,14 +81,10 @@ class DashboardQuickActionSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return _PressScale(
-      child: SizedBox(
-        width: double.infinity,
-        child: FilledButton.tonalIcon(
-          style: _resolveTonalStyle(context: context),
-          icon: Icon(_actionIcon(action.type)),
-          onPressed: () => _openQuickAction(context, action.type),
-          label: Text(_actionLabel(l10n, action.type)),
-        ),
+      child: LwTonalButton(
+        label: _actionLabel(l10n, action.type),
+        leading: Icon(_actionIcon(action.type)),
+        onPressed: () => _openQuickAction(context, action.type),
       ),
     );
   }
@@ -110,92 +98,12 @@ class DashboardQuickActionSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return _PressScale(
-      child: SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          style: _resolveOutlinedStyle(context: context),
-          icon: Icon(_actionIcon(action.type)),
-          onPressed: () => _openQuickAction(context, action.type),
-          label: Text(_actionLabel(l10n, action.type)),
-        ),
+      child: LwSecondaryButton(
+        label: _actionLabel(l10n, action.type),
+        onPressed: () => _openQuickAction(context, action.type),
       ),
     );
   }
-}
-
-ButtonStyle _resolveFilledStyle({required BuildContext context}) {
-  final ColorScheme colorScheme = Theme.of(context).colorScheme;
-  return FilledButton.styleFrom(
-    backgroundColor: colorScheme.primary,
-    foregroundColor: colorScheme.onPrimary,
-    minimumSize: const Size(double.infinity, AppSizes.size56),
-    shape: const StadiumBorder(),
-  ).copyWith(
-    overlayColor: WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.pressed)) {
-        return colorScheme.onPrimary.withValues(alpha: AppOpacities.soft12);
-      }
-      if (states.contains(WidgetState.hovered)) {
-        return colorScheme.onPrimary.withValues(alpha: AppOpacities.soft08);
-      }
-      if (states.contains(WidgetState.focused)) {
-        return colorScheme.onPrimary.withValues(alpha: AppOpacities.soft08);
-      }
-      return null;
-    }),
-  );
-}
-
-ButtonStyle _resolveTonalStyle({required BuildContext context}) {
-  final ColorScheme colorScheme = Theme.of(context).colorScheme;
-  return FilledButton.styleFrom(
-    backgroundColor: colorScheme.secondaryContainer,
-    foregroundColor: colorScheme.onSecondaryContainer,
-    minimumSize: const Size(double.infinity, AppSizes.size52),
-    shape: const StadiumBorder(),
-  ).copyWith(
-    overlayColor: WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.pressed)) {
-        return colorScheme.onSecondaryContainer.withValues(
-          alpha: AppOpacities.soft12,
-        );
-      }
-      if (states.contains(WidgetState.hovered)) {
-        return colorScheme.onSecondaryContainer.withValues(
-          alpha: AppOpacities.soft08,
-        );
-      }
-      if (states.contains(WidgetState.focused)) {
-        return colorScheme.onSecondaryContainer.withValues(
-          alpha: AppOpacities.soft08,
-        );
-      }
-      return null;
-    }),
-  );
-}
-
-ButtonStyle _resolveOutlinedStyle({required BuildContext context}) {
-  final ColorScheme colorScheme = Theme.of(context).colorScheme;
-  return OutlinedButton.styleFrom(
-    foregroundColor: colorScheme.primary,
-    side: BorderSide(color: colorScheme.primary),
-    minimumSize: const Size(double.infinity, AppSizes.size52),
-    shape: const StadiumBorder(),
-  ).copyWith(
-    overlayColor: WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.pressed)) {
-        return colorScheme.primary.withValues(alpha: AppOpacities.soft12);
-      }
-      if (states.contains(WidgetState.hovered)) {
-        return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
-      }
-      if (states.contains(WidgetState.focused)) {
-        return colorScheme.primary.withValues(alpha: AppOpacities.soft08);
-      }
-      return null;
-    }),
-  );
 }
 
 class _PressScale extends StatelessWidget {

@@ -2,8 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../common/styles/app_screen_tokens.dart';
-import '../../../../common/styles/app_opacities.dart';
+import '../../../../common/widgets/widgets.dart';
 import '../../../../core/utils/string_utils.dart';
 
 const String _metadataSeparator = ' • ';
@@ -23,7 +22,6 @@ class FlashcardSetMetadataSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ThemeData theme = Theme.of(context);
     final String? normalizedOwnerName = StringUtils.normalizeNullable(
       ownerName,
     );
@@ -38,29 +36,6 @@ class FlashcardSetMetadataSection extends StatelessWidget {
       l10n.flashcardsUpdatedRecentlyLabel,
     ].join(_metadataSeparator);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: FlashcardScreenTokens.metadataTitleBottomGap),
-        Text(
-          metadataLine,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(
-              alpha: AppOpacities.muted70,
-            ),
-          ),
-        ),
-      ],
-    );
+    return LwSectionTitle(title: title, subtitle: metadataLine);
   }
 }

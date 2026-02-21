@@ -22,7 +22,7 @@ class ProfileScreen extends ConsumerWidget {
       profileControllerProvider.notifier,
     );
 
-    return Scaffold(
+    return LwAppShell(
       body: SafeArea(
         child: state.when(
           data: (profile) => _buildProfileHome(
@@ -39,10 +39,10 @@ class ProfileScreen extends ConsumerWidget {
           loading: () => LwLoadingState(message: l10n.profileLoadingLabel),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(
-        context: context,
-        l10n: l10n,
-      ),
+      selectedIndex: ProfileConstants.profileNavIndex,
+      onDestinationSelected: (index) {
+        _onDestinationSelected(context: context, index: index);
+      },
     );
   }
 
@@ -90,34 +90,6 @@ class ProfileScreen extends ConsumerWidget {
       message: message,
       retryLabel: l10n.profileRetryLabel,
       onRetry: controller.refresh,
-    );
-  }
-
-  Widget _buildBottomNavigationBar({
-    required BuildContext context,
-    required AppLocalizations l10n,
-  }) {
-    return LwBottomNavBar(
-      destinations: <LwBottomNavDestination>[
-        LwBottomNavDestination(
-          icon: Icons.dashboard_outlined,
-          selectedIcon: Icons.dashboard_rounded,
-          label: l10n.dashboardNavHome,
-        ),
-        LwBottomNavDestination(
-          icon: Icons.folder_open_outlined,
-          selectedIcon: Icons.folder_rounded,
-          label: l10n.dashboardNavFolders,
-        ),
-        LwBottomNavDestination(
-          icon: Icons.person_outline_rounded,
-          selectedIcon: Icons.person_rounded,
-          label: l10n.dashboardNavProfile,
-        ),
-      ],
-      selectedIndex: ProfileConstants.profileNavIndex,
-      onDestinationSelected: (index) =>
-          _onDestinationSelected(context: context, index: index),
     );
   }
 

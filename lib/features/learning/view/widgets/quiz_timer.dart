@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../common/widgets/widgets.dart';
+
 typedef QuizTimerFormat = String Function(int remainingSeconds);
 
 class QuizTimer extends StatelessWidget {
@@ -22,7 +24,10 @@ class QuizTimer extends StatelessWidget {
     final String text =
         formatter?.call(safeRemainingSeconds) ??
         _formatDefault(safeRemainingSeconds);
-    return Text(text, style: style);
+    return LwSpacedRow(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[Text(text, style: style)],
+    );
   }
 
   String _formatDefault(int seconds) {

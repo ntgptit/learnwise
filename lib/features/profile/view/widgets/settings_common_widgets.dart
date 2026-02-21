@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 
 class SettingsGroupGap extends StatelessWidget {
   const SettingsGroupGap({super.key});
@@ -60,23 +61,13 @@ class SaveButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme textTheme = Theme.of(context).textTheme;
-
     return Center(
       child: SizedBox(
         height: AppSizes.size48,
-        child: FilledButton(
+        child: LwPrimaryButton(
+          label: label,
+          expanded: false,
           onPressed: enabled ? onPressed : null,
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: AppSizes.spacingLg),
-            textStyle: textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-            ),
-          ),
-          child: Text(label),
         ),
       ),
     );
@@ -104,7 +95,8 @@ class SettingTitleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Row(
+    return LwSpacedRow(
+      spacing: _iconToTextSpacing,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Container(
@@ -117,7 +109,6 @@ class SettingTitleRow extends StatelessWidget {
           ),
           child: Icon(icon, size: AppSizes.size24, color: iconColor),
         ),
-        const SizedBox(width: _iconToTextSpacing),
         Expanded(
           child: Text(
             title,

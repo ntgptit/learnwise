@@ -68,22 +68,21 @@ class _StudyProgressHeader extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final String progressLabel = '${(progressPercent * 100).round()}%';
-    return Row(
+    return LwSpacedRow(
+      spacing: FlashcardStudySessionTokens.bottomActionGap,
       children: <Widget>[
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               FlashcardStudySessionTokens.progressRadius,
             ),
-            child: LinearProgressIndicator(
+            child: LwLinearProgress(
               value: progressPercent,
-              minHeight: FlashcardStudySessionTokens.progressHeight,
+              height: FlashcardStudySessionTokens.progressHeight,
               backgroundColor: colorScheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             ),
           ),
         ),
-        const SizedBox(width: FlashcardStudySessionTokens.bottomActionGap),
         Text(
           progressLabel,
           style: theme.textTheme.titleMedium?.copyWith(

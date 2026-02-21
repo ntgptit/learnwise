@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 import '../../model/profile_models.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -109,7 +110,8 @@ class _HeaderTopRow extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Row(
+    return LwSpacedRow(
+      spacing: AppSizes.spacingSm,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Text(
@@ -119,13 +121,13 @@ class _HeaderTopRow extends StatelessWidget {
             color: colorScheme.onPrimaryContainer,
           ),
         ),
-        IconButton(
-          onPressed: onSignOut,
-          icon: Icon(
-            Icons.logout_rounded,
-            color: colorScheme.onPrimaryContainer,
+        IconTheme(
+          data: IconThemeData(color: colorScheme.onPrimaryContainer),
+          child: LwIconButton(
+            onPressed: onSignOut,
+            icon: Icons.logout_rounded,
+            tooltip: signOutTooltip,
           ),
-          tooltip: signOutTooltip,
         ),
       ],
     );

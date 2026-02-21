@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 import '../../model/profile_models.dart';
 import 'settings_common_widgets.dart';
 
@@ -24,11 +25,11 @@ class CardsPerSessionSection extends StatelessWidget {
     final int normalizedCardsPerSession =
         UserStudySettings.normalizeStudyCardsPerSession(cardsPerSession);
 
-    return Column(
+    return LwSpacedColumn(
+      spacing: _innerSpacing,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _CardsPerSessionHeader(l10n: l10n, cardsPerSession: cardsPerSession),
-        const SizedBox(height: _innerSpacing),
         _CardsPerSessionSlider(
           l10n: l10n,
           cardsPerSession: normalizedCardsPerSession,
@@ -87,22 +88,13 @@ class _CardsCountBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.spacingSm,
-        vertical: AppSizes.spacingXs,
-      ),
-      decoration: BoxDecoration(
-        color: colorScheme.primary,
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-      ),
-      child: Text(
-        label,
-        style: textTheme.labelLarge?.copyWith(
-          color: colorScheme.onPrimary,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
+    return LwBadge(
+      label: label,
+      backgroundColor: colorScheme.primary,
+      foregroundColor: textTheme.labelLarge
+          ?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.w700)
+          .color,
+      isLarge: true,
     );
   }
 }
@@ -120,26 +112,18 @@ class _CardsPerSessionSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    return SliderTheme(
-      data: SliderTheme.of(context).copyWith(
-        thumbColor: colorScheme.primary,
-        activeTrackColor: colorScheme.primary,
-        inactiveTrackColor: colorScheme.primaryContainer,
-      ),
-      child: Slider(
-        value: cardsPerSession.toDouble(),
-        min: UserStudySettings.minStudyCardsPerSession.toDouble(),
-        max: UserStudySettings.maxStudyCardsPerSession.toDouble(),
-        divisions: _divisions(),
-        label: l10n.profileStudyCardsPerSessionOption(cardsPerSession),
-        onChanged: (value) {
-          final int normalizedValue =
-              UserStudySettings.normalizeStudyCardsPerSession(value.round());
-          onChanged(normalizedValue);
-        },
-      ),
+    return LwSliderInput(
+      value: cardsPerSession.toDouble(),
+      min: UserStudySettings.minStudyCardsPerSession.toDouble(),
+      max: UserStudySettings.maxStudyCardsPerSession.toDouble(),
+      divisions: _divisions(),
+      displayValueText: l10n.profileStudyCardsPerSessionOption(cardsPerSession),
+      onChanged: (value) {
+        final int normalizedValue =
+            UserStudySettings.normalizeStudyCardsPerSession(value.round());
+        onChanged(normalizedValue);
+      },
+      label: null,
     );
   }
 

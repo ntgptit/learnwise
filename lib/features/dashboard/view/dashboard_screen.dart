@@ -23,11 +23,31 @@ class DashboardScreen extends ConsumerWidget {
       dashboardControllerProvider.notifier,
     );
 
-    return Scaffold(
+    return LwAppShell(
       appBar: AppBar(title: Text(l10n.dashboardTitle)),
       body: _DashboardBody(l10n: l10n, state: state, controller: controller),
-      bottomNavigationBar: _DashboardBottomNavigationBar(l10n: l10n),
+      selectedIndex: DashboardConstants.dashboardNavIndex,
+      onDestinationSelected: (index) {
+        _onDestinationSelected(context: context, index: index);
+      },
     );
+  }
+
+  void _onDestinationSelected({
+    required BuildContext context,
+    required int index,
+  }) {
+    if (index == DashboardConstants.dashboardNavIndex) {
+      return;
+    }
+    if (index == DashboardConstants.foldersNavIndex) {
+      const FoldersRoute().go(context);
+      return;
+    }
+    if (index == DashboardConstants.profileNavIndex) {
+      const ProfileRoute().go(context);
+      return;
+    }
   }
 }
 
@@ -78,50 +98,5 @@ class _DashboardBody extends StatelessWidget {
 
   Widget _buildLoading() {
     return LwLoadingState(message: l10n.dashboardLoadingLabel);
-  }
-}
-
-class _DashboardBottomNavigationBar extends StatelessWidget {
-  const _DashboardBottomNavigationBar({required this.l10n});
-
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    return LwBottomNavBar(
-      destinations: <LwBottomNavDestination>[
-        LwBottomNavDestination(
-          icon: Icons.dashboard_outlined,
-          selectedIcon: Icons.dashboard_rounded,
-          label: l10n.dashboardNavHome,
-        ),
-        LwBottomNavDestination(
-          icon: Icons.folder_open_outlined,
-          selectedIcon: Icons.folder_rounded,
-          label: l10n.dashboardNavFolders,
-        ),
-        LwBottomNavDestination(
-          icon: Icons.person_outline_rounded,
-          selectedIcon: Icons.person_rounded,
-          label: l10n.dashboardNavProfile,
-        ),
-      ],
-      selectedIndex: DashboardConstants.dashboardNavIndex,
-      onDestinationSelected: (index) => _onDestinationSelected(context, index),
-    );
-  }
-
-  void _onDestinationSelected(BuildContext context, int index) {
-    if (index == DashboardConstants.dashboardNavIndex) {
-      return;
-    }
-    if (index == DashboardConstants.foldersNavIndex) {
-      const FoldersRoute().go(context);
-      return;
-    }
-    if (index == DashboardConstants.profileNavIndex) {
-      const ProfileRoute().go(context);
-      return;
-    }
   }
 }

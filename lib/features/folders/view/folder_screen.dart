@@ -128,7 +128,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       );
     }
 
-    return Scaffold(
+    return LwAppShell(
       appBar: AppBar(
         centerTitle: false,
         scrolledUnderElevation: 0,
@@ -394,27 +394,8 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
           },
         ),
       ),
-      bottomNavigationBar: LwBottomNavBar(
-        destinations: <LwBottomNavDestination>[
-          LwBottomNavDestination(
-            icon: Icons.dashboard_outlined,
-            selectedIcon: Icons.dashboard_rounded,
-            label: l10n.dashboardNavHome,
-          ),
-          LwBottomNavDestination(
-            icon: Icons.folder_open_outlined,
-            selectedIcon: Icons.folder_rounded,
-            label: l10n.dashboardNavFolders,
-          ),
-          LwBottomNavDestination(
-            icon: Icons.person_outline_rounded,
-            selectedIcon: Icons.person_rounded,
-            label: l10n.dashboardNavProfile,
-          ),
-        ],
-        selectedIndex: FolderConstants.foldersNavIndex,
-        onDestinationSelected: _onBottomNavSelected,
-      ),
+      selectedIndex: FolderConstants.foldersNavIndex,
+      onDestinationSelected: _onBottomNavSelected,
       floatingActionButton: createActions.isEmpty
           ? null
           : FloatingActionButton.small(

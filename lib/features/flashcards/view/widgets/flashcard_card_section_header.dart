@@ -1,9 +1,8 @@
 // quality-guard: allow-long-function - phase2 legacy backlog tracked for incremental extraction.
 import 'package:flutter/material.dart';
 
-import '../../../../common/styles/app_screen_tokens.dart';
-import '../../../../common/styles/app_opacities.dart';
 import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 
 class FlashcardCardSectionHeader extends StatelessWidget {
   const FlashcardCardSectionHeader({
@@ -22,52 +21,21 @@ class FlashcardCardSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    final TextStyle? titleStyle = theme.textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.w600,
-    );
-    final TextStyle? subtitleStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: colorScheme.onSurface.withValues(alpha: AppOpacities.muted70),
-    );
     final TextStyle? chipTextStyle = theme.textTheme.labelLarge?.copyWith(
       fontWeight: FontWeight.w600,
     );
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: titleStyle,
-              ),
-              const SizedBox(
-                height: FlashcardScreenTokens.sectionHeaderSubtitleGap,
-              ),
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: subtitleStyle,
-              ),
-            ],
-          ),
+    return LwSectionTitle(
+      title: title,
+      subtitle: subtitle,
+      trailing: OutlinedButton.icon(
+        onPressed: onSortPressed,
+        icon: const Icon(Icons.tune_rounded),
+        label: Text(sortLabel, style: chipTextStyle),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, AppSizes.size48),
         ),
-        const SizedBox(width: FlashcardScreenTokens.sectionHeaderActionGap),
-        OutlinedButton.icon(
-          onPressed: onSortPressed,
-          icon: const Icon(Icons.tune_rounded),
-          label: Text(sortLabel, style: chipTextStyle),
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size(0, AppSizes.size48),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

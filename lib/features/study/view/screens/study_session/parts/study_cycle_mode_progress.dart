@@ -25,31 +25,40 @@ class _StudyCycleModeProgress extends StatelessWidget {
       completedModeCount: normalizedCompletedCount,
       totalModeCount: cycleModes.length,
     );
-    final List<Widget> children = <Widget>[];
-    int index = 0;
+    final List<Widget> modeTiles = _buildModeTiles(
+      context: context,
+      completedModeCount: normalizedCompletedCount,
+      focusIndex: focusIndex,
+    );
+    return LwSpacedRow(
+      spacing: FlashcardStudySessionTokens.cycleProgressItemGap,
+      children: modeTiles,
+    );
+  }
+
+  List<Widget> _buildModeTiles({
+    required BuildContext context,
+    required int completedModeCount,
+    required int focusIndex,
+  }) {
+    final List<Widget> modeTiles = <Widget>[];
+    int index = StudyConstants.defaultIndex;
     while (index < cycleModes.length) {
-      if (index > StudyConstants.defaultIndex) {
-        children.add(
-          const SizedBox(
-            width: FlashcardStudySessionTokens.cycleProgressItemGap,
-          ),
-        );
-      }
       final StudyMode mode = cycleModes[index];
-      children.add(
+      modeTiles.add(
         Expanded(
           child: _buildModeTile(
             context: context,
             mode: mode,
             index: index,
-            completedModeCount: normalizedCompletedCount,
+            completedModeCount: completedModeCount,
             focusIndex: focusIndex,
           ),
         ),
       );
       index++;
     }
-    return Row(children: children);
+    return modeTiles;
   }
 
   int _resolveFocusIndex({
@@ -100,15 +109,16 @@ class _StudyCycleModeProgress extends StatelessWidget {
             border: Border.all(color: style.borderColor),
           ),
           alignment: Alignment.center,
-          child: Row(
+          child: LwSpacedRow(
+            spacing: FlashcardStudySessionTokens.modeTileGap,
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Icon(
                 modeIcon,
                 size: FlashcardStudySessionTokens.cycleProgressIconSize,
                 color: style.foregroundColor,
               ),
-              const SizedBox(width: FlashcardStudySessionTokens.modeTileGap),
               Icon(
                 statusIcon,
                 size: FlashcardStudySessionTokens.cycleProgressStatusIconSize,

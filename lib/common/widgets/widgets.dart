@@ -46,6 +46,7 @@ export 'input/tag_input.dart';
 export 'input/text_area.dart';
 export 'input/text_box.dart';
 export 'layout/app_scaffold.dart';
+export 'layout/app_shell.dart';
 export 'layout/responsive_padding.dart';
 export 'layout/scroll_with_header.dart';
 export 'layout/section_title.dart';

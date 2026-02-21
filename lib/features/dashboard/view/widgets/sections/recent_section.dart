@@ -3,6 +3,7 @@ import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../../../common/styles/app_screen_tokens.dart';
 import '../../../../../common/styles/app_opacities.dart';
+import '../../../../../common/widgets/widgets.dart';
 import '../../../model/dashboard_models.dart';
 
 class DashboardRecentSection extends StatelessWidget {
@@ -16,10 +17,7 @@ class DashboardRecentSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          l10n.dashboardRecentTitle,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        LwSectionTitle(title: l10n.dashboardRecentTitle),
         const SizedBox(height: DashboardScreenTokens.sectionTitleGap),
         ...snapshot.recentActivities.map((activity) {
           return _RecentActivityCard(
@@ -40,27 +38,26 @@ class _RecentActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return LwCard(
+      variant: AppCardVariant.outlined,
       margin: const EdgeInsets.only(
         bottom: DashboardScreenTokens.recentItemGap,
       ),
       padding: const EdgeInsets.all(DashboardScreenTokens.recentCardPadding),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-          DashboardScreenTokens.recentCardRadius,
-        ),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.outline.withValues(alpha: AppOpacities.soft15),
-        ),
+      borderRadius: BorderRadius.circular(
+        DashboardScreenTokens.recentCardRadius,
       ),
-      child: Column(
+      border: Border.all(
+        color: Theme.of(
+          context,
+        ).colorScheme.outline.withValues(alpha: AppOpacities.soft15),
+      ),
+      child: LwSpacedColumn(
+        spacing: DashboardScreenTokens.recentProgressGap,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(label),
-          const SizedBox(height: DashboardScreenTokens.recentProgressGap),
-          LinearProgressIndicator(value: progress),
+          LwLinearProgress(value: progress),
         ],
       ),
     );

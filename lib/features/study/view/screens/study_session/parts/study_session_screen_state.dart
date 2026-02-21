@@ -64,11 +64,10 @@ class _FlashcardStudySessionScreenState
       appBar: AppBar(
         centerTitle: modeContentBuilder?.centerTitle ?? true,
         title: Text(modeLabel, style: Theme.of(context).textTheme.titleLarge),
-        leading: IconButton(
+        leading: LwIconButton(
           onPressed: () => context.pop(true),
           tooltip: l10n.flashcardsBackTooltip,
-          iconSize: FlashcardStudySessionTokens.iconSize,
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icons.arrow_back_rounded,
         ),
         actions: _buildAppBarActions(
           l10n: l10n,

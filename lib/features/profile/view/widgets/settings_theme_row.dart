@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../../common/styles/app_sizes.dart';
+import '../../../../common/widgets/widgets.dart';
 import '../../model/profile_models.dart';
 import 'settings_common_widgets.dart';
 
@@ -45,7 +47,8 @@ class ThemeSettingRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
-    return Row(
+    return LwSpacedRow(
+      spacing: AppSizes.spacingSm,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Expanded(

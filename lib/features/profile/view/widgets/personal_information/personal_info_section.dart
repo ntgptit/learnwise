@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../common/styles/app_sizes.dart';
-import '../../../../common/widgets/widgets.dart';
-import '../../../../core/utils/string_utils.dart';
-import '../../model/profile_models.dart';
+import '../../../../../common/styles/app_sizes.dart';
+import '../../../../../common/widgets/widgets.dart';
+import '../../../../../core/utils/string_utils.dart';
+import '../../../model/profile_models.dart';
 
 class PersonalInfoSection extends StatelessWidget {
   const PersonalInfoSection({

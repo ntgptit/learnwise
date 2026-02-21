@@ -1,5 +1,21 @@
 [
   {
+    "file": "lib/features/profile/view/widgets/settings/tts/profile_tts_voice_settings_section_runtime.dart",
+    "line": 263,
+    "severity": "WARN",
+    "rule": "ClassAndFunctionLengthRule",
+    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
+    "content": "41 lines"
+  },
+  {
+    "file": "lib/features/profile/view/widgets/settings/tts/profile_tts_voice_settings_section_ui.dart",
+    "line": 20,
+    "severity": "WARN",
+    "rule": "ClassAndFunctionLengthRule",
+    "reason": "Function length exceeds 35 lines. Extract smaller units or add `quality-guard: allow-long-function` with justification.",
+    "content": "72 lines"
+  },
+  {
     "file": "lib/common/styles/icons.dart",
     "line": 1,
     "severity": "INFO",

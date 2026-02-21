@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
+import '../../../common/styles/app_durations.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
 import '../model/dashboard_constants.dart';
@@ -10,10 +14,11 @@ import '../model/dashboard_models.dart';
 import '../viewmodel/dashboard_viewmodel.dart';
 import 'widgets/dashboard_sections.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends HookConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
+  // quality-guard: allow-long-function - dashboard template wiring centralizes hooks + state mapping and page callbacks.
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
     final AsyncValue<DashboardSnapshot> state = ref.watch(
@@ -22,11 +27,40 @@ class DashboardScreen extends ConsumerWidget {
     final DashboardController controller = ref.read(
       dashboardControllerProvider.notifier,
     );
+    final ScrollController scrollController = useScrollController();
+    final LwPageContentState contentState = _resolveContentState(state);
+    final DashboardSnapshot? snapshot = _resolveSnapshot(state);
+    final VoidCallback onRefresh = useCallback(() {
+      _refresh(controller);
+    }, <Object?>[controller]);
+    final VoidCallback onRefreshAndScrollToTop = useCallback(() {
+      _refreshAndScrollToTop(
+        controller: controller,
+        scrollController: scrollController,
+      );
+    }, <Object?>[controller, scrollController]);
+    final VoidCallback onOpenSettings = useCallback(() {
+      _openProfileSettings(context);
+    }, <Object?>[context]);
 
     return LwPageTemplate(
-      appBar: AppBar(title: Text(l10n.dashboardTitle)),
-      body: _DashboardBody(l10n: l10n, state: state, controller: controller),
+      title: l10n.dashboardTitle,
+      body: _DashboardBody(snapshot: snapshot),
       selectedIndex: DashboardConstants.dashboardNavIndex,
+      contentState: contentState,
+      loadingMessage: l10n.dashboardLoadingLabel,
+      errorTitle: l10n.dashboardErrorTitle,
+      errorMessage: l10n.dashboardErrorDescription,
+      errorRetryLabel: l10n.dashboardRetryLabel,
+      contentPadding: const EdgeInsets.all(
+        DashboardScreenTokens.contentPadding,
+      ),
+      useBodyScrollView: true,
+      scrollController: scrollController,
+      onRefresh: onRefresh,
+      onRetry: onRefresh,
+      onRefreshAndScrollToTop: onRefreshAndScrollToTop,
+      onOpenSettings: onOpenSettings,
       onDestinationSelected: (index) {
         _onDestinationSelected(context: context, index: index);
       },
@@ -44,54 +78,64 @@ class DashboardScreen extends ConsumerWidget {
     }
     navigationShell.goBranch(index);
   }
+
+  LwPageContentState _resolveContentState(AsyncValue<DashboardSnapshot> state) {
+    return state.when(
+      data: (_) => LwPageContentState.content,
+      error: (error, stackTrace) => LwPageContentState.error,
+      loading: () => LwPageContentState.loading,
+    );
+  }
+
+  DashboardSnapshot? _resolveSnapshot(AsyncValue<DashboardSnapshot> state) {
+    return state.when(
+      data: (snapshot) => snapshot,
+      error: (error, stackTrace) => null,
+      loading: () => null,
+    );
+  }
+
+  void _refresh(DashboardController controller) {
+    unawaited(controller.refresh());
+  }
+
+  void _refreshAndScrollToTop({
+    required DashboardController controller,
+    required ScrollController scrollController,
+  }) {
+    if (scrollController.hasClients) {
+      unawaited(
+        scrollController.animateTo(
+          0,
+          duration: AppDurations.animationFast,
+          curve: AppMotionCurves.decelerateCubic,
+        ),
+      );
+    }
+    _refresh(controller);
+  }
+
+  void _openProfileSettings(BuildContext context) {
+    final StatefulNavigationShellState navigationShell =
+        StatefulNavigationShell.of(context);
+    navigationShell.goBranch(DashboardConstants.profileNavIndex);
+  }
 }
 
 class _DashboardBody extends StatelessWidget {
-  const _DashboardBody({
-    required this.l10n,
-    required this.state,
-    required this.controller,
-  });
+  const _DashboardBody({required this.snapshot});
 
-  final AppLocalizations l10n;
-  final AsyncValue<DashboardSnapshot> state;
-  final DashboardController controller;
+  final DashboardSnapshot? snapshot;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: state.when(
-        data: (snapshot) => _buildData(context, snapshot),
-        error: (error, stackTrace) => _buildError(),
-        loading: _buildLoading,
-      ),
+    final DashboardSnapshot? resolvedSnapshot = snapshot;
+    if (resolvedSnapshot == null) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: buildDashboardSectionItems(snapshot: resolvedSnapshot),
     );
-  }
-
-  Widget _buildData(BuildContext context, DashboardSnapshot snapshot) {
-    return RefreshIndicator(
-      onRefresh: controller.refresh,
-      child: ListView(
-        // quality-guard: allow-list-children - bounded dashboard sections (non-feed).
-        padding: const EdgeInsets.all(DashboardScreenTokens.contentPadding),
-        children: buildDashboardSectionItems(
-          context: context,
-          snapshot: snapshot,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildError() {
-    return LwErrorState(
-      title: l10n.dashboardErrorTitle,
-      message: l10n.dashboardErrorDescription,
-      retryLabel: l10n.dashboardRetryLabel,
-      onRetry: controller.refresh,
-    );
-  }
-
-  Widget _buildLoading() {
-    return LwLoadingState(message: l10n.dashboardLoadingLabel);
   }
 }

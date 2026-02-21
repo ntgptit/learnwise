@@ -1,4 +1,4 @@
-import '../../model/profile_models.dart';
+import '../../../model/profile_models.dart';
 
 class ProfileSettingsDraft {
   const ProfileSettingsDraft({

@@ -16,20 +16,13 @@ class DashboardMetricSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    return Column(
+    return LwSpacedColumn(
+      spacing: DashboardScreenTokens.sectionTitleGap,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _buildTitle(context, l10n),
-        const SizedBox(height: DashboardScreenTokens.sectionTitleGap),
+        LwSectionTitle(title: l10n.dashboardOverviewTitle),
         _buildGrid(l10n),
       ],
-    );
-  }
-
-  Widget _buildTitle(BuildContext context, AppLocalizations l10n) {
-    return Text(
-      l10n.dashboardOverviewTitle,
-      style: Theme.of(context).textTheme.titleLarge,
     );
   }
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../common/styles/app_sizes.dart';
-import '../../../../common/widgets/widgets.dart';
-import '../../model/profile_models.dart';
+import '../../../../../common/styles/app_sizes.dart';
+import '../../../../../common/widgets/widgets.dart';
+import '../../../model/profile_models.dart';
 import 'profile_settings_draft.dart';
 import 'settings_autoplay_row.dart';
 import 'settings_cards_per_session_section.dart';

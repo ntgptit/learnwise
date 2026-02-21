@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../common/styles/app_sizes.dart';
-import '../../../../common/widgets/widgets.dart';
+import '../../../../../common/styles/app_sizes.dart';
+import '../../../../../common/widgets/widgets.dart';
 
 class SettingsGroupGap extends StatelessWidget {
   const SettingsGroupGap({super.key});

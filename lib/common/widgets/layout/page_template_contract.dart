@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 enum LwSortDirection { ascending, descending }
 
@@ -7,6 +7,23 @@ enum LwViewMode { list, grid, compact }
 enum LwBulkAction { selectAll, clearSelection, deleteSelected, archiveSelected }
 
 enum LwPageMessageLevel { info, success, warning, error }
+
+enum LwPageContentState { content, loading, error, empty }
+
+enum LwPageLeadingAction { automatic, none, back, close }
+
+@immutable
+class LwPageActionIcon {
+  const LwPageActionIcon({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+}
 
 @immutable
 class LwFilterState {

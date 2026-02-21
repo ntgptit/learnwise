@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../model/dashboard_models.dart';
 import 'sections/focus_section.dart';
@@ -8,10 +8,7 @@ import 'sections/quick_action_section.dart';
 import 'sections/recent_section.dart';
 import 'sections/section_gap.dart';
 
-List<Widget> buildDashboardSectionItems({
-  required BuildContext context,
-  required DashboardSnapshot snapshot,
-}) {
+List<Widget> buildDashboardSectionItems({required DashboardSnapshot snapshot}) {
   return <Widget>[
     DashboardHeroSection(snapshot: snapshot),
     const DashboardSectionGap(),

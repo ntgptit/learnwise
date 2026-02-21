@@ -77,7 +77,6 @@ class _ProfileTtsVoiceSettingsSectionState
     final bool isSaving = ref.watch(profileControllerProvider).isLoading;
     final bool isTesting = engine.status.isReading;
     final AppLocalizations l10n = AppLocalizations.of(context)!;
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     return ValueListenableBuilder<_TtsDraft>(
       valueListenable: _draftNotifier,
       builder: (context, draft, _) {
@@ -99,6 +98,7 @@ class _ProfileTtsVoiceSettingsSectionState
         );
         return LwCard(
           variant: AppCardVariant.elevated,
+          padding: EdgeInsets.zero,
           child: Padding(
             padding: const EdgeInsets.all(
               _VoiceSettingsLayoutConstants.cardPadding,
@@ -112,23 +112,13 @@ class _ProfileTtsVoiceSettingsSectionState
                   onRefresh: _resolveRefreshHandler(engine),
                 ),
                 const SettingsGroupDivider(),
-                _VoiceSettingHeader(
-                  icon: Icons.translate_rounded,
-                  title: l10n.selectKoreanVoiceLabel,
-                  containerColor: colorScheme.primaryContainer,
-                  iconColor: colorScheme.onPrimaryContainer,
-                ),
+                _VoiceSettingLabel(title: l10n.selectKoreanVoiceLabel),
                 const SizedBox(
                   height: _VoiceSettingsLayoutConstants.subsectionGap,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: _VoiceSettingsLayoutConstants.headerContentInset,
-                  ),
-                  child: Text(
-                    l10n.koreanVoicesCount(dropdownVoices.length),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
+                Text(
+                  l10n.koreanVoicesCount(dropdownVoices.length),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
                 LwSelectBox<int?>(
@@ -151,12 +141,11 @@ class _ProfileTtsVoiceSettingsSectionState
                         },
                   options: _buildVoiceItems(l10n: l10n, voices: dropdownVoices),
                 ),
-                const SettingsGroupDivider(),
+                const SizedBox(
+                  height: _VoiceSettingsLayoutConstants.groupItemGap,
+                ),
                 _TtsSliderRow(
-                  icon: Icons.speed_rounded,
                   label: l10n.speedLabel,
-                  containerColor: colorScheme.secondaryContainer,
-                  iconColor: colorScheme.onSecondaryContainer,
                   value: draft.speechRate,
                   min: UserStudySettings.minTtsSpeechRate,
                   max: UserStudySettings.maxTtsSpeechRate,
@@ -174,12 +163,11 @@ class _ProfileTtsVoiceSettingsSectionState
                           _emitLivePreviewIntent();
                         },
                 ),
-                const SettingsGroupDivider(),
+                const SizedBox(
+                  height: _VoiceSettingsLayoutConstants.groupItemGap,
+                ),
                 _TtsSliderRow(
-                  icon: Icons.tune_rounded,
                   label: l10n.pitchLabel,
-                  containerColor: colorScheme.tertiaryContainer,
-                  iconColor: colorScheme.onTertiaryContainer,
                   value: draft.pitch,
                   min: UserStudySettings.minTtsPitch,
                   max: UserStudySettings.maxTtsPitch,
@@ -197,12 +185,11 @@ class _ProfileTtsVoiceSettingsSectionState
                           _emitLivePreviewIntent();
                         },
                 ),
-                const SettingsGroupDivider(),
+                const SizedBox(
+                  height: _VoiceSettingsLayoutConstants.groupItemGap,
+                ),
                 _TtsSliderRow(
-                  icon: Icons.volume_up_rounded,
                   label: l10n.volumeLabel,
-                  containerColor: colorScheme.primaryContainer,
-                  iconColor: colorScheme.onPrimaryContainer,
                   value: draft.volume,
                   min: UserStudySettings.minTtsVolume,
                   max: UserStudySettings.maxTtsVolume,
@@ -220,29 +207,29 @@ class _ProfileTtsVoiceSettingsSectionState
                           _emitLivePreviewIntent();
                         },
                 ),
-                const SettingsGroupDivider(),
+                const SizedBox(
+                  height: _VoiceSettingsLayoutConstants.groupItemGap,
+                ),
                 _VoiceTestSection(
                   l10n: l10n,
-                  titleIcon: Icons.edit_note_rounded,
-                  titleContainerColor: colorScheme.secondaryContainer,
-                  titleIconColor: colorScheme.onSecondaryContainer,
                   useDefaultTestTextNotifier: _useDefaultTestTextNotifier,
                   customTestTextErrorNotifier: _customTestTextErrorNotifier,
                   testTextController: _testTextController,
                   defaultTestText: defaultTestText,
                   isInputDisabled: isInputDisabled,
-                  isTesting: isTesting,
-                  onPreviewPressed: _previewVoice,
                 ),
-                const SettingsGroupGap(),
-                Center(
-                  child: LwPrimaryButton(
-                    label: l10n.profileSaveSettingsLabel,
-                    expanded: false,
-                    onPressed: !hasChanges || isSaving
-                        ? null
-                        : () => _saveGlobalVoiceSettings(profile.settings),
-                  ),
+                const SizedBox(
+                  height: _VoiceSettingsLayoutConstants.actionRowTopGap,
+                ),
+                _VoiceSettingsActionRow(
+                  testVoiceLabel: l10n.profileVoiceTestButtonLabel,
+                  saveLabel: l10n.profileSaveSettingsLabel,
+                  canTestVoice: !isInputDisabled && !isTesting,
+                  canSaveSettings: hasChanges && !isSaving,
+                  onTestVoicePressed: _previewVoice,
+                  onSavePressed: () {
+                    unawaited(_saveGlobalVoiceSettings(profile.settings));
+                  },
                 ),
               ],
             ),
@@ -622,29 +609,19 @@ class _ProfileTtsVoiceSettingsSectionState
 class _VoiceTestSection extends StatelessWidget {
   const _VoiceTestSection({
     required this.l10n,
-    required this.titleIcon,
-    required this.titleContainerColor,
-    required this.titleIconColor,
     required this.useDefaultTestTextNotifier,
     required this.customTestTextErrorNotifier,
     required this.testTextController,
     required this.defaultTestText,
     required this.isInputDisabled,
-    required this.isTesting,
-    required this.onPreviewPressed,
   });
 
   final AppLocalizations l10n;
-  final IconData titleIcon;
-  final Color titleContainerColor;
-  final Color titleIconColor;
   final ValueNotifier<bool> useDefaultTestTextNotifier;
   final ValueNotifier<String?> customTestTextErrorNotifier;
   final TextEditingController testTextController;
   final String defaultTestText;
   final bool isInputDisabled;
-  final bool isTesting;
-  final VoidCallback onPreviewPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -652,7 +629,6 @@ class _VoiceTestSection extends StatelessWidget {
       valueListenable: useDefaultTestTextNotifier,
       builder: (context, useDefaultText, _) {
         final bool canEditInput = !useDefaultText && !isInputDisabled;
-        final bool canPreview = !isInputDisabled && !isTesting;
         final String toggleLabel = useDefaultText
             ? l10n.profileVoiceTestUseDefaultLabel
             : l10n.profileVoiceTestUseCustomLabel;
@@ -665,11 +641,8 @@ class _VoiceTestSection extends StatelessWidget {
             Row(
               children: <Widget>[
                 Expanded(
-                  child: _VoiceSettingHeader(
-                    icon: titleIcon,
+                  child: _VoiceSettingLabel(
                     title: l10n.profileVoiceTestModeLabel,
-                    containerColor: titleContainerColor,
-                    iconColor: titleIconColor,
                   ),
                 ),
                 SizedBox(
@@ -717,19 +690,95 @@ class _VoiceTestSection extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: _VoiceSettingsLayoutConstants.itemGap),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: LwTonalButton(
-                label: l10n.profileVoiceTestButtonLabel,
-                onPressed: canPreview ? onPreviewPressed : null,
-                expanded: false,
-                leading: const Icon(Icons.volume_up_rounded),
-              ),
-            ),
           ],
         );
       },
+    );
+  }
+}
+
+class _VoiceSettingsActionRow extends StatelessWidget {
+  const _VoiceSettingsActionRow({
+    required this.testVoiceLabel,
+    required this.saveLabel,
+    required this.canTestVoice,
+    required this.canSaveSettings,
+    required this.onTestVoicePressed,
+    required this.onSavePressed,
+  });
+
+  final String testVoiceLabel;
+  final String saveLabel;
+  final bool canTestVoice;
+  final bool canSaveSettings;
+  final VoidCallback onTestVoicePressed;
+  final VoidCallback onSavePressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _VoiceActionButton(
+              label: testVoiceLabel,
+              enabled: canTestVoice,
+              onPressed: onTestVoicePressed,
+              tonal: true,
+            ),
+            const SizedBox(
+              width: _VoiceSettingsLayoutConstants.actionButtonGap,
+            ),
+            _VoiceActionButton(
+              label: saveLabel,
+              enabled: canSaveSettings,
+              onPressed: onSavePressed,
+              tonal: false,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VoiceActionButton extends StatelessWidget {
+  const _VoiceActionButton({
+    required this.label,
+    required this.enabled,
+    required this.onPressed,
+    required this.tonal,
+  });
+
+  final String label;
+  final bool enabled;
+  final VoidCallback onPressed;
+  final bool tonal;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ButtonStyle style = FilledButton.styleFrom(
+      minimumSize: const Size(0, AppSizes.size48),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.spacingLg),
+      textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+      ),
+    );
+    if (tonal) {
+      return FilledButton.tonal(
+        onPressed: enabled ? onPressed : null,
+        style: style,
+        child: Text(label),
+      );
+    }
+    return FilledButton(
+      onPressed: enabled ? onPressed : null,
+      style: style,
+      child: Text(label),
     );
   }
 }
@@ -745,10 +794,27 @@ class _VoiceTestSectionConstants {
 class _VoiceSettingsLayoutConstants {
   const _VoiceSettingsLayoutConstants._();
 
-  static const double headerContentInset = AppSizes.size40 + AppSizes.spacingMd;
   static const double cardPadding = AppSizes.spacingMd;
   static const double subsectionGap = AppSizes.spacingXs;
   static const double itemGap = AppSizes.spacingSm;
+  static const double groupItemGap = AppSizes.spacingMd;
+  static const double actionRowTopGap = AppSizes.spacingMd;
+  static const double actionButtonGap = AppSizes.spacingSm;
+}
+
+class _VoiceSettingLabel extends StatelessWidget {
+  const _VoiceSettingLabel({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    return Text(
+      title,
+      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    );
+  }
 }
 
 class _VoiceSettingHeader extends StatelessWidget {
@@ -812,10 +878,7 @@ class _SectionTitleRow extends StatelessWidget {
 
 class _TtsSliderRow extends StatelessWidget {
   const _TtsSliderRow({
-    required this.icon,
     required this.label,
-    required this.containerColor,
-    required this.iconColor,
     required this.value,
     required this.min,
     required this.max,
@@ -823,10 +886,7 @@ class _TtsSliderRow extends StatelessWidget {
     this.onChangeEnd,
   });
 
-  final IconData icon;
   final String label;
-  final Color containerColor;
-  final Color iconColor;
   final double value;
   final double min;
   final double max;
@@ -842,14 +902,7 @@ class _TtsSliderRow extends StatelessWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Expanded(
-              child: _VoiceSettingHeader(
-                icon: icon,
-                title: label,
-                containerColor: containerColor,
-                iconColor: iconColor,
-              ),
-            ),
+            Expanded(child: _VoiceSettingLabel(title: label)),
             const SizedBox(width: _VoiceSettingsLayoutConstants.subsectionGap),
             Text(
               valueText,

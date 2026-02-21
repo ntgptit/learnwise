@@ -260,6 +260,7 @@ extension _ProfileTtsVoiceSettingsSectionRuntimeExtension
     );
   }
 
+  // quality-guard: allow-long-function - validation and preview dispatch stay cohesive to keep notifier updates and TTS invocation in one flow.
   Future<void> _previewVoice({
     required BuildContext context,
     required WidgetRef ref,

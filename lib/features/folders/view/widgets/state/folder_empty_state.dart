@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../common/styles/app_sizes.dart';
-import '../../../../common/widgets/widgets.dart';
+import '../../../../../common/styles/app_sizes.dart';
+import '../../../../../common/widgets/widgets.dart';
 
 class FolderEmptyState extends StatelessWidget {
   const FolderEmptyState({

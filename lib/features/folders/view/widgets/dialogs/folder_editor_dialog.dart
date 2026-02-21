@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
-import '../../../../common/styles/app_screen_tokens.dart';
-import '../../model/folder_constants.dart';
-import '../../model/folder_models.dart';
-import '../../viewmodel/folder_viewmodel.dart';
-import '../validation/folder_form_schema.dart';
-import 'folder_color_resolver.dart';
+import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../model/folder_constants.dart';
+import '../../../model/folder_models.dart';
+import '../../../viewmodel/folder_viewmodel.dart';
+import '../../validation/folder_form_schema.dart';
+import '../utils/folder_color_resolver.dart';
 
 typedef FolderSubmitHandler =
     Future<FolderSubmitResult> Function(FolderUpsertInput input);

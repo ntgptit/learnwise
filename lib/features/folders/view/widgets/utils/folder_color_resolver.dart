@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../model/folder_constants.dart';
+import '../../../model/folder_constants.dart';
 
 Color resolveFolderColor(String colorHex, Color fallbackColor) {
   final String normalizedHex = colorHex.replaceFirst('#', '');

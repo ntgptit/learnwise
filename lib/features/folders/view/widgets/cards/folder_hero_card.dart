@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../common/styles/app_screen_tokens.dart';
-import '../../../../common/styles/app_opacities.dart';
-import '../../../../common/widgets/widgets.dart';
+import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/styles/app_opacities.dart';
+import '../../../../../common/widgets/widgets.dart';
 
 class FolderHeroCard extends StatelessWidget {
   const FolderHeroCard({super.key});

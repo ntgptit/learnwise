@@ -18,6 +18,7 @@ class _VoiceTestSection extends StatelessWidget {
   final bool isInputDisabled;
 
   @override
+  // quality-guard: allow-long-function - test text mode toggle and editor wiring are intentionally grouped to preserve UX state coupling.
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: useDefaultTestTextNotifier,

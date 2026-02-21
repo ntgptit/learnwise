@@ -2,11 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../../common/styles/app_screen_tokens.dart';
-import '../../../../common/styles/app_opacities.dart';
-import '../../../../common/widgets/widgets.dart';
-import '../../model/folder_models.dart';
-import 'folder_color_resolver.dart';
+import '../../../../../common/styles/app_screen_tokens.dart';
+import '../../../../../common/styles/app_opacities.dart';
+import '../../../../../common/widgets/widgets.dart';
+import '../../../model/folder_models.dart';
+import '../utils/folder_color_resolver.dart';
 
 enum _FolderCardAction { edit, delete }
 

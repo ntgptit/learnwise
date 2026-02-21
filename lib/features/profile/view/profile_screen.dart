@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 import '../../../app/router/app_router.dart';
@@ -22,7 +23,7 @@ class ProfileScreen extends ConsumerWidget {
       profileControllerProvider.notifier,
     );
 
-    return LwAppShell(
+    return LwPageTemplate(
       body: SafeArea(
         child: state.when(
           data: (profile) => _buildProfileHome(
@@ -97,17 +98,12 @@ class ProfileScreen extends ConsumerWidget {
     required BuildContext context,
     required int index,
   }) {
-    if (index == ProfileConstants.dashboardNavIndex) {
-      const DashboardRoute().go(context);
+    final StatefulNavigationShellState navigationShell =
+        StatefulNavigationShell.of(context);
+    if (index == navigationShell.currentIndex) {
       return;
     }
-    if (index == ProfileConstants.foldersNavIndex) {
-      const FoldersRoute().go(context);
-      return;
-    }
-    if (index == ProfileConstants.profileNavIndex) {
-      return;
-    }
+    navigationShell.goBranch(index);
   }
 
   String _resolveErrorMessage({

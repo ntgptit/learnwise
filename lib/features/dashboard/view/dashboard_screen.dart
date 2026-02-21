@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
-import '../../../app/router/app_router.dart';
 import '../../../common/styles/app_screen_tokens.dart';
 import '../../../common/widgets/widgets.dart';
 import '../model/dashboard_constants.dart';
@@ -23,7 +23,7 @@ class DashboardScreen extends ConsumerWidget {
       dashboardControllerProvider.notifier,
     );
 
-    return LwAppShell(
+    return LwPageTemplate(
       appBar: AppBar(title: Text(l10n.dashboardTitle)),
       body: _DashboardBody(l10n: l10n, state: state, controller: controller),
       selectedIndex: DashboardConstants.dashboardNavIndex,
@@ -37,17 +37,12 @@ class DashboardScreen extends ConsumerWidget {
     required BuildContext context,
     required int index,
   }) {
-    if (index == DashboardConstants.dashboardNavIndex) {
+    final StatefulNavigationShellState navigationShell =
+        StatefulNavigationShell.of(context);
+    if (index == navigationShell.currentIndex) {
       return;
     }
-    if (index == DashboardConstants.foldersNavIndex) {
-      const FoldersRoute().go(context);
-      return;
-    }
-    if (index == DashboardConstants.profileNavIndex) {
-      const ProfileRoute().go(context);
-      return;
-    }
+    navigationShell.goBranch(index);
   }
 }
 

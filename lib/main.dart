@@ -32,9 +32,7 @@ class _LearnWiseAppView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = buildAppRouter(
-      authSessionManager: ref.read(authSessionManagerProvider),
-    );
+    final router = ref.watch(appRouterProvider);
     final ThemeMode themeMode = ref.watch(appThemeModeControllerProvider);
     return MaterialApp.router(
       scaffoldMessengerKey: appScaffoldMessengerKey,

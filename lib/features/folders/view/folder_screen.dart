@@ -128,7 +128,7 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
       );
     }
 
-    return LwAppShell(
+    return LwPageTemplate(
       appBar: AppBar(
         centerTitle: false,
         scrolledUnderElevation: 0,
@@ -504,17 +504,12 @@ class _FolderScreenState extends ConsumerState<FolderScreen> {
   }
 
   void _onBottomNavSelected(int index) {
-    if (index == FolderConstants.dashboardNavIndex) {
-      const DashboardRoute().go(context);
+    final StatefulNavigationShellState navigationShell =
+        StatefulNavigationShell.of(context);
+    if (index == navigationShell.currentIndex) {
       return;
     }
-    if (index == FolderConstants.foldersNavIndex) {
-      return;
-    }
-    if (index == FolderConstants.profileNavIndex) {
-      const ProfileRoute().go(context);
-      return;
-    }
+    navigationShell.goBranch(index);
   }
 
   List<PopupMenuEntry<_FolderMenuAction>> _buildMenuItems({

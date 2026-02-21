@@ -54,11 +54,144 @@ GoRouter buildAppRouter({required AuthSessionManager authSessionManager}) {
       }
       return null;
     },
-    routes: $appRoutes,
+    routes: _buildAppRouterRoutes(),
     errorBuilder: (context, state) {
       return const _NotFoundScreen();
     },
   );
+}
+
+List<RouteBase> _buildAppRouterRoutes() {
+  return <RouteBase>[
+    GoRoute(
+      path: RouteNames.root,
+      redirect: (context, state) {
+        return RouteNames.dashboard;
+      },
+    ),
+    GoRoute(
+      path: RouteNames.login,
+      builder: (context, state) {
+        return const LoginScreen();
+      },
+    ),
+    GoRoute(
+      path: RouteNames.register,
+      builder: (context, state) {
+        return const RegisterScreen();
+      },
+    ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return navigationShell;
+      },
+      branches: <StatefulShellBranch>[
+        StatefulShellBranch(
+          routes: <RouteBase>[
+            GoRoute(
+              path: RouteNames.dashboard,
+              builder: (context, state) {
+                return const DashboardScreen();
+              },
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: <RouteBase>[
+            GoRoute(
+              path: RouteNames.folders,
+              builder: (context, state) {
+                return const FolderScreen();
+              },
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: <RouteBase>[
+            GoRoute(
+              path: RouteNames.profile,
+              builder: (context, state) {
+                return const ProfileScreen();
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
+    GoRoute(
+      path: RouteNames.profilePersonalInfo,
+      builder: (context, state) {
+        return const ProfilePersonalInformationScreen();
+      },
+    ),
+    GoRoute(
+      path: RouteNames.profileSettings,
+      builder: (context, state) {
+        return const ProfileUserSettingsScreen();
+      },
+    ),
+    GoRoute(
+      path: RouteNames.flashcards,
+      builder: (context, state) {
+        final FlashcardManagementArgs args = _resolveFlashcardArgs(state.extra);
+        return FlashcardManagementScreen(args: args);
+      },
+    ),
+    GoRoute(
+      path: RouteNames.flashcardFlipStudy,
+      builder: (context, state) {
+        final FlashcardFlipStudyArgs args = _resolveFlashcardFlipArgs(
+          state.extra,
+        );
+        return FlashcardFlipStudyScreen(
+          deckId: args.deckId,
+          items: args.items,
+          initialIndex: args.initialIndex,
+          title: args.title,
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteNames.flashcardStudySession,
+      builder: (context, state) {
+        final StudySessionArgs args = _resolveStudySessionArgs(state.extra);
+        return FlashcardStudySessionScreen(args: args);
+      },
+    ),
+    GoRoute(
+      path: RouteNames.learning,
+      builder: (context, state) {
+        return const _StubScreen(title: _RouteText.learning);
+      },
+    ),
+    GoRoute(
+      path: RouteNames.progressDetail,
+      builder: (context, state) {
+        return const _StubScreen(title: _RouteText.progressDetail);
+      },
+    ),
+  ];
+}
+
+FlashcardManagementArgs _resolveFlashcardArgs(Object? extra) {
+  if (extra is FlashcardManagementArgs) {
+    return extra;
+  }
+  return const FlashcardManagementArgs.fallback();
+}
+
+FlashcardFlipStudyArgs _resolveFlashcardFlipArgs(Object? extra) {
+  if (extra is FlashcardFlipStudyArgs) {
+    return extra;
+  }
+  return const FlashcardFlipStudyArgs.fallback();
+}
+
+StudySessionArgs _resolveStudySessionArgs(Object? extra) {
+  if (extra is StudySessionArgs) {
+    return extra;
+  }
+  return const StudySessionArgs.fallback();
 }
 
 @TypedGoRoute<RootRoute>(path: RouteNames.root)

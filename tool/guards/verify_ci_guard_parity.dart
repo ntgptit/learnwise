@@ -3,11 +3,11 @@ import 'dart:io';
 class CiGuardParityConst {
   const CiGuardParityConst._();
 
-  static const String toolDirectory = 'tool';
+  static const String guardDirectory = 'tool/guards';
   static const String workflowPath = '.github/workflows/flutter_ci.yml';
   static const String verifyPrefix = 'verify_';
   static const String dartExtension = '.dart';
-  static const String ciCommandPrefix = 'dart run tool/';
+  static const String ciCommandPrefix = 'dart run tool/guards/';
 }
 
 class CiGuardParityViolation {
@@ -18,9 +18,9 @@ class CiGuardParityViolation {
 }
 
 Future<void> main() async {
-  final Directory toolDirectory = Directory(CiGuardParityConst.toolDirectory);
-  if (!toolDirectory.existsSync()) {
-    stderr.writeln('Missing `${CiGuardParityConst.toolDirectory}` directory.');
+  final Directory guardDirectory = Directory(CiGuardParityConst.guardDirectory);
+  if (!guardDirectory.existsSync()) {
+    stderr.writeln('Missing `${CiGuardParityConst.guardDirectory}` directory.');
     exitCode = 1;
     return;
   }
@@ -34,7 +34,7 @@ Future<void> main() async {
     return;
   }
 
-  final Set<String> localGuards = _collectLocalGuards(toolDirectory);
+  final Set<String> localGuards = _collectLocalGuards(guardDirectory);
   final String workflowSource = await workflowFile.readAsString();
   final Set<String> ciGuards = _collectWorkflowGuards(workflowSource);
 
@@ -62,9 +62,9 @@ Future<void> main() async {
   exitCode = 1;
 }
 
-Set<String> _collectLocalGuards(Directory toolDirectory) {
+Set<String> _collectLocalGuards(Directory guardDirectory) {
   final Set<String> guards = <String>{};
-  final List<FileSystemEntity> entities = toolDirectory.listSync();
+  final List<FileSystemEntity> entities = guardDirectory.listSync();
 
   for (final FileSystemEntity entity in entities) {
     if (entity is! File) {
@@ -87,7 +87,7 @@ Set<String> _collectLocalGuards(Directory toolDirectory) {
 Set<String> _collectWorkflowGuards(String workflowSource) {
   final Set<String> guards = <String>{};
   final RegExp commandRegExp = RegExp(
-    r'dart\s+run\s+tool/(verify_[A-Za-z0-9_]+\.dart)\b',
+    r'dart\s+run\s+tool/guards/(verify_[A-Za-z0-9_]+\.dart)\b',
   );
 
   for (final RegExpMatch match in commandRegExp.allMatches(workflowSource)) {

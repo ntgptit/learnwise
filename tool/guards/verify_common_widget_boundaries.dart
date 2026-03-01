@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 //
 // Purpose:
-// Enforce architectural boundaries for `lib/presentation/shared/widgets`.
+// Enforce architectural boundaries for shared widget directories.
 //
 // Philosophy:
 // - Common widgets must be render-only.
@@ -23,14 +23,20 @@ import 'dart:io';
 class CommonWidgetGuardConst {
   const CommonWidgetGuardConst._();
 
-  static const String commonWidgetDir = 'lib/presentation/shared/widgets';
+  static const List<String> sharedWidgetDirs = <String>[
+    'lib/core/widgets',
+    'lib/presentation/shared/widgets',
+  ];
 
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
 
-  /// Explicitly forbidden files under shared/widgets.
+  /// Explicitly forbidden files under common/widgets.
   static const List<String> forbiddenCommonFiles = <String>[
+    'lib/core/widgets/audio/audio_waveform.dart',
+    'lib/core/widgets/quiz/quiz_timer.dart',
+    'lib/core/widgets/list/swipeable_list_item.dart',
     'lib/presentation/shared/widgets/audio/audio_waveform.dart',
     'lib/presentation/shared/widgets/quiz/quiz_timer.dart',
     'lib/presentation/shared/widgets/list/swipeable_list_item.dart',
@@ -38,12 +44,22 @@ class CommonWidgetGuardConst {
 
   /// Allowed StatefulWidget locations.
   static const List<String> statefulWhitelist = <String>[
+    'lib/core/widgets/animation/',
+    'lib/core/widgets/navigation/',
+    'lib/core/widgets/card/flashcard_flip.dart',
+    'lib/core/widgets/input/password_text_box.dart',
+    'lib/core/widgets/loader/shimmer_box.dart',
+    'lib/core/widgets/buttons/app_expandable_fab.dart',
     'lib/presentation/shared/widgets/animation/',
     'lib/presentation/shared/widgets/navigation/',
     'lib/presentation/shared/widgets/card/flashcard_flip.dart',
     'lib/presentation/shared/widgets/input/password_text_box.dart',
     'lib/presentation/shared/widgets/loader/shimmer_box.dart',
     'lib/presentation/shared/widgets/buttons/app_expandable_fab.dart',
+    'lib/presentation/shared/widgets/cards/lumos_action_list_item_card.dart',
+    'lib/presentation/shared/widgets/cards/lumos_card.dart',
+    'lib/presentation/shared/widgets/cards/lumos_deck_card.dart',
+    'lib/presentation/shared/widgets/cards/lumos_entity_list_item_card.dart',
   ];
 }
 
@@ -87,7 +103,7 @@ class ForbiddenFileRule extends CommonWidgetRule {
           GuardViolation(
             filePath: context.path,
             reason:
-                'Feature-bound widget is not allowed inside shared/widgets.',
+                'Feature-bound widget is not allowed inside common/widgets.',
             lineNumber: 1,
             lineContent: context.path,
           ),
@@ -229,11 +245,14 @@ class ImportBoundaryRule extends CommonWidgetRule {
 /// Main Entry
 /// ---------------------------------------------------------------------------
 Future<void> main() async {
-  final Directory root = Directory(CommonWidgetGuardConst.commonWidgetDir);
+  final List<Directory> roots = CommonWidgetGuardConst.sharedWidgetDirs
+      .map(Directory.new)
+      .where((Directory directory) => directory.existsSync())
+      .toList(growable: false);
 
-  if (!root.existsSync()) {
+  if (roots.isEmpty) {
     stdout.writeln(
-      'Common widget guard skipped: `${CommonWidgetGuardConst.commonWidgetDir}` not found.',
+      'Common widget guard skipped: shared widget directories not found.',
     );
     return;
   }
@@ -248,16 +267,18 @@ Future<void> main() async {
 
   final List<GuardViolation> violations = <GuardViolation>[];
 
-  final List<File> files = _collectDartFiles(root);
+  for (final Directory root in roots) {
+    final List<File> files = _collectDartFiles(root);
 
-  for (final file in files) {
-    final String path = _normalizePath(file.path);
-    final List<String> lines = await file.readAsLines();
+    for (final file in files) {
+      final String path = _normalizePath(file.path);
+      final List<String> lines = await file.readAsLines();
 
-    final FileContext context = FileContext(path: path, lines: lines);
+      final FileContext context = FileContext(path: path, lines: lines);
 
-    for (final rule in rules) {
-      rule.check(context, violations);
+      for (final rule in rules) {
+        rule.check(context, violations);
+      }
     }
   }
 
@@ -268,7 +289,7 @@ Future<void> main() async {
 
   stderr.writeln('Common widget guard failed.');
   stderr.writeln(
-    'Keep shared widgets render-only. Move feature-bound logic to presentation/features/*.',
+    'Keep common widgets render-only. Move feature-bound logic to features/*.',
   );
 
   for (final violation in violations) {

@@ -14,10 +14,9 @@ class UiLogicSeparationGuardConst {
 
   static const String featuresRoot = 'lib/presentation/features';
   static const String presentationFeaturesPrefix = 'lib/presentation/features/';
-  static const String featureViewMarker = '/view/';
-  static const String featureWidgetsMarker = '/view/widgets/';
-  static const String viewModelMarker = '/viewmodel/';
-  static const String baselinePath = 'tool/ui_logic_separation_baseline.txt';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
+  static const String providersMarker = '/providers/';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
@@ -76,26 +75,12 @@ class UiLogicSeparationGuardConst {
     'PreferredSizeWidget',
     'void',
     'Future<void>',
-    'int',
-    'double',
-    'num',
-    'bool',
-    'String',
-    'String?',
-    'int?',
-    'double?',
-    'bool?',
-    'VoidCallback',
-    'VoidCallback?',
     'Color',
     'TextStyle',
-    'TextStyle?',
     'TextTheme',
     'BoxDecoration',
     'Decoration',
     'Border',
-    'BoxBorder',
-    'BoxBorder?',
     'BorderSide',
     'BorderRadius',
     'BorderRadiusGeometry',
@@ -126,22 +111,19 @@ class UiLogicSeparationGuardConst {
 
 class UiLogicSeparationViolation {
   const UiLogicSeparationViolation({
-    required this.id,
     required this.filePath,
     required this.lineNumber,
     required this.reason,
     required this.lineContent,
   });
 
-  final String id;
   final String filePath;
   final int lineNumber;
   final String reason;
   final String lineContent;
 }
 
-Future<void> main([List<String> args = const <String>[]]) async {
-  final bool writeBaseline = args.contains('--write-baseline');
+Future<void> main() async {
   final Directory featuresDirectory = Directory(
     UiLogicSeparationGuardConst.featuresRoot,
   );
@@ -199,51 +181,17 @@ Future<void> main([List<String> args = const <String>[]]) async {
   }
 
   if (violations.isEmpty) {
-    _printStaleBaselineHint(
-      staleBaselineIds: _collectStaleBaselineIds(
-        allViolations: violations,
-        baselineIds: _loadBaseline(),
-      ),
-    );
-    stdout.writeln('UI logic separation contract passed.');
-    return;
-  }
-
-  if (writeBaseline) {
-    _writeBaseline(violations: violations);
-    stdout.writeln(
-      'Wrote baseline with ${violations.length} entries to `${UiLogicSeparationGuardConst.baselinePath}`.',
-    );
-    return;
-  }
-
-  final Set<String> baselineIds = _loadBaseline();
-  final List<UiLogicSeparationViolation> regressions =
-      <UiLogicSeparationViolation>[];
-  for (final UiLogicSeparationViolation violation in violations) {
-    if (baselineIds.contains(violation.id)) {
-      continue;
-    }
-    regressions.add(violation);
-  }
-  final Set<String> staleBaselineIds = _collectStaleBaselineIds(
-    allViolations: violations,
-    baselineIds: baselineIds,
-  );
-  if (regressions.isEmpty) {
-    _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
     stdout.writeln('UI logic separation contract passed.');
     return;
   }
 
   stderr.writeln('UI logic separation contract failed.');
-  for (final UiLogicSeparationViolation violation in regressions) {
+  for (final UiLogicSeparationViolation violation in violations) {
     stderr.writeln(
       '${violation.filePath}:${violation.lineNumber}: '
       '${violation.reason} ${violation.lineContent}',
     );
   }
-  _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
   exitCode = 1;
 }
 
@@ -318,7 +266,6 @@ void _checkImports({
     }
     violations.add(
       UiLogicSeparationViolation(
-        id: '$path:$lineNumber:UI files must not import data/network/domain-logic dependencies directly.',
         filePath: path,
         lineNumber: lineNumber,
         reason:
@@ -558,7 +505,6 @@ class _UiLogicSemanticVisitor extends RecursiveAstVisitor<void> {
 
     violations.add(
       UiLogicSeparationViolation(
-        id: '$path:$lineNumber:$reason',
         filePath: path,
         lineNumber: lineNumber,
         reason: reason,
@@ -659,10 +605,10 @@ bool _isFeatureUiPath(String path) {
   )) {
     return false;
   }
-  if (path.contains(UiLogicSeparationGuardConst.viewModelMarker)) {
+  if (path.contains(UiLogicSeparationGuardConst.providersMarker)) {
     return false;
   }
-  if (path.contains(UiLogicSeparationGuardConst.featureViewMarker)) {
+  if (path.contains(UiLogicSeparationGuardConst.featureScreensMarker)) {
     return true;
   }
   if (path.contains(UiLogicSeparationGuardConst.featureWidgetsMarker)) {
@@ -743,58 +689,4 @@ String _toAbsoluteOsPath(String rawPath) {
     return absolutePath;
   }
   return absolutePath.substring(0, absolutePath.length - 1);
-}
-
-Set<String> _loadBaseline() {
-  final File baselineFile = File(UiLogicSeparationGuardConst.baselinePath);
-  if (!baselineFile.existsSync()) {
-    return <String>{};
-  }
-  final Set<String> baselineIds = <String>{};
-  final List<String> lines = baselineFile.readAsLinesSync();
-  for (final String line in lines) {
-    final String normalized = line.trim();
-    if (normalized.isEmpty) {
-      continue;
-    }
-    if (normalized.startsWith('#')) {
-      continue;
-    }
-    baselineIds.add(normalized);
-  }
-  return baselineIds;
-}
-
-void _writeBaseline({required List<UiLogicSeparationViolation> violations}) {
-  final File baselineFile = File(UiLogicSeparationGuardConst.baselinePath);
-  final List<String> ids =
-      violations.map((violation) => violation.id).toSet().toList()..sort();
-  baselineFile.writeAsStringSync('${ids.join('\n')}\n');
-}
-
-Set<String> _collectStaleBaselineIds({
-  required List<UiLogicSeparationViolation> allViolations,
-  required Set<String> baselineIds,
-}) {
-  final Set<String> violationIds = allViolations
-      .map((violation) => violation.id)
-      .toSet();
-  final Set<String> staleIds = <String>{};
-  for (final String baselineId in baselineIds) {
-    if (violationIds.contains(baselineId)) {
-      continue;
-    }
-    staleIds.add(baselineId);
-  }
-  return staleIds;
-}
-
-void _printStaleBaselineHint({required Set<String> staleBaselineIds}) {
-  if (staleBaselineIds.isEmpty) {
-    return;
-  }
-  stdout.writeln(
-    'Stale baseline entries detected (${staleBaselineIds.length}). '
-    'Consider cleaning `${UiLogicSeparationGuardConst.baselinePath}`.',
-  );
 }

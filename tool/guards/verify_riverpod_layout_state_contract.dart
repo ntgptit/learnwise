@@ -38,12 +38,10 @@ class RiverpodLayoutStateConst {
   static const String ruleAnnotationNeedsPart = 'RLS005';
   static const String rulePartFileMissing = 'RLS006';
   static const String ruleUnexpectedPartName = 'RLS007';
-  static const String baselinePath = 'tool/riverpod_layout_state_baseline.txt';
 }
 
 class RiverpodLayoutStateViolation {
   const RiverpodLayoutStateViolation({
-    required this.id,
     required this.ruleId,
     required this.filePath,
     required this.lineNumber,
@@ -51,7 +49,6 @@ class RiverpodLayoutStateViolation {
     required this.lineContent,
   });
 
-  final String id;
   final String ruleId;
   final String filePath;
   final int lineNumber;
@@ -64,8 +61,7 @@ final RegExp _generatedRiverpodClassRegExp = RegExp(
   r'\bclass\s+\w+\s+extends\s+_\$\w+\b',
 );
 
-Future<void> main([List<String> args = const <String>[]]) async {
-  final bool writeBaseline = args.contains('--write-baseline');
+Future<void> main() async {
   final Directory libDirectory = Directory(
     RiverpodLayoutStateConst.libDirectory,
   );
@@ -130,39 +126,6 @@ Future<void> main([List<String> args = const <String>[]]) async {
   }
 
   if (violations.isEmpty) {
-    _printStaleBaselineHint(
-      staleBaselineIds: _collectStaleBaselineIds(
-        allViolations: violations,
-        baselineIds: _loadBaseline(),
-      ),
-    );
-    stdout.writeln('Riverpod layout state contract passed.');
-    return;
-  }
-
-  if (writeBaseline) {
-    _writeBaseline(violations: violations);
-    stdout.writeln(
-      'Wrote baseline with ${violations.length} entries to `${RiverpodLayoutStateConst.baselinePath}`.',
-    );
-    return;
-  }
-
-  final Set<String> baselineIds = _loadBaseline();
-  final List<RiverpodLayoutStateViolation> regressions =
-      <RiverpodLayoutStateViolation>[];
-  for (final RiverpodLayoutStateViolation violation in violations) {
-    if (baselineIds.contains(violation.id)) {
-      continue;
-    }
-    regressions.add(violation);
-  }
-  final Set<String> staleBaselineIds = _collectStaleBaselineIds(
-    allViolations: violations,
-    baselineIds: baselineIds,
-  );
-  if (regressions.isEmpty) {
-    _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
     stdout.writeln('Riverpod layout state contract passed.');
     return;
   }
@@ -176,14 +139,13 @@ Future<void> main([List<String> args = const <String>[]]) async {
     '- Ensure `@riverpod` files declare `part \'*.g.dart\';` and generated file exists.\n',
   );
 
-  for (final RiverpodLayoutStateViolation violation in regressions) {
+  for (final RiverpodLayoutStateViolation violation in violations) {
     stderr.writeln(
       '${violation.filePath}:${violation.lineNumber}: '
       '[${violation.ruleId}] ${violation.reason} ${violation.lineContent}',
     );
   }
 
-  _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
   exitCode = 1;
 }
 
@@ -201,7 +163,6 @@ void _checkMountedUsage({
     final int lineNumber = _lineFromOffset(lineInfo, offset);
     violations.add(
       RiverpodLayoutStateViolation(
-        id: '$path:$lineNumber:${RiverpodLayoutStateConst.ruleNoMounted}:mounted',
         ruleId: RiverpodLayoutStateConst.ruleNoMounted,
         filePath: path,
         lineNumber: lineNumber,
@@ -227,7 +188,6 @@ void _checkRefReadInBuild({
     final int lineNumber = _lineFromOffset(lineInfo, offset);
     violations.add(
       RiverpodLayoutStateViolation(
-        id: '$path:$lineNumber:${RiverpodLayoutStateConst.ruleNoReadInBuild}:ref.read',
         ruleId: RiverpodLayoutStateConst.ruleNoReadInBuild,
         filePath: path,
         lineNumber: lineNumber,
@@ -253,7 +213,6 @@ void _checkRefFields({
     final int lineNumber = _lineFromOffset(lineInfo, offset);
     violations.add(
       RiverpodLayoutStateViolation(
-        id: '$path:$lineNumber:${RiverpodLayoutStateConst.ruleNoRefField}:ref_field',
         ruleId: RiverpodLayoutStateConst.ruleNoRefField,
         filePath: path,
         lineNumber: lineNumber,
@@ -287,7 +246,6 @@ void _checkGeneratedProviderContract({
   if (hasGeneratedRiverpodClass && !hasRiverpodAnnotation) {
     violations.add(
       RiverpodLayoutStateViolation(
-        id: '$path:1:${RiverpodLayoutStateConst.ruleGeneratedClassNeedsAnnotation}:generated_requires_annotation',
         ruleId: RiverpodLayoutStateConst.ruleGeneratedClassNeedsAnnotation,
         filePath: path,
         lineNumber: 1,
@@ -299,7 +257,7 @@ void _checkGeneratedProviderContract({
 
   final List<PartDirective> gPartDirectives = unit.directives
       .whereType<PartDirective>()
-      .where((directive) {
+      .where((PartDirective directive) {
         final String? uri = directive.uri.stringValue;
         if (uri == null) {
           return false;
@@ -311,7 +269,6 @@ void _checkGeneratedProviderContract({
   if (hasRiverpodAnnotation && gPartDirectives.isEmpty) {
     violations.add(
       RiverpodLayoutStateViolation(
-        id: '$path:1:${RiverpodLayoutStateConst.ruleAnnotationNeedsPart}:annotation_requires_part',
         ruleId: RiverpodLayoutStateConst.ruleAnnotationNeedsPart,
         filePath: path,
         lineNumber: 1,
@@ -324,7 +281,7 @@ void _checkGeneratedProviderContract({
   final String expectedPartFileName =
       '${_basenameWithoutExtension(path)}.g.dart';
   if (hasRiverpodAnnotation && gPartDirectives.isNotEmpty) {
-    final bool hasExpectedPart = gPartDirectives.any((directive) {
+    final bool hasExpectedPart = gPartDirectives.any((PartDirective directive) {
       final String? uri = directive.uri.stringValue;
       if (uri == null) {
         return false;
@@ -335,7 +292,6 @@ void _checkGeneratedProviderContract({
     if (!hasExpectedPart) {
       violations.add(
         RiverpodLayoutStateViolation(
-          id: '$path:1:${RiverpodLayoutStateConst.ruleUnexpectedPartName}:unexpected_part_name',
           ruleId: RiverpodLayoutStateConst.ruleUnexpectedPartName,
           filePath: path,
           lineNumber: 1,
@@ -361,7 +317,6 @@ void _checkGeneratedProviderContract({
     final int lineNumber = _lineFromOffset(lineInfo, directive.offset);
     violations.add(
       RiverpodLayoutStateViolation(
-        id: '$path:$lineNumber:${RiverpodLayoutStateConst.rulePartFileMissing}:$uri',
         ruleId: RiverpodLayoutStateConst.rulePartFileMissing,
         filePath: path,
         lineNumber: lineNumber,
@@ -494,60 +449,6 @@ String _basenameWithoutExtension(String path) {
   }
 
   return fileName.substring(0, dotIndex);
-}
-
-Set<String> _loadBaseline() {
-  final File baselineFile = File(RiverpodLayoutStateConst.baselinePath);
-  if (!baselineFile.existsSync()) {
-    return <String>{};
-  }
-  final Set<String> baselineIds = <String>{};
-  final List<String> lines = baselineFile.readAsLinesSync();
-  for (final String line in lines) {
-    final String normalized = line.trim();
-    if (normalized.isEmpty) {
-      continue;
-    }
-    if (normalized.startsWith('#')) {
-      continue;
-    }
-    baselineIds.add(normalized);
-  }
-  return baselineIds;
-}
-
-void _writeBaseline({required List<RiverpodLayoutStateViolation> violations}) {
-  final File baselineFile = File(RiverpodLayoutStateConst.baselinePath);
-  final List<String> ids =
-      violations.map((violation) => violation.id).toSet().toList()..sort();
-  baselineFile.writeAsStringSync('${ids.join('\n')}\n');
-}
-
-Set<String> _collectStaleBaselineIds({
-  required List<RiverpodLayoutStateViolation> allViolations,
-  required Set<String> baselineIds,
-}) {
-  final Set<String> violationIds = allViolations
-      .map((violation) => violation.id)
-      .toSet();
-  final Set<String> staleIds = <String>{};
-  for (final String baselineId in baselineIds) {
-    if (violationIds.contains(baselineId)) {
-      continue;
-    }
-    staleIds.add(baselineId);
-  }
-  return staleIds;
-}
-
-void _printStaleBaselineHint({required Set<String> staleBaselineIds}) {
-  if (staleBaselineIds.isEmpty) {
-    return;
-  }
-  stdout.writeln(
-    'Stale baseline entries detected (${staleBaselineIds.length}). '
-    'Consider cleaning `${RiverpodLayoutStateConst.baselinePath}`.',
-  );
 }
 
 class _MountedUsageVisitor extends RecursiveAstVisitor<void> {

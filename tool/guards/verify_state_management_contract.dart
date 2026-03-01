@@ -23,8 +23,13 @@ class StateContractConst {
   static const String freezedExtension = '.freezed.dart';
   static const String lineCommentPrefix = '//';
 
-  static const String viewFolderMarker = '/view/';
-  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
+  static const String coreWidgetsPrefix = 'lib/core/widgets/';
+  static const String sharedWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String asyncValueExtensionPath =
+      'lib/core/error/async_value_error_extensions.dart';
+  static const String whenWithLoadingSignature = 'Widget whenWithLoading(';
 }
 
 /// Represents a contract violation.
@@ -45,7 +50,7 @@ class StateContractViolation {
 final RegExp _setStateRegExp = RegExp(r'\bsetState\s*\(');
 final RegExp _elseRegExp = RegExp(r'^\s*else\b');
 final RegExp _asyncValueTypeRegExp = RegExp(r'\bAsyncValue\s*<');
-final RegExp _whenOrMapRegExp = RegExp(r'\.(?:when|map)\s*\(');
+final RegExp _whenOrMapRegExp = RegExp(r'\.(?:when|map|whenWithLoading)\s*\(');
 final RegExp _forbiddenAsyncFlowRegExp = RegExp(
   r'\b(?:hasValue|requireValue|maybeWhen|maybeMap)\b',
 );
@@ -65,10 +70,17 @@ Future<void> main() async {
 
   final List<File> files = _collectSourceFiles(libDirectory);
   final List<StateContractViolation> violations = [];
+  bool hasCanonicalWhenWithLoading = false;
 
   for (final file in files) {
     final path = _normalizePath(file.path);
     final lines = await file.readAsLines();
+    if (path == StateContractConst.asyncValueExtensionPath) {
+      hasCanonicalWhenWithLoading = lines.any(
+        (String line) =>
+            line.contains(StateContractConst.whenWithLoadingSignature),
+      );
+    }
 
     final bool isUiFile = _isUiFile(path);
     final bool isStateFile = _isStateFile(path);
@@ -165,6 +177,18 @@ Future<void> main() async {
     }
   }
 
+  if (!hasCanonicalWhenWithLoading) {
+    violations.add(
+      StateContractViolation(
+        filePath: StateContractConst.asyncValueExtensionPath,
+        lineNumber: 1,
+        reason:
+            'Missing canonical `whenWithLoading` in core async-value extension file.',
+        lineContent: StateContractConst.asyncValueExtensionPath,
+      ),
+    );
+  }
+
   if (violations.isEmpty) {
     stdout.writeln('State contract guard v2 passed.');
     return;
@@ -203,12 +227,17 @@ bool _isStateFile(String path) {
   if (path.endsWith('viewmodel.dart')) return true;
   if (path.endsWith('_provider.dart')) return true;
   if (path.endsWith('_providers.dart')) return true;
+  if (path.endsWith('_controller.dart')) return true;
+  if (path.endsWith('_controllers.dart')) return true;
   return false;
 }
 
 bool _isUiFile(String path) {
-  if (path.startsWith(StateContractConst.commonWidgetsPrefix)) return true;
-  return path.contains(StateContractConst.viewFolderMarker);
+  if (path.startsWith(StateContractConst.coreWidgetsPrefix)) return true;
+  if (path.startsWith(StateContractConst.sharedWidgetsPrefix)) return true;
+  if (path.contains(StateContractConst.featureScreensMarker)) return true;
+  if (path.contains(StateContractConst.featureWidgetsMarker)) return true;
+  return false;
 }
 
 bool _fileHasRiverpodAnnotation(List<String> lines) {

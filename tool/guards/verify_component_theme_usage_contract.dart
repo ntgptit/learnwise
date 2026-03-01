@@ -6,10 +6,9 @@ class ComponentThemeGuardConst {
   static const String presentationRoot = 'lib/presentation';
   static const String sharedWidgetsRoot = 'lib/presentation/shared/widgets/';
   static const String featurePrefix = 'lib/presentation/features/';
-  static const String featureViewMarker = '/view/';
-  static const String featureWidgetsMarker = '/view/widgets/';
-  static const String viewModelMarker = '/viewmodel/';
-  static const String baselinePath = 'tool/component_theme_usage_baseline.txt';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
+  static const String providersMarker = '/providers/';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
@@ -29,14 +28,12 @@ class ComponentThemeGuardConst {
 
 class ComponentThemeViolation {
   const ComponentThemeViolation({
-    required this.id,
     required this.filePath,
     required this.lineNumber,
     required this.reason,
     required this.lineContent,
   });
 
-  final String id;
   final String filePath;
   final int lineNumber;
   final String reason;
@@ -191,8 +188,7 @@ final RegExp _widgetClassDeclarationPattern = RegExp(
   r'\bclass\s+\w+\s+extends\s+\w*Widget\b',
 );
 
-Future<void> main([List<String> args = const <String>[]]) async {
-  final bool writeBaseline = args.contains('--write-baseline');
+Future<void> main() async {
   final Directory root = Directory(ComponentThemeGuardConst.presentationRoot);
   if (!root.existsSync()) {
     stderr.writeln(
@@ -214,49 +210,16 @@ Future<void> main([List<String> args = const <String>[]]) async {
   }
 
   if (violations.isEmpty) {
-    _printStaleBaselineHint(
-      staleBaselineIds: _collectStaleBaselineIds(
-        allViolations: violations,
-        baselineIds: _loadBaseline(),
-      ),
-    );
-    stdout.writeln('Component theme usage contract passed.');
-    return;
-  }
-
-  if (writeBaseline) {
-    _writeBaseline(violations: violations);
-    stdout.writeln(
-      'Wrote baseline with ${violations.length} entries to `${ComponentThemeGuardConst.baselinePath}`.',
-    );
-    return;
-  }
-
-  final Set<String> baselineIds = _loadBaseline();
-  final List<ComponentThemeViolation> regressions = <ComponentThemeViolation>[];
-  for (final ComponentThemeViolation violation in violations) {
-    if (baselineIds.contains(violation.id)) {
-      continue;
-    }
-    regressions.add(violation);
-  }
-  final Set<String> staleBaselineIds = _collectStaleBaselineIds(
-    allViolations: violations,
-    baselineIds: baselineIds,
-  );
-  if (regressions.isEmpty) {
-    _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
     stdout.writeln('Component theme usage contract passed.');
     return;
   }
 
   stderr.writeln('Component theme usage contract failed.');
-  for (final ComponentThemeViolation violation in regressions) {
+  for (final ComponentThemeViolation violation in violations) {
     stderr.writeln(
       '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
     );
   }
-  _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
   exitCode = 1;
 }
 
@@ -279,7 +242,6 @@ void _checkFile({
 
   violations.add(
     ComponentThemeViolation(
-      id: '$path:1:missing_core_theme_import',
       filePath: path,
       lineNumber: 1,
       reason:
@@ -332,7 +294,6 @@ void _checkInlineOverrides({
           }
           violations.add(
             ComponentThemeViolation(
-              id: '$path:${occurrence.lineNumber}:${rule.widgetName}:$propertyName',
               filePath: path,
               lineNumber: occurrence.lineNumber,
               reason: '${rule.reason} (`${rule.widgetName}.$propertyName`)',
@@ -576,7 +537,7 @@ bool _isPresentationUiFile(String path) {
   if (!path.startsWith(ComponentThemeGuardConst.featurePrefix)) {
     return false;
   }
-  if (path.contains(ComponentThemeGuardConst.featureViewMarker)) {
+  if (path.contains(ComponentThemeGuardConst.featureScreensMarker)) {
     return true;
   }
   if (path.contains(ComponentThemeGuardConst.featureWidgetsMarker)) {
@@ -589,7 +550,7 @@ bool _isUiDesignFile({required String path, required List<String> lines}) {
   if (!_isPresentationUiFile(path)) {
     return false;
   }
-  if (path.contains(ComponentThemeGuardConst.viewModelMarker)) {
+  if (path.contains(ComponentThemeGuardConst.providersMarker)) {
     return false;
   }
   if (_isLogicCompanionFile(path)) {
@@ -674,60 +635,6 @@ bool _hasCoreThemeImport({required List<String> lines}) {
     return true;
   }
   return false;
-}
-
-Set<String> _loadBaseline() {
-  final File baselineFile = File(ComponentThemeGuardConst.baselinePath);
-  if (!baselineFile.existsSync()) {
-    return <String>{};
-  }
-  final Set<String> baselineIds = <String>{};
-  final List<String> lines = baselineFile.readAsLinesSync();
-  for (final String line in lines) {
-    final String normalized = line.trim();
-    if (normalized.isEmpty) {
-      continue;
-    }
-    if (normalized.startsWith('#')) {
-      continue;
-    }
-    baselineIds.add(normalized);
-  }
-  return baselineIds;
-}
-
-void _writeBaseline({required List<ComponentThemeViolation> violations}) {
-  final File baselineFile = File(ComponentThemeGuardConst.baselinePath);
-  final List<String> ids =
-      violations.map((violation) => violation.id).toSet().toList()..sort();
-  baselineFile.writeAsStringSync('${ids.join('\n')}\n');
-}
-
-Set<String> _collectStaleBaselineIds({
-  required List<ComponentThemeViolation> allViolations,
-  required Set<String> baselineIds,
-}) {
-  final Set<String> violationIds = allViolations
-      .map((violation) => violation.id)
-      .toSet();
-  final Set<String> staleIds = <String>{};
-  for (final String baselineId in baselineIds) {
-    if (violationIds.contains(baselineId)) {
-      continue;
-    }
-    staleIds.add(baselineId);
-  }
-  return staleIds;
-}
-
-void _printStaleBaselineHint({required Set<String> staleBaselineIds}) {
-  if (staleBaselineIds.isEmpty) {
-    return;
-  }
-  stdout.writeln(
-    'Stale baseline entries detected (${staleBaselineIds.length}). '
-    'Consider cleaning `${ComponentThemeGuardConst.baselinePath}`.',
-  );
 }
 
 int _countChar(String source, String char) => char.allMatches(source).length;

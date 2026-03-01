@@ -7,19 +7,16 @@ class SharedWidgetOverrideGuardConst {
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
-  static const String baselinePath = 'tool/shared_widget_override_baseline.txt';
 }
 
 class SharedWidgetOverrideViolation {
   const SharedWidgetOverrideViolation({
-    required this.id,
     required this.filePath,
     required this.lineNumber,
     required this.reason,
     required this.lineContent,
   });
 
-  final String id;
   final String filePath;
   final int lineNumber;
   final String reason;
@@ -69,13 +66,12 @@ const List<String> _forbiddenColorOverrideArguments = <String>[
 
 final List<_ForbiddenArgumentRule> _rules = <_ForbiddenArgumentRule>[
   _ForbiddenArgumentRule(
-    widgetPattern: RegExp(r'\b(?:Lw|App)[A-Z]\w*\s*\('),
+    widgetPattern: RegExp(r'\bLumos[A-Z]\w*\s*\('),
     forbiddenArgumentNames: _forbiddenColorOverrideArguments,
   ),
 ];
 
-Future<void> main([List<String> args = const <String>[]]) async {
-  final bool writeBaseline = args.contains('--write-baseline');
+Future<void> main() async {
   final Directory root = Directory(SharedWidgetOverrideGuardConst.featuresRoot);
   if (!root.existsSync()) {
     stderr.writeln(
@@ -95,50 +91,16 @@ Future<void> main([List<String> args = const <String>[]]) async {
   }
 
   if (violations.isEmpty) {
-    _printStaleBaselineHint(
-      staleBaselineIds: _collectStaleBaselineIds(
-        allViolations: violations,
-        baselineIds: _loadBaseline(),
-      ),
-    );
-    stdout.writeln('Shared widget override contract passed.');
-    return;
-  }
-
-  if (writeBaseline) {
-    _writeBaseline(violations: violations);
-    stdout.writeln(
-      'Wrote baseline with ${violations.length} entries to `${SharedWidgetOverrideGuardConst.baselinePath}`.',
-    );
-    return;
-  }
-
-  final Set<String> baselineIds = _loadBaseline();
-  final List<SharedWidgetOverrideViolation> regressions =
-      <SharedWidgetOverrideViolation>[];
-  for (final SharedWidgetOverrideViolation violation in violations) {
-    if (baselineIds.contains(violation.id)) {
-      continue;
-    }
-    regressions.add(violation);
-  }
-  final Set<String> staleBaselineIds = _collectStaleBaselineIds(
-    allViolations: violations,
-    baselineIds: baselineIds,
-  );
-  if (regressions.isEmpty) {
-    _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
     stdout.writeln('Shared widget override contract passed.');
     return;
   }
 
   stderr.writeln('Shared widget override contract failed.');
-  for (final SharedWidgetOverrideViolation violation in regressions) {
+  for (final SharedWidgetOverrideViolation violation in violations) {
     stderr.writeln(
       '${violation.filePath}:${violation.lineNumber}: ${violation.reason} ${violation.lineContent}',
     );
   }
-  _printStaleBaselineHint(staleBaselineIds: staleBaselineIds);
   exitCode = 1;
 }
 
@@ -174,7 +136,6 @@ void _checkFile({
         }
         violations.add(
           SharedWidgetOverrideViolation(
-            id: '$path:${index + 1}:$widgetName:$argumentName',
             filePath: path,
             lineNumber: index + 1,
             reason:
@@ -188,13 +149,13 @@ void _checkFile({
 }
 
 String _extractWidgetName(String sourceLine) {
-  final RegExpMatch? match = RegExp(
-    r'\b((?:Lw|App)[A-Z]\w*)\s*\(',
-  ).firstMatch(sourceLine);
+  final RegExpMatch? match = RegExp(r'\b(Lumos[A-Z]\w*)\s*\(').firstMatch(
+    sourceLine,
+  );
   if (match == null) {
-    return 'SharedWidget';
+    return 'LumosWidget';
   }
-  return match.group(1) ?? 'SharedWidget';
+  return match.group(1) ?? 'LumosWidget';
 }
 
 String _collectCallExpression({
@@ -335,58 +296,4 @@ String _stripLineComment(String sourceLine) {
     return sourceLine;
   }
   return sourceLine.substring(0, commentIndex);
-}
-
-Set<String> _loadBaseline() {
-  final File baselineFile = File(SharedWidgetOverrideGuardConst.baselinePath);
-  if (!baselineFile.existsSync()) {
-    return <String>{};
-  }
-  final Set<String> baselineIds = <String>{};
-  final List<String> lines = baselineFile.readAsLinesSync();
-  for (final String line in lines) {
-    final String normalized = line.trim();
-    if (normalized.isEmpty) {
-      continue;
-    }
-    if (normalized.startsWith('#')) {
-      continue;
-    }
-    baselineIds.add(normalized);
-  }
-  return baselineIds;
-}
-
-void _writeBaseline({required List<SharedWidgetOverrideViolation> violations}) {
-  final File baselineFile = File(SharedWidgetOverrideGuardConst.baselinePath);
-  final List<String> ids =
-      violations.map((violation) => violation.id).toSet().toList()..sort();
-  baselineFile.writeAsStringSync('${ids.join('\n')}\n');
-}
-
-Set<String> _collectStaleBaselineIds({
-  required List<SharedWidgetOverrideViolation> allViolations,
-  required Set<String> baselineIds,
-}) {
-  final Set<String> violationIds = allViolations
-      .map((violation) => violation.id)
-      .toSet();
-  final Set<String> staleIds = <String>{};
-  for (final String baselineId in baselineIds) {
-    if (violationIds.contains(baselineId)) {
-      continue;
-    }
-    staleIds.add(baselineId);
-  }
-  return staleIds;
-}
-
-void _printStaleBaselineHint({required Set<String> staleBaselineIds}) {
-  if (staleBaselineIds.isEmpty) {
-    return;
-  }
-  stdout.writeln(
-    'Stale baseline entries detected (${staleBaselineIds.length}). '
-    'Consider cleaning `${SharedWidgetOverrideGuardConst.baselinePath}`.',
-  );
 }

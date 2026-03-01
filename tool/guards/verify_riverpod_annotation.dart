@@ -12,7 +12,7 @@ import 'dart:io';
 ///    - Ignore generated files (*.g.dart, *.freezed.dart).
 ///    - Ignore comment-only matches and `import` lines.
 /// 4) Provide strict mode:
-///    - Strict: require annotation in /viewmodel/, /service/, /repository/
+///    - Strict: require annotation in provider/controller/data/domain scopes.
 ///      when Riverpod types are used.
 ///
 /// Notes:
@@ -28,9 +28,13 @@ class RiverpodDiGuardConstV2 {
   static const String lineCommentPrefix = '//';
 
   static const List<String> scopedDirs = <String>[
-    '/viewmodel/',
+    '/providers/',
+    '/controllers/',
     '/service/',
     '/repository/',
+    '/repositories/',
+    '/datasources/',
+    '/usecases/',
   ];
 
   static const List<String> ignorePathContains = <String>[

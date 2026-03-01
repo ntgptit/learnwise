@@ -8,7 +8,9 @@ import 'dart:io';
 /// - Với màn hình list/grid: ưu tiên skeleton/shimmer thay vì chỉ dùng spinner.
 ///
 /// Phạm vi quét:
-/// - Chỉ quét các file trong: `lib/presentation/features/**/view/**.dart`
+/// - Chỉ quét các file trong:
+///   - `lib/presentation/features/**/screens/**.dart`
+///   - `lib/presentation/features/**/widgets/**.dart`
 /// - Bỏ qua file generated/freezed: `*.g.dart`, `*.freezed.dart`
 ///
 /// Markers (opt-out có giải trình):
@@ -30,7 +32,8 @@ class UiStateScalabilityConst {
 
   static const String libDirectory = 'lib';
   static const String featurePrefix = 'lib/presentation/features/';
-  static const String featureViewMarker = '/view/';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
@@ -41,10 +44,6 @@ class UiStateScalabilityConst {
   static const String allowSpinnerMarker = 'ui-state-guard: allow-spinner-list';
   static const String allowMissingWhenStateMarker =
       'ui-state-guard: allow-missing-when-state';
-  static const String legacyAllowListChildrenMarker =
-      'quality-guard: allow-list-children';
-  static const String legacyAllowSpinnerMarker =
-      'quality-guard: allow-spinner-list';
 
   /// Max number of lines to scan forward from a ListView/GridView anchor line
   /// to detect `children:` usage.
@@ -105,14 +104,12 @@ Future<void> main() async {
     final List<String> lines = rawLines.map(_stripLineComment).toList();
     final String source = lines.join('\n');
 
-    final bool allowListChildren =
-        rawSource.contains(UiStateScalabilityConst.allowListChildrenMarker) ||
-        rawSource.contains(
-          UiStateScalabilityConst.legacyAllowListChildrenMarker,
-        );
-    final bool allowSpinner =
-        rawSource.contains(UiStateScalabilityConst.allowSpinnerMarker) ||
-        rawSource.contains(UiStateScalabilityConst.legacyAllowSpinnerMarker);
+    final bool allowListChildren = rawSource.contains(
+      UiStateScalabilityConst.allowListChildrenMarker,
+    );
+    final bool allowSpinner = rawSource.contains(
+      UiStateScalabilityConst.allowSpinnerMarker,
+    );
     final bool allowMissingWhenState = rawSource.contains(
       UiStateScalabilityConst.allowMissingWhenStateMarker,
     );
@@ -342,10 +339,13 @@ bool _isFeatureViewFile(String path) {
   if (!path.startsWith(UiStateScalabilityConst.featurePrefix)) {
     return false;
   }
-  if (!path.contains(UiStateScalabilityConst.featureViewMarker)) {
-    return false;
+  if (path.contains(UiStateScalabilityConst.featureScreensMarker)) {
+    return true;
   }
-  return true;
+  if (path.contains(UiStateScalabilityConst.featureWidgetsMarker)) {
+    return true;
+  }
+  return false;
 }
 
 /// Normalize path separators to `/`.

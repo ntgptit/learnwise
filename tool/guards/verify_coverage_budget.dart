@@ -8,8 +8,8 @@ class CoverageBudgetConst {
   static const String coverageFilePath = 'coverage/lcov.info';
   static const String configPath = 'coverage_guard.yaml';
   static const String defaultLayerCore = 'core';
-  static const String defaultLayerDomain = 'domain';
   static const String defaultLayerData = 'data';
+  static const String defaultLayerDomain = 'domain';
   static const String defaultLayerPresentation = 'presentation';
   static const String defaultLayerOther = 'other';
 }
@@ -28,8 +28,8 @@ class CoverageBudgetConfig {
       minGlobalLineCoveragePercent: 20,
       minLayerCoveragePercent: <String, double>{
         CoverageBudgetConst.defaultLayerCore: 25,
+        CoverageBudgetConst.defaultLayerData: 25,
         CoverageBudgetConst.defaultLayerDomain: 20,
-        CoverageBudgetConst.defaultLayerData: 20,
         CoverageBudgetConst.defaultLayerPresentation: 25,
         CoverageBudgetConst.defaultLayerOther: 15,
       },
@@ -219,11 +219,11 @@ String _resolveLayer(String sourcePath) {
   if (normalized.startsWith('lib/core/')) {
     return CoverageBudgetConst.defaultLayerCore;
   }
-  if (normalized.startsWith('lib/domain/')) {
-    return CoverageBudgetConst.defaultLayerDomain;
-  }
   if (normalized.startsWith('lib/data/')) {
     return CoverageBudgetConst.defaultLayerData;
+  }
+  if (normalized.startsWith('lib/domain/')) {
+    return CoverageBudgetConst.defaultLayerDomain;
   }
   if (normalized.startsWith('lib/presentation/')) {
     return CoverageBudgetConst.defaultLayerPresentation;

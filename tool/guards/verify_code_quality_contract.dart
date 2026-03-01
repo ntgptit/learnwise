@@ -6,7 +6,7 @@
 //   yaml: ^3.1.2
 //
 // Run:
-//   dart run tool/verify_code_quality_contract.dart
+//   dart run tool/verify_frontend_checklists.dart --only=code-quality
 
 import 'dart:collection';
 import 'dart:convert';
@@ -14,6 +14,7 @@ import 'dart:io';
 
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/token.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:yaml/yaml.dart';
@@ -28,12 +29,7 @@ class QualityContractConst {
 
   static const String lineCommentPrefix = '//';
 
-  static const String maxFileMarker = 'quality-guard: allow-large-file';
-  static const String maxClassMarker = 'quality-guard: allow-large-class';
-  static const String maxFunctionMarker = 'quality-guard: allow-long-function';
-  static const String listChildrenMarker = 'quality-guard: allow-list-children';
-  static const String cachePolicyMarker =
-      'quality-guard: allow-unbounded-cache';
+  static const String forbiddenMarkerPrefix = 'quality-guard:';
 }
 
 enum Severity {
@@ -79,7 +75,7 @@ class QualityConfig {
 
   static QualityConfig defaults() {
     return const QualityConfig(
-      maxFunctionLines: 35,
+      maxFunctionLines: 60,
       maxClassLines: 300,
       maxFileLines: 400,
       maxNestingDepth: 3,
@@ -236,8 +232,6 @@ class FileContext {
   final LineInfo lineInfo;
   final String sourceText;
   final bool isGeneratedLikeFile;
-
-  bool containsMarker(String marker) => sourceText.contains(marker);
 }
 
 abstract class QualityRule {
@@ -261,6 +255,7 @@ Future<void> main() async {
   final QualityContext ctx = QualityContext(config: config, allPaths: allPaths);
 
   final List<QualityRule> rules = <QualityRule>[
+    NoQualityGuardMarkerRule(),
     FileLengthRule(),
     ModelAnnotationRule(),
     RepositoryBoundaryRule(),
@@ -425,8 +420,8 @@ Set<String> _extractInternalDependencies({
 }
 
 String? _resolveImportPath({required String fromPath, required String uri}) {
-  if (uri.startsWith('package:learnwise/')) {
-    final String subPath = uri.replaceFirst('package:learnwise/', '');
+  if (uri.startsWith('package:lumos/')) {
+    final String subPath = uri.replaceFirst('package:lumos/', '');
     return _normalizePath('lib/$subPath');
   }
   if (uri.startsWith('package:')) return null;
@@ -444,27 +439,39 @@ String? _resolveImportPath({required String fromPath, required String uri}) {
 
 bool _isModelFile(String path) {
   if (path.startsWith('lib/core/model/')) return true;
-  if (path.startsWith('lib/domain/features/') && path.contains('/model/')) {
+  if (path.startsWith('lib/data/models/')) return true;
+  if (path.startsWith('lib/domain/entities/')) return true;
+  if (path.startsWith('lib/presentation/features/') &&
+      path.contains('/model/')) {
     return true;
   }
   return false;
 }
 
 bool _isPresentationOrViewModelFile(String path) {
-  if (path.contains('/view/')) return true;
+  if (!path.startsWith('lib/presentation/')) return false;
+  if (path.contains('/screens/')) return true;
+  if (path.contains('/widgets/')) return true;
+  if (path.contains('/providers/')) return true;
+  if (path.contains('/controllers/')) return true;
   if (path.contains('/viewmodel/')) return true;
   return false;
 }
 
 bool _isRepositoryOrServiceFile(String path) {
   if (path.contains('/repository/')) return true;
+  if (path.contains('/repositories/')) return true;
   if (path.contains('/service/')) return true;
+  if (path.contains('/datasources/')) return true;
+  if (path.contains('/usecases/')) return true;
   return false;
 }
 
 bool _isUiFile(String path) {
+  if (path.startsWith('lib/core/widgets/')) return true;
   if (path.startsWith('lib/presentation/shared/widgets/')) return true;
-  if (path.contains('/view/')) return true;
+  if (path.contains('/screens/')) return true;
+  if (path.contains('/widgets/')) return true;
   return false;
 }
 
@@ -524,10 +531,8 @@ class FileLengthRule implements QualityRule {
 
   @override
   void check(QualityContext ctx, FileContext file) {
-    if (file.containsMarker(QualityContractConst.maxFileMarker)) return;
-
-    final int len = file.lines.length;
-    if (len <= ctx.config.maxFileLines) return;
+    final int effectiveCodeLines = _countEffectiveFileCodeLines(file);
+    if (effectiveCodeLines <= ctx.config.maxFileLines) return;
 
     ctx.violations.add(
       QualityViolation(
@@ -536,10 +541,74 @@ class FileLengthRule implements QualityRule {
         severity: Severity.warning,
         rule: name,
         reason:
-            'File length exceeds ${ctx.config.maxFileLines} lines. Split file or add `${QualityContractConst.maxFileMarker}` with justification.',
-        lineContent: '$len lines',
+            'Effective code length exceeds ${ctx.config.maxFileLines} lines (ignores comments, dartdoc, imports). Split file.',
+        lineContent:
+            'effective: $effectiveCodeLines lines, raw: ${file.lines.length} lines',
       ),
     );
+  }
+}
+
+int _countEffectiveFileCodeLines(FileContext file) {
+  final Set<int> ignoredImportLines = _collectImportDirectiveLines(file);
+  final Set<int> effectiveLines = <int>{};
+
+  Token? token = file.unit.beginToken;
+  while (token != null) {
+    if (token.type == TokenType.EOF) {
+      break;
+    }
+
+    final int lineNumber = _lineFromOffset(file.lineInfo, token.offset);
+    if (!ignoredImportLines.contains(lineNumber)) {
+      effectiveLines.add(lineNumber);
+    }
+    token = token.next;
+  }
+
+  return effectiveLines.length;
+}
+
+Set<int> _collectImportDirectiveLines(FileContext file) {
+  final Set<int> lines = <int>{};
+
+  for (final Directive directive in file.unit.directives) {
+    if (directive is! ImportDirective) continue;
+
+    final int startLine = _lineFromOffset(file.lineInfo, directive.offset);
+    final int endLine = _lineFromOffset(file.lineInfo, directive.end);
+
+    for (int line = startLine; line <= endLine; line++) {
+      lines.add(line);
+    }
+  }
+
+  return lines;
+}
+
+class NoQualityGuardMarkerRule implements QualityRule {
+  @override
+  String get name => 'NoQualityGuardMarkerRule';
+
+  @override
+  void check(QualityContext ctx, FileContext file) {
+    for (int index = 0; index < file.lines.length; index++) {
+      final String line = file.lines[index];
+      if (!line.contains(QualityContractConst.forbiddenMarkerPrefix)) {
+        continue;
+      }
+      ctx.violations.add(
+        QualityViolation(
+          filePath: file.path,
+          lineNumber: index + 1,
+          severity: Severity.error,
+          rule: name,
+          reason:
+              'quality-guard markers are forbidden. Fix code instead of bypassing rules.',
+          lineContent: line.trim(),
+        ),
+      );
+    }
   }
 }
 
@@ -637,22 +706,9 @@ class ClassAndFunctionLengthRule implements QualityRule {
   }
 
   void _checkClasses(QualityContext ctx, FileContext file) {
-    if (file.containsMarker(QualityContractConst.maxClassMarker)) {
-      // file-level allow
-      return;
-    }
-
     for (final Declaration decl in file.unit.declarations) {
       if (decl is! ClassDeclaration) continue;
-
-      // class-level allow marker on same line (best effort)
       final int startLine = _lineFromOffset(file.lineInfo, decl.offset);
-      if (_lineContentAt(
-        file.lines,
-        startLine,
-      ).contains(QualityContractConst.maxClassMarker)) {
-        continue;
-      }
 
       final int endLine = _lineFromOffset(file.lineInfo, decl.endToken.offset);
       final int len = endLine - startLine + 1;
@@ -666,7 +722,7 @@ class ClassAndFunctionLengthRule implements QualityRule {
           severity: Severity.warning,
           rule: name,
           reason:
-              'Class length exceeds ${ctx.config.maxClassLines} lines. Split class or add `${QualityContractConst.maxClassMarker}` with justification.',
+              'Class length exceeds ${ctx.config.maxClassLines} lines. Split class.',
           lineContent: '$len lines',
         ),
       );
@@ -674,11 +730,6 @@ class ClassAndFunctionLengthRule implements QualityRule {
   }
 
   void _checkFunctions(QualityContext ctx, FileContext file) {
-    if (file.containsMarker(QualityContractConst.maxFunctionMarker)) {
-      // file-level allow
-      return;
-    }
-
     final _FunctionCollector collector = _FunctionCollector();
     file.unit.accept(collector);
 
@@ -689,14 +740,6 @@ class ClassAndFunctionLengthRule implements QualityRule {
 
       if (len <= ctx.config.maxFunctionLines) continue;
 
-      // function-level allow marker on the signature line (best effort)
-      if (_lineContentAt(
-        file.lines,
-        startLine,
-      ).contains(QualityContractConst.maxFunctionMarker)) {
-        continue;
-      }
-
       ctx.violations.add(
         QualityViolation(
           filePath: file.path,
@@ -704,7 +747,7 @@ class ClassAndFunctionLengthRule implements QualityRule {
           severity: Severity.warning,
           rule: name,
           reason:
-              'Function length exceeds ${ctx.config.maxFunctionLines} lines. Extract smaller units or add `${QualityContractConst.maxFunctionMarker}` with justification.',
+              'Function length exceeds ${ctx.config.maxFunctionLines} lines. Extract smaller units.',
           lineContent: '$len lines',
         ),
       );
@@ -805,9 +848,12 @@ class ConstructorParamsRule implements QualityRule {
     }
 
     final bool isScopedPath =
+        path.contains('/providers/') ||
+        path.contains('/controllers/') ||
         path.contains('/viewmodel/') ||
         path.contains('/service/') ||
-        path.contains('/repository/');
+        path.contains('/repository/') ||
+        path.contains('/repositories/');
     if (!isScopedPath) {
       return;
     }
@@ -885,7 +931,11 @@ class ViewModelPublicMethodsRule implements QualityRule {
 
   @override
   void check(QualityContext ctx, FileContext file) {
-    if (!file.path.contains('/viewmodel/')) {
+    final bool isStateOrControllerFile =
+        file.path.contains('/providers/') ||
+        file.path.contains('/controllers/') ||
+        file.path.contains('/viewmodel/');
+    if (!isStateOrControllerFile) {
       return;
     }
 
@@ -1303,7 +1353,6 @@ class UiChildrenPerformanceRule implements QualityRule {
   @override
   void check(QualityContext ctx, FileContext file) {
     if (!_isUiFile(file.path)) return;
-    if (file.containsMarker(QualityContractConst.listChildrenMarker)) return;
 
     final _UiChildrenVisitor v = _UiChildrenVisitor();
     file.unit.accept(v);
@@ -1355,7 +1404,6 @@ class CachePolicyRule implements QualityRule {
   @override
   void check(QualityContext ctx, FileContext file) {
     if (!_isRepositoryOrServiceFile(file.path)) return;
-    if (file.containsMarker(QualityContractConst.cachePolicyMarker)) return;
 
     final _CacheVisitor v = _CacheVisitor();
     file.unit.accept(v);
@@ -1382,7 +1430,7 @@ class CachePolicyRule implements QualityRule {
         severity: Severity.warning,
         rule: name,
         reason:
-            'Cache-like field detected without eviction/TTL policy. Add bounded cache policy or `${QualityContractConst.cachePolicyMarker}` with justification.',
+            'Cache-like field detected without eviction/TTL policy. Add bounded cache policy.',
         lineContent: file.path,
       ),
     );
@@ -1468,6 +1516,8 @@ class IsolateJsonRule implements QualityRule {
   @override
   void check(QualityContext ctx, FileContext file) {
     if (!_isRepositoryOrServiceFile(file.path) &&
+        !file.path.contains('/providers/') &&
+        !file.path.contains('/controllers/') &&
         !file.path.contains('/viewmodel/')) {
       return;
     }

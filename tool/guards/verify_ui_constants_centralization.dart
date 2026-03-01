@@ -13,8 +13,10 @@ import 'dart:io';
 ///     - AppScreenTokens
 ///
 /// Phạm vi áp dụng:
+/// - lib/core/widgets/
 /// - lib/presentation/shared/widgets/
-/// - lib/presentation/features/**/view/
+/// - lib/presentation/features/**/screens/
+/// - lib/presentation/features/**/widgets/
 ///
 /// Bỏ qua:
 /// - .g.dart
@@ -28,9 +30,11 @@ class UiConstantsGuardConst {
   static const String freezedExtension = '.freezed.dart';
   static const String lineCommentPrefix = '//';
 
-  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String coreWidgetsPrefix = 'lib/core/widgets/';
+  static const String sharedWidgetsPrefix = 'lib/presentation/shared/widgets/';
   static const String featurePrefix = 'lib/presentation/features/';
-  static const String featureViewMarker = '/view/';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
   static const String featureUiConstSuffix = '_ui_const.dart';
 }
 
@@ -184,7 +188,10 @@ bool _isFeatureUiConstFile(String path) {
 }
 
 bool _isUiLayerFile(String path) {
-  if (path.startsWith(UiConstantsGuardConst.commonWidgetsPrefix)) {
+  if (path.startsWith(UiConstantsGuardConst.coreWidgetsPrefix)) {
+    return true;
+  }
+  if (path.startsWith(UiConstantsGuardConst.sharedWidgetsPrefix)) {
     return true;
   }
 
@@ -192,7 +199,13 @@ bool _isUiLayerFile(String path) {
     return false;
   }
 
-  return path.contains(UiConstantsGuardConst.featureViewMarker);
+  if (path.contains(UiConstantsGuardConst.featureScreensMarker)) {
+    return true;
+  }
+  if (path.contains(UiConstantsGuardConst.featureWidgetsMarker)) {
+    return true;
+  }
+  return false;
 }
 
 bool _containsMagicUiLiteral(String line) {

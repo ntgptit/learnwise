@@ -4,7 +4,17 @@ class CommonWidgetUsageGuardConst {
   const CommonWidgetUsageGuardConst._();
 
   static const String libDirectory = 'lib';
-  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String presentationFeaturesPrefix = 'lib/presentation/features/';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
+  static const String providersMarker = '/providers/';
+  static const List<String> sharedWidgetsPrefixes = <String>[
+    'lib/core/widgets/',
+    'lib/presentation/shared/widgets/',
+  ];
+  static const String coreThemesPrefix = 'lib/core/themes/';
+  static const String allowMaterialWidgetOverrideMarker =
+      'common-widget-usage-guard: allow-material-widget';
   static const String baselinePath = 'tool/common_widget_usage_baseline.txt';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
@@ -76,7 +86,7 @@ Future<void> main(List<String> args) async {
     stderr.writeln(
       '${violation.path}:${violation.line}: '
       'Disallowed Flutter widget `${violation.widgetName}`. '
-      'Use `${violation.replacement}` from `lib/presentation/shared/widgets`.',
+      'Use `${violation.replacement}` from shared widget directories.',
     );
   }
   _printStaleBaselineHint(staleBaselineIds);
@@ -93,8 +103,11 @@ List<CommonWidgetUsageViolation> _collectViolations({
 
   for (final File file in files) {
     final String normalizedPath = _normalizePath(file.path);
+    if (_isSharedWidgetPath(normalizedPath)) {
+      continue;
+    }
     if (normalizedPath.startsWith(
-      CommonWidgetUsageGuardConst.commonWidgetsPrefix,
+      CommonWidgetUsageGuardConst.coreThemesPrefix,
     )) {
       continue;
     }
@@ -104,7 +117,15 @@ List<CommonWidgetUsageViolation> _collectViolations({
       if (line.isEmpty) {
         continue;
       }
+      if (line.contains(
+        CommonWidgetUsageGuardConst.allowMaterialWidgetOverrideMarker,
+      )) {
+        continue;
+      }
       for (final _DisallowedWidgetRule rule in rules) {
+        if (rule.featureUiOnly && !_isFeatureUiPath(normalizedPath)) {
+          continue;
+        }
         if (!rule.pattern.hasMatch(line)) {
           continue;
         }
@@ -124,6 +145,34 @@ List<CommonWidgetUsageViolation> _collectViolations({
   }
 
   return violations;
+}
+
+bool _isSharedWidgetPath(String path) {
+  for (final String prefix
+      in CommonWidgetUsageGuardConst.sharedWidgetsPrefixes) {
+    if (path.startsWith(prefix)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool _isFeatureUiPath(String path) {
+  if (!path.startsWith(
+    CommonWidgetUsageGuardConst.presentationFeaturesPrefix,
+  )) {
+    return false;
+  }
+  if (path.contains(CommonWidgetUsageGuardConst.providersMarker)) {
+    return false;
+  }
+  if (path.contains(CommonWidgetUsageGuardConst.featureScreensMarker)) {
+    return true;
+  }
+  if (path.contains(CommonWidgetUsageGuardConst.featureWidgetsMarker)) {
+    return true;
+  }
+  return false;
 }
 
 List<File> _collectSourceFiles(Directory root) {
@@ -158,44 +207,92 @@ String _stripLineComment(String line) {
 List<_DisallowedWidgetRule> _disallowedRules() {
   return <_DisallowedWidgetRule>[
     _DisallowedWidgetRule(
+      widgetName: 'AppBar',
+      replacement: 'LumosAppBar',
+      pattern: r'\bAppBar\s*\(',
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'AlertDialog',
+      replacement: 'LumosDialog/LumosPromptDialog',
+      pattern: r'\bAlertDialog\s*\(',
+    ),
+    _DisallowedWidgetRule(
       widgetName: 'TextField',
-      replacement: 'LwTextField/LwTextBox/LwTextArea/LwSearchField',
+      replacement: 'LumosTextField/LumosTextBox/LumosTextArea/LumosSearchBar',
       pattern: r'\bTextField\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'TextFormField',
-      replacement: 'LwTextBox',
+      replacement: 'LumosTextField/LumosTextBox',
       pattern: r'\bTextFormField\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'FilledButton',
-      replacement: 'LwPrimaryButton/LwTonalButton/LwActionButton',
+      replacement: 'LumosButton (primary/secondary)',
       pattern: r'\bFilledButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'ElevatedButton',
-      replacement: 'LwPrimaryButton',
+      replacement: 'LumosButton (primary)',
       pattern: r'\bElevatedButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'OutlinedButton',
-      replacement: 'LwSecondaryButton',
+      replacement: 'LumosButton (outline)',
       pattern: r'\bOutlinedButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'TextButton',
-      replacement: 'LwTextButton',
+      replacement: 'LumosButton (text)',
       pattern: r'\bTextButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'IconButton',
-      replacement: 'LwIconButton/LwCircleButton',
+      replacement: 'LumosIconButton',
       pattern: r'\bIconButton(?:\.[A-Za-z0-9_]+)?\s*\(',
     ),
     _DisallowedWidgetRule(
       widgetName: 'FloatingActionButton',
-      replacement: 'LwFab',
+      replacement: 'LumosFloatingActionButton',
       pattern: r'\bFloatingActionButton(?:\.[A-Za-z0-9_]+)?\s*\(',
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'PopupMenuButton',
+      replacement: 'LumosPopupMenuButton',
+      pattern: r'\bPopupMenuButton(?:\.[A-Za-z0-9_]+)?\s*\(',
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'ActionChip',
+      replacement: 'LumosActionChip',
+      pattern: r'\bActionChip\s*\(',
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'DropdownButtonFormField',
+      replacement: 'LumosDropdown',
+      pattern: r'\bDropdownButtonFormField(?:\.[A-Za-z0-9_]+)?\s*\(',
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'RadioListTile',
+      replacement: 'LumosRadioGroup',
+      pattern: r'\bRadioListTile(?:\.[A-Za-z0-9_]+)?\s*\(',
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'Icon',
+      replacement: 'LumosIcon',
+      pattern: r'\bIcon\s*\(',
+      featureUiOnly: true,
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'Text',
+      replacement: 'LumosText/LumosInlineText',
+      pattern: r'\bText\s*\(',
+      featureUiOnly: true,
+    ),
+    _DisallowedWidgetRule(
+      widgetName: 'ListTile',
+      replacement: 'LumosListTile',
+      pattern: r'\bListTile\s*\(',
+      featureUiOnly: true,
     ),
   ];
 }
@@ -265,9 +362,11 @@ class _DisallowedWidgetRule {
     required this.widgetName,
     required this.replacement,
     required String pattern,
+    this.featureUiOnly = false,
   }) : pattern = RegExp(pattern);
 
   final String widgetName;
   final String replacement;
   final RegExp pattern;
+  final bool featureUiOnly;
 }

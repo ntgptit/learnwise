@@ -5,7 +5,7 @@ class SharedWidgetsM3CoverageConst {
 
   static const String sharedWidgetsRoot = 'lib/presentation/shared/widgets';
   static const String manifestPath =
-      'tool/contracts/shared_widgets_m3_manifest.txt';
+      'tool/guards/contracts/shared_widgets_m3_manifest.txt';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
@@ -29,6 +29,31 @@ class SharedWidgetsM3CoverageViolation {
 final RegExp _legacyWidgetRegExp = RegExp(
   r'\b(?:ElevatedButton|BottomNavigationBar|ToggleButtons)\s*\(',
 );
+final RegExp _styleLiteralDeclarationRegExp = RegExp(
+  r'\bstatic const double\s+[A-Za-z_]\w*'
+  r'(?:width|height|size|padding|margin|gap|radius|icon|elevation|offset|threshold|ratio|extent|stroke|opacity|duration)\w*'
+  r'\s*=\s*-?\d+(?:\.\d+)?\s*;',
+  caseSensitive: false,
+);
+final RegExp _styleNamedArgumentLiteralRegExp = RegExp(
+  r'\b(?:width|height|size|strokeWidth|thickness|elevation|iconSize|radius|'
+  r'minWidth|maxWidth|minHeight|maxHeight|padding|margin|gap|widthFactor|opacity)'
+  r'\s*:\s*(?:const\s+)?-?\d+(?:\.\d+)?\b',
+);
+final RegExp _durationLiteralRegExp = RegExp(
+  r'\bDuration\(\s*(?:milliseconds|seconds|microseconds)\s*:\s*\d+\s*\)',
+);
+final RegExp _forbiddenStyleFromRegExp = RegExp(
+  r'\b(?:IconButton|ElevatedButton|FilledButton|OutlinedButton|TextButton)\.styleFrom\s*\(',
+);
+final RegExp _forbiddenButtonStyleCtorRegExp = RegExp(r'\bButtonStyle\s*\(');
+final RegExp _forbiddenThemeCopyWithRegExp = RegExp(
+  r'\bTheme\.of\([^)]*\)\.copyWith\s*\(',
+);
+final RegExp _forbiddenInputDecorationThemeCtorRegExp = RegExp(
+  r'\bInputDecorationTheme\s*\(',
+);
+final RegExp _forbiddenCopyWithRegExp = RegExp(r'\.copyWith\s*\(');
 final RegExp _hardcodedColorConstructorRegExp = RegExp(
   r'\bColor\(\s*0x[0-9A-Fa-f]+\s*\)',
 );
@@ -201,6 +226,110 @@ void _checkFile({
           reason:
               'Legacy Material widget is not allowed in shared widgets. '
               'Use M3 component alternatives.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_styleLiteralDeclarationRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Hardcoded style token declaration is not allowed in shared widgets. '
+              'Use centralized theme constants from core/themes/constants.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_styleNamedArgumentLiteralRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Hardcoded style literal is not allowed in shared widgets. '
+              'Use centralized theme constants from core/themes/constants.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_durationLiteralRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Hardcoded Duration literal is not allowed in shared widgets. '
+              'Use AppDurations or MotionDurations tokens.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_forbiddenStyleFromRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Shared widgets must not build local Material style via `styleFrom`. '
+              'Consume centralized styles from core/themes/component_themes.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_forbiddenButtonStyleCtorRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Shared widgets must not instantiate `ButtonStyle` directly. '
+              'Consume centralized styles from core/themes/component_themes.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_forbiddenThemeCopyWithRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Shared widgets must not override ThemeData locally via `Theme.of(...).copyWith`. '
+              'Use centralized component themes.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_forbiddenInputDecorationThemeCtorRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Shared widgets must not instantiate `InputDecorationTheme` directly. '
+              'Use InputDecorationThemes in core/themes/component_themes.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    if (_forbiddenCopyWithRegExp.hasMatch(sourceLine)) {
+      violations.add(
+        SharedWidgetsM3CoverageViolation(
+          filePath: path,
+          lineNumber: lineNumber,
+          reason:
+              'Shared widgets must not use local `.copyWith(...)` theming. '
+              'Move style composition to core/themes/component_themes or extensions.',
           lineContent: rawLine.trim(),
         ),
       );

@@ -9,11 +9,11 @@ class ColorSchemeUsageGuardCompatConst {
   const ColorSchemeUsageGuardCompatConst._();
 
   static const String componentThemeGuard =
-      'tool/verify_component_theme_usage_contract.dart';
+      'tool/guards/verify_component_theme_usage_contract.dart';
   static const String featureSurfaceGuard =
-      'tool/verify_feature_surface_contract.dart';
+      'tool/guards/verify_feature_surface_contract.dart';
   static const String sharedWidgetOverrideGuard =
-      'tool/verify_shared_widget_override_contract.dart';
+      'tool/guards/verify_shared_widget_override_contract.dart';
 }
 
 class _GuardTask {
@@ -37,15 +37,15 @@ class _GuardResult {
 
 Future<void> main() async {
   final List<_GuardTask> guards = <_GuardTask>[
-    const _GuardTask(
+    _GuardTask(
       name: ColorSchemeUsageGuardCompatConst.componentThemeGuard,
       run: component_theme_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       name: ColorSchemeUsageGuardCompatConst.featureSurfaceGuard,
       run: feature_surface_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       name: ColorSchemeUsageGuardCompatConst.sharedWidgetOverrideGuard,
       run: shared_widget_override_guard.main,
     ),

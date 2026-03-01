@@ -3,9 +3,9 @@ import 'dart:io';
 /// UI Design Guard v3
 ///
 /// Mục tiêu:
-/// - Enforce các chuẩn UI/UX cơ bản cho layer UI (app/widgets, common/widgets, features/*/view).
+/// - Enforce các chuẩn UI/UX cơ bản cho layer UI (core/widgets, presentation/shared/widgets, presentation/features/*/screens, presentation/features/*/widgets).
 /// - Chặn “magic numbers” theo các quy tắc thiết kế (spacing grid, button height, icon size, typography scale, touch target).
-/// - Chặn hardcoded color (Color(0x..), '#RRGGBB', Colors.* trừ transparent/white/black).
+/// - Chặn hardcoded color (Color(0x..), '#RRGGBB', Colors.*).
 /// - Chặn legacy Material widgets (ElevatedButton/BottomNavigationBar/ToggleButtons) để ép Material 3.
 ///
 /// Triết lý:
@@ -31,10 +31,11 @@ class UiDesignGuardConst {
   static const String lineCommentPrefix = '//';
 
   /// UI layer markers.
-  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String coreWidgetsPrefix = 'lib/core/widgets/';
+  static const String sharedWidgetsPrefix = 'lib/presentation/shared/widgets/';
   static const String featurePrefix = 'lib/presentation/features/';
-  static const String featureViewMarker = '/view/';
-  static const String appWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String featureScreensMarker = '/screens/';
+  static const String featureWidgetsMarker = '/widgets/';
 
   /// Mobile breakpoint policy (dp).
   static const double mobileBreakpointMax = 600;
@@ -83,12 +84,12 @@ class UiDesignGuardConst {
   /// How many lines to look around to infer SizedBox(...) and related contexts.
   static const int sizedBoxLookaroundLineCount = 12;
 
-  /// Allowed Colors.* direct usage (minimal).
-  static const Set<String> allowedMaterialColors = <String>{
-    'transparent',
-    'white',
-    'black',
-  };
+  /// How many lines to look back to infer multi-line withValues(...) declarations.
+  static const int withValuesLookbackLineCount = 8;
+
+  /// Allowed Colors.* direct usage.
+  /// Empty set => forbid all direct Colors.* usage in UI layer.
+  static const Set<String> allowedMaterialColors = <String>{};
 }
 
 /// A single violation record.
@@ -229,23 +230,27 @@ String _normalizePath(String path) => path.replaceAll('\\', '/');
 /// Determine if a file is considered UI layer.
 ///
 /// UI layer includes:
+/// - lib/core/widgets/*
 /// - lib/presentation/shared/widgets/*
-/// - lib/presentation/shared/widgets/*
-/// - lib/presentation/features/*/view/*
+/// - lib/presentation/features/*/screens/*
+/// - lib/presentation/features/*/widgets/*
 bool _isUiLayerFile(String path) {
-  if (path.startsWith(UiDesignGuardConst.appWidgetsPrefix)) {
+  if (path.startsWith(UiDesignGuardConst.coreWidgetsPrefix)) {
     return true;
   }
-  if (path.startsWith(UiDesignGuardConst.commonWidgetsPrefix)) {
+  if (path.startsWith(UiDesignGuardConst.sharedWidgetsPrefix)) {
     return true;
   }
   if (!path.startsWith(UiDesignGuardConst.featurePrefix)) {
     return false;
   }
-  if (!path.contains(UiDesignGuardConst.featureViewMarker)) {
-    return false;
+  if (path.contains(UiDesignGuardConst.featureScreensMarker)) {
+    return true;
   }
-  return true;
+  if (path.contains(UiDesignGuardConst.featureWidgetsMarker)) {
+    return true;
+  }
+  return false;
 }
 
 /// Strip `//` comments while respecting string literals.
@@ -395,6 +400,33 @@ bool _isInsideButtonSizedBoxDeclaration({
   return false;
 }
 
+/// Check whether current line is inside a withValues(...) declaration window.
+bool _isInsideWithValuesDeclaration({
+  required List<String> allLines,
+  required int currentIndex,
+}) {
+  int startIndex =
+      currentIndex - UiDesignGuardConst.withValuesLookbackLineCount;
+  if (startIndex < 0) {
+    startIndex = 0;
+  }
+
+  for (int i = currentIndex; i >= startIndex; i--) {
+    final String line = _stripLineCommentSmart(allLines[i]).trim();
+    if (_Patterns.withValuesStart.hasMatch(line)) {
+      return true;
+    }
+    if (i == currentIndex) {
+      continue;
+    }
+    if (line.contains(');') || line.contains('}')) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 /// Centralized regex patterns (compiled once).
 class _Patterns {
   const _Patterns._();
@@ -473,6 +505,22 @@ class _Patterns {
   static final RegExp materialColor = RegExp(
     r'\bColors\.([A-Za-z_][A-Za-z0-9_]*)',
   );
+
+  static final RegExp withValuesStart = RegExp(r'\.withValues\s*\(');
+
+  static final RegExp withValuesAlphaLiteral = RegExp(
+    r'\.withValues\(\s*alpha\s*:\s*(\d+(?:\.\d+)?)',
+  );
+
+  static final RegExp alphaPropertyExpression = RegExp(
+    r'^\s*alpha\s*:\s*([^,\)]+)',
+  );
+
+  static final RegExp numericLiteral = RegExp(
+    r'(?<![A-Za-z0-9_])\d+(?:\.\d+)?(?![A-Za-z0-9_])',
+  );
+
+  static final RegExp localConstReference = RegExp(r'\b\w+Const\.');
 
   static final RegExp touchTarget = RegExp(
     r'\b(?:minWidth|minHeight)\s*:\s*(?:const\s+)?(\d+(?:\.\d+)?)',
@@ -1009,7 +1057,7 @@ class _HardcodedLargeSizeRule implements UiGuardRule {
   }
 }
 
-/// Rule: forbid hardcoded colors in UI (Color(0x..), '#..', Colors.* except minimal set).
+/// Rule: forbid hardcoded colors in UI (Color(0x..), '#..', Colors.*).
 class _HardcodedColorRule implements UiGuardRule {
   const _HardcodedColorRule();
 
@@ -1029,7 +1077,9 @@ class _HardcodedColorRule implements UiGuardRule {
     final bool mayContainColor =
         sourceLine.contains('Color(') ||
         sourceLine.contains('#') ||
-        sourceLine.contains('Colors.');
+        sourceLine.contains('Colors.') ||
+        sourceLine.contains('withValues(') ||
+        sourceLine.contains('alpha:');
     if (!mayContainColor) {
       return;
     }
@@ -1072,6 +1122,55 @@ class _HardcodedColorRule implements UiGuardRule {
           lineNumber: lineNumber,
           reason:
               'Avoid direct `Colors.*` in UI. Use Theme colorScheme or centralized tokens.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+
+    final bool insideWithValues = _isInsideWithValuesDeclaration(
+      allLines: allLines,
+      currentIndex: index,
+    );
+    if (!insideWithValues || !sourceLine.contains('alpha:')) {
+      return;
+    }
+
+    final RegExpMatch? alphaMatch = _Patterns.alphaPropertyExpression
+        .firstMatch(sourceLine);
+    if (alphaMatch == null) {
+      if (_Patterns.withValuesAlphaLiteral.hasMatch(sourceLine)) {
+        violations.add(
+          UiDesignViolation(
+            filePath: filePath,
+            lineNumber: lineNumber,
+            reason:
+                'Do not use literal alpha in withValues(alpha: ...). Extract to core constants/themes.',
+            lineContent: rawLine.trim(),
+          ),
+        );
+      }
+      return;
+    }
+
+    final String alphaExpression = alphaMatch.group(1)?.trim() ?? '';
+    if (_Patterns.numericLiteral.hasMatch(alphaExpression)) {
+      violations.add(
+        UiDesignViolation(
+          filePath: filePath,
+          lineNumber: lineNumber,
+          reason:
+              'Do not use literal alpha in withValues(alpha: ...). Extract to core constants/themes.',
+          lineContent: rawLine.trim(),
+        ),
+      );
+    }
+    if (_Patterns.localConstReference.hasMatch(alphaExpression)) {
+      violations.add(
+        UiDesignViolation(
+          filePath: filePath,
+          lineNumber: lineNumber,
+          reason:
+              'Do not use feature-level *Const for alpha. Use core constants/themes.',
           lineContent: rawLine.trim(),
         ),
       );

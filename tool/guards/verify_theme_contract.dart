@@ -5,9 +5,10 @@ import 'dart:io';
 /// Mục tiêu
 /// - Ép codebase tuân thủ kiến trúc theme thống nhất:
 ///   - Material 3 bắt buộc (light + dark)
-///   - Có factory `static ThemeData light()` và `static ThemeData dark()`
+///   - Có factory `static ThemeData lightTheme()/darkTheme()` (hoặc light/dark legacy)
 ///   - Có `lightColorScheme` + `darkColorScheme` trong `color_schemes.dart`
 ///   - `ColorScheme.fromSeed(...)` bắt buộc để palette nhất quán
+///   - Có guard contrast tối thiểu trong `color_schemes.dart`
 ///   - `MaterialApp` phải set `themeMode:`
 ///   - `dynamic_color` dependency là khuyến nghị mạnh:
 ///     - Nếu không dùng, phải có marker `theme-guard: allow-no-dynamic-color`
@@ -59,11 +60,11 @@ final RegExp _dynamicColorDependencyRegExp = RegExp(
 );
 
 final RegExp _lightThemeFactoryRegExp = RegExp(
-  r'\bstatic\s+ThemeData\s+light\s*\(\s*\)\s*{',
+  r'\bstatic\s+ThemeData\s+light(?:Theme)?\s*\([^)]*\)\s*{',
 );
 
 final RegExp _darkThemeFactoryRegExp = RegExp(
-  r'\bstatic\s+ThemeData\s+dark\s*\(\s*\)\s*{',
+  r'\bstatic\s+ThemeData\s+dark(?:Theme)?\s*\([^)]*\)\s*{',
 );
 
 final RegExp _useMaterial3RegExp = RegExp(r'\buseMaterial3\s*:\s*true\b');
@@ -77,6 +78,28 @@ final RegExp _darkColorSchemeRegExp = RegExp(r'\bdarkColorScheme\b');
 
 final RegExp _colorSchemeFromSeedRegExp = RegExp(
   r'\bColorScheme\.fromSeed\s*\(',
+);
+
+final RegExp _minimumTextContrastRegExp = RegExp(
+  r'\bminimumTextContrastRatio\s*=\s*4\.5\b',
+);
+
+final RegExp _minimumUiContrastRegExp = RegExp(
+  r'\bminimumUiContrastRatio\s*=\s*3(?:\.0)?\b',
+);
+
+final RegExp _contrastValidationRegExp = RegExp(
+  r'_validateColorSchemeContrast\s*\(',
+);
+
+final RegExp _buildLightColorSchemeRegExp = RegExp(
+  r'buildLightColorScheme\s*\([^)]*\)\s*{[\s\S]*?Brightness\.light',
+  dotAll: true,
+);
+
+final RegExp _buildDarkColorSchemeRegExp = RegExp(
+  r'buildDarkColorScheme\s*\([^)]*\)\s*{[\s\S]*?Brightness\.dark',
+  dotAll: true,
 );
 
 Future<void> main() async {
@@ -121,13 +144,15 @@ Future<void> main() async {
   _checkUseMaterial3InFactory(
     violations: violations,
     appThemeLines: appThemeLines,
-    factoryName: 'light',
+    factoryPattern: 'light(?:Theme)?',
+    factoryDisplayName: 'lightTheme()',
   );
 
   _checkUseMaterial3InFactory(
     violations: violations,
     appThemeLines: appThemeLines,
-    factoryName: 'dark',
+    factoryPattern: 'dark(?:Theme)?',
+    factoryDisplayName: 'darkTheme()',
   );
 
   _checkColorSchemes(
@@ -196,8 +221,8 @@ void _checkThemeFactories({
         filePath: ThemeContractConst.appThemePath,
         lineNumber: 1,
         reason:
-            'Theme contract requires a light theme factory (`static ThemeData light() { ... }`).',
-        lineContent: 'static ThemeData light() { ... }',
+            'Theme contract requires a light theme factory (`static ThemeData lightTheme() { ... }`).',
+        lineContent: 'static ThemeData lightTheme(...) { ... }',
       ),
     );
   }
@@ -208,8 +233,8 @@ void _checkThemeFactories({
         filePath: ThemeContractConst.appThemePath,
         lineNumber: 1,
         reason:
-            'Theme contract requires a dark theme factory (`static ThemeData dark() { ... }`).',
-        lineContent: 'static ThemeData dark() { ... }',
+            'Theme contract requires a dark theme factory (`static ThemeData darkTheme() { ... }`).',
+        lineContent: 'static ThemeData darkTheme(...) { ... }',
       ),
     );
   }
@@ -225,11 +250,12 @@ void _checkThemeFactories({
 void _checkUseMaterial3InFactory({
   required List<ThemeViolation> violations,
   required List<String> appThemeLines,
-  required String factoryName,
+  required String factoryPattern,
+  required String factoryDisplayName,
 }) {
   final int startIndex = _findThemeFactoryStartIndex(
     lines: appThemeLines,
-    factoryName: factoryName,
+    factoryPattern: factoryPattern,
   );
   if (startIndex < 0) {
     // Nếu factory chưa tồn tại, violation đã được báo ở _checkThemeFactories.
@@ -246,7 +272,7 @@ void _checkUseMaterial3InFactory({
         filePath: ThemeContractConst.appThemePath,
         lineNumber: startIndex + 1,
         reason:
-            'Unable to parse `$factoryName()` factory block braces. Ensure the method uses `{ ... }` braces.',
+            'Unable to parse `$factoryDisplayName` factory block braces. Ensure the method uses `{ ... }` braces.',
         lineContent: _safeLine(appThemeLines, startIndex),
       ),
     );
@@ -274,7 +300,7 @@ void _checkUseMaterial3InFactory({
       filePath: ThemeContractConst.appThemePath,
       lineNumber: startIndex + 1,
       reason:
-          'Theme `$factoryName()` must enable `useMaterial3: true` inside ThemeData configuration.',
+          'Theme `$factoryDisplayName` must enable `useMaterial3: true` inside ThemeData configuration.',
       lineContent: 'useMaterial3: true',
     ),
   );
@@ -287,6 +313,8 @@ bool _factoryDelegatesToSharedThemeBuilder(String blockSource) {
 /// Check color schemes contract:
 /// - must define `lightColorScheme` and `darkColorScheme`
 /// - must use `ColorScheme.fromSeed(...)`
+/// - must define WCAG ratio constants and contrast validation
+/// - must expose light/dark builders with corresponding brightness
 void _checkColorSchemes({
   required List<ThemeViolation> violations,
   required String colorSchemesSource,
@@ -321,6 +349,66 @@ void _checkColorSchemes({
         reason:
             'Theme contract requires `ColorScheme.fromSeed(...)` to keep palette generation consistent.',
         lineContent: 'ColorScheme.fromSeed(...)',
+      ),
+    );
+  }
+
+  if (!_minimumTextContrastRegExp.hasMatch(colorSchemesSource)) {
+    violations.add(
+      const ThemeViolation(
+        filePath: ThemeContractConst.colorSchemesPath,
+        lineNumber: 1,
+        reason:
+            'Theme contract requires `minimumTextContrastRatio = 4.5` for WCAG small text baseline.',
+        lineContent: 'minimumTextContrastRatio = 4.5',
+      ),
+    );
+  }
+
+  if (!_minimumUiContrastRegExp.hasMatch(colorSchemesSource)) {
+    violations.add(
+      const ThemeViolation(
+        filePath: ThemeContractConst.colorSchemesPath,
+        lineNumber: 1,
+        reason:
+            'Theme contract requires `minimumUiContrastRatio = 3` for UI components baseline.',
+        lineContent: 'minimumUiContrastRatio = 3',
+      ),
+    );
+  }
+
+  if (!_contrastValidationRegExp.hasMatch(colorSchemesSource)) {
+    violations.add(
+      const ThemeViolation(
+        filePath: ThemeContractConst.colorSchemesPath,
+        lineNumber: 1,
+        reason:
+            'Theme contract requires explicit contrast validation call in color scheme pipeline.',
+        lineContent: '_validateColorSchemeContrast(...)',
+      ),
+    );
+  }
+
+  if (!_buildLightColorSchemeRegExp.hasMatch(colorSchemesSource)) {
+    violations.add(
+      const ThemeViolation(
+        filePath: ThemeContractConst.colorSchemesPath,
+        lineNumber: 1,
+        reason:
+            'Theme contract requires `buildLightColorScheme(...)` builder using `Brightness.light`.',
+        lineContent: 'buildLightColorScheme(...) + Brightness.light',
+      ),
+    );
+  }
+
+  if (!_buildDarkColorSchemeRegExp.hasMatch(colorSchemesSource)) {
+    violations.add(
+      const ThemeViolation(
+        filePath: ThemeContractConst.colorSchemesPath,
+        lineNumber: 1,
+        reason:
+            'Theme contract requires `buildDarkColorScheme(...)` builder using `Brightness.dark`.',
+        lineContent: 'buildDarkColorScheme(...) + Brightness.dark',
       ),
     );
   }
@@ -396,10 +484,10 @@ String _stripLineComment(String sourceLine) {
 ///   `static ThemeData <factoryName>() {`
 int _findThemeFactoryStartIndex({
   required List<String> lines,
-  required String factoryName,
+  required String factoryPattern,
 }) {
   final RegExp startRegExp = RegExp(
-    '\\bstatic\\s+ThemeData\\s+$factoryName\\s*\\(\\s*\\)\\s*{',
+    '\\bstatic\\s+ThemeData\\s+$factoryPattern\\s*\\([^)]*\\)\\s*{',
   );
   for (int i = 0; i < lines.length; i++) {
     final String line = _stripLineComment(lines[i]).trim();

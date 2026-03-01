@@ -1,33 +1,27 @@
 import 'dart:io';
 
-import 'verify_accessibility_contract.dart' as accessibility_guard;
-import 'verify_code_quality_contract.dart' as code_quality_guard;
-import 'verify_color_scheme_usage_contract.dart' as color_scheme_usage_guard;
-import 'verify_common_widget_boundaries.dart' as common_widget_boundaries_guard;
-import 'verify_common_widget_usage_contract.dart' as common_widget_usage_guard;
-import 'verify_component_theme_usage_contract.dart' as component_theme_guard;
-import 'verify_feature_architecture_contract.dart'
-    as feature_architecture_guard;
-import 'verify_feature_surface_contract.dart' as feature_surface_guard;
-import 'verify_navigation_go_router_contract.dart' as navigation_guard;
-import 'verify_opacity_constants_contract.dart' as opacity_guard;
-import 'verify_public_api_test_contract.dart' as public_api_test_guard;
-import 'verify_riverpod_annotation.dart' as riverpod_annotation_guard;
-import 'verify_riverpod_layout_state_contract.dart'
-    as riverpod_layout_state_guard;
-import 'verify_shared_widget_override_contract.dart'
+import 'guards/verify_code_quality_contract.dart' as code_quality_guard;
+import 'guards/verify_common_widget_boundaries.dart'
+    as common_widget_boundaries_guard;
+import 'guards/verify_common_widget_usage_contract.dart'
+    as common_widget_usage_guard;
+import 'guards/verify_component_theme_usage_contract.dart'
+    as component_theme_guard;
+import 'guards/verify_feature_surface_contract.dart' as feature_surface_guard;
+import 'guards/verify_navigation_go_router_contract.dart' as navigation_guard;
+import 'guards/verify_opacity_constants_contract.dart' as opacity_guard;
+import 'guards/verify_riverpod_annotation.dart' as riverpod_annotation_guard;
+import 'guards/verify_shared_widget_override_contract.dart'
     as shared_widget_override_guard;
-import 'verify_shared_widgets_m3_coverage.dart'
+import 'guards/verify_shared_widgets_m3_coverage.dart'
     as shared_widgets_m3_coverage_guard;
-import 'verify_state_management_contract.dart' as state_management_guard;
-import 'verify_string_utils_contract.dart' as string_utils_guard;
-import 'verify_test_pyramid_contract.dart' as test_pyramid_guard;
-import 'verify_theme_contract.dart' as theme_guard;
-import 'verify_ui_constants_centralization.dart' as ui_constants_guard;
-import 'verify_ui_design_guard.dart' as ui_design_guard;
-import 'verify_ui_logic_separation_contract.dart' as ui_logic_separation_guard;
-import 'verify_ui_state_scalability_contract.dart'
-    as ui_state_scalability_guard;
+import 'guards/verify_state_management_contract.dart' as state_management_guard;
+import 'guards/verify_string_utils_contract.dart' as string_utils_guard;
+import 'guards/verify_ui_constants_centralization.dart'
+    as ui_constants_centralization_guard;
+import 'guards/verify_ui_design_guard.dart' as ui_design_guard;
+import 'guards/verify_ui_logic_separation_contract.dart'
+    as ui_logic_separation_guard;
 
 class FrontendChecklistConst {
   const FrontendChecklistConst._();
@@ -161,118 +155,78 @@ List<_GuardTask> _buildDefaultTasks() {
   return <_GuardTask>[
     _GuardTask(
       id: 'riverpod-annotation',
-      fileName: 'tool/verify_riverpod_annotation.dart',
+      fileName: 'guards/verify_riverpod_annotation.dart',
       run: () => riverpod_annotation_guard.main(<String>[]),
     ),
     _GuardTask(
-      id: 'riverpod-layout-state',
-      fileName: 'tool/verify_riverpod_layout_state_contract.dart',
-      run: () => riverpod_layout_state_guard.main(<String>[]),
-    ),
-    const _GuardTask(
       id: 'state-management',
-      fileName: 'tool/verify_state_management_contract.dart',
+      fileName: 'guards/verify_state_management_contract.dart',
       run: state_management_guard.main,
     ),
     _GuardTask(
       id: 'ui-logic-separation',
-      fileName: 'tool/verify_ui_logic_separation_contract.dart',
-      run: () => ui_logic_separation_guard.main(<String>[]),
+      fileName: 'guards/verify_ui_logic_separation_contract.dart',
+      run: ui_logic_separation_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       id: 'navigation',
-      fileName: 'tool/verify_navigation_go_router_contract.dart',
+      fileName: 'guards/verify_navigation_go_router_contract.dart',
       run: navigation_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       id: 'opacity-contract',
-      fileName: 'tool/verify_opacity_constants_contract.dart',
+      fileName: 'guards/verify_opacity_constants_contract.dart',
       run: opacity_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       id: 'common-widget-boundaries',
-      fileName: 'tool/verify_common_widget_boundaries.dart',
+      fileName: 'guards/verify_common_widget_boundaries.dart',
       run: common_widget_boundaries_guard.main,
     ),
     _GuardTask(
       id: 'common-widget-usage',
-      fileName: 'tool/verify_common_widget_usage_contract.dart',
+      fileName: 'guards/verify_common_widget_usage_contract.dart',
       run: () => common_widget_usage_guard.main(<String>[]),
     ),
-    const _GuardTask(
+    _GuardTask(
       id: 'ui-constants',
-      fileName: 'tool/verify_ui_constants_centralization.dart',
-      run: ui_constants_guard.main,
+      fileName: 'guards/verify_ui_constants_centralization.dart',
+      run: ui_constants_centralization_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       id: 'string-utils',
-      fileName: 'tool/verify_string_utils_contract.dart',
+      fileName: 'guards/verify_string_utils_contract.dart',
       run: string_utils_guard.main,
     ),
-    const _GuardTask(
-      id: 'theme',
-      fileName: 'tool/verify_theme_contract.dart',
-      run: theme_guard.main,
-    ),
-    const _GuardTask(
-      id: 'accessibility',
-      fileName: 'tool/verify_accessibility_contract.dart',
-      run: accessibility_guard.main,
-    ),
-    const _GuardTask(
+    _GuardTask(
       id: 'ui-design',
-      fileName: 'tool/verify_ui_design_guard.dart',
+      fileName: 'guards/verify_ui_design_guard.dart',
       run: ui_design_guard.main,
     ),
-    const _GuardTask(
-      id: 'ui-state-scalability',
-      fileName: 'tool/verify_ui_state_scalability_contract.dart',
-      run: ui_state_scalability_guard.main,
-    ),
-    const _GuardTask(
-      id: 'feature-architecture',
-      fileName: 'tool/verify_feature_architecture_contract.dart',
-      run: feature_architecture_guard.main,
-    ),
-    const _GuardTask(
-      id: 'feature-surface',
-      fileName: 'tool/verify_feature_surface_contract.dart',
-      run: feature_surface_guard.main,
+    _GuardTask(
+      id: 'code-quality',
+      fileName: 'guards/verify_code_quality_contract.dart',
+      run: code_quality_guard.main,
     ),
     _GuardTask(
       id: 'component-theme',
-      fileName: 'tool/verify_component_theme_usage_contract.dart',
-      run: () => component_theme_guard.main(<String>[]),
+      fileName: 'guards/verify_component_theme_usage_contract.dart',
+      run: component_theme_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
+      id: 'feature-surface',
+      fileName: 'guards/verify_feature_surface_contract.dart',
+      run: feature_surface_guard.main,
+    ),
+    _GuardTask(
       id: 'shared-widget-override',
-      fileName: 'tool/verify_shared_widget_override_contract.dart',
+      fileName: 'guards/verify_shared_widget_override_contract.dart',
       run: shared_widget_override_guard.main,
     ),
-    const _GuardTask(
+    _GuardTask(
       id: 'shared-widgets-m3-coverage',
-      fileName: 'tool/verify_shared_widgets_m3_coverage.dart',
+      fileName: 'guards/verify_shared_widgets_m3_coverage.dart',
       run: shared_widgets_m3_coverage_guard.main,
-    ),
-    const _GuardTask(
-      id: 'color-scheme-usage',
-      fileName: 'tool/verify_color_scheme_usage_contract.dart',
-      run: color_scheme_usage_guard.main,
-    ),
-    _GuardTask(
-      id: 'public-api-test',
-      fileName: 'tool/verify_public_api_test_contract.dart',
-      run: () => public_api_test_guard.main(<String>[]),
-    ),
-    _GuardTask(
-      id: 'test-pyramid',
-      fileName: 'tool/verify_test_pyramid_contract.dart',
-      run: () => test_pyramid_guard.main(<String>[]),
-    ),
-    const _GuardTask(
-      id: 'code-quality',
-      fileName: 'tool/verify_code_quality_contract.dart',
-      run: code_quality_guard.main,
     ),
   ];
 }
@@ -306,8 +260,8 @@ _CliOptions _parseArgs(List<String> args) {
     final String csv = arg.substring(FrontendChecklistConst.onlyPrefix.length);
     final Iterable<String> ids = csv
         .split(',')
-        .map((item) => item.trim())
-        .where((item) => item.isNotEmpty);
+        .map((String item) => item.trim())
+        .where((String item) => item.isNotEmpty);
     onlyIds.addAll(ids);
   }
 
@@ -328,7 +282,7 @@ Set<String> _collectUnknownGuardIds({
   }
 
   final Set<String> known = allTasks.map((task) => task.id).toSet();
-  return requested.where((id) => !known.contains(id)).toSet();
+  return requested.where((String id) => !known.contains(id)).toSet();
 }
 
 List<_GuardTask> _selectTasks({

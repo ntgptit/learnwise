@@ -39,8 +39,12 @@ class PublicApiGuardConfig {
       minCoveragePercent: PublicApiTestGuardConst.defaultMinCoveragePercent,
       scopedPathMarkers: <String>[
         '/repository/',
+        '/repositories/',
         '/service/',
-        '/viewmodel/',
+        '/providers/',
+        '/controllers/',
+        '/datasources/',
+        '/usecases/',
         '/engine/',
       ],
     );

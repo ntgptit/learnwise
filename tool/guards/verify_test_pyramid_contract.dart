@@ -6,9 +6,7 @@ class TestPyramidGuardConst {
   const TestPyramidGuardConst._();
 
   static const String featuresDirectory = 'lib/presentation/features';
-  static const String domainFeaturesDirectory = 'lib/domain/features';
-  static const String dataFeaturesDirectory = 'lib/data/features';
-  static const String featureTestsDirectory = 'test/features';
+  static const String featureTestsDirectory = 'test/presentation/features';
   static const String integrationTestsDirectory = 'integration_test';
   static const String configPath = 'test_pyramid_guard.yaml';
   static const String baselinePath = 'tool/test_pyramid_baseline.txt';
@@ -145,17 +143,7 @@ Future<void> main(List<String> args) async {
     return;
   }
 
-  final Directory domainFeaturesDirectory = Directory(
-    TestPyramidGuardConst.domainFeaturesDirectory,
-  );
-  final Directory dataFeaturesDirectory = Directory(
-    TestPyramidGuardConst.dataFeaturesDirectory,
-  );
-  final List<FeatureShape> features = _collectFeatureShapes(
-    featuresDirectory,
-    domainFeaturesDirectory: domainFeaturesDirectory,
-    dataFeaturesDirectory: dataFeaturesDirectory,
-  );
+  final List<FeatureShape> features = _collectFeatureShapes(featuresDirectory);
   if (features.isEmpty) {
     stdout.writeln('Test pyramid guard skipped: no feature folders found.');
     return;
@@ -214,11 +202,7 @@ Future<void> main(List<String> args) async {
   exitCode = 1;
 }
 
-List<FeatureShape> _collectFeatureShapes(
-  Directory featuresDirectory, {
-  required Directory domainFeaturesDirectory,
-  required Directory dataFeaturesDirectory,
-}) {
+List<FeatureShape> _collectFeatureShapes(Directory featuresDirectory) {
   final List<FeatureShape> features = <FeatureShape>[];
   final List<FileSystemEntity> children = featuresDirectory.listSync();
   final List<Directory> featureDirectories =
@@ -229,40 +213,25 @@ List<FeatureShape> _collectFeatureShapes(
     final String featureName = featureDirectory
         .uri
         .pathSegments[featureDirectory.uri.pathSegments.length - 2];
-    final List<String> presentationFilePaths = _collectDartPaths(
-      featureDirectory,
-    );
-    final List<String> domainFilePaths = _collectLayerFeaturePaths(
-      rootDirectory: domainFeaturesDirectory,
-      featureName: featureName,
-    );
-    final List<String> dataFilePaths = _collectLayerFeaturePaths(
-      rootDirectory: dataFeaturesDirectory,
-      featureName: featureName,
-    );
-    final List<String> filePaths = <String>[
-      ...presentationFilePaths,
-      ...domainFilePaths,
-      ...dataFilePaths,
-    ];
+    final List<String> filePaths = _collectDartPaths(featureDirectory);
     if (filePaths.isEmpty) {
       continue;
     }
 
-    final bool hasViewModel = presentationFilePaths.any(
-      (path) => path.contains('/viewmodel/'),
+    final bool hasViewModel = filePaths.any(
+      (path) => path.contains('/providers/') || path.contains('/controllers/'),
     );
     final bool hasDomainLogic = filePaths.any(
       (path) =>
-          (path.contains('/domain/features/$featureName/') ||
-              path.contains('/data/features/$featureName/')) &&
-          (path.contains('/repository/') ||
-              path.contains('/service/') ||
-              path.contains('/engine/') ||
-              path.contains('/model/')),
+          path.contains('/repository/') ||
+          path.contains('/repositories/') ||
+          path.contains('/service/') ||
+          path.contains('/datasources/') ||
+          path.contains('/usecases/') ||
+          path.contains('/engine/'),
     );
-    final bool hasView = presentationFilePaths.any(
-      (path) => path.contains('/view/'),
+    final bool hasView = filePaths.any(
+      (path) => path.contains('/screens/') || path.contains('/widgets/'),
     );
 
     features.add(
@@ -276,22 +245,6 @@ List<FeatureShape> _collectFeatureShapes(
   }
 
   return features;
-}
-
-List<String> _collectLayerFeaturePaths({
-  required Directory rootDirectory,
-  required String featureName,
-}) {
-  if (!rootDirectory.existsSync()) {
-    return const <String>[];
-  }
-  final Directory featureDirectory = Directory(
-    '${rootDirectory.path}/$featureName',
-  );
-  if (!featureDirectory.existsSync()) {
-    return const <String>[];
-  }
-  return _collectDartPaths(featureDirectory);
 }
 
 Map<String, FeatureTestShape> _collectFeatureTestShapes({
@@ -356,7 +309,10 @@ bool _isDomainTestFile(String fileName) {
 }
 
 bool _isViewTestFile({required String path, required String fileName}) {
-  if (path.contains('/view/')) {
+  if (path.contains('/screens/')) {
+    return true;
+  }
+  if (path.contains('/widgets/')) {
     return true;
   }
   if (fileName.contains('_flow_test.dart')) {

@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 // a11y-guard: allow-no-text-scaling - typography scale is intentionally clamped for compact layout.
-import 'app/router/app_router.dart';
-import 'app/theme/app_theme.dart';
-import 'app/theme/app_theme_mode_controller.dart';
+import 'package:learnwise/core/routes/app_router.dart';
+import 'package:learnwise/core/themes/app_theme.dart';
+import 'package:learnwise/core/themes/app_theme_mode_controller.dart';
 import 'core/error/global_error_handler.dart';
 import 'core/network/auth_session.dart';
 // ignore: unused_import

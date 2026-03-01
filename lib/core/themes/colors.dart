@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+
+import 'constants/color_tokens.dart';
+
+/// Theme seed constants.
+///
+/// Must follow:
+/// - Keep this file minimal and stable.
+/// - Expose only seed-level constants needed by `ColorScheme.fromSeed`.
+///
+/// Forbidden:
+/// - Defining derived role colors (`onPrimary`, `onSecondary`, etc.).
+/// - Holding per-state semantic colors (success/warning/info) here.
+/// - Using this as a replacement for `ColorScheme`.
+class AppColors {
+  const AppColors._();
+
+  /// Material 3 seed color for generating [ColorScheme] via `fromSeed`.
+  static const Color primary = AppColorTokens.seedPrimary;
+  static const Color secondary = AppColorTokens.seedSecondary;
+  static const Color tertiary = AppColorTokens.seedTertiary;
+}

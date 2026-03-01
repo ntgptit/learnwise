@@ -7,10 +7,10 @@ class CoverageBudgetConst {
 
   static const String coverageFilePath = 'coverage/lcov.info';
   static const String configPath = 'coverage_guard.yaml';
-  static const String defaultLayerApp = 'app';
   static const String defaultLayerCore = 'core';
-  static const String defaultLayerCommon = 'common';
-  static const String defaultLayerFeatures = 'features';
+  static const String defaultLayerDomain = 'domain';
+  static const String defaultLayerData = 'data';
+  static const String defaultLayerPresentation = 'presentation';
   static const String defaultLayerOther = 'other';
 }
 
@@ -27,10 +27,10 @@ class CoverageBudgetConfig {
     return const CoverageBudgetConfig(
       minGlobalLineCoveragePercent: 20,
       minLayerCoveragePercent: <String, double>{
-        CoverageBudgetConst.defaultLayerApp: 40,
         CoverageBudgetConst.defaultLayerCore: 25,
-        CoverageBudgetConst.defaultLayerCommon: 3,
-        CoverageBudgetConst.defaultLayerFeatures: 25,
+        CoverageBudgetConst.defaultLayerDomain: 20,
+        CoverageBudgetConst.defaultLayerData: 20,
+        CoverageBudgetConst.defaultLayerPresentation: 25,
         CoverageBudgetConst.defaultLayerOther: 15,
       },
     );
@@ -216,17 +216,17 @@ void _accumulate(_CoverageCounter counter, int hitCount) {
 
 String _resolveLayer(String sourcePath) {
   final String normalized = _normalizePath(sourcePath);
-  if (normalized.startsWith('lib/app/')) {
-    return CoverageBudgetConst.defaultLayerApp;
-  }
   if (normalized.startsWith('lib/core/')) {
     return CoverageBudgetConst.defaultLayerCore;
   }
-  if (normalized.startsWith('lib/common/')) {
-    return CoverageBudgetConst.defaultLayerCommon;
+  if (normalized.startsWith('lib/domain/')) {
+    return CoverageBudgetConst.defaultLayerDomain;
   }
-  if (normalized.startsWith('lib/features/')) {
-    return CoverageBudgetConst.defaultLayerFeatures;
+  if (normalized.startsWith('lib/data/')) {
+    return CoverageBudgetConst.defaultLayerData;
+  }
+  if (normalized.startsWith('lib/presentation/')) {
+    return CoverageBudgetConst.defaultLayerPresentation;
   }
   return CoverageBudgetConst.defaultLayerOther;
 }

@@ -24,7 +24,7 @@ class StateContractConst {
   static const String lineCommentPrefix = '//';
 
   static const String viewFolderMarker = '/view/';
-  static const String commonWidgetsPrefix = 'lib/common/widgets/';
+  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
 }
 
 /// Represents a contract violation.

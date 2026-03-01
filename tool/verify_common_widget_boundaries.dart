@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 //
 // Purpose:
-// Enforce architectural boundaries for `lib/common/widgets`.
+// Enforce architectural boundaries for `lib/presentation/shared/widgets`.
 //
 // Philosophy:
 // - Common widgets must be render-only.
@@ -23,27 +23,27 @@ import 'dart:io';
 class CommonWidgetGuardConst {
   const CommonWidgetGuardConst._();
 
-  static const String commonWidgetDir = 'lib/common/widgets';
+  static const String commonWidgetDir = 'lib/presentation/shared/widgets';
 
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
   static const String freezedExtension = '.freezed.dart';
 
-  /// Explicitly forbidden files under common/widgets.
+  /// Explicitly forbidden files under shared/widgets.
   static const List<String> forbiddenCommonFiles = <String>[
-    'lib/common/widgets/audio/audio_waveform.dart',
-    'lib/common/widgets/quiz/quiz_timer.dart',
-    'lib/common/widgets/list/swipeable_list_item.dart',
+    'lib/presentation/shared/widgets/audio/audio_waveform.dart',
+    'lib/presentation/shared/widgets/quiz/quiz_timer.dart',
+    'lib/presentation/shared/widgets/list/swipeable_list_item.dart',
   ];
 
   /// Allowed StatefulWidget locations.
   static const List<String> statefulWhitelist = <String>[
-    'lib/common/widgets/animation/',
-    'lib/common/widgets/navigation/',
-    'lib/common/widgets/card/flashcard_flip.dart',
-    'lib/common/widgets/input/password_text_box.dart',
-    'lib/common/widgets/loader/shimmer_box.dart',
-    'lib/common/widgets/buttons/app_expandable_fab.dart',
+    'lib/presentation/shared/widgets/animation/',
+    'lib/presentation/shared/widgets/navigation/',
+    'lib/presentation/shared/widgets/card/flashcard_flip.dart',
+    'lib/presentation/shared/widgets/input/password_text_box.dart',
+    'lib/presentation/shared/widgets/loader/shimmer_box.dart',
+    'lib/presentation/shared/widgets/buttons/app_expandable_fab.dart',
   ];
 }
 
@@ -87,7 +87,7 @@ class ForbiddenFileRule extends CommonWidgetRule {
           GuardViolation(
             filePath: context.path,
             reason:
-                'Feature-bound widget is not allowed inside common/widgets.',
+                'Feature-bound widget is not allowed inside shared/widgets.',
             lineNumber: 1,
             lineContent: context.path,
           ),
@@ -268,7 +268,7 @@ Future<void> main() async {
 
   stderr.writeln('Common widget guard failed.');
   stderr.writeln(
-    'Keep common widgets render-only. Move feature-bound logic to features/*.',
+    'Keep shared widgets render-only. Move feature-bound logic to presentation/features/*.',
   );
 
   for (final violation in violations) {

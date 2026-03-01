@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/flashcards/model/flashcard_constants.dart';
-import 'package:learnwise/features/flashcards/view/validation/flashcard_form_schema.dart';
+import 'package:learnwise/domain/features/flashcards/model/flashcard_constants.dart';
+import 'package:learnwise/presentation/features/flashcards/view/validation/flashcard_form_schema.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 void main() {

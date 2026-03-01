@@ -11,4 +11,3 @@ feature:profile:missing_domain_tests
 feature:profile:missing_view_tests
 feature:profile:missing_viewmodel_tests
 feature:tts:missing_domain_tests
-feature:tts:missing_view_tests

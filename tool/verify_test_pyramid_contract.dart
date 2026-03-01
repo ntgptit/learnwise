@@ -5,7 +5,9 @@ import 'package:yaml/yaml.dart';
 class TestPyramidGuardConst {
   const TestPyramidGuardConst._();
 
-  static const String featuresDirectory = 'lib/features';
+  static const String featuresDirectory = 'lib/presentation/features';
+  static const String domainFeaturesDirectory = 'lib/domain/features';
+  static const String dataFeaturesDirectory = 'lib/data/features';
   static const String featureTestsDirectory = 'test/features';
   static const String integrationTestsDirectory = 'integration_test';
   static const String configPath = 'test_pyramid_guard.yaml';
@@ -143,7 +145,17 @@ Future<void> main(List<String> args) async {
     return;
   }
 
-  final List<FeatureShape> features = _collectFeatureShapes(featuresDirectory);
+  final Directory domainFeaturesDirectory = Directory(
+    TestPyramidGuardConst.domainFeaturesDirectory,
+  );
+  final Directory dataFeaturesDirectory = Directory(
+    TestPyramidGuardConst.dataFeaturesDirectory,
+  );
+  final List<FeatureShape> features = _collectFeatureShapes(
+    featuresDirectory,
+    domainFeaturesDirectory: domainFeaturesDirectory,
+    dataFeaturesDirectory: dataFeaturesDirectory,
+  );
   if (features.isEmpty) {
     stdout.writeln('Test pyramid guard skipped: no feature folders found.');
     return;
@@ -202,7 +214,11 @@ Future<void> main(List<String> args) async {
   exitCode = 1;
 }
 
-List<FeatureShape> _collectFeatureShapes(Directory featuresDirectory) {
+List<FeatureShape> _collectFeatureShapes(
+  Directory featuresDirectory, {
+  required Directory domainFeaturesDirectory,
+  required Directory dataFeaturesDirectory,
+}) {
   final List<FeatureShape> features = <FeatureShape>[];
   final List<FileSystemEntity> children = featuresDirectory.listSync();
   final List<Directory> featureDirectories =
@@ -213,21 +229,41 @@ List<FeatureShape> _collectFeatureShapes(Directory featuresDirectory) {
     final String featureName = featureDirectory
         .uri
         .pathSegments[featureDirectory.uri.pathSegments.length - 2];
-    final List<String> filePaths = _collectDartPaths(featureDirectory);
+    final List<String> presentationFilePaths = _collectDartPaths(
+      featureDirectory,
+    );
+    final List<String> domainFilePaths = _collectLayerFeaturePaths(
+      rootDirectory: domainFeaturesDirectory,
+      featureName: featureName,
+    );
+    final List<String> dataFilePaths = _collectLayerFeaturePaths(
+      rootDirectory: dataFeaturesDirectory,
+      featureName: featureName,
+    );
+    final List<String> filePaths = <String>[
+      ...presentationFilePaths,
+      ...domainFilePaths,
+      ...dataFilePaths,
+    ];
     if (filePaths.isEmpty) {
       continue;
     }
 
-    final bool hasViewModel = filePaths.any(
+    final bool hasViewModel = presentationFilePaths.any(
       (path) => path.contains('/viewmodel/'),
     );
     final bool hasDomainLogic = filePaths.any(
       (path) =>
-          path.contains('/repository/') ||
-          path.contains('/service/') ||
-          path.contains('/engine/'),
+          (path.contains('/domain/features/$featureName/') ||
+              path.contains('/data/features/$featureName/')) &&
+          (path.contains('/repository/') ||
+              path.contains('/service/') ||
+              path.contains('/engine/') ||
+              path.contains('/model/')),
     );
-    final bool hasView = filePaths.any((path) => path.contains('/view/'));
+    final bool hasView = presentationFilePaths.any(
+      (path) => path.contains('/view/'),
+    );
 
     features.add(
       FeatureShape(
@@ -240,6 +276,22 @@ List<FeatureShape> _collectFeatureShapes(Directory featuresDirectory) {
   }
 
   return features;
+}
+
+List<String> _collectLayerFeaturePaths({
+  required Directory rootDirectory,
+  required String featureName,
+}) {
+  if (!rootDirectory.existsSync()) {
+    return const <String>[];
+  }
+  final Directory featureDirectory = Directory(
+    '${rootDirectory.path}/$featureName',
+  );
+  if (!featureDirectory.existsSync()) {
+    return const <String>[];
+  }
+  return _collectDartPaths(featureDirectory);
 }
 
 Map<String, FeatureTestShape> _collectFeatureTestShapes({

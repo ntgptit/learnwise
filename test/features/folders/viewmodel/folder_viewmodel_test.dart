@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
-import 'package:learnwise/features/folders/model/folder_models.dart';
-import 'package:learnwise/features/folders/repository/folder_repository_provider.dart';
-import 'package:learnwise/features/folders/repository/folder_repository.dart';
-import 'package:learnwise/features/folders/viewmodel/folder_viewmodel.dart';
+import 'package:learnwise/domain/features/folders/model/folder_models.dart';
+import 'package:learnwise/data/features/folders/repository/folder_repository_provider.dart';
+import 'package:learnwise/data/features/folders/repository/folder_repository.dart';
+import 'package:learnwise/presentation/features/folders/viewmodel/folder_viewmodel.dart';
 
 class FakeFolderRepository implements FolderRepository {
   int getFoldersCalls = 0;

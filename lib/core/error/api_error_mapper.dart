@@ -4,7 +4,7 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../features/tts/model/tts_exceptions.dart';
+import 'package:learnwise/domain/features/tts/model/tts_exceptions.dart';
 import '../network/api_constants.dart';
 import '../utils/string_utils.dart';
 import 'app_exception.dart';

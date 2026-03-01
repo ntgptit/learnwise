@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/study/model/study_unit.dart';
-import 'package:learnwise/features/study/view/widgets/recall_study_mode_view.dart';
+import 'package:learnwise/domain/features/study/model/study_unit.dart';
+import 'package:learnwise/presentation/features/study/view/widgets/recall_study_mode_view.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 void main() {

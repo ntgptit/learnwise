@@ -2,17 +2,17 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
-import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
-import 'package:learnwise/features/study/engine/fill_study_engine.dart';
-import 'package:learnwise/features/study/engine/guess_study_engine.dart';
-import 'package:learnwise/features/study/engine/match_study_engine.dart';
-import 'package:learnwise/features/study/engine/recall_study_engine.dart';
-import 'package:learnwise/features/study/engine/review_study_engine.dart';
-import 'package:learnwise/features/study/engine/study_engine_factory.dart';
-import 'package:learnwise/features/study/model/study_answer.dart';
-import 'package:learnwise/features/study/model/study_constants.dart';
-import 'package:learnwise/features/study/model/study_mode.dart';
-import 'package:learnwise/features/study/model/study_unit.dart';
+import 'package:learnwise/domain/features/flashcards/model/flashcard_models.dart';
+import 'package:learnwise/domain/features/study/engine/fill_study_engine.dart';
+import 'package:learnwise/domain/features/study/engine/guess_study_engine.dart';
+import 'package:learnwise/domain/features/study/engine/match_study_engine.dart';
+import 'package:learnwise/domain/features/study/engine/recall_study_engine.dart';
+import 'package:learnwise/domain/features/study/engine/review_study_engine.dart';
+import 'package:learnwise/domain/features/study/engine/study_engine_factory.dart';
+import 'package:learnwise/domain/features/study/model/study_answer.dart';
+import 'package:learnwise/domain/features/study/model/study_constants.dart';
+import 'package:learnwise/domain/features/study/model/study_mode.dart';
+import 'package:learnwise/domain/features/study/model/study_unit.dart';
 
 void main() {
   group('Study engines', () {

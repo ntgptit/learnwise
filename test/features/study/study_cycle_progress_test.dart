@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/study/model/study_cycle_progress.dart';
-import 'package:learnwise/features/study/model/study_mode.dart';
-import 'package:learnwise/features/study/model/study_session_args.dart';
+import 'package:learnwise/domain/features/study/model/study_cycle_progress.dart';
+import 'package:learnwise/domain/features/study/model/study_mode.dart';
+import 'package:learnwise/domain/features/study/model/study_session_args.dart';
 
 void main() {
   group('study cycle progress', () {

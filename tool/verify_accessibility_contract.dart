@@ -17,8 +17,8 @@ class AccessibilityContractConst {
   const AccessibilityContractConst._();
 
   static const String libDirectory = 'lib';
-  static const String commonWidgetsPrefix = 'lib/common/widgets/';
-  static const String featurePrefix = 'lib/features/';
+  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String featurePrefix = 'lib/presentation/features/';
   static const String featureViewMarker = '/view/';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';

@@ -1,10 +1,18 @@
 [
   {
-    "file": "lib/common/styles/icons.dart",
+    "file": "lib/presentation/shared/styles/app_radius.dart",
     "line": 1,
     "severity": "INFO",
     "rule": "UnusedFilesRule",
     "reason": "Potentially unused Dart file. Remove/merge or connect it to the import graph.",
-    "content": "lib/common/styles/icons.dart"
+    "content": "lib/presentation/shared/styles/app_radius.dart"
+  },
+  {
+    "file": "lib/presentation/shared/styles/icons.dart",
+    "line": 1,
+    "severity": "INFO",
+    "rule": "UnusedFilesRule",
+    "reason": "Potentially unused Dart file. Remove/merge or connect it to the import graph.",
+    "content": "lib/presentation/shared/styles/icons.dart"
   }
 ]

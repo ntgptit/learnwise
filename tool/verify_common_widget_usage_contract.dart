@@ -4,7 +4,7 @@ class CommonWidgetUsageGuardConst {
   const CommonWidgetUsageGuardConst._();
 
   static const String libDirectory = 'lib';
-  static const String commonWidgetsPrefix = 'lib/common/widgets/';
+  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
   static const String baselinePath = 'tool/common_widget_usage_baseline.txt';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
@@ -76,7 +76,7 @@ Future<void> main(List<String> args) async {
     stderr.writeln(
       '${violation.path}:${violation.line}: '
       'Disallowed Flutter widget `${violation.widgetName}`. '
-      'Use `${violation.replacement}` from `lib/common/widgets`.',
+      'Use `${violation.replacement}` from `lib/presentation/shared/widgets`.',
     );
   }
   _printStaleBaselineHint(staleBaselineIds);

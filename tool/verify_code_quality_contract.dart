@@ -444,7 +444,9 @@ String? _resolveImportPath({required String fromPath, required String uri}) {
 
 bool _isModelFile(String path) {
   if (path.startsWith('lib/core/model/')) return true;
-  if (path.startsWith('lib/features/') && path.contains('/model/')) return true;
+  if (path.startsWith('lib/domain/features/') && path.contains('/model/')) {
+    return true;
+  }
   return false;
 }
 
@@ -461,7 +463,7 @@ bool _isRepositoryOrServiceFile(String path) {
 }
 
 bool _isUiFile(String path) {
-  if (path.startsWith('lib/common/widgets/')) return true;
+  if (path.startsWith('lib/presentation/shared/widgets/')) return true;
   if (path.contains('/view/')) return true;
   return false;
 }

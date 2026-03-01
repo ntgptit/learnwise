@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/study/model/study_interaction_feedback_state.dart';
-import 'package:learnwise/features/study/model/study_unit.dart';
-import 'package:learnwise/features/study/view/widgets/guess_study_mode_view.dart';
+import 'package:learnwise/domain/features/study/model/study_interaction_feedback_state.dart';
+import 'package:learnwise/domain/features/study/model/study_unit.dart';
+import 'package:learnwise/presentation/features/study/view/widgets/guess_study_mode_view.dart';
 
 void main() {
   group('GuessStudyModeView', () {

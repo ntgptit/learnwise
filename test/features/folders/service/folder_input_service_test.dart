@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/folders/model/folder_models.dart';
-import 'package:learnwise/features/folders/service/folder_input_service.dart';
+import 'package:learnwise/domain/features/folders/model/folder_models.dart';
+import 'package:learnwise/data/features/folders/service/folder_input_service.dart';
 
 void main() {
   const FolderInputService service = FolderInputService();

@@ -6,7 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../app/config/app_config.dart';
+import 'package:learnwise/core/config/app_config.dart';
 import '../error/api_error_mapper.dart';
 import '../error/app_exception.dart';
 import '../error/error_code.dart';

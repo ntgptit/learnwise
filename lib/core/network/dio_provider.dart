@@ -2,8 +2,8 @@
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../app/config/app_config.dart';
-import '../../app/config/app_constants.dart';
+import 'package:learnwise/core/config/app_config.dart';
+import 'package:learnwise/core/config/app_constants.dart';
 import '../utils/string_utils.dart';
 import 'api_constants.dart';
 import 'auth_session.dart';

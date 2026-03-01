@@ -56,5 +56,3 @@ StudySessionController.playAudioFor
 StudySessionMeta.patch
 StudySessionRuntime.patch
 StudySessionState.copyWith
-TtsController.selectVoice
-TtsController.stopReading

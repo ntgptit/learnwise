@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
-import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
-import 'package:learnwise/features/study/model/study_answer.dart';
-import 'package:learnwise/features/study/model/study_constants.dart';
-import 'package:learnwise/features/study/model/study_mode.dart';
-import 'package:learnwise/features/study/model/study_session_args.dart';
-import 'package:learnwise/features/study/model/study_session_models.dart';
-import 'package:learnwise/features/study/model/study_unit.dart';
-import 'package:learnwise/features/study/repository/study_session_repository.dart';
-import 'package:learnwise/features/study/repository/study_session_repository_provider.dart';
-import 'package:learnwise/features/study/viewmodel/study_session_viewmodel.dart';
+import 'package:learnwise/domain/features/flashcards/model/flashcard_models.dart';
+import 'package:learnwise/domain/features/study/model/study_answer.dart';
+import 'package:learnwise/domain/features/study/model/study_constants.dart';
+import 'package:learnwise/domain/features/study/model/study_mode.dart';
+import 'package:learnwise/domain/features/study/model/study_session_args.dart';
+import 'package:learnwise/domain/features/study/model/study_session_models.dart';
+import 'package:learnwise/domain/features/study/model/study_unit.dart';
+import 'package:learnwise/data/features/study/repository/study_session_repository.dart';
+import 'package:learnwise/data/features/study/repository/study_session_repository_provider.dart';
+import 'package:learnwise/presentation/features/study/viewmodel/study_session_viewmodel.dart';
 
 void main() {
   group('StudySessionController review mode', () {

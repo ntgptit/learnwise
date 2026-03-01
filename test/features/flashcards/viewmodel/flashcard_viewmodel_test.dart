@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/model/audit_metadata.dart';
-import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
-import 'package:learnwise/features/flashcards/repository/flashcard_repository_provider.dart';
-import 'package:learnwise/features/flashcards/repository/flashcard_repository.dart';
-import 'package:learnwise/features/flashcards/viewmodel/flashcard_viewmodel.dart';
+import 'package:learnwise/domain/features/flashcards/model/flashcard_models.dart';
+import 'package:learnwise/data/features/flashcards/repository/flashcard_repository_provider.dart';
+import 'package:learnwise/data/features/flashcards/repository/flashcard_repository.dart';
+import 'package:learnwise/presentation/features/flashcards/viewmodel/flashcard_viewmodel.dart';
 
 class FakeFlashcardRepository implements FlashcardRepository {
   int getFlashcardsCalls = 0;

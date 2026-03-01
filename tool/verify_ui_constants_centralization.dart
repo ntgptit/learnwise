@@ -13,8 +13,8 @@ import 'dart:io';
 ///     - AppScreenTokens
 ///
 /// Phạm vi áp dụng:
-/// - lib/common/widgets/
-/// - lib/features/**/view/
+/// - lib/presentation/shared/widgets/
+/// - lib/presentation/features/**/view/
 ///
 /// Bỏ qua:
 /// - .g.dart
@@ -28,8 +28,8 @@ class UiConstantsGuardConst {
   static const String freezedExtension = '.freezed.dart';
   static const String lineCommentPrefix = '//';
 
-  static const String commonWidgetsPrefix = 'lib/common/widgets/';
-  static const String featurePrefix = 'lib/features/';
+  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String featurePrefix = 'lib/presentation/features/';
   static const String featureViewMarker = '/view/';
   static const String featureUiConstSuffix = '_ui_const.dart';
 }

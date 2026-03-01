@@ -1,0 +1,17 @@
+lib/presentation/features/dashboard/view/widgets/sections/metric_section.dart:53:LwMetricCard:backgroundColor
+lib/presentation/features/flashcards/view/flashcard_management_screen.dart:1220:LwCard:backgroundColor
+lib/presentation/features/flashcards/view/widgets/flashcard_content_card.dart:124:LwActionIconItem:activeColor
+lib/presentation/features/flashcards/view/widgets/flashcard_content_card.dart:142:LwActionIconItem:activeColor
+lib/presentation/features/flashcards/view/widgets/flashcard_content_card.dart:70:LwCard:backgroundColor
+lib/presentation/features/flashcards/view/widgets/flashcard_mock_banner.dart:20:LwCard:backgroundColor
+lib/presentation/features/flashcards/view/widgets/flashcard_preview_carousel.dart:81:LwCard:backgroundColor
+lib/presentation/features/folders/view/folder_screen.dart:132:AppBar:foregroundColor
+lib/presentation/features/study/view/screens/study_session/parts/study_unit_body.dart:98:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/fill_study_mode_view.dart:271:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/fill_study_mode_view.dart:338:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/fill_study_mode_view.dart:373:LwTextField:fillColor
+lib/presentation/features/study/view/widgets/guess_study_mode_view.dart:102:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/guess_study_mode_view.dart:214:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/match_study_mode_view.dart:288:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/recall_study_mode_view.dart:247:LwCard:backgroundColor
+lib/presentation/features/study/view/widgets/review_study_mode_view.dart:276:LwCard:backgroundColor

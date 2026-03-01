@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/common/widgets/widgets.dart';
-import 'package:learnwise/features/flashcards/view/widgets/flashcard_mock_banner.dart';
+import 'package:learnwise/presentation/shared/widgets/widgets.dart';
+import 'package:learnwise/presentation/features/flashcards/view/widgets/flashcard_mock_banner.dart';
 import 'package:learnwise/l10n/app_localizations.dart';
 
 void main() {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/folders/model/folder_constants.dart';
-import 'package:learnwise/features/folders/view/validation/folder_form_schema.dart';
+import 'package:learnwise/domain/features/folders/model/folder_constants.dart';
+import 'package:learnwise/presentation/features/folders/view/validation/folder_form_schema.dart';
 import 'package:reactive_forms/reactive_forms.dart';
 
 void main() {

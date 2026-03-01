@@ -28,14 +28,26 @@ jobs:
       - name: Enforce CI Guard Parity
         run: dart run tool/verify_ci_guard_parity.dart
 
+      - name: Enforce Consolidated Frontend Checklists
+        run: dart run tool/verify_frontend_checklists.dart
+
       - name: Enforce Riverpod Annotation DI
         run: dart run tool/verify_riverpod_annotation.dart
+
+      - name: Enforce Riverpod Layout State Contract
+        run: dart run tool/verify_riverpod_layout_state_contract.dart
 
       - name: Enforce State Management Contract
         run: dart run tool/verify_state_management_contract.dart
 
+      - name: Enforce UI Logic Separation Contract
+        run: dart run tool/verify_ui_logic_separation_contract.dart
+
       - name: Enforce Navigation go_router Contract
         run: dart run tool/verify_navigation_go_router_contract.dart
+
+      - name: Enforce Opacity Constants Contract
+        run: dart run tool/verify_opacity_constants_contract.dart
 
       - name: Enforce Common Widget Boundaries
         run: dart run tool/verify_common_widget_boundaries.dart
@@ -51,6 +63,24 @@ jobs:
 
       - name: Enforce Theme Contract
         run: dart run tool/verify_theme_contract.dart
+
+      - name: Enforce Component Theme Usage Contract
+        run: dart run tool/verify_component_theme_usage_contract.dart
+
+      - name: Enforce Feature Surface Contract
+        run: dart run tool/verify_feature_surface_contract.dart
+
+      - name: Enforce Feature Architecture Contract
+        run: dart run tool/verify_feature_architecture_contract.dart
+
+      - name: Enforce Shared Widget Override Contract
+        run: dart run tool/verify_shared_widget_override_contract.dart
+
+      - name: Enforce Shared Widgets M3 Coverage
+        run: dart run tool/verify_shared_widgets_m3_coverage.dart
+
+      - name: Enforce Color Scheme Usage Contract
+        run: dart run tool/verify_color_scheme_usage_contract.dart
 
       - name: Enforce Accessibility Contract
         run: dart run tool/verify_accessibility_contract.dart

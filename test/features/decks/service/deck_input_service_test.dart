@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/decks/model/deck_models.dart';
-import 'package:learnwise/features/decks/service/deck_input_service.dart';
+import 'package:learnwise/domain/features/decks/model/deck_models.dart';
+import 'package:learnwise/data/features/decks/service/deck_input_service.dart';
 
 void main() {
   const DeckInputService service = DeckInputService();

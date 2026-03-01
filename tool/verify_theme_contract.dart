@@ -28,8 +28,8 @@ class ThemeContractConst {
   const ThemeContractConst._();
 
   static const String pubspecPath = 'pubspec.yaml';
-  static const String appThemePath = 'lib/app/theme/app_theme.dart';
-  static const String colorSchemesPath = 'lib/app/theme/color_schemes.dart';
+  static const String appThemePath = 'lib/core/themes/app_theme.dart';
+  static const String colorSchemesPath = 'lib/core/themes/color_schemes.dart';
   static const String mainPath = 'lib/main.dart';
 
   static const String allowNoDynamicColorMarker =

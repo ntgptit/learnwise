@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:learnwise/core/error/app_error_bus.dart';
 import 'package:learnwise/core/error/error_code.dart';
-import 'package:learnwise/features/tts/model/tts_models.dart';
-import 'package:learnwise/features/tts/repository/tts_repository.dart';
-import 'package:learnwise/features/tts/viewmodel/tts_state.dart';
-import 'package:learnwise/features/tts/viewmodel/tts_viewmodel.dart';
+import 'package:learnwise/domain/features/tts/model/tts_models.dart';
+import 'package:learnwise/data/features/tts/repository/tts_repository.dart';
+import 'package:learnwise/presentation/features/tts/viewmodel/tts_state.dart';
+import 'package:learnwise/presentation/features/tts/viewmodel/tts_viewmodel.dart';
 
 class FakeTtsRepository implements TtsRepository {
   bool failInit = false;

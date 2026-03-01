@@ -31,10 +31,10 @@ class UiDesignGuardConst {
   static const String lineCommentPrefix = '//';
 
   /// UI layer markers.
-  static const String commonWidgetsPrefix = 'lib/common/widgets/';
-  static const String featurePrefix = 'lib/features/';
+  static const String commonWidgetsPrefix = 'lib/presentation/shared/widgets/';
+  static const String featurePrefix = 'lib/presentation/features/';
   static const String featureViewMarker = '/view/';
-  static const String appWidgetsPrefix = 'lib/app/widgets/';
+  static const String appWidgetsPrefix = 'lib/presentation/shared/widgets/';
 
   /// Mobile breakpoint policy (dp).
   static const double mobileBreakpointMax = 600;
@@ -229,9 +229,9 @@ String _normalizePath(String path) => path.replaceAll('\\', '/');
 /// Determine if a file is considered UI layer.
 ///
 /// UI layer includes:
-/// - lib/app/widgets/*
-/// - lib/common/widgets/*
-/// - lib/features/*/view/*
+/// - lib/presentation/shared/widgets/*
+/// - lib/presentation/shared/widgets/*
+/// - lib/presentation/features/*/view/*
 bool _isUiLayerFile(String path) {
   if (path.startsWith(UiDesignGuardConst.appWidgetsPrefix)) {
     return true;

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:learnwise/features/flashcards/model/flashcard_models.dart';
-import 'package:learnwise/features/flashcards/service/flashcard_input_service.dart';
+import 'package:learnwise/domain/features/flashcards/model/flashcard_models.dart';
+import 'package:learnwise/data/features/flashcards/service/flashcard_input_service.dart';
 
 void main() {
   const FlashcardInputService service = FlashcardInputService();

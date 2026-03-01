@@ -8,7 +8,7 @@ import 'dart:io';
 /// - Với màn hình list/grid: ưu tiên skeleton/shimmer thay vì chỉ dùng spinner.
 ///
 /// Phạm vi quét:
-/// - Chỉ quét các file trong: `lib/features/**/view/**.dart`
+/// - Chỉ quét các file trong: `lib/presentation/features/**/view/**.dart`
 /// - Bỏ qua file generated/freezed: `*.g.dart`, `*.freezed.dart`
 ///
 /// Markers (opt-out có giải trình):
@@ -29,7 +29,7 @@ class UiStateScalabilityConst {
   const UiStateScalabilityConst._();
 
   static const String libDirectory = 'lib';
-  static const String featurePrefix = 'lib/features/';
+  static const String featurePrefix = 'lib/presentation/features/';
   static const String featureViewMarker = '/view/';
   static const String dartExtension = '.dart';
   static const String generatedExtension = '.g.dart';
